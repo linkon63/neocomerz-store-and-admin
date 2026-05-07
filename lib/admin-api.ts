@@ -41,6 +41,18 @@ export type Tag = {
   };
 };
 
+export type AttributeValue = {
+  id: string;
+  value: string;
+  attributeId?: string;
+};
+
+export type Attribute = {
+  id: string;
+  name: string;
+  values?: AttributeValue[];
+};
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/v1";
 
 export function getAdminToken() {
