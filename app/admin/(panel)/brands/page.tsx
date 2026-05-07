@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { AdminIcon, PageHeader } from "../../_components/admin-shell";
+import { ConfirmModal } from "../../_components/confirm-modal";
 import {
   apiRequest,
   formatDate,
@@ -34,12 +35,16 @@ export default function BrandsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [brandToDelete, setBrandToDelete] = useState<Brand | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
   const filteredBrands = useMemo(() => {
     return brands.filter((brand) =>
-      `${brand.name} ${brand.slug}`.toLowerCase().includes(search.toLowerCase()),
+      `${brand.name} ${brand.slug}`
+        .toLowerCase()
+        .includes(search.toLowerCase()),
     );
   }, [brands, search]);
 
@@ -109,15 +114,27 @@ export default function BrandsPage() {
   }
 
   async function deleteBrand(brand: Brand) {
-    if (!window.confirm(`Delete ${brand.name}?`)) return;
+    setBrandToDelete(brand);
+    setDeleteModalOpen(true);
+  }
+
+  async function confirmDelete() {
+    if (!brandToDelete) return;
 
     setError("");
     try {
-      await apiRequest(`/brands/${brand.id}`, { method: "DELETE" });
+      await apiRequest(`/brands/${brandToDelete.id}`, { method: "DELETE" });
+      setDeleteModalOpen(false);
+      setBrandToDelete(null);
       await loadBrands();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete brand");
     }
+  }
+
+  function cancelDelete() {
+    setDeleteModalOpen(false);
+    setBrandToDelete(null);
   }
 
   function openAddModal() {
@@ -160,7 +177,8 @@ export default function BrandsPage() {
     }));
   }
 
-  const visibleLogoPreview = logoPreviewUrl ?? (form.removeLogo ? null : form.logoUrl);
+  const visibleLogoPreview =
+    logoPreviewUrl ?? (form.removeLogo ? null : form.logoUrl);
 
   return (
     <>
@@ -211,25 +229,36 @@ export default function BrandsPage() {
             <table className="w-full min-w-[880px] text-left">
               <thead className="bg-slate-50">
                 <tr>
-                  {["Name", "Logo", "Slug", "Products", "Created", "Actions"].map(
-                    (heading) => (
-                      <th className="px-5 py-4 font-black" key={heading}>
-                        {heading}
-                      </th>
-                    ),
-                  )}
+                  {[
+                    "Name",
+                    "Logo",
+                    "Slug",
+                    "Products",
+                    "Created",
+                    "Actions",
+                  ].map((heading) => (
+                    <th className="px-5 py-4 font-black" key={heading}>
+                      {heading}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {isLoading ? (
                   <tr>
-                    <td className="px-5 py-8 font-bold text-slate-500" colSpan={6}>
+                    <td
+                      className="px-5 py-8 font-bold text-slate-500"
+                      colSpan={6}
+                    >
                       Loading brands...
                     </td>
                   </tr>
                 ) : (
                   filteredBrands.map((brand) => (
-                    <tr className="odd:bg-white even:bg-slate-50/70" key={brand.id}>
+                    <tr
+                      className="odd:bg-white even:bg-slate-50/70"
+                      key={brand.id}
+                    >
                       <td className="px-5 py-4 font-bold text-slate-800">
                         {brand.name}
                       </td>
@@ -243,7 +272,10 @@ export default function BrandsPage() {
                           />
                         ) : (
                           <div className="grid h-12 w-12 place-items-center rounded-lg border border-slate-200 bg-white text-xl">
-                            <AdminIcon className="h-5 w-5 text-slate-400" name="brand" />
+                            <AdminIcon
+                              className="h-5 w-5 text-slate-400"
+                              name="brand"
+                            />
                           </div>
                         )}
                       </td>
@@ -334,7 +366,10 @@ export default function BrandsPage() {
                 <input
                   className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                   onChange={(event) =>
-                    setForm((current) => ({ ...current, slug: event.target.value }))
+                    setForm((current) => ({
+                      ...current,
+                      slug: event.target.value,
+                    }))
                   }
                   required
                   value={form.slug}
@@ -415,14 +450,32 @@ export default function BrandsPage() {
                   disabled={isSaving}
                   type="submit"
                 >
-                  <AdminIcon className="h-5 w-5" name={form.id ? "check" : "plus"} />
-                  {isSaving ? "Saving..." : form.id ? "Update Brand" : "Add Brand"}
+                  <AdminIcon
+                    className="h-5 w-5"
+                    name={form.id ? "check" : "plus"}
+                  />
+                  {isSaving
+                    ? "Saving..."
+                    : form.id
+                      ? "Update Brand"
+                      : "Add Brand"}
                 </button>
               </div>
             </div>
           </form>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={deleteModalOpen}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        title="Delete Brand"
+        message={`Are you sure you want to delete "${brandToDelete?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDestructive={true}
+      />
     </>
   );
 }

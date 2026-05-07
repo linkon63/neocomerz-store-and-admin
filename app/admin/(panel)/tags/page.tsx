@@ -1,7 +1,12 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { AdminIcon, PageHeader, StatusToggle } from "../../_components/admin-shell";
+import {
+  AdminIcon,
+  PageHeader,
+  StatusToggle,
+} from "../../_components/admin-shell";
+import { ConfirmModal } from "../../_components/confirm-modal";
 import {
   apiRequest,
   formatDate,
@@ -32,6 +37,8 @@ export default function TagsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [tagToDelete, setTagToDelete] = useState<Tag | null>(null);
 
   const filteredTags = useMemo(() => {
     return tags.filter((tag) =>
@@ -119,15 +126,27 @@ export default function TagsPage() {
   }
 
   async function deleteTag(tag: Tag) {
-    if (!window.confirm(`Delete ${tag.name}?`)) return;
+    setTagToDelete(tag);
+    setDeleteModalOpen(true);
+  }
+
+  async function confirmDelete() {
+    if (!tagToDelete) return;
 
     setError("");
     try {
-      await apiRequest(`/tags/${tag.id}`, { method: "DELETE" });
+      await apiRequest(`/tags/${tagToDelete.id}`, { method: "DELETE" });
+      setDeleteModalOpen(false);
+      setTagToDelete(null);
       await loadTags();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete tag");
     }
+  }
+
+  function cancelDelete() {
+    setDeleteModalOpen(false);
+    setTagToDelete(null);
   }
 
   return (
@@ -180,25 +199,37 @@ export default function TagsPage() {
             <table className="w-full min-w-[900px] text-left">
               <thead className="bg-slate-50">
                 <tr>
-                  {["Name", "Slug", "Description", "Products", "Created", "Status", "Actions"].map(
-                    (heading) => (
-                      <th className="px-5 py-4 font-black" key={heading}>
-                        {heading}
-                      </th>
-                    ),
-                  )}
+                  {[
+                    "Name",
+                    "Slug",
+                    "Description",
+                    "Products",
+                    "Created",
+                    "Status",
+                    "Actions",
+                  ].map((heading) => (
+                    <th className="px-5 py-4 font-black" key={heading}>
+                      {heading}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {isLoading ? (
                   <tr>
-                    <td className="px-5 py-8 font-bold text-slate-500" colSpan={7}>
+                    <td
+                      className="px-5 py-8 font-bold text-slate-500"
+                      colSpan={7}
+                    >
                       Loading tags...
                     </td>
                   </tr>
                 ) : (
                   filteredTags.map((tag) => (
-                    <tr className="odd:bg-white even:bg-slate-50/70" key={tag.id}>
+                    <tr
+                      className="odd:bg-white even:bg-slate-50/70"
+                      key={tag.id}
+                    >
                       <td className="px-5 py-4 font-bold text-slate-800">
                         {tag.name}
                       </td>
@@ -302,7 +333,10 @@ export default function TagsPage() {
                 <input
                   className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                   onChange={(event) =>
-                    setForm((current) => ({ ...current, slug: event.target.value }))
+                    setForm((current) => ({
+                      ...current,
+                      slug: event.target.value,
+                    }))
                   }
                   required
                   value={form.slug}
@@ -356,7 +390,10 @@ export default function TagsPage() {
                   disabled={isSaving}
                   type="submit"
                 >
-                  <AdminIcon className="h-5 w-5" name={form.id ? "check" : "plus"} />
+                  <AdminIcon
+                    className="h-5 w-5"
+                    name={form.id ? "check" : "plus"}
+                  />
                   {isSaving ? "Saving..." : form.id ? "Update Tag" : "Add Tag"}
                 </button>
               </div>
@@ -364,6 +401,17 @@ export default function TagsPage() {
           </form>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={deleteModalOpen}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        title="Delete Tag"
+        message={`Are you sure you want to delete "${tagToDelete?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDestructive={true}
+      />
     </>
   );
 }
