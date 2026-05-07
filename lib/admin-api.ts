@@ -53,6 +53,53 @@ export type Attribute = {
   values?: AttributeValue[];
 };
 
+export type ProductMedia = {
+  id: string;
+  isFeatured: boolean;
+  sortOrder: number;
+  media: {
+    id: string;
+    url: string;
+    type: "image" | "video";
+  };
+};
+
+export type ProductVariant = {
+  id: string;
+  sku: string;
+  price: string | number;
+  cost?: string | number | null;
+  stockQuantity: number;
+  stockAlertThreshold: number;
+  isDefault: boolean;
+  createdAt?: string;
+};
+
+export type Product = {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  status: "active" | "inactive" | "draft";
+  createdAt?: string;
+  updatedAt?: string;
+  brand?: Brand | null;
+  brandId?: string;
+  category?: Category | null;
+  categoryId?: string;
+  media?: ProductMedia[];
+  variants?: ProductVariant[];
+};
+
+export type PaginatedProducts = {
+  data: Product[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+  };
+};
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/v1";
 
 export function getAdminToken() {
