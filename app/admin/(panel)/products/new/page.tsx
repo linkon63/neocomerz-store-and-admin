@@ -7,6 +7,7 @@ import { AdminIcon, PageHeader } from "../../../_components/admin-shell";
 import {
   apiRequest,
   slugify,
+  type Attribute,
   type Brand,
   type Category,
   type Product,
@@ -29,6 +30,7 @@ type ProductCreateForm = {
   price: string;
   cost: string;
   stockQuantity: string;
+  attributeValueIds: string[];
   images: File[];
 };
 
@@ -44,6 +46,7 @@ const emptyForm: ProductCreateForm = {
   price: "",
   cost: "",
   stockQuantity: "0",
+  attributeValueIds: [],
   images: [],
 };
 
@@ -58,6 +61,7 @@ export default function NewProductPage() {
   const router = useRouter();
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [variantOptions, setVariantOptions] = useState<Attribute[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
   const [form, setForm] = useState<ProductCreateForm>(emptyForm);
   const [error, setError] = useState("");
@@ -75,15 +79,17 @@ export default function NewProductPage() {
       setError("");
 
       try {
-        const [brandList, categoryList, unitList] = await Promise.all([
+        const [brandList, categoryList, unitList, attributeList] = await Promise.all([
           apiRequest<Brand[]>("/brands"),
           apiRequest<Category[]>("/category"),
           apiRequest<Unit[]>("/units"),
+          apiRequest<Attribute[]>("/attributes"),
         ]);
         const activeUnits = unitList.filter((unit) => unit.isActive);
 
         setBrands(brandList);
         setCategories(categoryList);
+        setVariantOptions(attributeList);
         setUnits(activeUnits);
         setForm((current) => ({
           ...current,
@@ -138,6 +144,19 @@ export default function NewProductPage() {
     setForm((current) => ({ ...current, images: [] }));
   }
 
+  function toggleAttributeValue(valueId: string) {
+    setForm((current) => {
+      const exists = current.attributeValueIds.includes(valueId);
+
+      return {
+        ...current,
+        attributeValueIds: exists
+          ? current.attributeValueIds.filter((id) => id !== valueId)
+          : [...current.attributeValueIds, valueId],
+      };
+    });
+  }
+
   async function uploadImages(productId: string) {
     await Promise.all(
       form.images.map((image, index) => {
@@ -169,6 +188,7 @@ export default function NewProductPage() {
         cost: form.cost ? Number(form.cost) : undefined,
         stockQuantity: Number(form.stockQuantity || 0),
         isDefault: true,
+        attributeValueIds: form.attributeValueIds,
       }),
     });
   }
@@ -427,6 +447,58 @@ export default function NewProductPage() {
                   value={form.stockQuantity}
                 />
               </label>
+            </div>
+
+            <div className="mt-5 border-t border-slate-100 pt-5">
+              <div className="mb-4 flex flex-col gap-1">
+                <h3 className="text-base font-black">Variant options</h3>
+                <p className="text-sm font-medium text-slate-500">
+                  Select values created in Variant Options, such as Color or Size.
+                </p>
+              </div>
+              {variantOptions.length > 0 ? (
+                <div className="space-y-4">
+                  {variantOptions.map((option) => (
+                    <div key={option.id}>
+                      <p className="mb-2 text-sm font-black text-slate-700">
+                        {option.name}
+                      </p>
+                      {(option.values ?? []).length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {option.values?.map((value) => {
+                            const selected = form.attributeValueIds.includes(value.id);
+
+                            return (
+                              <button
+                                className={`rounded-lg border px-3 py-2 text-sm font-black ${
+                                  selected
+                                    ? "border-blue-600 bg-blue-50 text-blue-700"
+                                    : "border-slate-300 bg-white text-slate-700"
+                                }`}
+                                key={value.id}
+                                onClick={() => toggleAttributeValue(value.id)}
+                                type="button"
+                              >
+                                {value.value}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <p className="text-sm font-medium text-slate-500">
+                          No values added for this option.
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
+                  <p className="font-medium text-slate-600">
+                    No variant options found. Add options from Variant Options first.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
