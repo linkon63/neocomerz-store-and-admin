@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { AdminIcon, PageHeader, ProductThumb } from "../../_components/admin-shell";
 import { ConfirmModal } from "../../_components/confirm-modal";
 import {
@@ -13,6 +14,7 @@ import {
   type Product,
   type ProductMedia,
   type ProductVariant,
+  type Unit,
 } from "../../../../lib/admin-api";
 
 type ProductForm = {
@@ -23,6 +25,7 @@ type ProductForm = {
   status: "active" | "inactive" | "draft";
   brandId: string;
   categoryId: string;
+  unitId: string;
   sku: string;
   price: string;
   cost: string;
@@ -43,6 +46,7 @@ const emptyForm: ProductForm = {
   status: "draft",
   brandId: "",
   categoryId: "",
+  unitId: "",
   sku: "",
   price: "",
   cost: "",
@@ -79,6 +83,7 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [units, setUnits] = useState<Unit[]>([]);
   const [form, setForm] = useState<ProductForm>(emptyForm);
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
@@ -131,12 +136,14 @@ export default function ProductsPage() {
 
   async function loadLookups() {
     try {
-      const [brandList, categoryList] = await Promise.all([
+      const [brandList, categoryList, unitList] = await Promise.all([
         apiRequest<Brand[]>("/brands"),
         apiRequest<Category[]>("/category"),
+        apiRequest<Unit[]>("/units"),
       ]);
       setBrands(brandList);
       setCategories(categoryList);
+      setUnits(unitList.filter((unit) => unit.isActive));
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to load product lookups",
@@ -164,6 +171,7 @@ export default function ProductsPage() {
       ...emptyForm,
       brandId: brands[0]?.id ?? "",
       categoryId: categoryOptions[0]?.id ?? "",
+      unitId: units[0]?.id ?? "",
     });
     setIsModalOpen(true);
   }
@@ -180,6 +188,7 @@ export default function ProductsPage() {
       status: product.status,
       brandId: product.brand?.id ?? product.brandId ?? "",
       categoryId: product.category?.id ?? product.categoryId ?? "",
+      unitId: product.unit?.id ?? product.unitId ?? "",
       sku: variant?.sku ?? "",
       price: variant?.price ? String(variant.price) : "",
       cost: variant?.cost ? String(variant.cost) : "",
@@ -219,7 +228,9 @@ export default function ProductsPage() {
         body.append("file", image);
         body.append("type", "image");
         body.append("sortOrder", String(form.media.length + index));
-        body.append("isFeatured", String(form.media.length === 0 && index === 0));
+        if (form.media.length === 0 && index === 0) {
+          body.append("isFeatured", "true");
+        }
 
         return apiRequest(`/products/${productId}/media`, {
           method: "POST",
@@ -263,6 +274,7 @@ export default function ProductsPage() {
         status: form.status,
         brandId: form.brandId,
         categoryId: form.categoryId,
+        unitId: form.unitId || undefined,
       };
 
       const savedProduct = await apiRequest<Product>(
@@ -346,14 +358,13 @@ export default function ProductsPage() {
             >
               <AdminIcon className="h-5 w-5" name="refresh" />
             </button>
-            <button
+            <Link
               className="inline-flex h-14 items-center gap-2 rounded-lg bg-blue-600 px-6 font-black text-white shadow-sm"
-              onClick={openAddModal}
-              type="button"
+              href="/admin/products/new"
             >
               <AdminIcon className="h-5 w-5" name="plus" />
               Add Product
-            </button>
+            </Link>
           </div>
         }
       />
@@ -398,6 +409,7 @@ export default function ProductsPage() {
                     "Products",
                     "Brand",
                     "Category",
+                    "Unit",
                     "Inventory",
                     "Retail Price",
                     "Created At",
@@ -413,7 +425,7 @@ export default function ProductsPage() {
               <tbody className="divide-y divide-slate-100">
                 {isLoading ? (
                   <tr>
-                    <td className="px-8 py-8 font-bold text-slate-500" colSpan={8}>
+                    <td className="px-8 py-8 font-bold text-slate-500" colSpan={9}>
                       Loading products...
                     </td>
                   </tr>
@@ -453,8 +465,13 @@ export default function ProductsPage() {
                           {product.category?.name ?? "-"}
                         </td>
                         <td className="px-5 py-5 font-medium text-slate-700">
+                          {product.unit?.code ?? "-"}
+                        </td>
+                        <td className="px-5 py-5 font-medium text-slate-700">
                           {variant?.stockQuantity ?? 0}{" "}
-                          <span className="text-sm">(pcs)</span>
+                          <span className="text-sm">
+                            ({product.unit?.code ?? "pcs"})
+                          </span>
                         </td>
                         <td className="px-5 py-5 font-medium text-slate-700">
                           {formatMoney(variant?.price)}
@@ -492,7 +509,7 @@ export default function ProductsPage() {
                   })
                 ) : (
                   <tr>
-                    <td className="px-8 py-8 font-bold text-slate-500" colSpan={8}>
+                    <td className="px-8 py-8 font-bold text-slate-500" colSpan={9}>
                       No products found.
                     </td>
                   </tr>
@@ -580,7 +597,7 @@ export default function ProductsPage() {
                     value={form.description}
                   />
                 </label>
-                <div className="grid gap-4 sm:grid-cols-3">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <label className="block">
                     <span className="mb-2 block text-sm font-black text-slate-700">
                       Brand
@@ -624,6 +641,28 @@ export default function ProductsPage() {
                         <option key={category.id} value={category.id}>
                           {"- ".repeat(category.depth)}
                           {category.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-black text-slate-700">
+                      Unit
+                    </span>
+                    <select
+                      className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          unitId: event.target.value,
+                        }))
+                      }
+                      value={form.unitId}
+                    >
+                      <option value="">Select unit</option>
+                      {units.map((unit) => (
+                        <option key={unit.id} value={unit.id}>
+                          {unit.name} ({unit.code})
                         </option>
                       ))}
                     </select>

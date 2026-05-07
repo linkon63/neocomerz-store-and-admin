@@ -53,6 +53,19 @@ export type Attribute = {
   values?: AttributeValue[];
 };
 
+export type Unit = {
+  id: string;
+  name: string;
+  code: string;
+  description?: string | null;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  _count?: {
+    products?: number;
+  };
+};
+
 export type ProductMedia = {
   id: string;
   isFeatured: boolean;
@@ -87,6 +100,8 @@ export type Product = {
   brandId?: string;
   category?: Category | null;
   categoryId?: string;
+  unit?: Unit | null;
+  unitId?: string | null;
   media?: ProductMedia[];
   variants?: ProductVariant[];
 };
