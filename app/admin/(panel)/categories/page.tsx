@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { AdminIcon, PageHeader } from "../../_components/admin-shell";
 import { ConfirmModal } from "../../_components/confirm-modal";
 import {
@@ -15,6 +15,9 @@ type CategoryForm = {
   name: string;
   slug: string;
   parentId: string;
+  image: File | null;
+  imageUrl?: string | null;
+  removeImage: boolean;
 };
 
 type CategoryRow = Category & {
@@ -22,7 +25,14 @@ type CategoryRow = Category & {
   parentName: string;
 };
 
-const emptyForm: CategoryForm = { name: "", slug: "", parentId: "" };
+const emptyForm: CategoryForm = {
+  name: "",
+  slug: "",
+  parentId: "",
+  image: null,
+  imageUrl: null,
+  removeImage: false,
+};
 
 function flattenCategories(
   categories: Category[],
@@ -47,6 +57,8 @@ export default function CategoriesPage() {
   const [categoryToDelete, setCategoryToDelete] = useState<CategoryRow | null>(
     null,
   );
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const rows = useMemo(() => flattenCategories(categories), [categories]);
   const filteredRows = useMemo(() => {
@@ -56,6 +68,20 @@ export default function CategoriesPage() {
         .includes(search.toLowerCase()),
     );
   }, [rows, search]);
+
+  useEffect(() => {
+    if (!form.image) {
+      setImagePreviewUrl(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(form.image);
+    setImagePreviewUrl(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [form.image]);
 
   async function loadCategories() {
     setError("");
@@ -96,6 +122,9 @@ export default function CategoriesPage() {
       name: category.name,
       slug: category.slug,
       parentId: category.parentId ?? "",
+      image: null,
+      imageUrl: category.imageUrl ?? null,
+      removeImage: false,
     });
     setIsModalOpen(true);
   }
@@ -113,15 +142,29 @@ export default function CategoriesPage() {
     setError("");
     setIsSaving(true);
 
-    const payload: Record<string, string | null> = {
-      name: form.name,
-      slug: form.slug || slugify(form.name),
-    };
+    // Validate form fields
+    if (!form.name || form.name.trim() === "") {
+      setError("Name should not be empty");
+      setIsSaving(false);
+      return;
+    }
 
+    const slugValue = form.slug || slugify(form.name);
+    if (!slugValue || slugValue.trim() === "") {
+      setError("Slug should not be empty");
+      setIsSaving(false);
+      return;
+    }
+
+    const body = new FormData();
+    body.append("name", form.name.trim());
+    body.append("slug", slugValue);
+    if (form.image) body.append("image", form.image);
+    if (form.id && form.removeImage && !form.image) body.append("imageUrl", "");
     if (form.parentId) {
-      payload.parentId = form.parentId;
+      body.append("parentId", form.parentId);
     } else if (form.id) {
-      payload.parentId = null;
+      body.append("parentId", "");
     }
 
     try {
@@ -129,8 +172,7 @@ export default function CategoriesPage() {
         form.id ? `/category/${form.id}` : "/category",
         {
           method: form.id ? "PATCH" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body,
         },
       );
 
@@ -166,6 +208,22 @@ export default function CategoriesPage() {
       );
     }
   }
+
+  function removeImageFromForm() {
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
+
+    setForm((current) => ({
+      ...current,
+      image: null,
+      imageUrl: null,
+      removeImage: true,
+    }));
+  }
+
+  const visibleImagePreview =
+    imagePreviewUrl ?? (form.removeImage ? null : form.imageUrl);
 
   function cancelDelete() {
     setDeleteModalOpen(false);
@@ -224,6 +282,7 @@ export default function CategoriesPage() {
                 <tr>
                   {[
                     "Name",
+                    "Image",
                     "Slug",
                     "Parent",
                     "Products",
@@ -241,7 +300,7 @@ export default function CategoriesPage() {
                   <tr>
                     <td
                       className="px-5 py-8 font-bold text-slate-500"
-                      colSpan={6}
+                      colSpan={7}
                     >
                       Loading categories...
                     </td>
@@ -259,6 +318,23 @@ export default function CategoriesPage() {
                           {category.depth > 0 ? "↳ " : ""}
                           {category.name}
                         </span>
+                      </td>
+                      <td className="px-5 py-4">
+                        {category.imageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            alt=""
+                            className="h-12 w-12 rounded-lg border border-slate-200 object-cover"
+                            src={category.imageUrl}
+                          />
+                        ) : (
+                          <div className="grid h-12 w-12 place-items-center rounded-lg border border-slate-200 bg-white text-xl">
+                            <AdminIcon
+                              className="h-5 w-5 text-slate-400"
+                              name="category"
+                            />
+                          </div>
+                        )}
                       </td>
                       <td className="px-5 py-4 font-medium text-slate-700">
                         {category.slug}
@@ -361,6 +437,24 @@ export default function CategoriesPage() {
               </label>
               <label className="block">
                 <span className="mb-2 block text-sm font-black text-slate-700">
+                  Image
+                </span>
+                <input
+                  className="block w-full rounded-lg border border-slate-300 px-4 py-3 font-medium"
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      image: event.target.files?.[0] ?? null,
+                      removeImage: false,
+                    }))
+                  }
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/*"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-black text-slate-700">
                   Parent category
                 </span>
                 <select
@@ -383,6 +477,44 @@ export default function CategoriesPage() {
                     ))}
                 </select>
               </label>
+              <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
+                {visibleImagePreview ? (
+                  <div className="flex items-center gap-4">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      alt="Category image preview"
+                      className="h-20 w-20 rounded-lg border border-slate-200 bg-white object-cover"
+                      src={visibleImagePreview}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-black text-slate-800">
+                        {form.image?.name ?? "Current image"}
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-slate-500">
+                        Preview before saving.
+                      </p>
+                    </div>
+                    <button
+                      className="inline-flex h-10 items-center gap-2 rounded-lg bg-red-50 px-3 text-sm font-black text-red-700"
+                      disabled={isSaving}
+                      onClick={removeImageFromForm}
+                      type="button"
+                    >
+                      <AdminIcon className="h-4 w-4" name="x" />
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3 text-slate-500">
+                    <span className="grid h-12 w-12 place-items-center rounded-lg border border-slate-200 bg-white">
+                      <AdminIcon className="h-5 w-5" name="category" />
+                    </span>
+                    <p className="font-medium">
+                      No image selected. Upload an image to preview it here.
+                    </p>
+                  </div>
+                )}
+              </div>
               {error && (
                 <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
                   {error}

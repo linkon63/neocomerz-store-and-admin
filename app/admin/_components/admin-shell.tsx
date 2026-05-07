@@ -294,7 +294,6 @@ const menuGroups: {
   {
     title: "Inventory & Procurement",
     items: [
-      { label: "Suppliers", href: "/admin/suppliers", icon: "suppliers" },
       { label: "Product", href: "/admin/products", icon: "package", active: true },
       { label: "Tags", href: "/admin/tags", icon: "tag", child: true },
       { label: "Brands", href: "/admin/brands", icon: "brand", child: true },

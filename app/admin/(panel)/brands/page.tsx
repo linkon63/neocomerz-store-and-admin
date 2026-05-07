@@ -472,8 +472,8 @@ export default function BrandsPage() {
         onConfirm={confirmDelete}
         title="Delete Brand"
         message={`Are you sure you want to delete "${brandToDelete?.name}"? This action cannot be undone.`}
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText="Yes"
+        cancelText="No"
         isDestructive={true}
       />
     </>

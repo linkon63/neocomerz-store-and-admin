@@ -408,8 +408,8 @@ export default function TagsPage() {
         onConfirm={confirmDelete}
         title="Delete Tag"
         message={`Are you sure you want to delete "${tagToDelete?.name}"? This action cannot be undone.`}
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText="Yes"
+        cancelText="No"
         isDestructive={true}
       />
     </>
