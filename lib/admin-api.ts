@@ -102,6 +102,7 @@ export type Product = {
   categoryId?: string;
   unit?: Unit | null;
   unitId?: string | null;
+  tags?: Tag[];
   media?: ProductMedia[];
   variants?: ProductVariant[];
 };
