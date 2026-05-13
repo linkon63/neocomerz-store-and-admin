@@ -1,10 +1,10 @@
 import { IoIosArrowDown } from "react-icons/io";
 import { IoCallOutline, IoLocationOutline } from "react-icons/io5";
 import TopSlider from "./ui/topslider";
-import topHeaderData from "@/data/data.json";
+import data from "@/data/top-header.json";
 
 export default function TopHeader() {
-  const { help, selectors } = topHeaderData;
+  const { help, selectors } = data;
 
   return (
     <section className="w-full bg-brand-primary text-white font-medium px-2 sm:px-4 md:px-6">
@@ -40,7 +40,7 @@ export default function TopHeader() {
                 className="bg-transparent text-white border-none outline-none cursor-pointer font-gotham text-xs sm:text-sm appearance-none pr-0.5"
                 defaultValue={selectors.language.default}
               >
-                {selectors.language.options.map((option) => (
+                {selectors.language.options.map((option: { value: string; label: string }) => (
                   <option
                     key={option.value}
                     value={option.value}
@@ -59,7 +59,7 @@ export default function TopHeader() {
                 className="bg-transparent text-white border-none outline-none cursor-pointer font-gotham text-xs sm:text-sm appearance-none pr-0.5"
                 defaultValue={selectors.currency.default}
               >
-                {selectors.currency.options.map((option) => (
+                {selectors.currency.options.map((option: { value: string; label: string }) => (
                   <option
                     key={option.value}
                     value={option.value}
