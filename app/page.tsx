@@ -1,5 +1,9 @@
-import { redirect } from "next/navigation";
+import TopHeader from '@/components/sections/top-header';
 
 export default function Home() {
-  redirect("/admin/login");
+  return (
+    <div>
+      <TopHeader />
+    </div>
+  );
 }

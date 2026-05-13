@@ -1,26 +1,88 @@
 @import "tailwindcss";
 
+@theme {
+  /* Text Colors */
+  --color-text-primary: rgba(35, 31, 32, 1);
+  --color-text-secondary: rgba(217, 217, 214, 1);
+  
+  /* Brand Colors */
+  --color-brand-primary: rgba(228, 0, 43, 1);
+  --color-brand-2: rgba(197, 185, 172, 1);
+  --color-brand-3: rgba(185, 151, 91, 1);
+  --color-brand-4: rgba(71, 55, 41, 1);
+  --color-brand-5: rgba(33, 39, 33, 1);
+  
+  /* Font Families */
+  --font-family-gotham: 'Gotham', Arial, Helvetica, sans-serif;
+  --font-family-bembo: 'Bembo Std', Georgia, serif;
+}
+
+/* Custom Fonts */
+@font-face {
+  font-family: 'Bembo Std';
+  src: url('./fonts/Bembo-Std-Font/BemboStd.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bembo Std';
+  src: url('./fonts/Bembo-Std-Font/BemboStd-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bembo Std';
+  src: url('./fonts/Bembo-Std-Font/BemboStd-SemiboldItalic.otf') format('opentype');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Gotham';
+  src: url('./fonts/Gotham/Gotham-Thin.otf') format('opentype');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Gotham';
+  src: url('./fonts/Gotham/Gotham-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* CSS Variables for direct use */
+  --text-primary: rgba(35, 31, 32, 1);
+  --text-secondary: rgba(217, 217, 214, 1);
+  --brand-primary: rgba(228, 0, 43, 1);
+  --brand-color-2: rgba(197, 185, 172, 1);
+  --brand-color-3: rgba(185, 151, 91, 1);
+  --brand-color-4: rgba(71, 55, 41, 1);
+  --brand-color-5: rgba(33, 39, 33, 1);
+  --font-gotham: 'Gotham', Arial, Helvetica, sans-serif;
+  --font-bembo: 'Bembo Std', Georgia, serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: Arial, Helvetica, sans-serif;
-  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-}
-
-@media (prefers-color-scheme: dark) {
+@media (color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Brand Colors */
+    --brand-primary: rgba(228, 0, 43, 1);
+    --brand-color-2: rgba(197, 185, 172, 1);
+    --brand-color-3: rgba(185, 151, 91, 1);
+    --brand-color-4: rgba(71, 55, 41, 1);
+    --brand-color-5: rgba(33, 39, 33, 1);
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-gotham);
 }
+
