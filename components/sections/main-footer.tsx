@@ -63,7 +63,7 @@ export default function Mainfooter() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 lg:gap-6">
             {/* GET SUPPORT Column */}
             <div className="lg:col-span-2">
-              <h3 className="font-gotham font-medium text-text-primary text-sm mb-4 uppercase">
+              <h3 className="font-bembo font-medium text-text-primary text-sm mb-4 uppercase">
                 GET SUPPORT
               </h3>
               <ul className="space-y-2">
@@ -71,7 +71,7 @@ export default function Mainfooter() {
                   <li key={link.label}>
                     <Link 
                       href={link.href}
-                      className="font-gotham text-sm text-text-primary hover:text-brand-3 transition-colors"
+                      className="font-bembo text-sm text-text-primary hover:text-brand-3 transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -82,7 +82,7 @@ export default function Mainfooter() {
 
             {/* PAYMENTS AND PROTECTION Column */}
             <div className="lg:col-span-2">
-              <h3 className="font-gotham font-medium text-text-primary text-sm mb-4 uppercase">
+              <h3 className="font-bembo font-medium text-text-primary text-sm mb-4 uppercase">
                 PAYMENTS AND PROTECTION
               </h3>
               <ul className="space-y-2">
@@ -90,7 +90,7 @@ export default function Mainfooter() {
                   <li key={link.label}>
                     <Link 
                       href={link.href}
-                      className="font-gotham text-sm text-text-primary hover:text-brand-3 transition-colors"
+                      className="font-bembo text-sm text-text-primary hover:text-brand-3 transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -101,7 +101,7 @@ export default function Mainfooter() {
 
             {/* GET TO KNOW US Column */}
             <div className="lg:col-span-2">
-              <h3 className="font-gotham font-medium text-text-primary text-sm mb-4 uppercase">
+              <h3 className="font-bembo font-medium text-text-primary text-sm mb-4 uppercase">
                 GET TO KNOW US
               </h3>
               <ul className="space-y-2">
@@ -109,7 +109,7 @@ export default function Mainfooter() {
                   <li key={link.label}>
                     <Link 
                       href={link.href}
-                      className="font-gotham text-sm text-text-primary hover:text-brand-3 transition-colors"
+                      className="font-bembo text-sm text-text-primary hover:text-brand-3 transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -137,7 +137,7 @@ export default function Mainfooter() {
                 <div className="absolute inset-0 flex flex-col">
                   {/* Top Section - Heading */}
                   <div className="flex justify-center pt-8">
-                    <h3 className="font-bembo text-white text-2xl uppercase tracking-widest">
+                    <h3 className="font-bembo text-white text-lg uppercase tracking-widest">
                       THE COLLECTIONS
                     </h3>
                   </div>
@@ -174,7 +174,7 @@ export default function Mainfooter() {
 
                   {/* Bottom Section - Description */}
                   <div className="pb-8 px-6">
-                    <p className="text-white text-center text-sm font-gotham leading-relaxed max-w-3xl mx-auto">
+                    <p className="text-white text-center text-sm font-bembo leading-relaxed max-w-3xl mx-auto">
                       Elegant tea bag presentations featuring rare blends, royal infusions, wellness selections, and timeless classics.
                     </p>
                   </div>
