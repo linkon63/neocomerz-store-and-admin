@@ -39,7 +39,7 @@ export default function TopSlider() {
           {slider.slides.map((text: string, index: number) => (
             <SwiperSlide key={index}>
               <div className="text-center">
-                <span className="font-gotham text-white text-xs sm:text-sm">
+                <span className="font-gotham text-white text-xs sm:text-sm underline">
                   {text}
                 </span>
               </div>
