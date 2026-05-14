@@ -1,381 +1,25 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import {
-  apiRequest,
-  clearAdminSession,
-  type AdminUser,
-} from "../../../lib/admin-api";
+import { usePathname } from "next/navigation";
+import { AdminIcon } from "./admin-icons";
+import { menuGroups } from "./admin-nav-data";
+import { useAdminAuth } from "../_hooks/use-admin-auth";
 
-export type AdminIconName =
-  | "actions"
-  | "brand"
-  | "calendar"
-  | "category"
-  | "check"
-  | "chevronRight"
-  | "dashboard"
-  | "discount"
-  | "download"
-  | "edit"
-  | "filter"
-  | "logout"
-  | "orders"
-  | "package"
-  | "plus"
-  | "pos"
-  | "refresh"
-  | "report"
-  | "reviews"
-  | "search"
-  | "settings"
-  | "stock"
-  | "store"
-  | "suppliers"
-  | "tag"
-  | "units"
-  | "upload"
-  | "variants"
-  | "voucher"
-  | "x";
-
-export function AdminIcon({
-  name,
-  className = "h-4 w-4",
-}: {
-  name: AdminIconName;
-  className?: string;
-}) {
-  const iconProps = {
-    className,
-    fill: "none",
-    stroke: "currentColor",
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-    strokeWidth: 2,
-    viewBox: "0 0 24 24",
-    "aria-hidden": true,
-  };
-
-  const paths: Record<AdminIconName, ReactNode> = {
-    actions: (
-      <>
-        <circle cx="12" cy="12" r="1" />
-        <circle cx="19" cy="12" r="1" />
-        <circle cx="5" cy="12" r="1" />
-      </>
-    ),
-    brand: (
-      <>
-        <path d="M12 3l7 4v10l-7 4-7-4V7z" />
-        <path d="M12 8v8" />
-        <path d="M8.5 10.5l3.5-2 3.5 2" />
-      </>
-    ),
-    calendar: (
-      <>
-        <path d="M8 2v4" />
-        <path d="M16 2v4" />
-        <rect height="18" rx="2" width="18" x="3" y="4" />
-        <path d="M3 10h18" />
-      </>
-    ),
-    category: (
-      <>
-        <rect height="7" rx="1" width="7" x="3" y="3" />
-        <rect height="7" rx="1" width="7" x="14" y="3" />
-        <rect height="7" rx="1" width="7" x="3" y="14" />
-        <rect height="7" rx="1" width="7" x="14" y="14" />
-      </>
-    ),
-    check: (
-      <>
-        <path d="M20 6L9 17l-5-5" />
-      </>
-    ),
-    chevronRight: <path d="M9 18l6-6-6-6" />,
-    dashboard: (
-      <>
-        <rect height="8" rx="1" width="8" x="3" y="3" />
-        <rect height="5" rx="1" width="8" x="13" y="3" />
-        <rect height="8" rx="1" width="8" x="13" y="13" />
-        <rect height="5" rx="1" width="8" x="3" y="16" />
-      </>
-    ),
-    discount: (
-      <>
-        <path d="M19 5L5 19" />
-        <circle cx="7" cy="7" r="2" />
-        <circle cx="17" cy="17" r="2" />
-      </>
-    ),
-    download: (
-      <>
-        <path d="M12 3v12" />
-        <path d="M7 10l5 5 5-5" />
-        <path d="M5 21h14" />
-      </>
-    ),
-    edit: (
-      <>
-        <path d="M12 20h9" />
-        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
-      </>
-    ),
-    filter: (
-      <>
-        <path d="M4 6h16" />
-        <path d="M7 12h10" />
-        <path d="M10 18h4" />
-      </>
-    ),
-    logout: (
-      <>
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-        <path d="M16 17l5-5-5-5" />
-        <path d="M21 12H9" />
-      </>
-    ),
-    orders: (
-      <>
-        <path d="M6 2h12l2 4v16H4V6z" />
-        <path d="M4 6h16" />
-        <path d="M9 11h6" />
-        <path d="M9 15h6" />
-      </>
-    ),
-    package: (
-      <>
-        <path d="M21 8l-9-5-9 5 9 5z" />
-        <path d="M3 8v8l9 5 9-5V8" />
-        <path d="M12 13v8" />
-      </>
-    ),
-    plus: (
-      <>
-        <path d="M12 5v14" />
-        <path d="M5 12h14" />
-      </>
-    ),
-    pos: (
-      <>
-        <rect height="16" rx="2" width="18" x="3" y="4" />
-        <path d="M7 8h10" />
-        <path d="M7 13h2" />
-        <path d="M12 13h2" />
-        <path d="M17 13h0" />
-      </>
-    ),
-    refresh: (
-      <>
-        <path d="M20 6v5h-5" />
-        <path d="M4 18v-5h5" />
-        <path d="M19 11a7 7 0 0 0-12-4l-3 3" />
-        <path d="M5 13a7 7 0 0 0 12 4l3-3" />
-      </>
-    ),
-    report: (
-      <>
-        <path d="M4 19V5" />
-        <path d="M4 19h16" />
-        <path d="M8 16v-5" />
-        <path d="M12 16V8" />
-        <path d="M16 16v-3" />
-      </>
-    ),
-    reviews: (
-      <>
-        <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
-        <path d="M8 9h8" />
-        <path d="M8 13h5" />
-      </>
-    ),
-    search: (
-      <>
-        <circle cx="11" cy="11" r="7" />
-        <path d="M20 20l-4-4" />
-      </>
-    ),
-    settings: (
-      <>
-        <circle cx="12" cy="12" r="3" />
-        <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21h-4v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-2.8-2.8.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3v-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1L7.1 4l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V3h4v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1 2.8 2.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1v4h-.1a1.7 1.7 0 0 0-1.7 1z" />
-      </>
-    ),
-    stock: (
-      <>
-        <path d="M4 21V7l8-4 8 4v14" />
-        <path d="M4 7l8 4 8-4" />
-        <path d="M12 11v10" />
-      </>
-    ),
-    store: (
-      <>
-        <path d="M3 9l1-5h16l1 5" />
-        <path d="M5 9v11h14V9" />
-        <path d="M9 20v-6h6v6" />
-        <path d="M3 9h18" />
-      </>
-    ),
-    suppliers: (
-      <>
-        <path d="M16 3h4v13h-4" />
-        <path d="M4 17h12V7H4z" />
-        <path d="M6 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
-        <path d="M18 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
-      </>
-    ),
-    tag: (
-      <>
-        <path d="M20 13L11 22 2 13V2h11z" />
-        <circle cx="7.5" cy="7.5" r="1.5" />
-      </>
-    ),
-    units: (
-      <>
-        <path d="M4 19h16" />
-        <path d="M7 19V5" />
-        <path d="M17 19V5" />
-        <path d="M7 5h10" />
-        <path d="M10 9h4" />
-        <path d="M10 13h4" />
-      </>
-    ),
-    upload: (
-      <>
-        <path d="M12 21V9" />
-        <path d="M7 14l5-5 5 5" />
-        <path d="M5 3h14" />
-      </>
-    ),
-    variants: (
-      <>
-        <path d="M7 7h10" />
-        <path d="M7 17h10" />
-        <circle cx="7" cy="7" r="3" />
-        <circle cx="17" cy="17" r="3" />
-      </>
-    ),
-    voucher: (
-      <>
-        <path d="M3 7a2 2 0 0 1 2-2h14v5a2 2 0 0 0 0 4v5H5a2 2 0 0 1-2-2z" />
-        <path d="M13 8v8" />
-        <path d="M8 10h2" />
-        <path d="M8 14h2" />
-      </>
-    ),
-    x: (
-      <>
-        <path d="M18 6L6 18" />
-        <path d="M6 6l12 12" />
-      </>
-    ),
-  };
-
-  return <svg {...iconProps}>{paths[name]}</svg>;
-}
-
-const menuGroups: {
-  title: string;
-  items: {
-    label: string;
-    href: string;
-    icon: AdminIconName;
-    child?: boolean;
-    active?: boolean;
-  }[];
-}[] = [
-  {
-    title: "Overview",
-    items: [{ label: "Dashboard", href: "/admin/dashboard", icon: "dashboard" }],
-  },
-  {
-    title: "Inventory & Procurement",
-    items: [
-      { label: "Product", href: "/admin/products", icon: "package", active: true },
-      { label: "Tags", href: "/admin/tags", icon: "tag", child: true },
-      { label: "Brands", href: "/admin/brands", icon: "brand", child: true },
-      { label: "Categories", href: "/admin/categories", icon: "category", child: true },
-      { label: "Variant Options", href: "/admin/variant-options", icon: "variants", child: true },
-      { label: "Units of Measurement", href: "/admin/units", icon: "units", child: true },
-      { label: "Products", href: "/admin/products", icon: "package", child: true },
-      { label: "Stock Management", href: "/admin/stock", icon: "stock" },
-    ],
-  },
-  {
-    title: "Sales & Billing",
-    items: [
-      { label: "POS", href: "/admin/pos", icon: "pos" },
-      { label: "Discount", href: "/admin/discounts", icon: "discount" },
-      { label: "Gift Voucher", href: "/admin/gift-vouchers", icon: "voucher" },
-    ],
-  },
-  {
-    title: "Online Store",
-    items: [
-      { label: "E-Commerce", href: "/admin/orders", icon: "store", active: true },
-      { label: "New Orders", href: "/admin/orders", icon: "orders", child: true },
-      { label: "Canceled Orders", href: "/admin/orders/canceled", icon: "x", child: true },
-      { label: "Completed Orders", href: "/admin/orders/completed", icon: "check", child: true },
-      { label: "Reviews", href: "/admin/reviews", icon: "reviews", child: true },
-    ],
-  },
-  {
-    title: "Finance",
-    items: [{ label: "Report", href: "/admin/reports", icon: "report" }],
-  },
-  {
-    title: "Administration",
-    items: [{ label: "Settings", href: "/admin/settings", icon: "settings" }],
-  },
-];
+export { AdminIcon } from "./admin-icons";
+export type { AdminIconName } from "./admin-icons";
+export { PageHeader, StatusToggle, ProductThumb } from "./admin-ui";
 
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const [user, setUser] = useState<AdminUser | null>(null);
-  const [isChecking, setIsChecking] = useState(true);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    apiRequest<AdminUser>("/auth/me")
-      .then((currentUser) => {
-        if (!isMounted) return;
-
-        if (currentUser.role?.name !== "admin") {
-          clearAdminSession();
-          router.replace("/admin/login");
-          return;
-        }
-
-        setUser(currentUser);
-      })
-      .catch(() => {
-        clearAdminSession();
-        router.replace("/admin/login");
-      })
-      .finally(() => {
-        if (isMounted) setIsChecking(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [router]);
-
-  function handleLogout() {
-    clearAdminSession();
-    router.replace("/admin/login");
-    router.refresh();
-  }
+  const { user, isChecking, handleLogout } = useAdminAuth();
 
   if (isChecking) {
     return (
       <div className="grid min-h-screen place-items-center bg-[#fbfbfc] text-slate-700">
-        <div className="rounded-xl border border-slate-200 bg-white px-6 py-4 font-black shadow-sm">
+        <div className="border border-slate-200 bg-white px-6 py-4 font-black">
           Checking admin session...
         </div>
       </div>
@@ -387,10 +31,11 @@ export function AdminShell({ children }: { children: ReactNode }) {
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-[312px] border-r border-slate-200 bg-white lg:block">
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between px-5 py-5">
-            <Link className="text-5xl font-black italic tracking-tight" href="/admin/dashboard">
-              NeoComerz
+            <Link href="/admin/dashboard">
+              <Image src="/logo.png" alt="NeoComerz" width={140} height={40} className="h-10 w-auto object-contain" priority />
             </Link>
           </div>
+
           <nav className="flex-1 overflow-y-auto px-3 pb-6 pt-5">
             {menuGroups.map((group) => (
               <div className="mb-7" key={group.title}>
@@ -402,11 +47,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
                     const isCurrent = pathname === item.href;
                     return (
                       <Link
-                        className={`flex h-10 items-center gap-3 rounded-md px-3 text-sm font-bold text-slate-700 hover:bg-slate-50 ${
+                        className={`flex h-10 items-center gap-3 px-3 text-sm font-bold text-slate-700 hover:bg-slate-50 ${
                           item.child ? "ml-5 font-medium" : ""
-                        } ${
-                          isCurrent ? "bg-slate-100 text-slate-950" : ""
-                        }`}
+                        } ${isCurrent ? "bg-slate-100 text-slate-950" : ""}`}
                         href={item.href}
                         key={`${group.title}-${item.label}`}
                       >
@@ -415,10 +58,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                         </span>
                         <span className="flex-1">{item.label}</span>
                         {!item.child && (
-                          <AdminIcon
-                            className="h-4 w-4 text-slate-400"
-                            name="chevronRight"
-                          />
+                          <AdminIcon className="h-4 w-4 text-slate-400" name="chevronRight" />
                         )}
                       </Link>
                     );
@@ -427,9 +67,10 @@ export function AdminShell({ children }: { children: ReactNode }) {
               </div>
             ))}
           </nav>
+
           <div className="border-t border-slate-100 p-4">
             <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-full bg-blue-600 font-black text-white">
+              <div className="grid h-10 w-10 place-items-center bg-blue-600 font-black text-white">
                 {user?.name?.charAt(0).toUpperCase() ?? "A"}
               </div>
               <div className="min-w-0 flex-1">
@@ -439,7 +80,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 </p>
               </div>
               <button
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2 text-xs font-black text-slate-600 hover:bg-slate-50"
+                className="inline-flex items-center gap-2 border border-slate-200 px-3 py-2 text-xs font-black text-slate-600 hover:bg-slate-50"
                 onClick={handleLogout}
                 type="button"
               >
@@ -450,48 +91,12 @@ export function AdminShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </aside>
+
       <div className="lg:pl-[312px]">
         <main className="mx-auto w-full max-w-[1720px] px-5 py-7 sm:px-8 lg:px-10">
           {children}
         </main>
       </div>
-    </div>
-  );
-}
-
-export function PageHeader({
-  title,
-  description,
-  action,
-}: {
-  title: string;
-  description: string;
-  action?: ReactNode;
-}) {
-  return (
-    <header className="mb-8 flex flex-col justify-between gap-5 border-b border-slate-200 pb-9 sm:flex-row sm:items-start">
-      <div>
-        <h1 className="text-4xl font-black tracking-normal">{title}</h1>
-        <p className="mt-1 text-lg font-medium text-slate-600">{description}</p>
-      </div>
-      {action}
-    </header>
-  );
-}
-
-export function StatusToggle() {
-  return (
-    <span className="inline-flex h-8 w-14 items-center rounded-full bg-blue-600 p-1 shadow-sm">
-      <span className="ml-auto h-6 w-6 rounded-full bg-white" />
-    </span>
-  );
-}
-
-export function ProductThumb({ color }: { color: string }) {
-  return (
-    <div className="relative h-12 w-16 overflow-hidden rounded bg-slate-50">
-      <div className={`absolute bottom-3 left-4 h-6 w-9 rounded-full ${color}`} />
-      <div className="absolute bottom-2 left-2 h-3 w-12 rounded-full bg-black/20" />
     </div>
   );
 }

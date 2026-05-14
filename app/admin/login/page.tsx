@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiRequest, setAdminSession, type AdminUser } from "../../../lib/admin-api";
@@ -48,8 +49,8 @@ export default function AdminLoginPage() {
   return (
     <main className="grid min-h-screen bg-[#f7f8fb] text-slate-950 lg:grid-cols-[0.95fr_1.05fr]">
       <section className="hidden bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
-        <Link className="text-5xl font-black italic tracking-tight" href="/">
-          Mock
+        <Link href="/">
+          <Image src="/logo.png" alt="NeoComerz" width={160} height={48} className="h-12 w-auto object-contain brightness-0 invert" priority />
         </Link>
         <div>
           <p className="mb-4 inline-flex rounded-full bg-blue-500 px-4 py-2 text-sm font-black">
@@ -79,8 +80,8 @@ export default function AdminLoginPage() {
       <section className="flex items-center justify-center p-5">
         <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-900/5">
           <div className="mb-8">
-            <Link className="text-4xl font-black italic lg:hidden" href="/">
-              Mock
+            <Link className="lg:hidden" href="/">
+              <Image src="/logo.png" alt="NeoComerz" width={120} height={36} className="h-9 w-auto object-contain" priority />
             </Link>
             <h2 className="mt-6 text-3xl font-black">Admin login</h2>
             <p className="mt-2 text-base font-medium text-slate-600">

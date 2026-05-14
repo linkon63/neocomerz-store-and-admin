@@ -116,6 +116,114 @@ export type PaginatedProducts = {
   };
 };
 
+// ─── Orders ──────────────────────────────────────────────────────────────────
+
+export type OrderStatus =
+  | "pending"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled"
+  | "returned";
+
+export type PaymentStatus = "unpaid" | "paid" | "refunded";
+
+export type OrderAddress = {
+  id: string;
+  fullName: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2?: string | null;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+};
+
+export type OrderUser = {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+};
+
+export type OrderItemProduct = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
+export type OrderItemVariant = {
+  id: string;
+  sku: string;
+  price: string | number;
+};
+
+export type OrderItem = {
+  id: string;
+  quantity: number;
+  unitPrice: string | number;
+  totalPrice: string | number;
+  product: OrderItemProduct;
+  variant: OrderItemVariant;
+};
+
+export type OrderPayment = {
+  id: string;
+  amount: string | number;
+  method: string;
+  status: string;
+  paidAt?: string | null;
+};
+
+export type OrderStatusLog = {
+  id: string;
+  status: string;
+  note?: string | null;
+  createdAt: string;
+};
+
+export type Order = {
+  id: string;
+  orderNumber: string;
+  status: OrderStatus;
+  paymentStatus: PaymentStatus;
+  total: string | number;
+  discount: string | number;
+  shippingCost: string | number;
+  placedAt: string;
+  updatedAt: string;
+  user: OrderUser;
+  address: OrderAddress;
+  items: OrderItem[];
+  payments: OrderPayment[];
+  statusLogs: OrderStatusLog[];
+};
+
+// ─── Reviews ─────────────────────────────────────────────────────────────────
+
+export type ReviewProduct = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
+export type ReviewUser = {
+  id: string;
+  name: string;
+  email?: string;
+};
+
+export type Review = {
+  id: string;
+  rating: number;
+  comment?: string | null;
+  isApproved: boolean;
+  createdAt: string;
+  product: ReviewProduct;
+  user: ReviewUser;
+};
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/v1";
 
 export function getAdminToken() {
