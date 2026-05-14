@@ -143,11 +143,11 @@ export default function Mainfooter() {
                   </div>
 
                   {/* Middle Section - Buttons */}
-                  <div className="flex justify-between py-3">
+                  <div className="flex justify-between items-center py-3">
                     {/* Assorted Collections Button */}
                     <Link 
                       href="/collections/assorted"
-                      className="flex bg-brand-primary text-white text-center py-4 px-6 font-bembo text-base uppercase tracking-wide hover:bg-opacity-90 transition-all"
+                      className="flex bg-brand-primary text-white text-center  hover:bg-brand-3 py-4 px-6 font-bembo text-base uppercase tracking-wide hover:bg-opacity-90 transition-all"
                     >
                       ASSORTED COLLECTIONS
                     </Link>

@@ -59,7 +59,7 @@
 }
 
 :root {
-  /* CSS Variables for direct use */
+  /* Variables used throughout the application */
   --text-primary: rgba(35, 31, 32, 1);
   --text-secondary: rgba(217, 217, 214, 1);
   --brand-primary: rgba(228, 0, 43, 1);
