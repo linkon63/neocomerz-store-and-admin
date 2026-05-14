@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "NeoComerz | Demo Ecommerce Landing Page",
-  description: "A demo ecommerce landing page with fake products and sections.",
+  title: "London Tea Exchange",
+  description: "A heritage of rare tea, refined through craftsmanship, purity, and timeless elegance.",
 };
 
 export default function RootLayout({
