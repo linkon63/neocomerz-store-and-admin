@@ -31,7 +31,7 @@ export default function Mainfooter() {
       <div className="mainfooter-wrapper"> 
         <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
           {/* Top Section - Contact Info & Logo */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-6 border-b border-gray-200">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-6 border-b border-gray-200">
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-sm text-text-primary">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -57,8 +57,8 @@ export default function Mainfooter() {
               />
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 lg:gap-6">
-            <div className="lg:col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4 lg:gap-6">
+            <div className="xl:col-span-2">
               <h3 className="font-bembo font-medium text-text-primary text-sm mb-4 uppercase">
                 GET SUPPORT
               </h3>
@@ -75,7 +75,7 @@ export default function Mainfooter() {
                 ))}
               </ul>
             </div>
-            <div className="lg:col-span-2">
+            <div className="xl:col-span-2">
               <h3 className="font-bembo font-medium text-text-primary text-sm mb-4 uppercase">
                 PAYMENTS AND PROTECTION
               </h3>
@@ -92,7 +92,7 @@ export default function Mainfooter() {
                 ))}
               </ul>
             </div>
-            <div className="lg:col-span-2">
+            <div className="xl:col-span-2">
               <h3 className="font-bembo font-medium text-text-primary text-sm mb-4 uppercase">
                 GET TO KNOW US
               </h3>
@@ -110,7 +110,7 @@ export default function Mainfooter() {
               </ul>
             </div>
             {/* Decorative Image Section */}
-            <div className="lg:col-span-6">
+            <div className="xl:col-span-6">
               <CollectionBanner />
             </div>
           </div>

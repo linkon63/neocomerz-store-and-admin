@@ -20,7 +20,7 @@ export default function CollectionBanner() {
                   THE COLLECTIONS
                 </h3>
               </div>
-              <div className="flex justify-between items-center gap-4 py-3">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 py-3">
                 <Link
                   href="/collections/assorted"
                   className="bg-brand-primary text-white text-center py-4 px-6 font-bembo text-base uppercase tracking-wide hover:bg-opacity-90 transition-all"
