@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import CollectionBanner from "./ui/collection-banner";
 
 export default function Mainfooter() {
   const supportLinks = [
@@ -18,7 +19,6 @@ export default function Mainfooter() {
     { label: "After-sales protections", href: "/protections" },
     { label: "Product monitoring services", href: "/monitoring" },
   ];
-
   const knowUsLinks = [
     { label: "About Us", href: "/about" },
     { label: "Corporate Responsibility", href: "/responsibility" },
@@ -26,7 +26,6 @@ export default function Mainfooter() {
     { label: "News Center", href: "/news" },
     { label: "Careers", href: "/careers" },
   ];
-
   return (
     <section className="w-full bg-gray-50 border-t border-gray-200">
       <div className="mainfooter-wrapper"> 
@@ -58,10 +57,7 @@ export default function Mainfooter() {
               />
             </div>
           </div>
-
-          {/* Main Footer Content */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 lg:gap-6">
-            {/* GET SUPPORT Column */}
             <div className="lg:col-span-2">
               <h3 className="font-bembo font-medium text-text-primary text-sm mb-4 uppercase">
                 GET SUPPORT
@@ -79,8 +75,6 @@ export default function Mainfooter() {
                 ))}
               </ul>
             </div>
-
-            {/* PAYMENTS AND PROTECTION Column */}
             <div className="lg:col-span-2">
               <h3 className="font-bembo font-medium text-text-primary text-sm mb-4 uppercase">
                 PAYMENTS AND PROTECTION
@@ -98,8 +92,6 @@ export default function Mainfooter() {
                 ))}
               </ul>
             </div>
-
-            {/* GET TO KNOW US Column */}
             <div className="lg:col-span-2">
               <h3 className="font-bembo font-medium text-text-primary text-sm mb-4 uppercase">
                 GET TO KNOW US
@@ -117,69 +109,9 @@ export default function Mainfooter() {
                 ))}
               </ul>
             </div>
-
-            {/* THE COLLECTIONS Column - Larger */}
+            {/* Decorative Image Section */}
             <div className="lg:col-span-6">
-              {/* Collection Image with Overlay Content */}
-              <div className="relative w-full h-96 not-first:overflow-hidden shadow-xl">
-                {/* Background Image */}
-                <Image 
-                  src="/images/footer/footerright.png" 
-                  alt="Tea Collections" 
-                  fill
-                  className="object-cover"
-                />
-                
-                {/* Overlay Gradient */}
-                <div className="absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-black/50"></div>
-                
-                {/* Content Overlay */}
-                <div className="absolute inset-0 flex flex-col">
-                  {/* Top Section - Heading */}
-                  <div className="flex justify-center pt-8">
-                    <h3 className="font-bembo text-white text-lg uppercase tracking-widest">
-                      THE COLLECTIONS
-                    </h3>
-                  </div>
-
-                  {/* Middle Section - Buttons */}
-                  <div className="flex justify-between items-center py-3">
-                    {/* Assorted Collections Button */}
-                    <Link 
-                      href="/collections/assorted"
-                      className="flex bg-brand-primary text-white text-center  hover:bg-brand-3 py-4 px-6 font-bembo text-base uppercase tracking-wide hover:bg-opacity-90 transition-all"
-                    >
-                      ASSORTED COLLECTIONS
-                    </Link>
-
-                    {/* Decorative Logo/Icon */}
-                    <div className="w-16 h-16 flex items-center justify-center relative">
-                      <Image 
-                        src="/images/footer/footerrightlogo.png" 
-                        alt="London Tea Exchange Logo" 
-                        width={64} 
-                        height={64}
-                        className="object-contain"
-                      />
-                    </div>
-
-                    {/* Tea Book Collections Button */}
-                    <Link 
-                      href="/collections/tea-book"
-                      className="flex bg-white text-text-primary text-center py-4 px-6 font-bembo text-base uppercase tracking-wide hover:bg-brand-3 hover:text-white transition-all"
-                    >
-                      TEA BOOK COLLECTIONS
-                    </Link>
-                  </div>
-
-                  {/* Bottom Section - Description */}
-                  <div className="pb-8 px-6">
-                    <p className="text-white text-center text-sm font-bembo leading-relaxed max-w-3xl mx-auto">
-                      Elegant tea bag presentations featuring rare blends, royal infusions, wellness selections, and timeless classics.
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <CollectionBanner />
             </div>
           </div>
         </div>
