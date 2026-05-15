@@ -70,7 +70,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
           <div className="border-t border-slate-100 p-4">
             <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center bg-blue-600 font-black text-white">
+              <div className="grid h-10 w-10 place-items-center rounded-md bg-blue-600 font-black text-white">
                 {user?.name?.charAt(0).toUpperCase() ?? "A"}
               </div>
               <div className="min-w-0 flex-1">
@@ -80,7 +80,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 </p>
               </div>
               <button
-                className="inline-flex items-center gap-2 border border-slate-200 px-3 py-2 text-xs font-black text-slate-600 hover:bg-slate-50"
+                className="inline-flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2 text-xs font-black text-slate-600 hover:bg-slate-50"
                 onClick={handleLogout}
                 type="button"
               >

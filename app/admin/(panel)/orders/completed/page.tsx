@@ -5,6 +5,17 @@ import {
   AdminIcon,
   PageHeader,
 } from "../../../_components/admin-shell";
+import { ConfirmModal } from "../../../_components/confirm-modal";
+import {
+  Button,
+  Card,
+  Badge,
+  Input,
+  Alert,
+  StatsCard,
+  EmptyState,
+  Typography,
+} from "../../../_components/enterprise-ui";
 import {
   apiRequest,
   formatDate,
@@ -13,20 +24,17 @@ import {
 import {
   calculateDueAmount,
   calculatePaidAmount,
-  getPaymentStatusColor,
 } from "../../../lib/order-utils";
 
 function NoOrderSelected() {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white min-h-[600px] py-24 text-center">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
-        <AdminIcon className="h-8 w-8 text-slate-400" name="reviews" />
-      </div>
-      <p className="font-black text-slate-700">No Order Selected</p>
-      <p className="mt-1 text-sm font-medium text-slate-400">
-        Please select an order from the list on the left to view its details.
-      </p>
-    </div>
+    <Card className="min-h-[600px] flex items-center justify-center">
+      <EmptyState
+        icon={<AdminIcon className="h-8 w-8 text-gray-400" name="reviews" />}
+        title="No Order Selected"
+        description="Please select an order from the list on the left to view its details."
+      />
+    </Card>
   );
 }
 
@@ -38,6 +46,8 @@ export default function CompletedOrdersPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isActioning, setIsActioning] = useState(false);
   const [actionError, setActionError] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit] = useState(15);
 
   const loadOrders = useCallback(async () => {
     setError("");
@@ -69,6 +79,13 @@ export default function CompletedOrdersPage() {
       );
     });
   }, [orders, search]);
+
+  const paginatedOrders = useMemo(() => {
+    const start = (page - 1) * limit;
+    return filtered.slice(start, start + limit);
+  }, [filtered, page, limit]);
+
+  const totalPages = Math.ceil(filtered.length / limit);
 
   const selected = useMemo(() => {
     return orders.find((o) => o.id === selectedId) ?? null;
@@ -104,202 +121,322 @@ export default function CompletedOrdersPage() {
     <>
       <PageHeader
         title="Completed Orders"
-        description="View and manage delivered orders"
+        description="Completed orders content will be here"
         action={
-          <button className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-[13px] font-black text-slate-600 hover:bg-slate-50 transition-colors">
-            <AdminIcon className="h-4 w-4" name="download" />
-            Export List
-          </button>
+          <div className="flex gap-3">
+            <Button
+              variant="neutral"
+              size="md"
+              icon={<AdminIcon className="h-5 w-5" name="download" />}
+            >
+              Export List
+            </Button>
+          </div>
         }
       />
 
+      {/* Stats Dashboard */}
+      <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <StatsCard
+          label="Total Delivered"
+          value={orders.length}
+          icon={<AdminIcon className="h-6 w-6" name="check" />}
+        />
+        <StatsCard
+          label="Paid"
+          value={orders.filter(o => o.paymentStatus === 'paid').length}
+          icon={<AdminIcon className="h-6 w-6" name="check" />}
+        />
+        <StatsCard
+          label="Unpaid"
+          value={orders.filter(o => o.paymentStatus === 'unpaid').length}
+          icon={<AdminIcon className="h-6 w-6" name="x" />}
+        />
+        <StatsCard
+          label="Revenue"
+          value={`BDT ${orders.reduce((sum, o) => sum + Number(o.total || 0), 0).toLocaleString()}`}
+          icon={<AdminIcon className="h-6 w-6" name="report" />}
+        />
+      </div>
+
       {(error || actionError) && (
-        <p className="mb-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+        <Alert variant="danger" className="mb-6" onClose={() => { setError(""); setActionError(""); }}>
           {error || actionError}
-        </p>
+        </Alert>
       )}
 
-      <div className="grid gap-4 xl:grid-cols-[380px_1fr]">
-        <div className="flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white">
-          <div className="flex items-center gap-3 border-b border-slate-100 p-4 bg-slate-50/30">
-            <label className="flex h-11 flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 transition-all focus-within:border-blue-500">
-              <AdminIcon className="h-4 w-4 shrink-0 text-slate-400" name="search" />
-              <input
-                className="w-full bg-transparent text-[13px] font-medium outline-none placeholder:text-slate-400"
-                placeholder="Search orders..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              {search && (
-                <button
-                  onClick={() => setSearch("")}
-                  className="grid h-6 w-6 place-items-center rounded-md hover:bg-slate-100 text-slate-400 transition-colors"
-                >
-                  <AdminIcon className="h-3 w-3" name="x" />
-                </button>
-              )}
-            </label>
+      <div className="grid gap-6 xl:grid-cols-[420px_1fr]">
+        <Card className="flex flex-col overflow-hidden p-0 h-fit border-slate-200">
+          {/* Search Header */}
+          <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-slate-100 p-3 bg-white">
+            <div className="flex-1">
+              <div className="relative">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  <AdminIcon className="h-4 w-4" name="search" />
+                </div>
+                <input
+                  placeholder="Order no. / Phone no."
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-full h-10 border border-slate-200 bg-slate-50 pl-10 pr-3 text-[14px] outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
           </div>
 
-          <div key={search} className="flex-1 overflow-y-auto h-[600px] min-h-[400px] animate-in fade-in slide-in-from-left-2 duration-300">
+          {/* Order List */}
+          <div key={search} className="flex-1 overflow-y-auto max-h-[700px] animate-in fade-in slide-in-from-left-2 duration-300">
             {isLoading ? (
-              <div className="flex h-full items-center justify-center py-16 text-center text-sm text-slate-400">Loading orders…</div>
-            ) : filtered.length === 0 ? (
-              <div className="flex h-full items-center justify-center py-16 text-center text-slate-400">No completed orders found.</div>
-            ) : (
-              <div className="divide-y divide-slate-100">
-                {filtered.map((order) => (
-                  <button
-                    key={order.id}
-                    onClick={() => setSelectedId(order.id)}
-                    className={`flex w-full items-start justify-between gap-2 px-5 py-4 text-left transition-all duration-200 hover:bg-slate-50 ${
-                      selectedId === order.id ? "bg-blue-50/50 border-l-4 border-blue-600" : ""
-                    }`}
-                  >
-                    <div className="min-w-0">
-                      <p className="text-[13px] font-black text-slate-900 uppercase">{order.orderNumber}</p>
-                      <p className="text-[11px] font-medium text-slate-500 mt-0.5">{formatDate(order.placedAt)}</p>
-                      <div className="mt-3">
-                        <span className={`inline-flex items-center rounded px-2 py-0.5 text-[10px] font-bold ${getPaymentStatusColor(order.paymentStatus)}`}>
-                          {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="shrink-0 text-right">
-                      <p className="text-[13px] font-black text-slate-900">BDT {Number(order.total || 0).toLocaleString()}</p>
-                      <p className="text-[11px] font-medium text-slate-500 mt-0.5">{order.items?.length || 0}Items</p>
-                      <div className="mt-3 flex justify-end">
-                        <span className="inline-flex items-center rounded border border-rose-200 bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-600">
-                          {(order.payments?.[0]?.method || "COD").toUpperCase()}
-                        </span>
-                      </div>
-                    </div>
-                  </button>
-                ))}
+              <div className="flex h-full items-center justify-center py-24">
+                <div className="text-center">
+                  <div className="h-12 w-12 animate-spin border-4 border-gray-200 border-t-blue-600 mx-auto mb-4" />
+                  <p className={`${Typography.body} text-gray-500`}>Loading completed orders...</p>
+                </div>
               </div>
+            ) : paginatedOrders.length === 0 ? (
+              <div className="flex h-full flex-col items-center justify-center py-24">
+                <EmptyState
+                  icon={<AdminIcon className="h-8 w-8 text-gray-400" name="check" />}
+                  title="No Completed Orders Found"
+                  description="No delivered orders match your search criteria."
+                />
+              </div>
+            ) : (
+              <>
+                <div className="divide-y divide-slate-100">
+                  {paginatedOrders.map((order) => (
+                    <button
+                      key={order.id}
+                      onClick={() => setSelectedId(order.id)}
+                      className={`flex w-full items-start justify-between gap-4 px-4 py-5 text-left transition-all duration-200 hover:bg-slate-50 ${
+                        selectedId === order.id 
+                          ? "bg-blue-50 border-r-[3px] border-r-blue-600" 
+                          : ""
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[15px] font-black text-slate-950 uppercase">{order.orderNumber}</p>
+                        <p className="text-xs font-bold text-slate-400 mt-1">{formatDate(order.placedAt)}</p>
+                        <div className="mt-3 flex items-center gap-2">
+                          <span className={`px-2 py-0.5 text-[10px] font-black border bg-emerald-50 text-emerald-600 border-emerald-100 uppercase rounded-md`}>
+                            {order.paymentStatus}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="text-[15px] font-black text-slate-950">BDT {Number(order.total || 0).toLocaleString()}</p>
+                        <p className="text-xs font-bold text-slate-400 mt-1">
+                          {order.items?.length || 0} Items
+                        </p>
+                        <div className="mt-3 flex justify-end">
+                           <span className={`px-2 py-0.5 text-[10px] font-black border bg-red-50 text-red-600 border-red-100 uppercase rounded-md`}>
+                            {(order.payments?.[0]?.method || "COD")}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="sticky bottom-0 flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3">
+                    <p className={`${Typography.body} text-gray-600`}>
+                      Page <span className="font-bold text-emerald-600">{page}</span> of <span className="font-bold text-emerald-600">{totalPages}</span>
+                      <span className="ml-2 text-gray-400">({filtered.length} total orders)</span>
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="neutral"
+                        size="sm"
+                        disabled={page === 1}
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        icon={<AdminIcon className="h-4 w-4 rotate-180" name="chevronRight" />}
+                      >
+                        Previous
+                      </Button>
+                      <Button
+                        variant="neutral"
+                        size="sm"
+                        disabled={page === totalPages}
+                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                        icon={<AdminIcon className="h-4 w-4" name="chevronRight" />}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
-        </div>
+        </Card>
 
+        {/* Order Details Panel */}
         <div key={selectedId || 'none'} className="animate-in fade-in slide-in-from-right-2 duration-300">
           {selected ? (
-            <section className="flex flex-col gap-4">
-              <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4">
-                <div className="flex items-center gap-3">
-                  <span className="grid h-10 w-10 place-items-center rounded-full bg-emerald-600 text-white shadow-lg shadow-emerald-200">
-                    <AdminIcon className="h-5 w-5" name="check" />
-                  </span>
-                  <div>
-                    <p className="text-[13px] font-black text-slate-900">Order Completed</p>
-                    <p className="text-[11px] font-medium text-slate-500">{formatDate(selected.placedAt)}</p>
+            <div className="flex flex-col gap-6 min-h-[600px]">
+              {actionError && (
+                <Alert variant="danger" onClose={() => setActionError("")}>
+                  {actionError}
+                </Alert>
+              )}
+
+              {/* Order Header */}
+              <Card className="p-4 bg-white border-slate-200">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-md bg-emerald-600 text-white">
+                      <AdminIcon className="h-5 w-5" name="check" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-900">
+                        Order {selected.orderNumber}
+                      </p>
+                      <p className="text-xs font-bold text-slate-500">
+                        {formatDate(selected.placedAt)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {dueAmount > 0 && (
-                    <button 
-                      disabled={isActioning}
-                      onClick={handleMakePayment}
-                      className="rounded-xl bg-emerald-600 px-4 py-2 text-[13px] font-black text-white hover:bg-emerald-700 transition-colors shadow-sm disabled:opacity-50"
-                    >
-                      {isActioning ? "Paying..." : "Make Payment"}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {dueAmount > 0 && (
+                      <Button
+                        variant="success"
+                        size="md"
+                        disabled={isActioning}
+                        isLoading={isActioning}
+                        onClick={handleMakePayment}
+                        className="font-black bg-[#10b981] hover:bg-[#059669] border-none"
+                      >
+                        Make Payment
+                      </Button>
+                    )}
+                    <button className="h-10 w-10 border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-md">
+                      <AdminIcon name="actions" />
                     </button>
-                  )}
-                  <button className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 text-slate-400 hover:bg-slate-50">
-                    <AdminIcon className="h-5 w-5" name="actions" />
-                  </button>
+                  </div>
                 </div>
-              </div>
+              </Card>
 
-              <article className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+              {/* Order Details Body */}
+              <Card className="overflow-hidden border-slate-200">
                 <div className="p-6">
-                  <div className="mb-8 rounded-xl border border-slate-200 p-6 bg-slate-50/50">
-                    <h3 className="mb-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Shipping & Billing Address</h3>
-                    <div className="flex items-start gap-3">
-                      <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-slate-200 text-slate-500">
-                        <AdminIcon className="h-4 w-4" name="user" />
-                      </div>
+                  {/* Customer Information */}
+                  <div className="mb-8 border-b border-slate-100 pb-8">
+                    <div className="flex items-start justify-between">
                       <div>
-                        <p className="text-sm font-black text-slate-900">
+                        <h3 className="text-2xl font-black text-slate-900">
                           {selected.user?.name || "Regular Customer"} ({selected.user?.phone || "N/A"})
-                        </p>
-                        <p className="mt-1 text-sm font-medium text-slate-600">
-                          {selected.address?.addressLine1}, {selected.address?.city}, {selected.address?.state}, {selected.address?.postalCode}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                    <div className="rounded-xl border border-slate-100 p-4">
-                      <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Order #</p>
-                      <p className="mt-1 text-[13px] font-black text-slate-900">{selected.orderNumber}</p>
-                    </div>
-                    <div className="rounded-xl border border-slate-100 p-4">
-                      <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Order Date</p>
-                      <p className="mt-1 text-[13px] font-black text-slate-900">{formatDate(selected.placedAt)}</p>
-                    </div>
-                    <div className="rounded-xl border border-slate-100 p-4">
-                      <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Payment Status</p>
-                      <span className={`mt-2 inline-flex items-center rounded px-2 py-0.5 text-[10px] font-black uppercase ${getPaymentStatusColor(selected.paymentStatus)}`}>
-                        {selected.paymentStatus}
-                      </span>
-                    </div>
-                    <div className="rounded-xl border border-slate-100 p-4">
-                      <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Type</p>
-                      <div className="mt-2 flex items-center gap-2">
-                        <span className="inline-flex items-center rounded border border-blue-100 bg-blue-50 px-2 py-0.5 text-[10px] font-black text-blue-600 uppercase">
-                          {(selected.payments?.[0]?.method || "COD")}
-                        </span>
-                        <span className="inline-flex items-center rounded border border-slate-100 bg-slate-50 px-2 py-0.5 text-[10px] font-black text-slate-600 uppercase">
-                          Normal
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4 mb-8">
-                    {(selected.items || []).map((item) => (
-                      <div key={item.id} className="flex items-center gap-4 rounded-xl bg-slate-50/50 p-3 border border-slate-100">
-                        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-400 border border-slate-200">
-                          <AdminIcon className="h-6 w-6" name="package" />
+                        </h3>
+                        
+                        <div className="mt-6">
+                          <div className="flex items-center gap-2 mb-2">
+                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Shipping & Billing Address</p>
+                             <button className="text-blue-500">
+                               <AdminIcon className="h-3.5 w-3.5" name="edit" />
+                             </button>
+                          </div>
+                          <p className="text-[14px] font-bold text-slate-700">
+                            {selected.address?.addressLine1}, {selected.address?.city}, {selected.address?.state}, {selected.address?.postalCode}
+                          </p>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-black text-slate-900 truncate">{item.product?.name}</p>
-                          <p className="text-[11px] font-medium text-slate-400 mt-0.5 uppercase">SKU: {item.variant?.sku || "—"}</p>
+                      </div>
+                      
+                      <div className="flex flex-col items-end gap-2 text-right">
+                         <div className="flex gap-8 mb-4">
+                            <div>
+                               <p className="text-xs font-bold text-slate-400 mb-1">Order #</p>
+                               <p className="text-sm font-black text-slate-900">{selected.orderNumber}</p>
+                            </div>
+                            <div>
+                               <p className="text-xs font-bold text-slate-400 mb-1">Order Date</p>
+                               <p className="text-sm font-black text-slate-900">{formatDate(selected.placedAt)}</p>
+                            </div>
+                         </div>
+                         <div className="flex items-center gap-4">
+                             <p className="text-xs font-bold text-slate-400">Payment Status</p>
+                              <div className="flex gap-2">
+                                <span className="px-2 py-0.5 text-[10px] font-black border bg-emerald-50 text-emerald-600 border-emerald-100 uppercase rounded-md">
+                                   {selected.paymentStatus}
+                                </span>
+                                <span className="px-2 py-0.5 text-[10px] font-black border bg-red-50 text-red-600 border-red-100 uppercase rounded-md">
+                                   {(selected.payments?.[0]?.method || "COD")}
+                                </span>
+                             </div>
+                         </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-8 flex justify-end">
+                       <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 text-red-600 border border-red-100 text-[11px] font-black rounded-md">
+                          <AdminIcon className="h-3 w-3" name="zap" />
+                          Normal Delivery
+                       </span>
+                    </div>
+                  </div>
+
+                  {/* Order Items */}
+                  <div className="space-y-6 mb-12">
+                    {(selected.items || []).map((item) => (
+                      <div key={item.id} className="flex items-center gap-4">
+                        <div className="h-16 w-20 shrink-0 bg-slate-50 border border-slate-100 flex items-center justify-center rounded-md">
+                          <AdminIcon className="h-8 w-8 text-slate-300" name="package" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[14px] font-black text-slate-900">{item.product?.name}</p>
+                          <p className="text-[11px] font-bold text-slate-400 mt-1 uppercase">
+                            SKU: {item.variant?.sku || "—"}
+                          </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-black text-slate-900">BDT {Number(item.totalPrice).toLocaleString()}</p>
-                          <p className="mt-1 text-[11px] font-medium text-slate-500">{item.quantity} Item(s)</p>
+                          <div className="flex items-center justify-end gap-2 mb-1">
+                             <p className="text-sm font-black text-slate-900">{item.quantity} Item(s)</p>
+                          </div>
+                          <p className="text-[15px] font-black text-slate-900">BDT {Number(item.totalPrice).toLocaleString()}</p>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <div className="ml-auto max-w-sm space-y-3">
-                    <div className="flex justify-between text-sm font-medium">
-                      <span className="text-slate-500">Subtotal</span>
-                      <span className="text-slate-900 font-bold font-mono">BDT {(Number(selected.total) - Number(selected.shippingCost)).toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-sm font-medium">
-                      <span className="text-slate-500">Delivery charge</span>
-                      <span className="text-slate-900 font-bold font-mono">+ BDT {Number(selected.shippingCost).toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-[16px] font-black border-t border-slate-100 pt-3">
-                      <span className="text-slate-900">Total</span>
-                      <span className="text-slate-900 font-mono">BDT {Number(selected.total).toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-sm font-black pt-2">
-                      <span className="text-emerald-600">Paid Amount</span>
-                      <span className="text-emerald-600 font-mono">BDT {paidAmount.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-sm font-black">
-                      <span className="text-rose-600">Due Amount</span>
-                      <span className="text-rose-600 font-mono">BDT {dueAmount.toLocaleString()}</span>
+                  {/* Order Summary */}
+                  <div className="ml-auto max-w-xs space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-sm font-bold text-slate-500">Subtotal</span>
+                        <span className="text-sm font-black text-slate-900">
+                          BDT {(Number(selected.total) - Number(selected.shippingCost)).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm font-bold text-slate-500">Delivery charge</span>
+                        <span className="text-sm font-bold text-slate-900">
+                          + BDT {Number(selected.shippingCost).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="pt-3">
+                        <div className="flex justify-between">
+                          <span className="text-base font-black text-slate-900">Total</span>
+                          <span className="text-base font-black text-slate-900">BDT {Number(selected.total).toLocaleString()}</span>
+                        </div>
+                      </div>
+                      <div className="pt-3 space-y-3">
+                        <div className="flex justify-between">
+                          <span className="text-sm font-black text-emerald-600">Paid Amount</span>
+                          <span className="text-sm font-black text-emerald-600">BDT {paidAmount.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm font-black text-red-600">Due Amount</span>
+                          <span className="text-sm font-black text-red-600">BDT {dueAmount.toLocaleString()}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </article>
-            </section>
+              </Card>
+            </div>
           ) : (
             <NoOrderSelected />
           )}

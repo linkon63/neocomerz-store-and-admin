@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 
 export type AdminIconName =
   | "actions"
+  | "arrow-left"
+  | "arrow-right"
   | "brand"
   | "calendar"
   | "category"
@@ -15,6 +17,8 @@ export type AdminIconName =
   | "download"
   | "edit"
   | "filter"
+  | "image"
+  | "link"
   | "logout"
   | "orders"
   | "package"
@@ -45,6 +49,8 @@ const iconPaths: Record<AdminIconName, ReactNode> = {
       <circle cx="5" cy="12" r="1" />
     </>
   ),
+  "arrow-left": <path d="M19 12H5M12 19l-7-7 7-7" />,
+  "arrow-right": <path d="M5 12h14M12 5l7 7-7 7" />,
   brand: (
     <>
       <path d="M12 3l7 4v10l-7 4-7-4V7z" />
@@ -109,6 +115,19 @@ const iconPaths: Record<AdminIconName, ReactNode> = {
       <path d="M4 6h16" />
       <path d="M7 12h10" />
       <path d="M10 18h4" />
+    </>
+  ),
+  image: (
+    <>
+      <rect height="18" rx="2" width="18" x="3" y="3" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <path d="M21 15l-5-5L5 21" />
+    </>
+  ),
+  link: (
+    <>
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
     </>
   ),
   logout: (

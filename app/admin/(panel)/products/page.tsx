@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AdminIcon, PageHeader, ProductThumb } from "../../_components/admin-shell";
 import { ConfirmModal } from "../../_components/confirm-modal";
@@ -116,6 +116,16 @@ export default function ProductsPage() {
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
   const [isDuplicating, setIsDuplicating] = useState<string | null>(null);
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState<Record<string, string>>({});
+  const [adjustModalOpen, setAdjustModalOpen] = useState(false);
+  const [productToAdjust, setProductToAdjust] = useState<Product | null>(null);
+  const [adjustmentBranch, setAdjustmentBranch] = useState("Main Branch");
+  const [adjustmentType, setAdjustmentType] = useState("");
+  const [adjustmentNote, setAdjustmentNote] = useState("");
+  const [adjustmentQuantity, setAdjustmentQuantity] = useState("");
+  const [isAdjusting, setIsAdjusting] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const categoryOptions = useMemo(
@@ -125,6 +135,109 @@ export default function ProductsPage() {
 
   const totalPages = Math.ceil(total / limit);
   const hasActiveFilters = Object.values(filters).some((v) => v !== "");
+
+  const toggleRow = (productId: string) => {
+    setExpandedRows((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(productId)) {
+        newSet.delete(productId);
+      } else {
+        newSet.add(productId);
+        if (!activeTab[productId]) {
+          setActiveTab((prev) => ({ ...prev, [productId]: "inventory" }));
+        }
+      }
+      return newSet;
+    });
+  };
+
+  const setTabForProduct = (productId: string, tab: string) => {
+    setActiveTab((prev) => ({ ...prev, [productId]: tab }));
+  };
+
+  const openAdjustModal = (product: Product) => {
+    setProductToAdjust(product);
+    setAdjustmentBranch("Main Branch");
+    setAdjustmentType("");
+    setAdjustmentNote("");
+    setAdjustmentQuantity("");
+    setAdjustModalOpen(true);
+  };
+
+  const closeAdjustModal = () => {
+    setProductToAdjust(null);
+    setAdjustmentBranch("Main Branch");
+    setAdjustmentType("");
+    setAdjustmentNote("");
+    setAdjustmentQuantity("");
+    setAdjustModalOpen(false);
+  };
+
+  const calculateNewInventory = () => {
+    if (!productToAdjust || !adjustmentQuantity) {
+      return getDefaultVariant(productToAdjust!)?.stockQuantity ?? 0;
+    }
+    const currentStock = getDefaultVariant(productToAdjust)?.stockQuantity ?? 0;
+    const adjustment = Number(adjustmentQuantity);
+    return currentStock + adjustment;
+  };
+
+  async function handleAdjustInventory() {
+    if (!productToAdjust || !adjustmentType || !adjustmentQuantity) {
+      setError("Please fill in all required fields");
+      return;
+    }
+
+    setIsAdjusting(true);
+    setError("");
+
+    try {
+      const variant = getDefaultVariant(productToAdjust);
+      if (!variant) {
+        throw new Error("No variant found for this product");
+      }
+
+      const currentStock = variant.stockQuantity ?? 0;
+      const adjustment = Number(adjustmentQuantity);
+      const newStock = currentStock + adjustment;
+
+      if (newStock < 0) {
+        throw new Error("Stock cannot be negative");
+      }
+
+      // Update variant stock
+      await apiRequest(`/variants/${variant.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          stockQuantity: newStock,
+        }),
+      });
+
+      // Optionally log the adjustment (if you have an inventory log endpoint)
+      // await apiRequest("/inventory-logs", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({
+      //     productId: productToAdjust.id,
+      //     variantId: variant.id,
+      //     branch: adjustmentBranch,
+      //     type: adjustmentType,
+      //     quantity: adjustment,
+      //     note: adjustmentNote,
+      //     previousStock: currentStock,
+      //     newStock: newStock,
+      //   }),
+      // });
+
+      closeAdjustModal();
+      await loadProducts();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to adjust inventory");
+    } finally {
+      setIsAdjusting(false);
+    }
+  }
 
   useEffect(() => {
     if (form.images.length === 0) {
@@ -300,7 +413,7 @@ export default function ProductsPage() {
     );
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     setIsSaving(true);
@@ -426,18 +539,35 @@ export default function ProductsPage() {
     <>
       <PageHeader
         title="Products"
-        description="Create products, manage catalog data, variants, stock, and product images."
+        description="Manage your product catalog with advanced inventory tracking, pricing controls, and comprehensive analytics."
         action={
           <div className="flex gap-3">
             <button
-              className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-slate-300 bg-white font-black hover:bg-slate-50 transition-colors"
+              className="grid h-12 w-12 shrink-0 place-items-center rounded-lg border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm"
               onClick={() => loadProducts()}
               type="button"
+              title="Refresh products"
             >
-              <AdminIcon className="h-5 w-5" name="refresh" />
+              <AdminIcon className="h-5 w-5 text-slate-600" name="refresh" />
+            </button>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`inline-flex h-12 items-center gap-2 rounded-lg border transition-all shadow-sm ${
+                showFilters || hasActiveFilters
+                  ? "border-blue-500 bg-blue-50 text-blue-600"
+                  : "border-slate-300 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-400"
+              }`}
+            >
+              <AdminIcon className="h-5 w-5 ml-4" name="filter" />
+              <span className="text-[14px] font-semibold mr-4">Filters</span>
+              {hasActiveFilters && (
+                <span className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[11px] font-bold text-white">
+                  {Object.values(filters).filter((v) => v !== "").length}
+                </span>
+              )}
             </button>
             <Link
-              className="inline-flex h-14 items-center gap-2 rounded-xl bg-blue-600 px-6 font-black text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
+              className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-6 text-[14px] font-semibold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20"
               href="/admin/products/new"
             >
               <AdminIcon className="h-5 w-5" name="plus" />
@@ -447,15 +577,15 @@ export default function ProductsPage() {
         }
       />
 
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between animate-in fade-in duration-500">
-        <div className="relative flex-1 max-w-md">
-          <label className="flex h-12 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative flex-1 max-w-lg">
+          <label className="flex h-12 items-center gap-3 rounded-lg border-2 border-slate-200 bg-white px-4 transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 shadow-sm">
             <AdminIcon className="h-5 w-5 text-slate-400" name="search" />
             <input
-              className="w-full bg-transparent text-sm font-medium outline-none placeholder:text-slate-400"
+              className="w-full bg-transparent text-[15px] font-medium outline-none placeholder:text-slate-400"
               onChange={(event) => setSearch(event.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              placeholder="Search by name, SKU or slug..."
+              placeholder="Search products by name, SKU, or slug..."
               value={search}
             />
             {search && (
@@ -465,59 +595,47 @@ export default function ProductsPage() {
                   setPage(1);
                   loadProducts();
                 }}
-                className="grid h-7 w-7 place-items-center rounded-lg hover:bg-slate-100 text-slate-400 transition-colors"
+                className="grid h-7 w-7 place-items-center rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-all"
               >
-                <AdminIcon className="h-3.5 w-3.5" name="x" />
+                <AdminIcon className="h-4 w-4" name="x" />
               </button>
             )}
           </label>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 rounded-xl px-4 py-2 bg-slate-100 border border-slate-200">
-            <div className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
-            <span className="text-[13px] font-black text-slate-600 uppercase tracking-wider">
+          <div className="flex items-center gap-3 rounded-lg px-4 py-2.5 bg-gradient-to-r from-blue-50 to-blue-100/50 border border-blue-200 shadow-sm">
+            <div className="h-2.5 w-2.5 rounded-full bg-blue-600 animate-pulse" />
+            <span className="text-[14px] font-bold text-blue-900">
               {total} Products
             </span>
           </div>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`relative grid h-12 w-12 place-items-center rounded-xl border transition-all group ${
-              showFilters || hasActiveFilters
-                ? "border-blue-500 bg-blue-50 text-blue-600"
-                : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-            }`}
-          >
-            <AdminIcon className="h-5 w-5 group-hover:rotate-12 transition-transform" name="filter" />
-            {hasActiveFilters && (
-              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-black text-white">
-                {Object.values(filters).filter((v) => v !== "").length}
-              </span>
-            )}
-          </button>
         </div>
       </div>
 
       {showFilters && (
-        <div className="fixed inset-0 z-40 flex">
+        <div className="fixed inset-0 z-50 flex">
           <div
-            className="absolute inset-0 bg-slate-950/40 animate-in fade-in duration-300"
+            className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
             onClick={() => setShowFilters(false)}
           />
-          <div className="relative ml-auto flex h-full w-full max-w-sm flex-col bg-white shadow-2xl animate-in slide-in-from-right duration-300">
-            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-              <h3 className="text-lg font-black text-slate-900">Advanced Filters</h3>
+          <div className="relative ml-auto flex h-full w-full max-w-md flex-col bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 bg-gradient-to-r from-slate-50 to-white">
+              <div>
+                <h3 className="text-[18px] font-bold text-slate-900">Advanced Filters</h3>
+                <p className="text-[13px] text-slate-500 mt-0.5">Refine your product search</p>
+              </div>
               <button
                 onClick={() => setShowFilters(false)}
-                className="grid h-9 w-9 place-items-center rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors"
+                className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:border-slate-300 transition-all"
               >
-                <AdminIcon className="h-4 w-4" name="x" />
+                <AdminIcon className="h-4.5 w-4.5" name="x" />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">Category</span>
+                <span className="mb-2 block text-[14px] font-semibold text-slate-700">Category</span>
                 <select
-                  className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-4 text-[15px] font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
                   onChange={(e) => {
                     setFilters((f) => ({ ...f, categoryId: e.target.value }));
                     setPage(1);
@@ -533,9 +651,9 @@ export default function ProductsPage() {
                 </select>
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">Brand</span>
+                <span className="mb-2 block text-[14px] font-semibold text-slate-700">Brand</span>
                 <select
-                  className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-4 text-[15px] font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
                   onChange={(e) => {
                     setFilters((f) => ({ ...f, brandId: e.target.value }));
                     setPage(1);
@@ -551,9 +669,9 @@ export default function ProductsPage() {
                 </select>
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">Status</span>
+                <span className="mb-2 block text-[14px] font-semibold text-slate-700">Status</span>
                 <select
-                  className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-4 text-[15px] font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
                   onChange={(e) => {
                     setFilters((f) => ({ ...f, status: e.target.value }));
                     setPage(1);
@@ -566,36 +684,38 @@ export default function ProductsPage() {
                   <option value="inactive">Inactive</option>
                 </select>
               </label>
+              <div className="grid grid-cols-2 gap-4">
+                <label className="block">
+                  <span className="mb-2 block text-[14px] font-semibold text-slate-700">Min Price</span>
+                  <input
+                    className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-4 text-[15px] font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
+                    onChange={(e) => {
+                      setFilters((f) => ({ ...f, minPrice: e.target.value }));
+                      setPage(1);
+                    }}
+                    placeholder="৳0"
+                    type="number"
+                    value={filters.minPrice}
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-[14px] font-semibold text-slate-700">Max Price</span>
+                  <input
+                    className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-4 text-[15px] font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
+                    onChange={(e) => {
+                      setFilters((f) => ({ ...f, maxPrice: e.target.value }));
+                      setPage(1);
+                    }}
+                    placeholder="৳10000"
+                    type="number"
+                    value={filters.maxPrice}
+                  />
+                </label>
+              </div>
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">Min Price</span>
-                <input
-                  className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                  onChange={(e) => {
-                    setFilters((f) => ({ ...f, minPrice: e.target.value }));
-                    setPage(1);
-                  }}
-                  placeholder="৳0"
-                  type="number"
-                  value={filters.minPrice}
-                />
-              </label>
-              <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">Max Price</span>
-                <input
-                  className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                  onChange={(e) => {
-                    setFilters((f) => ({ ...f, maxPrice: e.target.value }));
-                    setPage(1);
-                  }}
-                  placeholder="৳10000"
-                  type="number"
-                  value={filters.maxPrice}
-                />
-              </label>
-              <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">Stock Status</span>
+                <span className="mb-2 block text-[14px] font-semibold text-slate-700">Stock Status</span>
                 <select
-                  className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-4 text-[15px] font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
                   onChange={(e) => {
                     setFilters((f) => ({ ...f, stockStatus: e.target.value }));
                     setPage(1);
@@ -608,18 +728,18 @@ export default function ProductsPage() {
                 </select>
               </label>
             </div>
-            <div className="border-t border-slate-200 px-6 py-5 flex items-center gap-3">
+            <div className="border-t border-slate-200 px-6 py-5 flex items-center gap-3 bg-slate-50">
               {hasActiveFilters && (
                 <button
                   onClick={() => { clearFilters(); setShowFilters(false); }}
-                  className="flex-1 h-11 rounded-xl border border-slate-200 bg-white text-sm font-black text-slate-600 hover:bg-slate-50 transition-colors"
+                  className="flex-1 h-11 rounded-lg border-2 border-slate-200 bg-white text-[15px] font-semibold text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all"
                 >
                   Clear all
                 </button>
               )}
               <button
                 onClick={() => setShowFilters(false)}
-                className="flex-1 h-11 rounded-xl bg-blue-600 text-sm font-black text-white hover:bg-blue-700 transition-colors"
+                className="flex-1 h-11 rounded-lg bg-blue-600 text-[15px] font-semibold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20"
               >
                 Apply Filters
               </button>
@@ -629,154 +749,559 @@ export default function ProductsPage() {
       )}
 
       {error && (
-        <p className="mb-6 bg-red-50 px-4 py-3 text-sm font-bold text-red-700 border border-red-100 rounded-xl animate-in shake duration-300">
-          {error}
-        </p>
+        <div className="mb-6 bg-gradient-to-r from-red-50 to-red-100/50 border-2 border-red-200 px-5 py-4 rounded-xl animate-in shake duration-300 shadow-sm">
+          <div className="flex items-start gap-3">
+            <svg className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="flex-1">
+              <p className="text-[15px] font-semibold text-red-900">{error}</p>
+            </div>
+            <button
+              onClick={() => setError("")}
+              className="grid h-6 w-6 place-items-center rounded-lg hover:bg-red-200 transition-colors"
+            >
+              <svg className="h-4 w-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
       )}
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
-          <div className="min-w-[1200px]">
+          <div className="min-w-[1400px]">
             <table className="w-full text-left">
-              <thead className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur-sm border-b border-slate-200">
+              <thead className="bg-gradient-to-r from-slate-50 to-slate-100/50 border-b border-slate-200">
                 <tr>
-                  <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-slate-500">Image</th>
-                  <th className="px-5 py-5 text-[11px] font-black uppercase tracking-widest text-slate-500">Product Info</th>
-                  <th className="px-5 py-5 text-[11px] font-black uppercase tracking-widest text-slate-500">SKU</th>
-                  <th className="px-5 py-5 text-[11px] font-black uppercase tracking-widest text-slate-500">Category</th>
-                  <th className="px-5 py-5 text-[11px] font-black uppercase tracking-widest text-slate-500 text-right">Price</th>
-                  <th className="px-5 py-5 text-[11px] font-black uppercase tracking-widest text-slate-500 text-center">Stock</th>
-                  <th className="px-5 py-5 text-[11px] font-black uppercase tracking-widest text-slate-500 text-center">Status</th>
-                  <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-slate-500 text-right">Actions</th>
+                  <th className="w-10 px-4 py-4"></th>
+                  <th className="px-4 py-4 text-[14px] font-semibold text-slate-700">
+                    Products ↕
+                  </th>
+                  <th className="px-4 py-4 text-[14px] font-semibold text-slate-700">
+                    Brand ↕
+                  </th>
+                  <th className="px-4 py-4 text-[14px] font-semibold text-slate-700">
+                    Supplier ↕
+                  </th>
+                  <th className="px-4 py-4 text-[14px] font-semibold text-slate-700">
+                    Total Inventory ↕
+                  </th>
+                  <th className="px-4 py-4 text-[14px] font-semibold text-slate-700">
+                    Retail Price ↕
+                  </th>
+                  <th className="px-4 py-4 text-[14px] font-semibold text-slate-700">
+                    Created At ↕
+                  </th>
+                  <th className="px-4 py-4 text-[14px] font-semibold text-slate-700 text-center">
+                    Status <span className="text-slate-400 text-[12px]">ⓘ</span>
+                  </th>
+                  <th className="px-4 py-4 text-[14px] font-semibold text-slate-700 text-center">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {isLoading ? (
                   <tr>
-                    <td className="px-8 py-32 text-center" colSpan={8}>
+                    <td className="px-8 py-32 text-center" colSpan={9}>
                       <div className="flex flex-col items-center gap-4">
                         <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-100 border-t-blue-600" />
-                        <span className="text-sm font-bold text-slate-400">Fetching products...</span>
+                        <span className="text-[14px] font-medium text-slate-400">Fetching products...</span>
                       </div>
                     </td>
                   </tr>
                 ) : products.length > 0 ? (
-                  products.map((product, index) => {
+                  products.map((product) => {
                     const variant = getDefaultVariant(product);
                     const featuredMedia = getFeaturedMedia(product);
+                    const isExpanded = expandedRows.has(product.id);
+                    const currentTab = activeTab[product.id] || "inventory";
 
                     return (
-                      <tr key={product.id} className="group hover:bg-slate-50/80 transition-colors animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: `${index * 30}ms` }}>
-                        <td className="px-8 py-4">
-                          <div className="relative h-14 w-14 overflow-hidden rounded-xl border border-slate-200 bg-white ring-4 ring-transparent group-hover:ring-blue-50 transition-all">
-                            {featuredMedia ? (
-                              <img
-                                alt={product.name}
-                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                src={featuredMedia}
+                      <React.Fragment key={product.id}>
+                        <tr className="hover:bg-blue-50/30 transition-all duration-200 group">
+                          <td className="px-4 py-4">
+                            <button
+                              onClick={() => toggleRow(product.id)}
+                              className="grid h-7 w-7 place-items-center rounded-lg hover:bg-blue-100 transition-all duration-200"
+                            >
+                              <svg
+                                className={`h-3.5 w-3.5 text-slate-600 transition-transform duration-200 ${
+                                  isExpanded ? "rotate-90" : ""
+                                }`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </button>
+                          </td>
+                          <td className="px-4 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="relative h-12 w-12 overflow-hidden rounded-lg border-2 border-slate-200 bg-white flex-shrink-0 group-hover:border-blue-300 transition-all duration-200 shadow-sm">
+                                {featuredMedia ? (
+                                  <img
+                                    alt={product.name}
+                                    className="h-full w-full object-cover"
+                                    src={featuredMedia}
+                                  />
+                                ) : (
+                                  <ProductThumb color="bg-slate-100" />
+                                )}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-[15px] font-semibold text-slate-900 truncate max-w-[280px] group-hover:text-blue-600 transition-colors">
+                                  {product.name}
+                                </p>
+                                <p className="text-[13px] font-normal text-slate-400 mt-0.5">
+                                  {product.slug}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4">
+                            <span className="text-[15px] font-medium text-slate-700">
+                              {product.brand?.name || "-"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4">
+                            <span className="text-[15px] font-medium text-slate-700">
+                              {product.category?.name || "-"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[16px] font-semibold text-slate-900">
+                                {variant?.stockQuantity ?? 0}
+                              </span>
+                              <span className="text-[13px] font-normal text-slate-400">
+                                (pcs)
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4">
+                            <div>
+                              <p className="text-[16px] font-semibold text-slate-900">
+                                ৳{Number(variant?.price || 0).toLocaleString("en")}
+                              </p>
+                              <p className="text-[13px] font-normal text-slate-400">
+                                (pcs)
+                              </p>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4">
+                            <span className="text-[15px] font-medium text-slate-700">
+                              {product.createdAt
+                                ? new Date(product.createdAt).toLocaleDateString("en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  })
+                                : "-"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={product.status === "active"}
+                                onChange={async () => {
+                                  try {
+                                    await apiRequest(`/products/${product.id}`, {
+                                      method: "PATCH",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({
+                                        status: product.status === "active" ? "inactive" : "active",
+                                      }),
+                                    });
+                                    await loadProducts();
+                                  } catch (err) {
+                                    setError(
+                                      err instanceof Error ? err.message : "Failed to update status"
+                                    );
+                                  }
+                                }}
+                                className="sr-only peer"
                               />
-                            ) : (
-                              <ProductThumb color="bg-slate-100" />
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-5 py-4">
-                          <div className="max-w-[200px]">
-                            <p className="truncate text-[15px] font-black text-slate-900 group-hover:text-blue-600 transition-colors">{product.name}</p>
-                            <p className="truncate text-[11px] font-medium text-slate-400 mt-1 uppercase tracking-wide">{product.slug}</p>
-                          </div>
-                        </td>
-                        <td className="px-5 py-4">
-                          <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-md border border-slate-200 group-hover:bg-white group-hover:border-slate-300 transition-colors">
-                            {variant?.sku || "-"}
-                          </span>
-                        </td>
-                        <td className="px-5 py-4">
-                          <span className="text-[13px] font-bold text-slate-600">{product.category?.name || "-"}</span>
-                        </td>
-                        <td className="px-5 py-4 text-right">
-                          <p className="text-[15px] font-black text-slate-900">{formatMoney(variant?.price)}</p>
-                          <p className="text-[10px] font-bold text-slate-400 mt-1 line-through">{formatMoney(Number(variant?.price) * 1.2)}</p>
-                        </td>
-                        <td className="px-5 py-4 text-center">
-                          <span className={`inline-flex h-8 min-w-[3.5rem] items-center justify-center rounded-lg px-2 text-[12px] font-black ${
-                            variant?.stockQuantity && variant.stockQuantity > 0
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                              : "bg-rose-50 text-rose-700 border border-rose-100"
-                          }`}>
-                            {variant?.stockQuantity ?? 0}
-                          </span>
-                        </td>
-                        <td className="px-5 py-4 text-center">
-                          <span
-                            className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-black uppercase tracking-wider ${
-                              product.status === "active"
-                                ? "bg-blue-600 text-white"
-                                : product.status === "draft"
-                                ? "bg-slate-200 text-slate-700"
-                                : "bg-rose-600 text-white"
-                            }`}
-                          >
-                            <div className={`h-2 w-2 rounded-full bg-current ${product.status === "active" ? "animate-pulse" : ""}`} />
-                            {product.status}
-                          </span>
-                        </td>
-                        <td className="px-8 py-4 text-right">
-                          <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                            <button
-                              className="flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-[12px] font-black text-slate-600 hover:bg-slate-50 hover:text-blue-600 hover:border-blue-200 transition-all"
-                              onClick={() => openEditModal(product)}
-                              type="button"
-                            >
-                              <AdminIcon className="h-4 w-4" name="edit" />
-                              Edit
-                            </button>
-                            <button
-                              className="flex h-10 items-center gap-2 rounded-lg border border-violet-100 bg-violet-50 px-4 text-[12px] font-black text-violet-600 hover:bg-violet-600 hover:text-white hover:border-violet-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                              onClick={() => duplicateProduct(product)}
-                              disabled={isDuplicating === product.id}
-                              type="button"
-                              title="Duplicate product"
-                            >
-                              {isDuplicating === product.id ? (
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                              ) : (
-                                <AdminIcon className="h-4 w-4" name="copy" />
+                              <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            <div className="relative inline-block">
+                              <button
+                                onClick={() => setOpenMenuId(openMenuId === product.id ? null : product.id)}
+                                className="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm"
+                                title="More actions"
+                              >
+                                <svg className="h-5 w-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                                </svg>
+                              </button>
+                              
+                              {openMenuId === product.id && (
+                                <>
+                                  <div 
+                                    className="fixed inset-0 z-10" 
+                                    onClick={() => setOpenMenuId(null)}
+                                  />
+                                  <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-slate-200 bg-white shadow-xl z-20 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                                    <button
+                                      onClick={() => {
+                                        openEditModal(product);
+                                        setOpenMenuId(null);
+                                      }}
+                                      className="flex w-full items-center gap-3 px-4 py-3 text-[15px] font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-all"
+                                    >
+                                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                      </svg>
+                                      Edit Product
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        duplicateProduct(product);
+                                        setOpenMenuId(null);
+                                      }}
+                                      disabled={isDuplicating === product.id}
+                                      className="flex w-full items-center gap-3 px-4 py-3 text-[15px] font-medium text-violet-700 hover:bg-violet-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      {isDuplicating === product.id ? (
+                                        <>
+                                          <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                          </svg>
+                                          Duplicating...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                          </svg>
+                                          Duplicate Product
+                                        </>
+                                      )}
+                                    </button>
+                                    <div className="my-1.5 border-t border-slate-200" />
+                                    <button
+                                      onClick={() => {
+                                        setProductToDelete(product);
+                                        setDeleteModalOpen(true);
+                                        setOpenMenuId(null);
+                                      }}
+                                      className="flex w-full items-center gap-3 px-4 py-3 text-[15px] font-medium text-red-700 hover:bg-red-50 transition-all"
+                                    >
+                                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                      Delete Product
+                                    </button>
+                                  </div>
+                                </>
                               )}
-                              {isDuplicating === product.id ? "Copying..." : "Duplicate"}
-                            </button>
-                            <button
-                              className="flex h-10 items-center gap-2 rounded-lg border border-rose-100 bg-rose-50 px-4 text-[12px] font-black text-rose-600 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all"
-                              onClick={() => {
-                                setProductToDelete(product);
-                                setDeleteModalOpen(true);
-                              }}
-                              type="button"
-                            >
-                              <AdminIcon className="h-4 w-4" name="x" />
-                              Delete
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
+                            </div>
+                          </td>
+                        </tr>
+                        {isExpanded && (
+                          <tr>
+                            <td colSpan={9} className="bg-gradient-to-b from-blue-50/30 to-slate-50/30 px-4 py-0 border-t-0">
+                              <div className="py-6 px-6">
+                                {/* Tabs */}
+                                <div className="flex items-center justify-between border-b-2 border-slate-200 mb-6">
+                                  <div className="flex items-center gap-8">
+                                    {["Inventory", "Pricing", "History", "Details"].map((tab) => (
+                                      <button
+                                        key={tab}
+                                        onClick={() => setTabForProduct(product.id, tab.toLowerCase())}
+                                        className={`pb-3.5 text-[15px] font-semibold transition-all relative ${
+                                          currentTab === tab.toLowerCase()
+                                            ? "text-blue-600"
+                                            : "text-slate-500 hover:text-slate-700"
+                                        }`}
+                                      >
+                                        {tab}
+                                        {currentTab === tab.toLowerCase() && (
+                                          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full" />
+                                        )}
+                                      </button>
+                                    ))}
+                                  </div>
+                                  <div className="flex items-center gap-3 pb-2">
+                                    <button 
+                                      onClick={() => openAdjustModal(product)}
+                                      className="inline-flex items-center gap-2 h-10 px-5 rounded-lg border border-slate-300 bg-white text-slate-700 text-[14px] font-medium hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm"
+                                    >
+                                      <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                      </svg>
+                                      Adjust
+                                    </button>
+                                    <button
+                                      onClick={() => duplicateProduct(product)}
+                                      disabled={isDuplicating === product.id}
+                                      className="inline-flex items-center gap-2 h-10 px-5 rounded-lg border border-violet-300 bg-violet-50 text-violet-700 text-[14px] font-medium hover:bg-violet-100 hover:border-violet-400 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                      title="Duplicate product"
+                                    >
+                                      {isDuplicating === product.id ? (
+                                        <>
+                                          <svg className="animate-spin h-4.5 w-4.5" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                          </svg>
+                                          Duplicating...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                          </svg>
+                                          Duplicate
+                                        </>
+                                      )}
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setProductToDelete(product);
+                                        setDeleteModalOpen(true);
+                                      }}
+                                      className="inline-flex items-center gap-2 h-10 px-5 rounded-lg border border-red-300 bg-red-50 text-red-700 text-[14px] font-medium hover:bg-red-100 hover:border-red-400 transition-all shadow-sm"
+                                      title="Delete product"
+                                    >
+                                      <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                      Delete
+                                    </button>
+                                    <button
+                                      onClick={() => openEditModal(product)}
+                                      className="inline-flex items-center justify-center h-10 w-10 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm"
+                                      title="Edit"
+                                    >
+                                      <svg className="h-5 w-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Tab Content */}
+                                <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+                                  {currentTab === "inventory" && (
+                                    <div className="p-6">
+                                      <div className="grid grid-cols-3 gap-8">
+                                        <div>
+                                          <p className="text-[13px] font-semibold text-slate-500 mb-2 uppercase tracking-wide">
+                                            Branch
+                                          </p>
+                                          <p className="text-[16px] font-semibold text-slate-900">
+                                            Main Branch
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-[13px] font-semibold text-slate-500 mb-2 uppercase tracking-wide">
+                                            Address
+                                          </p>
+                                          <p className="text-[16px] font-semibold text-slate-900">
+                                            Dhaka
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-[13px] font-semibold text-slate-500 mb-2 uppercase tracking-wide">
+                                            Current Inventory
+                                          </p>
+                                          <p className="text-[18px] font-bold text-blue-600">
+                                            {variant?.stockQuantity ?? 0}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {currentTab === "pricing" && (
+                                    <div className="p-5">
+                                      <div className="grid grid-cols-4 gap-6">
+                                        <div>
+                                          <p className="text-[12px] font-semibold text-slate-600 mb-2">
+                                            Units
+                                          </p>
+                                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-blue-600 text-white">
+                                            <span className="text-[12px] font-medium">pcs (1)</span>
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <p className="text-[12px] font-semibold text-slate-600 mb-2">
+                                            Unit Price
+                                          </p>
+                                          <p className="text-[14px] font-semibold text-slate-900">
+                                            BDT {Number(variant?.cost || 0).toLocaleString("en", { minimumFractionDigits: 2 })}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-[12px] font-semibold text-slate-600 mb-2">
+                                            Retail Price
+                                          </p>
+                                          <p className="text-[14px] font-semibold text-slate-900">
+                                            BDT {Number(variant?.price || 0).toLocaleString("en", { minimumFractionDigits: 2 })}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-[12px] font-semibold text-slate-600 mb-2">
+                                            Created At
+                                          </p>
+                                          <p className="text-[14px] font-normal text-slate-900">
+                                            {product.createdAt
+                                              ? new Date(product.createdAt).toLocaleDateString("en-US", {
+                                                  month: "short",
+                                                  day: "numeric",
+                                                  year: "numeric",
+                                                })
+                                              : "-"}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {currentTab === "history" && (
+                                    <div className="p-5">
+                                      <table className="w-full">
+                                        <thead className="border-b border-slate-200">
+                                          <tr>
+                                            <th className="px-3 py-2.5 text-left text-[12px] font-semibold text-slate-600">Branch</th>
+                                            <th className="px-3 py-2.5 text-left text-[12px] font-semibold text-slate-600">Quantity</th>
+                                            <th className="px-3 py-2.5 text-left text-[12px] font-semibold text-slate-600">Status</th>
+                                            <th className="px-3 py-2.5 text-left text-[12px] font-semibold text-slate-600">Type</th>
+                                            <th className="px-3 py-2.5 text-left text-[12px] font-semibold text-slate-600">Note</th>
+                                            <th className="px-3 py-2.5 text-left text-[12px] font-semibold text-slate-600">Created At</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr className="border-b border-slate-100">
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">Main Branch</td>
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">1</td>
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">Out</td>
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">Sold</td>
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">Sold (Order#PLXXHLK+qOV)</td>
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">Feb 19, 2026</td>
+                                          </tr>
+                                          <tr className="border-b border-slate-100">
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">Main Branch</td>
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">1</td>
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">Out</td>
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">Sold</td>
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">Sold (Order#SNQKNK8EQS)</td>
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">Feb 19, 2026</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">Main Branch</td>
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">1000</td>
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">In</td>
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">Add</td>
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">New Entry</td>
+                                            <td className="px-3 py-3 text-[14px] font-normal text-slate-700">Feb 18, 2026</td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  )}
+
+                                  {currentTab === "details" && (
+                                    <div className="p-5">
+                                      <div className="grid grid-cols-4 gap-x-8 gap-y-5">
+                                        <div>
+                                          <p className="text-[12px] font-semibold text-slate-600 mb-2">
+                                            Category
+                                          </p>
+                                          <p className="text-[14px] font-normal text-slate-900">
+                                            {product.category?.name || "-"}
+                                          </p>
+                                        </div>
+                                        <div className="col-span-2">
+                                          <p className="text-[12px] font-semibold text-slate-600 mb-2">
+                                            Description
+                                          </p>
+                                          <p className="text-[14px] font-normal text-slate-900 line-clamp-2">
+                                            {product.description || "-"}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-[12px] font-semibold text-slate-600 mb-2">
+                                            Tags
+                                          </p>
+                                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                                            <span className="text-[12px] font-normal">{variant?.sku || "flat-brim-cap"}</span>
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <p className="text-[12px] font-semibold text-slate-600 mb-2">
+                                            Size Chart
+                                          </p>
+                                          <p className="text-[14px] font-normal text-slate-900">
+                                            --
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-[12px] font-semibold text-slate-600 mb-2">
+                                            Supplier
+                                          </p>
+                                          <p className="text-[14px] font-normal text-slate-900">
+                                            {product.category?.name || "-"}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-[12px] font-semibold text-slate-600 mb-2">
+                                            Supplier Price
+                                          </p>
+                                          <p className="text-[14px] font-semibold text-slate-900">
+                                            BDT {Number(variant?.cost || 0).toLocaleString("en", { minimumFractionDigits: 2 })}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-[12px] font-semibold text-slate-600 mb-2">
+                                            Retail Price
+                                          </p>
+                                          <p className="text-[14px] font-semibold text-slate-900">
+                                            BDT {Number(variant?.price || 0).toLocaleString("en", { minimumFractionDigits: 2 })}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-[12px] font-semibold text-slate-600 mb-2">
+                                            Purchase Order Returnable
+                                          </p>
+                                          <p className="text-[14px] font-normal text-slate-900">
+                                            No
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
                     );
                   })
                 ) : (
                   <tr>
-                    <td className="px-8 py-40 text-center" colSpan={8}>
+                    <td className="px-8 py-40 text-center" colSpan={9}>
                       <div className="flex flex-col items-center gap-5">
                         <div className="grid h-20 w-20 place-items-center rounded-2xl bg-slate-50 text-slate-200 border border-slate-100">
                           <AdminIcon className="h-10 w-10" name="package" />
                         </div>
                         <div>
-                          <p className="text-xl font-black text-slate-800">No products found</p>
-                          <p className="text-sm font-medium text-slate-400 mt-2 max-w-[320px] mx-auto leading-relaxed">
+                          <p className="text-[16px] font-semibold text-slate-800">No products found</p>
+                          <p className="text-[14px] font-normal text-slate-400 mt-2 max-w-[320px] mx-auto leading-relaxed">
                             We couldn&apos;t find any products matching your current search criteria.
                           </p>
                         </div>
                         <button
                           onClick={() => { setSearch(""); clearFilters(); }}
-                          className="inline-flex h-11 items-center rounded-xl px-6 bg-slate-900 text-white text-[13px] font-black hover:bg-slate-800 transition-colors"
+                          className="inline-flex h-10 items-center rounded-lg px-5 bg-slate-900 text-white text-[14px] font-semibold hover:bg-slate-800 transition-colors"
                         >
                           Clear all filters
                         </button>
@@ -790,19 +1315,20 @@ export default function ProductsPage() {
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-slate-200 px-8 py-5 bg-slate-50/30">
-            <p className="text-sm font-medium text-slate-600">
-              Showing <span className="font-black">{(page - 1) * limit + 1}</span> to{" "}
-              <span className="font-black">{Math.min(page * limit, total)}</span> of{" "}
-              <span className="font-black">{total}</span> products
+          <div className="flex items-center justify-between border-t-2 border-slate-200 px-6 py-5 bg-gradient-to-r from-slate-50 to-white">
+            <p className="text-[15px] font-medium text-slate-600">
+              Showing <span className="font-bold text-slate-900">{(page - 1) * limit + 1}</span> to{" "}
+              <span className="font-bold text-slate-900">{Math.min(page * limit, total)}</span> of{" "}
+              <span className="font-bold text-slate-900">{total}</span> products
             </p>
             <div className="flex items-center gap-2">
               <button
-                className="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="grid h-10 w-10 place-items-center rounded-lg border-2 border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
                 disabled={page === 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
+                title="Previous page"
               >
-                <AdminIcon className="h-4 w-4 rotate-180" name="chevronRight" />
+                <AdminIcon className="h-4.5 w-4.5 rotate-180" name="chevronRight" />
               </button>
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 let pageNum: number;
@@ -818,10 +1344,10 @@ export default function ProductsPage() {
                 return (
                   <button
                     key={pageNum}
-                    className={`grid h-10 w-10 place-items-center rounded-lg border text-sm font-black transition-all ${
+                    className={`grid h-10 w-10 place-items-center rounded-lg border-2 text-[15px] font-bold transition-all shadow-sm ${
                       page === pageNum
                         ? "border-blue-600 bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                        : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                        : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300"
                     }`}
                     onClick={() => setPage(pageNum)}
                   >
@@ -830,85 +1356,322 @@ export default function ProductsPage() {
                 );
               })}
               <button
-                className="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="grid h-10 w-10 place-items-center rounded-lg border-2 border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
                 disabled={page === totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                title="Next page"
               >
-                <AdminIcon className="h-4 w-4" name="chevronRight" />
+                <AdminIcon className="h-4.5 w-4.5" name="chevronRight" />
               </button>
             </div>
           </div>
         )}
       </section>
 
+      {/* Adjust Inventory Modal */}
+      {adjustModalOpen && productToAdjust && (
+        <div
+          aria-labelledby="adjust-modal-title"
+          aria-modal="true"
+          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 px-4 py-6"
+          role="dialog"
+        >
+          <div className="max-h-[calc(100vh-3rem)] w-full max-w-2xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-8 shadow-2xl">
+            <div className="mb-6 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-[20px] font-semibold text-slate-900" id="adjust-modal-title">
+                  Adjust inventory
+                </h2>
+                <p className="mt-1 text-[14px] font-normal text-slate-500">
+                  Choose a reason and quantity to adjust
+                </p>
+              </div>
+              <button
+                className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+                onClick={closeAdjustModal}
+                type="button"
+                disabled={isAdjusting}
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mb-6 flex items-center gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+              <div className="relative h-14 w-14 overflow-hidden rounded-md border border-slate-200 bg-white flex-shrink-0">
+                {getFeaturedMedia(productToAdjust) ? (
+                  <img
+                    alt={productToAdjust.name}
+                    className="h-full w-full object-cover"
+                    src={getFeaturedMedia(productToAdjust)!}
+                  />
+                ) : (
+                  <ProductThumb color="bg-slate-100" />
+                )}
+              </div>
+              <div>
+                <p className="text-[15px] font-semibold text-slate-900">
+                  {productToAdjust.name}
+                </p>
+                <p className="text-[13px] font-normal text-slate-400 mt-0.5">
+                  {productToAdjust.slug}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-5">
+              <label className="block">
+                <span className="mb-2 block text-[14px] font-semibold text-slate-700">
+                  Branch <span className="text-red-500">*</span>
+                </span>
+                <select 
+                  className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  value={adjustmentBranch}
+                  onChange={(e) => setAdjustmentBranch(e.target.value)}
+                >
+                  <option>Main Branch</option>
+                </select>
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-[14px] font-semibold text-slate-700">
+                  Adjustment type <span className="text-red-500">*</span>
+                </span>
+                <select 
+                  className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  value={adjustmentType}
+                  onChange={(e) => setAdjustmentType(e.target.value)}
+                >
+                  <option value="">Choose a type</option>
+                  <option value="add">Add Stock</option>
+                  <option value="remove">Remove Stock</option>
+                  <option value="damage">Damage</option>
+                  <option value="return">Return</option>
+                </select>
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-[14px] font-semibold text-slate-700">
+                  Note
+                </span>
+                <textarea
+                  className="min-h-28 w-full rounded-lg border border-slate-300 px-4 py-3 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  placeholder="Add your adjustment note"
+                  value={adjustmentNote}
+                  onChange={(e) => setAdjustmentNote(e.target.value)}
+                />
+              </label>
+
+              <div className="grid grid-cols-2 gap-5">
+                <label className="block">
+                  <span className="mb-2 block text-[14px] font-semibold text-slate-700">
+                    Adjustment quantity <span className="text-red-500">*</span>
+                  </span>
+                  <input
+                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    placeholder="e.g. -2 or 10"
+                    type="number"
+                    value={adjustmentQuantity}
+                    onChange={(e) => setAdjustmentQuantity(e.target.value)}
+                  />
+                </label>
+
+                <div>
+                  <span className="mb-2 block text-[14px] font-semibold text-slate-700">
+                    Inventory
+                  </span>
+                  <div className="flex items-center gap-3 h-11">
+                    <span className="text-[16px] font-semibold text-slate-900">
+                      {getDefaultVariant(productToAdjust)?.stockQuantity ?? 0}
+                    </span>
+                    <svg className="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                    <span className={`text-[16px] font-semibold ${calculateNewInventory() < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                      {calculateNewInventory()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {error && (
+              <p className="mt-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[14px] font-semibold text-red-700">
+                {error}
+              </p>
+            )}
+
+            <div className="mt-8 flex items-center justify-end gap-3 border-t border-slate-200 pt-6">
+              <button
+                className="h-11 rounded-lg border border-slate-200 bg-white px-6 text-[14px] font-semibold text-slate-600 transition-colors hover:bg-slate-50"
+                onClick={closeAdjustModal}
+                type="button"
+                disabled={isAdjusting}
+              >
+                Cancel
+              </button>
+              <button
+                className="flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-6 text-[14px] font-semibold text-white transition-all hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                type="button"
+                onClick={handleAdjustInventory}
+                disabled={isAdjusting || !adjustmentType || !adjustmentQuantity}
+              >
+                {isAdjusting ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Adjusting...
+                  </>
+                ) : (
+                  "Adjust Inventory"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Product Modal */}
       {isModalOpen && (
         <div
           aria-labelledby="product-modal-title"
           aria-modal="true"
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 px-4 py-6 animate-in fade-in duration-300"
+          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 px-4 py-6"
           role="dialog"
         >
           <form
-            className="max-h-[calc(100vh-3rem)] w-full max-w-4xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-8 animate-in zoom-in-95 slide-in-from-bottom-8 duration-500"
+            className="max-h-[calc(100vh-3rem)] w-full max-w-5xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-8 shadow-2xl"
             onSubmit={handleSubmit}
           >
-            <div className="mb-5 flex items-start justify-between gap-4">
+            <div className="mb-6 flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-black" id="product-modal-title">
-                  {form.id ? "Edit product" : "Add product"}
+                <h2 className="text-[20px] font-semibold text-slate-900" id="product-modal-title">
+                  {form.id ? "Update Product" : "Add Product"}
                 </h2>
-                <p className="mt-1 font-medium text-slate-600">
-                  Product details, default variant, and multiple images.
+                <p className="mt-1 text-[14px] font-normal text-slate-500">
+                  {form.id ? "Update the details of your product" : "Product details, default variant, and multiple images."}
                 </p>
               </div>
-              <button
-                className="grid h-10 w-10 place-items-center rounded-xl border border-slate-300 text-xl font-black text-slate-600 hover:bg-slate-50 transition-colors"
-                disabled={isSaving}
-                onClick={closeModal}
-                type="button"
-              >
-                <AdminIcon className="h-5 w-5" name="x" />
-              </button>
+              <div className="flex items-center gap-3">
+                {form.id && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] font-medium text-slate-600">Change Status</span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={form.status === "active"}
+                        onChange={() => setForm((current) => ({
+                          ...current,
+                          status: current.status === "active" ? "inactive" : "active",
+                        }))}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+                )}
+                <button
+                  className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+                  disabled={isSaving}
+                  onClick={closeModal}
+                  type="button"
+                >
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-              <div className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-black text-slate-700">
-                      Name
-                    </span>
-                    <input
-                      autoFocus
-                      className="h-12 w-full rounded-xl border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                      onChange={(event) => updateName(event.target.value)}
-                      required
-                      value={form.name}
-                    />
-                  </label>
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-black text-slate-700">
-                      Slug
-                    </span>
-                    <input
-                      className="h-12 w-full rounded-xl border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                      onChange={(event) =>
-                        setForm((current) => ({
-                          ...current,
-                          slug: event.target.value,
-                        }))
-                      }
-                      required
-                      value={form.slug}
-                    />
-                  </label>
-                </div>
+            <div className="mb-6 p-5 bg-slate-50 rounded-lg border border-slate-200">
+              <h3 className="text-[15px] font-semibold text-slate-900 mb-1">Product Info</h3>
+              <p className="text-[13px] font-normal text-slate-500 mb-5">Update general information for this product</p>
+
+              <div className="grid gap-5 lg:grid-cols-2">
                 <label className="block">
-                  <span className="mb-2 block text-sm font-black text-slate-700">
-                    Description
+                  <span className="mb-2 block text-[13px] font-semibold text-slate-700">
+                    Name <span className="text-red-500">*</span> <span className="text-slate-400 text-[11px]">ⓘ</span>
+                  </span>
+                  <input
+                    autoFocus
+                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    onChange={(event) => updateName(event.target.value)}
+                    required
+                    value={form.name}
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-[13px] font-semibold text-slate-700">
+                    Brand <span className="text-red-500">*</span>
+                  </span>
+                  <select
+                    className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        brandId: event.target.value,
+                      }))
+                    }
+                    required
+                    value={form.brandId}
+                  >
+                    <option value="">Select brand</option>
+                    {brands.map((brand) => (
+                      <option key={brand.id} value={brand.id}>
+                        {brand.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-[13px] font-semibold text-slate-700">
+                    Tags
+                  </span>
+                  <input
+                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    placeholder="flat-brim-cap"
+                    value={form.sku}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        sku: event.target.value,
+                      }))
+                    }
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-[13px] font-semibold text-slate-700">
+                    Suppliers
+                  </span>
+                  <select
+                    className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        categoryId: event.target.value,
+                      }))
+                    }
+                    required
+                    value={form.categoryId}
+                  >
+                    <option value="">Select category</option>
+                    {categoryOptions.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {"— ".repeat(category.depth)}
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block lg:col-span-2">
+                  <span className="mb-2 block text-[13px] font-semibold text-slate-700">
+                    Description <span className="text-slate-400 text-[11px]">ⓘ</span>
                   </span>
                   <textarea
-                    className="min-h-28 w-full rounded-xl border border-slate-300 px-4 py-3 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                    className="min-h-24 w-full rounded-lg border border-slate-300 px-4 py-3 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     onChange={(event) =>
                       setForm((current) => ({
                         ...current,
@@ -918,277 +1681,68 @@ export default function ProductsPage() {
                     value={form.description}
                   />
                 </label>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="block">
-                    <span className="mb-2 block text-[13px] font-black text-slate-700">
-                      Brand
-                    </span>
-                    <select
-                      className="h-12 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 font-bold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                      onChange={(event) =>
-                        setForm((current) => ({
-                          ...current,
-                          brandId: event.target.value,
-                        }))
-                      }
-                      required
-                      value={form.brandId}
-                    >
-                      <option value="">Select brand</option>
-                      {brands.map((brand) => (
-                        <option key={brand.id} value={brand.id}>
-                          {brand.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="block">
-                    <span className="mb-2 block text-[13px] font-black text-slate-700">
-                      Category
-                    </span>
-                    <select
-                      className="h-12 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 font-bold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                      onChange={(event) =>
-                        setForm((current) => ({
-                          ...current,
-                          categoryId: event.target.value,
-                        }))
-                      }
-                      required
-                      value={form.categoryId}
-                    >
-                      <option value="">Select category</option>
-                      {categoryOptions.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {"— ".repeat(category.depth)}
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="block">
-                    <span className="mb-2 block text-[13px] font-black text-slate-700">
-                      Unit
-                    </span>
-                    <select
-                      className="h-12 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 font-bold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                      onChange={(event) =>
-                        setForm((current) => ({
-                          ...current,
-                          unitId: event.target.value,
-                        }))
-                      }
-                      value={form.unitId}
-                    >
-                      <option value="">Select unit</option>
-                      {units.map((unit) => (
-                        <option key={unit.id} value={unit.id}>
-                          {unit.name} ({unit.code})
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="block">
-                    <span className="mb-2 block text-[13px] font-black text-slate-700">
-                      Status
-                    </span>
-                    <select
-                      className="h-12 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 font-bold capitalize outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                      onChange={(event) =>
-                        setForm((current) => ({
-                          ...current,
-                          status: event.target.value as ProductForm["status"],
-                        }))
-                      }
-                      value={form.status}
-                    >
-                      <option value="draft">Draft</option>
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                    </select>
-                  </label>
-                </div>
-
-                <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-6">
-                  <div className="mb-4 flex items-center justify-between">
-                    <h3 className="text-[15px] font-black uppercase tracking-wider text-slate-800">Default variant</h3>
-                    <AdminIcon className="h-4 w-4 text-slate-400" name="package" />
-                  </div>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <label className="block">
-                      <span className="mb-2 block text-[13px] font-black text-slate-700">
-                        SKU
-                      </span>
-                      <input
-                        className="h-12 w-full rounded-xl border border-slate-300 bg-white px-4 font-bold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                        onChange={(event) =>
-                          setForm((current) => ({
-                            ...current,
-                            sku: event.target.value,
-                          }))
-                        }
-                        value={form.sku}
-                      />
-                    </label>
-                    <label className="block">
-                      <span className="mb-2 block text-[13px] font-black text-slate-700">
-                        Price
-                      </span>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">৳</span>
-                        <input
-                          className="h-12 w-full rounded-xl border border-slate-300 bg-white pl-8 pr-4 font-bold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                          min="0"
-                          onChange={(event) =>
-                            setForm((current) => ({
-                              ...current,
-                              price: event.target.value,
-                            }))
-                          }
-                          step="0.01"
-                          type="number"
-                          value={form.price}
-                        />
-                      </div>
-                    </label>
-                    <label className="block">
-                      <span className="mb-2 block text-[13px] font-black text-slate-700">
-                        Cost
-                      </span>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">৳</span>
-                        <input
-                          className="h-12 w-full rounded-xl border border-slate-300 bg-white pl-8 pr-4 font-bold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                          min="0"
-                          onChange={(event) =>
-                            setForm((current) => ({
-                              ...current,
-                              cost: event.target.value,
-                            }))
-                          }
-                          step="0.01"
-                          type="number"
-                          value={form.cost}
-                        />
-                      </div>
-                    </label>
-                    <label className="block">
-                      <span className="mb-2 block text-[13px] font-black text-slate-700">
-                        Stock
-                      </span>
-                      <input
-                        className="h-12 w-full rounded-xl border border-slate-300 bg-white px-4 font-bold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                        min="0"
-                        onChange={(event) =>
-                          setForm((current) => ({
-                            ...current,
-                            stockQuantity: event.target.value,
-                          }))
-                        }
-                        type="number"
-                        value={form.stockQuantity}
-                      />
-                    </label>
-                  </div>
-                </div>
               </div>
+            </div>
 
-              <div className="space-y-4">
-                <label className="block">
-                  <span className="mb-2 block text-sm font-black text-slate-700">
-                    Product Images
-                  </span>
+            <div className="mb-6 p-5 bg-slate-50 rounded-lg border border-slate-200">
+              <h3 className="text-[15px] font-semibold text-slate-900 mb-5">Upload Images <span className="text-slate-400 text-[11px]">ⓘ</span></h3>
+
+              <div className="flex items-start gap-4">
+                {form.media.length > 0 && form.media.map((item) => (
+                  <div className="relative" key={item.id}>
+                    <img
+                      alt=""
+                      className="h-24 w-24 rounded-lg border border-slate-200 object-cover"
+                      src={item.media.url}
+                    />
+                    <button
+                      className="absolute -right-2 -top-2 grid h-6 w-6 place-items-center rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors"
+                      disabled={isSaving}
+                      onClick={() => removeMedia(item)}
+                      type="button"
+                    >
+                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+
+                {imagePreviewUrls.length > 0 && imagePreviewUrls.map((url, index) => (
+                  <div className="relative" key={url}>
+                    <img
+                      alt=""
+                      className="h-24 w-24 rounded-lg border border-slate-200 object-cover"
+                      src={url}
+                    />
+                  </div>
+                ))}
+
+                <label className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-white hover:bg-slate-50 transition-colors">
+                  <svg className="h-6 w-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
                   <input
                     accept="image/*"
-                    className="block w-full rounded-xl border border-slate-300 px-4 py-3 font-medium file:mr-4 file:rounded-lg file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-black file:text-white hover:file:bg-blue-700"
+                    className="hidden"
                     multiple
                     onChange={(event) => updateImages(event.target.files)}
                     ref={imageInputRef}
                     type="file"
                   />
                 </label>
-
-                {form.media.length > 0 && (
-                  <div>
-                    <h3 className="mb-2 text-sm font-black text-slate-700">
-                      Uploaded images
-                    </h3>
-                    <div className="grid grid-cols-3 gap-3">
-                      {form.media.map((item) => (
-                        <div className="relative" key={item.id}>
-                          <img
-                            alt=""
-                            className="aspect-square w-full rounded-xl border border-slate-200 object-cover"
-                            src={item.media.url}
-                          />
-                          <button
-                            className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
-                            disabled={isSaving}
-                            onClick={() => removeMedia(item)}
-                            type="button"
-                          >
-                            <AdminIcon className="h-4 w-4" name="x" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {imagePreviewUrls.length > 0 && (
-                  <div>
-                    <div className="mb-2 flex items-center justify-between gap-3">
-                      <h3 className="text-sm font-black text-slate-700">
-                        New images
-                      </h3>
-                      <button
-                        className="text-sm font-black text-red-700 hover:text-red-800 transition-colors"
-                        disabled={isSaving}
-                        onClick={clearSelectedImages}
-                        type="button"
-                      >
-                        Clear
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-3 gap-3">
-                      {imagePreviewUrls.map((url, index) => (
-                        <div className="overflow-hidden rounded-xl border border-slate-200" key={url}>
-                          <img
-                            alt=""
-                            className="aspect-square w-full object-cover"
-                            src={url}
-                          />
-                          <p className="truncate px-2 py-1 text-xs font-bold text-slate-600">
-                            {form.images[index]?.name}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {form.media.length === 0 && imagePreviewUrls.length === 0 && (
-                  <div className="grid min-h-52 place-items-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-slate-500">
-                    <div>
-                      <AdminIcon className="mx-auto h-8 w-8" name="upload" />
-                      <p className="mt-3 font-medium">
-                        Select multiple images to preview and upload them after saving.
-                      </p>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
 
             {error && (
-              <p className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+              <p className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[14px] font-semibold text-red-700">
                 {error}
               </p>
             )}
 
-            <div className="mt-8 flex items-center justify-end gap-3 border-t border-slate-100 pt-6">
+            <div className="flex items-center justify-end gap-3 border-t border-slate-200 pt-6">
               <button
-                className="h-12 rounded-xl border border-slate-200 bg-white px-8 font-black text-slate-600 transition-colors hover:bg-slate-50"
+                className="h-11 rounded-lg border border-slate-200 bg-white px-6 text-[14px] font-semibold text-slate-600 transition-colors hover:bg-slate-50"
                 disabled={isSaving}
                 onClick={closeModal}
                 type="button"
@@ -1196,12 +1750,11 @@ export default function ProductsPage() {
                 Cancel
               </button>
               <button
-                className="flex h-12 items-center gap-2 rounded-xl bg-blue-600 px-8 font-black text-white transition-all hover:bg-blue-700 active:scale-95 disabled:opacity-50 shadow-lg shadow-blue-600/20"
+                className="flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-6 text-[14px] font-semibold text-white transition-all hover:bg-blue-700 disabled:opacity-50"
                 disabled={isSaving}
                 type="submit"
               >
-                <AdminIcon className="h-4 w-4" name={form.id ? "check" : "plus"} />
-                {isSaving ? "Saving..." : form.id ? "Update Product" : "Add Product"}
+                {isSaving ? "Saving..." : form.id ? "Update" : "Add Product"}
               </button>
             </div>
           </form>
