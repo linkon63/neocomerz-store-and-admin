@@ -3,7 +3,7 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import data from "@/data/top-header.json";
+import data from "@/data/data.json";
 import 'swiper/css';
 import 'swiper/css/navigation';
 

@@ -13,3 +13,13 @@ export interface NavigationProps {
   navItems: NavItem[];
   sylhetiTeaItems: DropdownItem[];
 }
+
+export interface Slide {
+  videoId: string;
+  title: string;
+  subtitle: string;
+}
+
+export interface HeroSliderProps {
+  slides: Slide[];
+}
