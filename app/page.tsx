@@ -1,4 +1,5 @@
 import Bottomfooter from '@/components/sections/bottom-footer';
+import Collection from '@/components/sections/collection';
 import Header from '@/components/sections/header';
 import Hero from '@/components/sections/hero';
 import Invitation from '@/components/sections/invitation';
@@ -12,6 +13,7 @@ export default function Home() {
       <Header />
       <Hero />
       <Invitation />
+      <Collection />
       <Mainfooter />
       <Bottomfooter />
     </div>

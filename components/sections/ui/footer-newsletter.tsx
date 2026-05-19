@@ -30,7 +30,7 @@ export default function FooterNewsletter() {
               SUBSCRIBE
             </button>
           </div>
-          <div className="text-end">
+          <div className="text-start">
             <p className="font-gotham text-white text-sm">Customer Service</p>
             <p className="font-gotham text-white text-sm font-medium">Hours: M-F 9AM-5PM CST</p>
           </div>

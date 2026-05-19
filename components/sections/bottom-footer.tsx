@@ -51,13 +51,12 @@ export default function Bottomfooter() {
                     <div className="text-3xl mb-2 text-white">
                       {feature.icon}
                     </div>
-                    <h3 className="font-bembo text-white text-xl uppercase">
+                    <h3 className="font-bembo text-white text-sm sm:text-xl uppercase">
                       {feature.title}
                     </h3>
                   </div>
                 ))}
               </div>
-
               {/* Description */}
               <div className="max-w-6xl mx-auto text-center">
                 <p className="font-gotham text-white text-sm leading-relaxed">

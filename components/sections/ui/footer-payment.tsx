@@ -4,7 +4,7 @@ export default function FooterPayment() {
   return (
     <div className="bg-brand-5 py-6 border-b border-brand-4">
       <div className="container mx-auto px-4 sm:px-6">
-        <div className="flex justify-center items-center gap-4">
+        <div className="flex justify-center items-center gap-4 flex-wrap">
           <span className="font-gotham text-white text-sm">We Using Safe Payment For</span>
           <div className="flex items-center gap-3">
             <Image src="/images/payment/Bkash.png" alt="Bkash" width={15} height={15} />
