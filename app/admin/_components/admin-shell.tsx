@@ -16,7 +16,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, isChecking, handleLogout } = useAdminAuth();
 
-  if (isChecking) {
+  if (isChecking || !user) {
     return (
       <div className="grid min-h-screen place-items-center bg-[#fbfbfc] text-slate-700">
         <div className="border border-slate-200 bg-white px-6 py-4 font-black">

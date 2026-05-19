@@ -77,6 +77,17 @@ export type ProductMedia = {
   };
 };
 
+export type VariantMedia = {
+  id: string;
+  isFeatured: boolean;
+  sortOrder: number;
+  media: {
+    id: string;
+    url: string;
+    type: "image" | "video";
+  };
+};
+
 export type ProductVariant = {
   id: string;
   sku: string;
@@ -85,6 +96,8 @@ export type ProductVariant = {
   stockQuantity: number;
   stockAlertThreshold: number;
   isDefault: boolean;
+  optionValues?: { value: string; attribute: { name: string } }[];
+  media?: VariantMedia[];
   createdAt?: string;
 };
 
@@ -264,8 +277,14 @@ export async function apiRequest<T>(
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 10000);
 
+  // Debug logging
+  if (auth && !token) {
+    console.warn('⚠️ Auth required but no token found. Cookies:', document.cookie);
+  }
+
   if (auth && token) {
     requestHeaders.set("Authorization", `Bearer ${token}`);
+    console.log('🔑 Sending request with token to:', path);
   }
 
   try {
@@ -287,6 +306,14 @@ export async function apiRequest<T>(
             ? payload.message.join(", ")
             : String(payload.message)
           : `Request failed with status ${response.status}`;
+
+      console.error('❌ API Error:', {
+        path,
+        status: response.status,
+        message,
+        payload,
+        hasToken: !!token
+      });
 
       throw new Error(message);
     }

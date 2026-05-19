@@ -13,8 +13,173 @@ import {
   type Product,
   type ProductMedia,
   type ProductVariant,
+  type VariantMedia,
   type Unit,
 } from "../../../../lib/admin-api";
+
+function VariantRow({
+  variant,
+  label,
+  radioName,
+  disabled,
+  onSave,
+  onMakeDefault,
+}: {
+  variant: ProductVariant;
+  label: string;
+  radioName: string;
+  disabled: boolean;
+  onSave: (patch: Partial<ProductVariant>) => void;
+  onMakeDefault: () => void;
+}) {
+  const [sku, setSku] = useState(variant.sku);
+  const [cost, setCost] = useState(variant.cost !== undefined && variant.cost !== null ? String(variant.cost) : "");
+  const [price, setPrice] = useState(variant.price !== undefined && variant.price !== null ? String(variant.price) : "");
+
+  // Keep row state in sync after reload.
+  useEffect(() => {
+    setSku(variant.sku);
+    setCost(variant.cost !== undefined && variant.cost !== null ? String(variant.cost) : "");
+    setPrice(variant.price !== undefined && variant.price !== null ? String(variant.price) : "");
+  }, [variant.cost, variant.price, variant.sku]);
+
+  const baseCost = variant.cost !== undefined && variant.cost !== null ? String(variant.cost) : "";
+  const basePrice = variant.price !== undefined && variant.price !== null ? String(variant.price) : "";
+  const dirty = sku !== variant.sku || cost !== baseCost || price !== basePrice;
+
+  return (
+    <tr>
+      <td className="px-3 py-2">
+        <input
+          type="radio"
+          name={radioName}
+          checked={Boolean(variant.isDefault)}
+          disabled={disabled}
+          onChange={onMakeDefault}
+        />
+      </td>
+      <td className="px-3 py-2 text-sm font-bold text-slate-700">{label}</td>
+      <td className="px-3 py-2">
+        <input
+          className="h-9 w-56 rounded-lg border border-slate-300 px-3 text-xs font-black uppercase outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          value={sku}
+          onChange={(e) => setSku(e.target.value)}
+          disabled={disabled}
+        />
+      </td>
+      <td className="px-3 py-2">
+        <input
+          className="h-9 w-28 rounded-lg border border-slate-300 px-3 text-xs font-black outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          min="0"
+          step="0.01"
+          type="number"
+          value={cost}
+          onChange={(e) => setCost(e.target.value)}
+          disabled={disabled}
+        />
+      </td>
+      <td className="px-3 py-2">
+        <input
+          className="h-9 w-28 rounded-lg border border-slate-300 px-3 text-xs font-black outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          min="0"
+          step="0.01"
+          type="number"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          disabled={disabled}
+        />
+      </td>
+      <td className="px-3 py-2">
+        <button
+          type="button"
+          className="inline-flex h-9 items-center rounded-lg bg-blue-600 px-3 text-xs font-black text-white disabled:opacity-40"
+          disabled={disabled || !dirty || !sku.trim() || !price}
+          onClick={() => onSave({ sku, cost, price })}
+        >
+          Save
+        </button>
+      </td>
+    </tr>
+  );
+}
+
+function VariantMediaGrid({
+  variant,
+  onRefresh,
+}: {
+  variant: ProductVariant;
+  onRefresh: () => void;
+}) {
+  const media = [...(variant.media ?? [])].sort(
+    (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
+  );
+
+  async function handleReorder(mediaId: string, nextOrder: number) {
+    await apiRequest(`/variant-media/${mediaId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sortOrder: nextOrder }),
+    });
+    onRefresh();
+  }
+
+  async function handleDelete(mediaId: string) {
+    await apiRequest(`/variant-media/${mediaId}`, { method: "DELETE" });
+    onRefresh();
+  }
+
+  if (media.length === 0) {
+    return (
+      <p className="text-xs font-medium text-slate-500">
+        No variant images yet. Upload from the create page.
+      </p>
+    );
+  }
+
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {media.map((item, index) => (
+        <div
+          key={item.id}
+          className="group relative overflow-hidden rounded-lg border border-slate-200 bg-white"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img alt="" className="h-28 w-full object-cover" src={item.media.url} />
+          <div className="flex items-center justify-between px-3 py-2">
+            <span className="text-[11px] font-bold text-slate-500">
+              #{index + 1}
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className="text-xs font-bold text-slate-600 hover:text-slate-900 disabled:opacity-40"
+                disabled={index === 0}
+                onClick={() => handleReorder(item.id, Math.max(0, index - 1))}
+              >
+                Up
+              </button>
+              <button
+                type="button"
+                className="text-xs font-bold text-slate-600 hover:text-slate-900 disabled:opacity-40"
+                disabled={index === media.length - 1}
+                onClick={() => handleReorder(item.id, index + 1)}
+              >
+                Down
+              </button>
+              <button
+                type="button"
+                className="text-xs font-bold text-red-600 hover:text-red-700"
+                onClick={() => handleDelete(item.id)}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 type ProductForm = {
   id?: string;
@@ -120,6 +285,7 @@ export default function ProductsPage() {
   const [activeTab, setActiveTab] = useState<Record<string, string>>({});
   const [adjustModalOpen, setAdjustModalOpen] = useState(false);
   const [productToAdjust, setProductToAdjust] = useState<Product | null>(null);
+  const [variantToAdjust, setVariantToAdjust] = useState<ProductVariant | null>(null);
   const [adjustmentBranch, setAdjustmentBranch] = useState("Main Branch");
   const [adjustmentType, setAdjustmentType] = useState("");
   const [adjustmentNote, setAdjustmentNote] = useState("");
@@ -155,8 +321,9 @@ export default function ProductsPage() {
     setActiveTab((prev) => ({ ...prev, [productId]: tab }));
   };
 
-  const openAdjustModal = (product: Product) => {
+  const openAdjustModal = (product: Product, variant?: ProductVariant) => {
     setProductToAdjust(product);
+    setVariantToAdjust(variant ?? getDefaultVariant(product) ?? null);
     setAdjustmentBranch("Main Branch");
     setAdjustmentType("");
     setAdjustmentNote("");
@@ -166,6 +333,7 @@ export default function ProductsPage() {
 
   const closeAdjustModal = () => {
     setProductToAdjust(null);
+    setVariantToAdjust(null);
     setAdjustmentBranch("Main Branch");
     setAdjustmentType("");
     setAdjustmentNote("");
@@ -174,16 +342,43 @@ export default function ProductsPage() {
   };
 
   const calculateNewInventory = () => {
-    if (!productToAdjust || !adjustmentQuantity) {
-      return getDefaultVariant(productToAdjust!)?.stockQuantity ?? 0;
+    if (!variantToAdjust || !adjustmentQuantity) {
+      return variantToAdjust?.stockQuantity ?? 0;
     }
-    const currentStock = getDefaultVariant(productToAdjust)?.stockQuantity ?? 0;
-    const adjustment = Number(adjustmentQuantity);
-    return currentStock + adjustment;
+    const currentStock = variantToAdjust.stockQuantity ?? 0;
+    const rawChange = Number(adjustmentQuantity);
+    if (Number.isNaN(rawChange) || rawChange === 0) return currentStock;
+    const change =
+      adjustmentType === "add" || adjustmentType === "return"
+        ? rawChange
+        : -Math.abs(rawChange);
+    return currentStock + change;
   };
 
+  async function setDefaultVariant(product: Product, variant: ProductVariant) {
+    setError("");
+    setIsSaving(true);
+    try {
+      const all = product.variants ?? [];
+      await Promise.all(
+        all.map((v) =>
+          apiRequest(`/variants/${v.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ isDefault: v.id === variant.id }),
+          }),
+        ),
+      );
+      await loadProducts();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update default variant");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   async function handleAdjustInventory() {
-    if (!productToAdjust || !adjustmentType || !adjustmentQuantity) {
+    if (!variantToAdjust || !adjustmentType || !adjustmentQuantity) {
       setError("Please fill in all required fields");
       return;
     }
@@ -192,43 +387,42 @@ export default function ProductsPage() {
     setError("");
 
     try {
-      const variant = getDefaultVariant(productToAdjust);
-      if (!variant) {
-        throw new Error("No variant found for this product");
+      const currentStock = variantToAdjust.stockQuantity ?? 0;
+      const rawChange = Number(adjustmentQuantity);
+      if (Number.isNaN(rawChange) || rawChange === 0) {
+        throw new Error("Invalid adjustment quantity");
       }
 
-      const currentStock = variant.stockQuantity ?? 0;
-      const adjustment = Number(adjustmentQuantity);
-      const newStock = currentStock + adjustment;
+      const change =
+        adjustmentType === "add" || adjustmentType === "return"
+          ? rawChange
+          : -Math.abs(rawChange);
+
+      const newStock = currentStock + change;
 
       if (newStock < 0) {
         throw new Error("Stock cannot be negative");
       }
 
-      // Update variant stock
-      await apiRequest(`/variants/${variant.id}`, {
-        method: "PATCH",
+      const reason =
+        adjustmentType === "add"
+          ? "restock"
+          : adjustmentType === "return"
+            ? "return"
+            : adjustmentType === "damage"
+              ? "correction"
+              : "manual";
+
+      await apiRequest("/inventory/adjust", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          stockQuantity: newStock,
+          variantId: variantToAdjust.id,
+          change,
+          reason,
+          note: adjustmentNote?.trim() || `Admin inventory adjustment (${adjustmentType})`,
         }),
       });
-
-      // Optionally log the adjustment (if you have an inventory log endpoint)
-      // await apiRequest("/inventory-logs", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({
-      //     productId: productToAdjust.id,
-      //     variantId: variant.id,
-      //     branch: adjustmentBranch,
-      //     type: adjustmentType,
-      //     quantity: adjustment,
-      //     note: adjustmentNote,
-      //     previousStock: currentStock,
-      //     newStock: newStock,
-      //   }),
-      // });
 
       closeAdjustModal();
       await loadProducts();
@@ -239,16 +433,46 @@ export default function ProductsPage() {
     }
   }
 
-  useEffect(() => {
-    if (form.images.length === 0) {
-      setImagePreviewUrls([]);
-      return;
+  async function saveVariant(variant: ProductVariant, patch: Partial<ProductVariant>) {
+    setError("");
+    setIsSaving(true);
+    try {
+        await apiRequest(`/variants/${variant.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+          sku: patch.sku ?? variant.sku,
+          price:
+            patch.price !== undefined
+              ? Number(patch.price)
+              : Number(variant.price),
+          cost:
+            patch.cost !== undefined
+              ? patch.cost === null || patch.cost === ""
+                ? undefined
+                : Number(patch.cost)
+              : variant.cost === null || variant.cost === undefined || variant.cost === ""
+                ? undefined
+                : Number(variant.cost),
+          // Default selection is handled separately so we can unset others.
+          }),
+        });
+      await loadProducts();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save variant");
+    } finally {
+      setIsSaving(false);
     }
+  }
 
+  useEffect(() => {
     const urls = form.images.map((image) => URL.createObjectURL(image));
-    setImagePreviewUrls(urls);
+    const timeoutId = window.setTimeout(() => {
+      setImagePreviewUrls(urls);
+    }, 0);
 
     return () => {
+      window.clearTimeout(timeoutId);
       urls.forEach((url) => URL.revokeObjectURL(url));
     };
   }, [form.images]);
@@ -302,11 +526,17 @@ export default function ProductsPage() {
   }
 
   useEffect(() => {
-    loadLookups();
+    const timeoutId = window.setTimeout(() => {
+      void loadLookups();
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   useEffect(() => {
-    loadProducts();
+    const timeoutId = window.setTimeout(() => {
+      void loadProducts();
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
   }, [page, filters]);
 
   function handleSearch() {
@@ -770,8 +1000,6 @@ export default function ProductsPage() {
       )}
 
       <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <div className="min-w-[1400px]">
             <table className="w-full text-left">
               <thead className="bg-gradient-to-r from-slate-50 to-slate-100/50 border-b border-slate-200">
                 <tr>
@@ -1117,6 +1345,72 @@ export default function ProductsPage() {
                                           </p>
                                         </div>
                                       </div>
+
+                                      {(product.variants?.length ?? 0) > 1 && (
+                                        <div className="mt-6">
+                                          <div className="mb-3 flex items-center justify-between">
+                                            <p className="text-[13px] font-semibold text-slate-600 uppercase tracking-wide">
+                                              Variants
+                                            </p>
+                                            <p className="text-[12px] font-medium text-slate-500">
+                                              {product.variants?.length ?? 0} variants
+                                            </p>
+                                          </div>
+                                          <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+                                            <table className="min-w-full text-left">
+                                              <thead className="bg-slate-50">
+                                                <tr>
+                                                  <th className="px-3 py-2 text-xs font-black text-slate-600">Default</th>
+                                                  <th className="px-3 py-2 text-xs font-black text-slate-600">Variant</th>
+                                                  <th className="px-3 py-2 text-xs font-black text-slate-600">SKU</th>
+                                                  <th className="px-3 py-2 text-xs font-black text-slate-600">Stock</th>
+                                                  <th className="px-3 py-2 text-xs font-black text-slate-600">Action</th>
+                                                </tr>
+                                              </thead>
+                                              <tbody className="divide-y divide-slate-100">
+                                                {(product.variants ?? []).map((v) => {
+                                                  const label = v.optionValues?.length
+                                                    ? v.optionValues
+                                                        .map((ov) => `${ov.attribute.name}: ${ov.value}`)
+                                                        .join(" · ")
+                                                    : v.sku;
+                                                  return (
+                                                    <tr key={v.id}>
+                                                      <td className="px-3 py-2">
+                                                        <input
+                                                          type="radio"
+                                                          name={`default-${product.id}`}
+                                                          checked={Boolean(v.isDefault)}
+                                                          disabled={isSaving}
+                                                          onChange={() => setDefaultVariant(product, v)}
+                                                        />
+                                                      </td>
+                                                      <td className="px-3 py-2 text-sm font-bold text-slate-700">
+                                                        {label}
+                                                      </td>
+                                                      <td className="px-3 py-2 text-sm font-bold text-slate-700 uppercase">
+                                                        {v.sku}
+                                                      </td>
+                                                      <td className="px-3 py-2 text-sm font-bold text-slate-900">
+                                                        {v.stockQuantity ?? 0}
+                                                      </td>
+                                                      <td className="px-3 py-2">
+                                                        <button
+                                                          type="button"
+                                                          className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-xs font-black text-slate-700 hover:bg-slate-50"
+                                                          onClick={() => openAdjustModal(product, v)}
+                                                        >
+                                                          Adjust
+                                                        </button>
+                                                      </td>
+                                                    </tr>
+                                                  );
+                                                })}
+                                              </tbody>
+                                            </table>
+                                          </div>
+                                        </div>
+                                      )}
                                     </div>
                                   )}
 
@@ -1162,6 +1456,84 @@ export default function ProductsPage() {
                                           </p>
                                         </div>
                                       </div>
+
+                                      {(product.variants?.length ?? 0) > 0 && (
+                                        <div className="mt-6 space-y-6">
+                                          <div>
+                                            <div className="mb-3 flex items-center justify-between">
+                                              <p className="text-[13px] font-semibold text-slate-600 uppercase tracking-wide">
+                                                Variant pricing
+                                              </p>
+                                              <p className="text-[12px] font-medium text-slate-500">
+                                                Save updates per variant
+                                              </p>
+                                            </div>
+                                            <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+                                              <table className="min-w-full text-left">
+                                                <thead className="bg-slate-50">
+                                                  <tr>
+                                                    <th className="px-3 py-2 text-xs font-black text-slate-600">Default</th>
+                                                    <th className="px-3 py-2 text-xs font-black text-slate-600">Variant</th>
+                                                    <th className="px-3 py-2 text-xs font-black text-slate-600">SKU</th>
+                                                    <th className="px-3 py-2 text-xs font-black text-slate-600">Cost</th>
+                                                    <th className="px-3 py-2 text-xs font-black text-slate-600">Price</th>
+                                                    <th className="px-3 py-2 text-xs font-black text-slate-600">Action</th>
+                                                  </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-slate-100">
+                                                  {(product.variants ?? []).map((v) => {
+                                                    const label = v.optionValues?.length
+                                                      ? v.optionValues
+                                                          .map((ov) => `${ov.attribute.name}: ${ov.value}`)
+                                                          .join(" · ")
+                                                      : v.sku;
+                                                    return (
+                                                      <VariantRow
+                                                        key={v.id}
+                                                        label={label}
+                                                        variant={v}
+                                                        radioName={`default-${product.id}`}
+                                                        disabled={isSaving}
+                                                        onSave={(patch) => saveVariant(v, patch)}
+                                                        onMakeDefault={() => setDefaultVariant(product, v)}
+                                                      />
+                                                    );
+                                                  })}
+                                                </tbody>
+                                              </table>
+                                            </div>
+                                          </div>
+
+                                          <div>
+                                            <div className="mb-3 flex items-center justify-between">
+                                              <p className="text-[13px] font-semibold text-slate-600 uppercase tracking-wide">
+                                                Variant images
+                                              </p>
+                                              <p className="text-[12px] font-medium text-slate-500">
+                                                Reorder or delete
+                                              </p>
+                                            </div>
+                                            <div className="space-y-4">
+                                              {(product.variants ?? []).map((v) => {
+                                                const label = v.optionValues?.length
+                                                  ? v.optionValues
+                                                      .map((ov) => `${ov.attribute.name}: ${ov.value}`)
+                                                      .join(" · ")
+                                                  : v.sku;
+                                                return (
+                                                  <div key={`media-${v.id}`} className="rounded-lg border border-slate-200 bg-white p-4">
+                                                    <div className="mb-3 flex items-center justify-between">
+                                                      <p className="text-sm font-bold text-slate-700">{label}</p>
+                                                      <span className="text-xs font-medium text-slate-500">SKU: {v.sku}</span>
+                                                    </div>
+                                                    <VariantMediaGrid variant={v} onRefresh={loadProducts} />
+                                                  </div>
+                                                );
+                                              })}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )}
                                     </div>
                                   )}
 
@@ -1311,8 +1683,6 @@ export default function ProductsPage() {
                 )}
               </tbody>
             </table>
-          </div>
-        </div>
 
         {totalPages > 1 && (
           <div className="flex items-center justify-between border-t-2 border-slate-200 px-6 py-5 bg-gradient-to-r from-slate-50 to-white">

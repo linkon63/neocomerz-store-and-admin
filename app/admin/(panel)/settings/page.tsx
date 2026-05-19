@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AdminIcon } from "../../_components/admin-shell";
 import { SettingsNav, settingsSectionMeta, type SettingsSection } from "../../_components/settings/settings-nav";
 import { BranchesSection } from "../../_components/settings/branches-section";
 import { PlaceholderSection } from "../../_components/settings/placeholder-section";
 import { Button, Card, Input, Select, Badge } from "../../_components/enterprise-ui";
+import { apiRequest } from "../../../../lib/admin-api";
 
 // ─── Reusable helpers ────────────────────────────────────────────────────────
 
@@ -153,6 +154,49 @@ function SiteSettingsSection() {
   const [guestCheckout, setGuestCheckout] = useState(true);
   const [reviewsEnabled, setReviewsEnabled] = useState(true);
   const [timezone, setTimezone] = useState("Asia/Dhaka");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    async function loadSiteSettings() {
+      try {
+        setLoading(true);
+        const res = await apiRequest<{ shopName?: string; slogan?: string }>("/settings");
+        if (res) {
+          setSeoTitle(res.shopName || "");
+          setSeoDesc(res.slogan || "");
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadSiteSettings();
+  }, []);
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      await apiRequest("/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          shopName: seoTitle,
+          slogan: seoDesc,
+        }),
+      });
+      alert("SEO and Site settings successfully saved!");
+    } catch (err) {
+      alert("Failed to save settings.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (loading) {
+    return <div className="py-8 text-center text-sm font-black text-slate-500">Loading site settings...</div>;
+  }
 
   return (
     <>
@@ -203,7 +247,7 @@ function SiteSettingsSection() {
           </div>
         </SectionCard>
 
-        <SaveBar onSave={() => {}} />
+        <SaveBar onSave={handleSave} />
       </div>
     </>
   );

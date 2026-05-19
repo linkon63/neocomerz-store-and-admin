@@ -62,7 +62,10 @@ export default function UnitsPage() {
   }
 
   useEffect(() => {
-    loadUnits();
+    const timeoutId = window.setTimeout(() => {
+      void loadUnits();
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   function updateName(name: string) {

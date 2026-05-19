@@ -1,29 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AdminIcon, PageHeader } from "../../_components/admin-shell";
 import { StarRating } from "../../_components/review-components";
 import { ConfirmModal } from "../../_components/confirm-modal";
-import {
-  Button,
-  Card,
-  Badge,
-  Input,
-  Alert,
-  StatsCard,
-  EmptyState,
-  Typography,
-} from "../../_components/enterprise-ui";
 import { apiRequest, formatDate, type Review } from "../../../../lib/admin-api";
 
-const TABS = ["New", "Reviewed", "Archived"] as const;
-type Tab = (typeof TABS)[number];
+type Tab = "New" | "Reviewed";
 
 interface ProductGroup {
   id: string;
   name: string;
   slug: string;
-  totalCount: number;
   newCount: number;
   reviews: Review[];
 }
@@ -40,60 +28,51 @@ export default function ReviewsPage() {
   const [isActioning, setIsActioning] = useState(false);
   const [actionError, setActionError] = useState("");
 
-  const loadReviews = useCallback(async () => {
+  async function loadReviews() {
     setError("");
     setIsLoading(true);
     try {
-      const allReviews = await apiRequest<Review[]>("/reviews");
-      setReviews(allReviews);
-
-      if (allReviews.length > 0 && !selectedId) {
-        const firstProductId = allReviews[0].product?.id;
-        if (firstProductId) setSelectedId(firstProductId);
+      const data = await apiRequest<Review[]>("/reviews/pending");
+      setReviews(data);
+      if (data.length > 0) {
+        setSelectedId((prev) => prev ?? data[0].product?.id ?? null);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load reviews");
     } finally {
       setIsLoading(false);
     }
-  }, [selectedId]);
+  }
 
-  useEffect(() => {
-    loadReviews();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useEffect(() => { void loadReviews(); }, []);
 
-  const groupsMap = new Map<string, ProductGroup>();
-  reviews.forEach(r => {
-    if (!r.product) return;
-    if (!groupsMap.has(r.product.id)) {
-      groupsMap.set(r.product.id, {
-        id: r.product.id,
-        name: r.product.name,
-        slug: r.product.slug,
-        totalCount: 0,
-        newCount: 0,
-        reviews: [],
-      });
+  const groupsMap = useMemo(() => {
+    const map = new Map<string, ProductGroup>();
+    for (const r of reviews) {
+      if (!r.product) continue;
+      if (!map.has(r.product.id)) {
+        map.set(r.product.id, { id: r.product.id, name: r.product.name, slug: r.product.slug, newCount: 0, reviews: [] });
+      }
+      const g = map.get(r.product.id)!;
+      if (!r.isApproved) g.newCount++;
+      g.reviews.push(r);
     }
-    const g = groupsMap.get(r.product.id)!;
-    g.totalCount++;
-    if (!r.isApproved) g.newCount++;
-    g.reviews.push(r);
-  });
+    return map;
+  }, [reviews]);
 
-  const q = search.toLowerCase();
-  const filteredGroups = Array.from(groupsMap.values()).filter(g =>
-    !q || g.name.toLowerCase().includes(q) || g.slug.toLowerCase().includes(q)
-  );
+  const filteredGroups = useMemo(() => {
+    const q = search.toLowerCase();
+    return Array.from(groupsMap.values()).filter(
+      (g) => !q || g.name.toLowerCase().includes(q) || g.slug.toLowerCase().includes(q)
+    );
+  }, [groupsMap, search]);
 
   const selectedGroup = groupsMap.get(selectedId ?? "") ?? null;
 
-  const activeReviews = selectedGroup?.reviews.filter(r => {
-    if (activeTab === "New") return !r.isApproved;
-    if (activeTab === "Reviewed") return r.isApproved;
-    return false;
-  }) || [];
+  const activeReviews = useMemo(
+    () => selectedGroup?.reviews.filter((r) => (activeTab === "New" ? !r.isApproved : r.isApproved)) ?? [],
+    [selectedGroup, activeTab]
+  );
 
   async function handleApprove(review: Review) {
     setActionError("");
@@ -124,281 +103,166 @@ export default function ReviewsPage() {
     }
   }
 
-  const totalNew = reviews.filter(r => !r.isApproved).length;
-  const totalApproved = reviews.filter(r => r.isApproved).length;
-
   return (
     <>
       <PageHeader
         title="Product Reviews"
-        description="Manage customer feedback, approve or moderate reviews across all products"
+        description="Approve or remove customer reviews across all products."
         action={
-          <div className="flex gap-3">
-            <Button
-              variant="neutral"
-              size="md"
-              icon={<AdminIcon className="h-5 w-5" name="refresh" />}
-              onClick={() => loadReviews()}
-            >
-              Refresh
-            </Button>
-            <Button
-              variant="neutral"
-              size="md"
-              icon={<AdminIcon className="h-5 w-5" name="download" />}
-            >
-              Export
-            </Button>
-          </div>
+          <button
+            onClick={loadReviews}
+            className="grid h-12 w-12 place-items-center rounded-lg border border-slate-300 bg-white"
+          >
+            <AdminIcon className="h-5 w-5" name="refresh" />
+          </button>
         }
       />
 
-      {/* Stats Dashboard */}
-      <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          label="Total Reviews"
-          value={reviews.length}
-          icon={<AdminIcon className="h-6 w-6" name="reviews" />}
-        />
-        <StatsCard
-          label="Pending Approval"
-          value={totalNew}
-          icon={<AdminIcon className="h-6 w-6" name="x" />}
-        />
-        <StatsCard
-          label="Approved"
-          value={totalApproved}
-          icon={<AdminIcon className="h-6 w-6" name="check" />}
-        />
-        <StatsCard
-          label="Products"
-          value={groupsMap.size}
-          icon={<AdminIcon className="h-6 w-6" name="package" />}
-        />
+      <div className="mb-6 grid grid-cols-3 gap-4">
+        {[
+          { label: "Total Reviews", value: reviews.length },
+          { label: "Pending", value: reviews.filter((r) => !r.isApproved).length },
+          { label: "Products", value: groupsMap.size },
+        ].map(({ label, value }) => (
+          <div key={label} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p className="text-sm font-black text-slate-500">{label}</p>
+            <p className="mt-1 text-2xl font-black text-slate-800">{value}</p>
+          </div>
+        ))}
       </div>
 
       {error && (
-        <Alert variant="danger" className="mb-6" onClose={() => setError("")}>
+        <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
           {error}
-        </Alert>
+        </div>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-[420px_1fr]">
-        {/* Product Sidebar */}
-        <Card className="flex flex-col overflow-hidden p-0 h-fit">
-          {/* Search Header */}
-          <div className="sticky top-0 z-10 flex items-center gap-4 border-b border-gray-200 p-4 bg-white">
-            <div className="flex-1">
-              <Input
-                icon={<AdminIcon className="h-5 w-5 text-gray-400" name="search" />}
+      <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 p-3">
+            <label className="flex h-10 items-center gap-2 rounded-lg border border-slate-300 px-3">
+              <AdminIcon className="h-4 w-4 text-slate-400" name="search" />
+              <input
+                className="w-full bg-transparent text-sm font-medium outline-none"
                 placeholder="Search products..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="text-[15px] h-10"
               />
-            </div>
+            </label>
           </div>
-
-          {/* Product List */}
-          <div className="flex-1 overflow-y-auto max-h-[700px]">
+          <div className="max-h-[600px] overflow-y-auto divide-y divide-slate-100">
             {isLoading ? (
-              <div className="flex h-full items-center justify-center py-24">
-                <div className="text-center">
-                  <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600 mx-auto mb-4" />
-                  <p className={`${Typography.body} text-gray-500`}>Loading reviews...</p>
-                </div>
-              </div>
+              <p className="px-4 py-8 text-center text-sm font-medium text-slate-400">Loading reviews...</p>
             ) : filteredGroups.length === 0 ? (
-              <div className="flex h-full flex-col items-center justify-center py-16">
-                <EmptyState
-                  icon={<AdminIcon className="h-8 w-8 text-gray-400" name="reviews" />}
-                  title="No Products Found"
-                  description="No products with reviews matching your search."
-                />
-              </div>
+              <p className="px-4 py-8 text-center text-sm font-medium text-slate-400">No products with reviews.</p>
             ) : (
-              <div className="divide-y divide-gray-100">
-                {filteredGroups.map((group) => (
-                  <button
-                    key={group.id}
-                    onClick={() => {
-                      setSelectedId(group.id);
-                      setActiveTab("New");
-                    }}
-                    className={`flex w-full items-center gap-3 px-4 py-4 text-left transition-all duration-200 hover:bg-gray-50 ${
-                      selectedId === group.id 
-                        ? "bg-blue-50 border-l-2 border-blue-600" 
-                        : "border-l-4 border-transparent"
-                    }`}
-                  >
-                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600 border border-blue-200 font-black text-[15px]">
-                      {group.name.charAt(0)}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className={`${Typography.h4} text-gray-900 truncate`}>{group.name}</p>
-                      <p className={`${Typography.caption} text-gray-500 mt-0.5 uppercase tracking-wide truncate`}>
-                        {group.slug}
-                      </p>
-                    </div>
-                    {group.newCount > 0 && (
-                      <Badge variant="danger" size="sm" className="shrink-0">
-                        {group.newCount} new
-                      </Badge>
-                    )}
-                  </button>
-                ))}
-              </div>
+              filteredGroups.map((group) => (
+                <button
+                  key={group.id}
+                  onClick={() => { setSelectedId(group.id); setActiveTab("New"); }}
+                  className={`flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 ${
+                    selectedId === group.id ? "bg-blue-50 border-l-2 border-blue-600" : ""
+                  }`}
+                >
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-blue-50 text-blue-600 border border-blue-200 font-black">
+                    {group.name.charAt(0)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-black text-slate-800">{group.name}</p>
+                    <p className="truncate text-xs font-medium text-slate-400">{group.slug}</p>
+                  </div>
+                  {group.newCount > 0 && (
+                    <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-xs font-black text-red-700">
+                      {group.newCount}
+                    </span>
+                  )}
+                </button>
+              ))
             )}
           </div>
-        </Card>
+        </div>
 
-        {/* Review Content Panel */}
-        <div key={selectedId || 'none'} className="animate-in fade-in slide-in-from-right-2 duration-300">
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           {selectedGroup ? (
-            <Card className="flex flex-col overflow-hidden p-0 min-h-[600px]">
-              {/* Product Header */}
-              <div className="border-b border-gray-200 p-4 bg-white">
-                <div className="flex items-center gap-4">
-                  <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600 border border-blue-200 font-black text-xl">
-                    {selectedGroup.name.charAt(0)}
-                  </div>
-                  <div>
-                    <h2 className={`${Typography.h2} text-gray-900`}>{selectedGroup.name}</h2>
-                    <p className={`${Typography.body} text-gray-500 uppercase tracking-wide mt-1`}>{selectedGroup.slug}</p>
-                  </div>
-                </div>
+            <>
+              <div className="border-b border-slate-200 p-4">
+                <p className="font-black text-slate-800">{selectedGroup.name}</p>
+                <p className="text-xs font-medium text-slate-400">{selectedGroup.slug}</p>
               </div>
 
-              {/* Tab Navigation */}
-              <div className="flex gap-6 border-b border-gray-200 px-4">
-                {TABS.map((tab) => {
-                  const count = selectedGroup.reviews.filter(r => {
-                    if (tab === "New") return !r.isApproved;
-                    if (tab === "Reviewed") return r.isApproved;
-                    return false;
-                  }).length;
+              <div className="flex border-b border-slate-200 px-4">
+                {(["New", "Reviewed"] as Tab[]).map((tab) => {
+                  const count = selectedGroup.reviews.filter((r) => (tab === "New" ? !r.isApproved : r.isApproved)).length;
                   return (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`pb-3 pt-4 text-[15px] font-bold transition-colors relative ${
-                        activeTab === tab
-                          ? "text-blue-600"
-                          : "text-gray-500 hover:text-gray-700"
+                      className={`relative pb-3 pt-4 text-sm font-bold mr-6 ${
+                        activeTab === tab ? "text-blue-600" : "text-slate-500 hover:text-slate-700"
                       }`}
                     >
-                      <span className="flex items-center gap-2">
-                        {tab}
-                        <Badge variant={activeTab === tab ? "primary" : "neutral"} size="sm">
-                          {count}
-                        </Badge>
-                      </span>
-                      {activeTab === tab && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600" />
-                      )}
+                      {tab} ({count})
+                      {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600" />}
                     </button>
                   );
                 })}
               </div>
 
               {actionError && (
-                <div className="px-6 pt-4">
-                  <Alert variant="danger" onClose={() => setActionError("")}>
-                    {actionError}
-                  </Alert>
+                <div className="mx-4 mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+                  {actionError}
                 </div>
               )}
 
-              {/* Review List */}
-              <div key={activeTab} className="flex-1 overflow-y-auto">
+              <div className="divide-y divide-slate-100">
                 {activeReviews.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-24">
-                    <EmptyState
-                      icon={<AdminIcon className="h-8 w-8 text-gray-400" name="reviews" />}
-                      title="No Reviews"
-                      description={`No ${activeTab.toLowerCase()} reviews for this product.`}
-                    />
-                  </div>
+                  <p className="px-4 py-12 text-center text-sm font-medium text-slate-400">
+                    No {activeTab.toLowerCase()} reviews for this product.
+                  </p>
                 ) : (
-                  <div className="divide-y divide-gray-100">
-                    {activeReviews.map(review => (
-                      <div key={review.id} className="p-4 transition-colors hover:bg-gray-50">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-red-50 text-red-500 border border-red-200">
-                              <AdminIcon className="h-5 w-5" name="user" />
-                            </div>
-                            <div>
-                              <p className={`${Typography.h4} text-gray-900`}>
-                                {review.user?.name ?? "Anonymous User"}
-                              </p>
-                              <p className={`${Typography.caption} text-gray-400 mt-0.5`}>
-                                {formatDate(review.createdAt)}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {!review.isApproved && (
-                              <Button
-                                variant="success"
-                                size="sm"
-                                disabled={isActioning}
-                                isLoading={isActioning}
-                                onClick={() => handleApprove(review)}
-                                icon={<AdminIcon className="h-4 w-4" name="check" />}
-                              >
-                                Approve
-                              </Button>
-                            )}
-                            <button
-                              onClick={() => { setReviewToDelete(review); setDeleteModalOpen(true); }}
-                              className="grid h-9 w-9 place-items-center rounded-lg border border-gray-200 text-gray-400 hover:text-red-600 hover:bg-red-50 hover:border-red-200 transition-all"
-                            >
-                              <AdminIcon className="h-4 w-4" name="actions" />
-                            </button>
+                  activeReviews.map((review) => (
+                    <div key={review.id} className="p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-sm font-black text-slate-800">{review.user?.name ?? "Anonymous"}</p>
+                          <p className="text-xs font-medium text-slate-400">{formatDate(review.createdAt)}</p>
+                          <div className="mt-2">
+                            <StarRating rating={review.rating} />
                           </div>
                         </div>
-
-                        <div className="mt-4 pl-[3.75rem]">
-                          <StarRating rating={review.rating} />
-                          {review.comment && (
-                            <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
-                              <p className={`${Typography.body} text-gray-700 leading-relaxed`}>
-                                &ldquo;{review.comment}&rdquo;
-                              </p>
-                            </div>
-                          )}
-                          {review.isApproved && (
-                            <div className="mt-4">
-                              <Badge variant="success" size="sm">
-                                Approved
-                              </Badge>
-                            </div>
-                          )}
-                          <div className="mt-4 flex items-center justify-end">
-                            <Button
-                              variant="neutral"
-                              size="sm"
-                              icon={<AdminIcon className="h-4 w-4" name="reviews" />}
+                        <div className="flex shrink-0 gap-2">
+                          {!review.isApproved && (
+                            <button
+                              disabled={isActioning}
+                              onClick={() => handleApprove(review)}
+                              className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-xs font-black text-white disabled:opacity-50"
                             >
-                              Add Reply
-                            </Button>
-                          </div>
+                              <AdminIcon className="h-3.5 w-3.5" name="check" />
+                              Approve
+                            </button>
+                          )}
+                          <button
+                            onClick={() => { setReviewToDelete(review); setDeleteModalOpen(true); }}
+                            className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-400 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                          >
+                            <AdminIcon className="h-4 w-4" name="x" />
+                          </button>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                      {review.comment && (
+                        <p className="mt-3 rounded-lg border border-slate-100 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700">
+                          {review.comment}
+                        </p>
+                      )}
+                    </div>
+                  ))
                 )}
               </div>
-            </Card>
+            </>
           ) : (
-            <Card className="flex items-center justify-center min-h-[600px]">
-              <EmptyState
-                icon={<AdminIcon className="h-8 w-8 text-gray-400" name="reviews" />}
-                title="No Product Selected"
-                description="Select a product from the list to view its reviews."
-              />
-            </Card>
+            <div className="flex min-h-[400px] items-center justify-center">
+              <p className="text-sm font-medium text-slate-400">Select a product to view its reviews.</p>
+            </div>
           )}
         </div>
       </div>
@@ -409,7 +273,7 @@ export default function ReviewsPage() {
         onConfirm={handleDelete}
         title="Delete Review"
         message="Are you sure you want to delete this review? This action cannot be undone."
-        confirmText={isActioning ? "Deleting\u2026" : "Delete Review"}
+        confirmText={isActioning ? "Deleting…" : "Delete Review"}
         isDestructive
       />
     </>

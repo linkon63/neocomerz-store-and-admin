@@ -61,7 +61,10 @@ export default function TagsPage() {
   }
 
   useEffect(() => {
-    loadTags();
+    const timeoutId = window.setTimeout(() => {
+      void loadTags();
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   function updateName(name: string) {

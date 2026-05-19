@@ -71,14 +71,19 @@ export default function CategoriesPage() {
 
   useEffect(() => {
     if (!form.image) {
-      setImagePreviewUrl(null);
-      return;
+      const timeoutId = window.setTimeout(() => {
+        setImagePreviewUrl(null);
+      }, 0);
+      return () => window.clearTimeout(timeoutId);
     }
 
     const objectUrl = URL.createObjectURL(form.image);
-    setImagePreviewUrl(objectUrl);
+    const timeoutId = window.setTimeout(() => {
+      setImagePreviewUrl(objectUrl);
+    }, 0);
 
     return () => {
+      window.clearTimeout(timeoutId);
       URL.revokeObjectURL(objectUrl);
     };
   }, [form.image]);
@@ -98,7 +103,10 @@ export default function CategoriesPage() {
   }
 
   useEffect(() => {
-    loadCategories();
+    const timeoutId = window.setTimeout(() => {
+      void loadCategories();
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   function updateName(name: string) {

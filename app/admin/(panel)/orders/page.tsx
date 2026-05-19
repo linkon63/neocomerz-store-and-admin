@@ -96,7 +96,10 @@ export default function OrdersPage() {
   }, [activeTab, selectedId]);
 
   useEffect(() => {
-    loadOrders();
+    const timeoutId = window.setTimeout(() => {
+      void loadOrders();
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
   }, [loadOrders]);
 
   const filtered = useMemo(() => {

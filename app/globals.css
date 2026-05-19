@@ -1,26 +1,174 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
+/* ============================================================
+   STORE DESIGN TOKENS — Light, Modern, BD E-commerce Feel
+   Admin uses its own inline Tailwind classes, untouched here.
+   ============================================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Base */
+  --store-bg: #F7F8FA;
+  --store-white: #FFFFFF;
+  --store-text: #1A1A2E;
+  --store-text-muted: #6B7280;
+  --store-text-light: #9CA3AF;
+
+  /* Brand — vibrant green (BD flag inspired, eye-catching) */
+  --store-primary: #00A651;
+  --store-primary-hover: #008A43;
+  --store-primary-light: #E6F7EE;
+  --store-primary-mid: #C3EDD5;
+
+  /* Secondary — deep navy */
+  --store-secondary: #1A1A2E;
+  --store-secondary-hover: #0F0F1E;
+
+  /* Accent — warm yellow for badges/sale */
+  --store-accent: #F59E0B;
+  --store-accent-light: #FEF3C7;
+
+  /* Success / Error */
+  --store-success: #10B981;
+  --store-error: #EF4444;
+
+  /* Borders & Surfaces */
+  --store-border: #E5E7EB;
+  --store-border-dark: #D1D5DB;
+  --store-surface: #FFFFFF;
+  --store-surface-2: #F3F4F6;
+  --store-surface-3: #EEF0F4;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: Arial, Helvetica, sans-serif;
-  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+@theme {
+  --color-background: var(--store-bg);
+  --color-foreground: var(--store-text);
+  --color-surface: var(--store-surface);
+  --color-surface-muted: var(--store-surface-2);
+  --color-stroke: var(--store-border);
+
+  --color-primary: var(--store-primary);
+  --color-primary-hover: var(--store-primary-hover);
+  --color-primary-light: var(--store-primary-light);
+  --color-brand: var(--store-secondary);
+  --color-success: var(--store-success);
+  --color-gold: var(--store-accent);
+
+  --font-sans: "Inter", "Hind Siliguri", -apple-system, sans-serif;
+  --font-serif: "Inter", Georgia, serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background-color: var(--store-bg);
+  color: var(--store-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  line-height: 1.6;
 }
+
+/* ── Store-specific utility classes ── */
+.store-heading {
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Legacy class used in store pages */
+.heading-premium {
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Buttons */
+.btn-premium {
+  background-color: var(--store-primary);
+  color: #ffffff;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn-premium:hover {
+  background-color: var(--store-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 166, 81, 0.35);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1.5px solid var(--store-border-dark);
+  color: var(--store-text);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+.btn-outline:hover {
+  border-color: var(--store-primary);
+  color: var(--store-primary);
+  background-color: var(--store-primary-light);
+}
+
+/* Card shadow */
+.store-card {
+  background: var(--store-white);
+  border: 1px solid var(--store-border);
+  border-radius: 12px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.store-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.premium-shadow-hover {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.premium-shadow-hover:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Glass panel — now light frosted */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--store-border);
+}
+
+/* Animations */
+@keyframes slide-up-fade {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in-soft {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes scale-in {
+  0% { opacity: 0; transform: scale(0.96); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.animate-slide-up { animation: slide-up-fade 0.4s ease forwards; }
+.animate-fade-in  { animation: fade-in-soft 0.4s ease forwards; }
+.animate-scale-in { animation: scale-in 0.3s ease forwards; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--store-bg); }
+::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

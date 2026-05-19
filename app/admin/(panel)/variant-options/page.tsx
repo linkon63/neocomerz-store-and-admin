@@ -64,7 +64,10 @@ export default function VariantOptionsPage() {
   }
 
   useEffect(() => {
-    loadVariantOptions();
+    const timeoutId = window.setTimeout(() => {
+      void loadVariantOptions();
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   function openAddModal() {
@@ -404,8 +407,8 @@ export default function VariantOptionsPage() {
                   value={form.name}
                 />
               </label>
-              <div>
-                <div className="mb-2 flex items-center justify-between gap-3">
+              <div className="rounded-lg border border-slate-200">
+                <div className="sticky top-0 z-10 flex items-center justify-between gap-3 rounded-t-lg border-b border-slate-200 bg-white px-3 py-2">
                   <span className="block text-sm font-black text-slate-700">
                     Values
                   </span>
@@ -419,27 +422,29 @@ export default function VariantOptionsPage() {
                     Add Value
                   </button>
                 </div>
-                <div className="space-y-2">
-                  {form.values.map((item, index) => (
-                    <div className="flex gap-2" key={item.id ?? index}>
-                      <input
-                        className="h-12 min-w-0 flex-1 rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                        onChange={(event) =>
-                          updateValue(index, event.target.value)
-                        }
-                        placeholder={index === 0 ? "Black" : "Value"}
-                        value={item.value}
-                      />
-                      <button
-                        className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-red-50 text-red-700 disabled:opacity-50"
-                        disabled={isSaving || form.values.length === 1}
-                        onClick={() => removeValueInput(index)}
-                        type="button"
-                      >
-                        <AdminIcon className="h-5 w-5" name="x" />
-                      </button>
-                    </div>
-                  ))}
+                <div className="max-h-56 overflow-y-auto p-3">
+                  <div className="space-y-2">
+                    {form.values.map((item, index) => (
+                      <div className="flex gap-2" key={item.id ?? index}>
+                        <input
+                          className="h-12 min-w-0 flex-1 rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                          onChange={(event) =>
+                            updateValue(index, event.target.value)
+                          }
+                          placeholder={index === 0 ? "Black" : "Value"}
+                          value={item.value}
+                        />
+                        <button
+                          className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-red-50 text-red-700 disabled:opacity-50"
+                          disabled={isSaving || form.values.length === 1}
+                          onClick={() => removeValueInput(index)}
+                          type="button"
+                        >
+                          <AdminIcon className="h-5 w-5" name="x" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
               {error && (
