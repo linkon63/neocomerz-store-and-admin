@@ -640,10 +640,22 @@ export default function OrdersPage() {
 
                   {/* Order Items */}
                   <div className="space-y-6 mb-12">
-                    {(selected.items || []).map((item) => (
+                    {(selected.items || []).map((item) => {
+                      const variantImg = item.variant?.media?.[0]?.media?.url;
+                      const productImg = item.product?.media?.[0]?.media?.url;
+                      const imgSrc = variantImg || productImg;
+                      return (
                       <div key={item.id} className="flex items-center gap-4">
-                        <div className="h-16 w-20 shrink-0 bg-slate-50 border border-slate-100 flex items-center justify-center rounded-md">
-                          <AdminIcon className="h-8 w-8 text-slate-300" name="package" />
+                        <div className="h-16 w-20 shrink-0 bg-slate-50 border border-slate-100 flex items-center justify-center rounded-md overflow-hidden">
+                          {imgSrc ? (
+                            <img
+                              src={imgSrc}
+                              alt={item.product?.name}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <AdminIcon className="h-8 w-8 text-slate-300" name="package" />
+                          )}
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-[14px] font-black text-slate-900">{item.product?.name}</p>
@@ -658,7 +670,8 @@ export default function OrdersPage() {
                           <p className="text-[15px] font-black text-slate-900">BDT {Number(item.totalPrice).toLocaleString()}</p>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {/* Order Summary */}

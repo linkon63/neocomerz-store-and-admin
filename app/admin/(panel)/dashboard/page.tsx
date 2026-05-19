@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AdminIcon, PageHeader, ProductThumb } from "../../_components/admin-shell";
 import { apiRequest } from "../../../../lib/admin-api";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type DashboardSummary = {
   totalSales: number;
@@ -13,28 +15,21 @@ type DashboardSummary = {
   totalCustomers: number;
   totalProducts: number;
   lowStockProducts: number;
-  recentOrders: Array<{
+  recentOrders: {
     id: string;
     orderNumber: string;
     total: string | number;
     paymentStatus: string;
     placedAt: string;
-    user?: {
-      name: string;
-      email: string;
-    } | null;
-  }>;
+    user?: { name: string; email: string } | null;
+  }[];
 };
 
 type Product = {
   id: string;
   name: string;
-  slug: string;
   status: string;
-  variants?: Array<{
-    stockQuantity: number;
-    price: string | number;
-  }>;
+  variants?: { stockQuantity: number; price: string | number }[];
 };
 
 type SaleItem = {
@@ -44,6 +39,54 @@ type SaleItem = {
   placedAt: string;
 };
 
+// ─── Date range helpers ───────────────────────────────────────────────────────
+
+type Preset = "Today" | "Yesterday" | "This Week" | "This Month";
+
+function getPresetRange(preset: Preset): { from: Date; to: Date } {
+  const now = new Date();
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const endOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+
+  switch (preset) {
+    case "Today":
+      return { from: startOfDay(now), to: endOfDay(now) };
+    case "Yesterday": {
+      const y = new Date(now);
+      y.setDate(y.getDate() - 1);
+      return { from: startOfDay(y), to: endOfDay(y) };
+    }
+    case "This Week": {
+      const day = now.getDay();
+      const mon = new Date(now);
+      mon.setDate(now.getDate() - day + (day === 0 ? -6 : 1));
+      return { from: startOfDay(mon), to: endOfDay(now) };
+    }
+    case "This Month":
+      return {
+        from: new Date(now.getFullYear(), now.getMonth(), 1),
+        to: endOfDay(now),
+      };
+  }
+}
+
+function toIso(d: Date) {
+  return d.toISOString();
+}
+
+function formatCurrency(val: number) {
+  return new Intl.NumberFormat("en-BD", {
+    style: "currency",
+    currency: "BDT",
+    minimumFractionDigits: 0,
+  }).format(val);
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+const PRESETS: Preset[] = ["Today", "Yesterday", "This Week", "This Month"];
+const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
 export default function DashboardPage() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -51,35 +94,86 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [activePreset, setActivePreset] = useState<Preset | null>(null);
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const datePickerRef = useRef<HTMLDivElement>(null);
+
+  // Close date picker on outside click
   useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        const [summaryData, productsData, salesData] = await Promise.all([
-          apiRequest<DashboardSummary>("/dashboard/summary"),
-          apiRequest<Product[]>("/dashboard/products"),
-          apiRequest<SaleItem[]>("/dashboard/sales"),
-        ]);
-        setSummary(summaryData);
-        setProducts(productsData);
-        setSales(salesData);
-      } catch (err) {
-        console.error("Failed to load dashboard data", err);
-        setError("Failed to load real-time dashboard data.");
-      } finally {
-        setLoading(false);
+    function handleClick(e: MouseEvent) {
+      if (datePickerRef.current && !datePickerRef.current.contains(e.target as Node)) {
+        setShowDatePicker(false);
       }
     }
-
-    loadData();
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
   }, []);
+
+  async function loadData(from?: string, to?: string) {
+    setLoading(true);
+    setError("");
+    try {
+      const qs = from && to ? `?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}` : "";
+      const [summaryData, productsData, salesData] = await Promise.all([
+        apiRequest<DashboardSummary>(`/dashboard/summary${qs}`),
+        apiRequest<Product[]>("/dashboard/products"),
+        apiRequest<SaleItem[]>(`/dashboard/sales${qs}`),
+      ]);
+      setSummary(summaryData);
+      setProducts(productsData);
+      setSales(salesData);
+    } catch {
+      setError("Failed to load dashboard data.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { loadData(); }, []);
+
+  function handlePreset(preset: Preset) {
+    setActivePreset(preset);
+    setCustomFrom("");
+    setCustomTo("");
+    setShowDatePicker(false);
+    const { from, to } = getPresetRange(preset);
+    loadData(toIso(from), toIso(to));
+  }
+
+  function handleCustomApply() {
+    if (!customFrom || !customTo) return;
+    setActivePreset(null);
+    setShowDatePicker(false);
+    const from = new Date(customFrom);
+    const to = new Date(customTo);
+    to.setHours(23, 59, 59, 999);
+    loadData(toIso(from), toIso(to));
+  }
+
+  function handleReset() {
+    setActivePreset(null);
+    setCustomFrom("");
+    setCustomTo("");
+    setShowDatePicker(false);
+    loadData();
+  }
+
+  const salesByDay = Array(7).fill(0) as number[];
+  sales.forEach((s) => {
+    salesByDay[new Date(s.placedAt).getDay()] += Number(s.total);
+  });
+  const maxDaySales = Math.max(...salesByDay, 1000);
+
+  const isCustomActive = !activePreset && (customFrom || customTo);
 
   if (loading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-center">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto"></div>
-          <p className="mt-4 font-black text-slate-600">Loading live dashboard stats...</p>
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+          <p className="mt-4 font-black text-slate-600">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -87,184 +181,183 @@ export default function DashboardPage() {
 
   if (error || !summary) {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-red-800 font-bold">
+      <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center font-bold text-red-800">
         {error || "An error occurred while loading dashboard statistics."}
       </div>
     );
   }
 
-  // Format currency
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat("en-BD", {
-      style: "currency",
-      currency: "BDT",
-      minimumFractionDigits: 0,
-    }).format(val);
-  };
-
   const summaryCards = [
-    { label: "Total sales", value: formatCurrency(summary.totalSales), trend: "Live", tone: "blue", icon: "dashboard" as const },
-    { label: "Total orders", value: summary.totalOrders.toString(), trend: "Live", tone: "emerald", icon: "orders" as const },
-    { label: "Pending orders", value: summary.pendingOrders.toString(), trend: "Live", tone: "amber", icon: "refresh" as const },
-    { label: "Low stock products", value: summary.lowStockProducts.toString(), trend: "Live", tone: "rose", icon: "package" as const },
-    { label: "Total customers", value: summary.totalCustomers.toString(), trend: "Live", tone: "violet", icon: "reviews" as const },
-    { label: "Total products", value: summary.totalProducts.toString(), trend: "Live", tone: "slate", icon: "package" as const },
+    { label: "Total Sales", value: formatCurrency(summary.totalSales), icon: "dashboard" as const, accent: "blue" },
+    { label: "Total Orders", value: summary.totalOrders.toString(), icon: "orders" as const, accent: "emerald" },
+    { label: "Pending Orders", value: summary.pendingOrders.toString(), icon: "refresh" as const, accent: "amber" },
+    { label: "Low Stock Products", value: summary.lowStockProducts.toString(), icon: "package" as const, accent: "rose" },
+    { label: "Total Customers", value: summary.totalCustomers.toString(), icon: "reviews" as const, accent: "violet" },
+    { label: "Total Products", value: summary.totalProducts.toString(), icon: "package" as const, accent: "slate" },
   ];
-
-  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const salesByDay = Array(7).fill(0) as number[];
-  sales.forEach((sale) => {
-    const day = new Date(sale.placedAt).getDay();
-    salesByDay[day] += Number(sale.total);
-  });
-  const maxDaySales = Math.max(...salesByDay, 1000);
 
   return (
     <>
       <PageHeader
         title="Dashboard"
-        description="Your current sales summary and activity (Connected to live NestJS backend)."
+        description="Live sales summary and activity."
         action={
-          <div className="flex overflow-hidden rounded-lg border border-slate-300 bg-white text-sm font-black shadow-sm">
-            {["Today", "Yesterday", "This Week", "This Month"].map((label, index) => (
+          <div className="relative flex items-center" ref={datePickerRef}>
+            <div className="flex overflow-hidden rounded-lg border border-slate-300 bg-white text-sm font-black shadow-sm">
+              {PRESETS.map((label) => (
+                <button
+                  key={label}
+                  onClick={() => activePreset === label ? handleReset() : handlePreset(label)}
+                  className={`px-4 py-2.5 transition-colors ${
+                    activePreset === label
+                      ? "bg-blue-600 text-white"
+                      : "text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
               <button
-                className={`px-5 py-3 ${index === 0 ? "bg-blue-600 text-white" : ""}`}
-                key={label}
+                onClick={() => setShowDatePicker((v) => !v)}
+                className={`flex items-center gap-2 border-l border-slate-300 px-4 py-2.5 transition-colors ${
+                  isCustomActive ? "bg-blue-600 text-white" : "text-slate-500 hover:bg-slate-50"
+                }`}
               >
-                {label}
-              </button>
-            ))}
-            <button className="border-l border-slate-300 px-5 py-3 text-slate-500">
-              <span className="inline-flex items-center gap-2">
-                Select a date
                 <AdminIcon className="h-4 w-4" name="calendar" />
-              </span>
-            </button>
+                {isCustomActive ? `${customFrom} → ${customTo}` : "Custom"}
+              </button>
+            </div>
+
+            {showDatePicker && (
+              <div className="absolute right-0 top-full z-50 mt-2 w-72 rounded-xl border border-slate-200 bg-white p-4 shadow-lg">
+                <p className="mb-3 text-xs font-black uppercase tracking-wide text-slate-500">Select Date Range</p>
+                <div className="space-y-3">
+                  <div>
+                    <label className="mb-1 block text-xs font-black text-slate-600">From</label>
+                    <input
+                      type="date"
+                      value={customFrom}
+                      onChange={(e) => setCustomFrom(e.target.value)}
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-black text-slate-600">To</label>
+                    <input
+                      type="date"
+                      value={customTo}
+                      min={customFrom}
+                      onChange={(e) => setCustomTo(e.target.value)}
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                    />
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      onClick={handleReset}
+                      className="flex-1 rounded-lg border border-slate-300 py-2 text-sm font-black text-slate-600 hover:bg-slate-50"
+                    >
+                      Reset
+                    </button>
+                    <button
+                      onClick={handleCustomApply}
+                      disabled={!customFrom || !customTo}
+                      className="flex-1 rounded-lg bg-blue-600 py-2 text-sm font-black text-white hover:bg-blue-700 disabled:opacity-40"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         }
       />
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-md shadow-slate-900/5">
+      {/* Summary cards */}
+      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="grid divide-y divide-slate-200 md:grid-cols-2 md:divide-x md:divide-y-0 xl:grid-cols-4">
           {summaryCards.slice(0, 4).map((card) => (
-            <article className="p-4 sm:p-6" key={card.label}>
-              <div className="mb-7 flex items-center gap-3">
+            <article className="p-5 sm:p-6" key={card.label}>
+              <div className="mb-5 flex items-center gap-3">
                 <span className="grid h-7 w-7 place-items-center rounded-md bg-blue-50 text-blue-600">
                   <AdminIcon className="h-4 w-4" name={card.icon} />
                 </span>
                 <h2 className="font-black text-slate-600">{card.label}</h2>
               </div>
-              <p className="text-3xl font-black">{card.value}</p>
-              <div className="mt-4 flex items-center gap-3 text-sm font-black">
-                <span className="text-slate-500">Compared to yesterday</span>
-                <span className="rounded-md border border-emerald-300 bg-emerald-50 px-3 py-1 text-emerald-600">
-                  {card.trend}
-                </span>
-              </div>
+              <p className="text-3xl font-black text-slate-900">{card.value}</p>
             </article>
           ))}
         </div>
         <div className="grid divide-y divide-slate-200 border-t border-slate-200 md:grid-cols-3 md:divide-x md:divide-y-0">
           {summaryCards.slice(4).map((card) => (
-            <article className="p-4 sm:p-6" key={card.label}>
-              <div className="mb-7 flex items-center gap-3">
+            <article className="p-5 sm:p-6" key={card.label}>
+              <div className="mb-5 flex items-center gap-3">
                 <span className="grid h-7 w-7 place-items-center rounded-md bg-emerald-50 text-emerald-600">
                   <AdminIcon className="h-4 w-4" name={card.icon} />
                 </span>
                 <h2 className="font-black text-slate-600">{card.label}</h2>
               </div>
-              <p className="text-3xl font-black">{card.value}</p>
-              <div className="mt-4 flex items-center gap-3 text-sm font-black">
-                <span className="text-slate-500">Compared to yesterday</span>
-                <span className="rounded-md border border-emerald-300 bg-emerald-50 px-3 py-1 text-emerald-600">
-                  {card.trend}
-                </span>
-              </div>
+              <p className="text-3xl font-black text-slate-900">{card.value}</p>
             </article>
           ))}
-          <article className="p-4 sm:p-6">
-            <div className="mb-7 flex items-center gap-3">
+          <article className="p-5 sm:p-6">
+            <div className="mb-5 flex items-center gap-3">
               <span className="grid h-7 w-7 place-items-center rounded-md bg-rose-50 text-rose-600">
-                <AdminIcon className="h-4 w-4" name="refresh" />
+                <AdminIcon className="h-4 w-4" name="check" />
               </span>
               <h2 className="font-black text-slate-600">Delivered Orders</h2>
             </div>
-            <p className="text-3xl font-black">{summary.deliveredOrders}</p>
-            <div className="mt-4 flex items-center gap-3 text-sm font-black">
-              <span className="text-slate-500">Fulfillment Success Rate</span>
-              <span className="rounded-md border border-emerald-300 bg-emerald-50 px-3 py-1 text-emerald-600">
-                {summary.totalOrders > 0
-                  ? `${Math.round((summary.deliveredOrders / summary.totalOrders) * 100)}%`
-                  : "0%"}
-              </span>
-            </div>
+            <p className="text-3xl font-black text-slate-900">{summary.deliveredOrders}</p>
+            <p className="mt-2 text-sm font-medium text-slate-500">
+              {summary.totalOrders > 0
+                ? `${Math.round((summary.deliveredOrders / summary.totalOrders) * 100)}% fulfillment rate`
+                : "No orders yet"}
+            </p>
           </article>
         </div>
       </section>
 
-      <section className="mt-8 grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
-        <article className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
-          <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            <h2 className="text-2xl font-black">Sales Trend</h2>
-            <div className="flex gap-3">
-              <button className="rounded-lg bg-blue-50 px-4 py-2 font-black text-blue-600">
-                Daily
-              </button>
-              <button className="rounded-lg px-4 py-2 font-black text-slate-400">
-                Monthly
-              </button>
-              <button className="rounded-lg border border-slate-300 px-4 py-2 font-black">
-                Select Date
-              </button>
-            </div>
-          </div>
-          <div className="relative h-80 border-l border-b border-slate-200">
-            {[0, 1, 2, 3, 4].map((line) => (
+      {/* Sales chart + Recent orders */}
+      <section className="mt-6 grid gap-6 xl:grid-cols-[1.4fr_0.6fr]">
+        <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="mb-5 text-xl font-black text-slate-900">Sales Trend</h2>
+          <div className="relative h-72 border-b border-l border-slate-200">
+            {[0, 1, 2, 3, 4].map((i) => (
               <div
+                key={i}
                 className="absolute left-0 right-0 border-t border-slate-100"
-                key={line}
-                style={{ top: `${line * 20}%` }}
+                style={{ top: `${i * 20}%` }}
               />
             ))}
-            <div className="absolute inset-x-0 bottom-10 top-0 flex items-end justify-between gap-4 px-6">
-              {salesByDay.map((val, idx) => {
-                const heightPct = Math.max((val / maxDaySales) * 100, 3);
-                return (
-                  <div className="flex flex-1 flex-col items-center" key={idx}>
-                    <div
-                      className="w-full max-w-[42px] rounded-t bg-blue-500"
-                      style={{ height: `${heightPct}%` }}
-                      title={formatCurrency(val)}
-                    />
-                    <span className="mt-3 text-xs font-black text-slate-400">
-                      {dayNames[idx]}
-                    </span>
-                  </div>
-                );
-              })}
+            <div className="absolute inset-x-0 bottom-0 top-0 flex items-end justify-between gap-2 px-4 pb-0">
+              {salesByDay.map((val, idx) => (
+                <div key={idx} className="flex flex-1 flex-col items-center">
+                  <div
+                    className="w-full max-w-[40px] rounded-t-md bg-blue-500 transition-all duration-500"
+                    style={{ height: `${Math.max((val / maxDaySales) * 100, 3)}%` }}
+                    title={formatCurrency(val)}
+                  />
+                  <span className="mt-2 text-xs font-black text-slate-400">{DAY_NAMES[idx]}</span>
+                </div>
+              ))}
             </div>
           </div>
         </article>
 
-        <article className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-black">Recent Orders</h2>
-            <button className="rounded-lg border border-slate-300 px-4 py-2 font-black">
-              View All
-            </button>
-          </div>
-          <div className="space-y-4">
+        <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="mb-5 text-xl font-black text-slate-900">Recent Orders</h2>
+          <div className="space-y-3">
             {summary.recentOrders.length === 0 ? (
-              <p className="text-sm font-medium text-slate-400 py-6 text-center">No orders placed yet.</p>
+              <p className="py-8 text-center text-sm font-medium text-slate-400">No orders in this period.</p>
             ) : (
               summary.recentOrders.slice(0, 5).map((order) => (
-                <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4" key={order.id}>
+                <div key={order.id} className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3">
                   <div>
-                    <p className="font-black">{order.orderNumber}</p>
-                    <p className="text-sm font-medium text-slate-500">{order.user?.name ?? "Guest Customer"}</p>
+                    <p className="text-sm font-black text-slate-900">{order.orderNumber}</p>
+                    <p className="text-xs font-medium text-slate-500">{order.user?.name ?? "Guest"}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-black">{formatCurrency(Number(order.total))}</p>
+                    <p className="text-sm font-black text-slate-900">{formatCurrency(Number(order.total))}</p>
                     <span className={`text-xs font-black ${order.paymentStatus === "paid" ? "text-emerald-600" : "text-rose-600"}`}>
                       {order.paymentStatus === "paid" ? "Paid" : "Unpaid"}
                     </span>
@@ -276,23 +369,22 @@ export default function DashboardPage() {
         </article>
       </section>
 
-      <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
-        <h2 className="mb-5 text-2xl font-black">Top selling products</h2>
+      {/* Top products */}
+      <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="mb-5 text-xl font-black text-slate-900">Top Selling Products</h2>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {products.length === 0 ? (
-            <p className="text-sm font-medium text-slate-400 py-6 text-center col-span-3">No products available in database.</p>
+            <p className="col-span-3 py-6 text-center text-sm font-medium text-slate-400">No products available.</p>
           ) : (
             products.slice(0, 3).map((product) => {
-              const defaultVariant = product.variants?.[0];
-              const price = defaultVariant ? formatCurrency(Number(defaultVariant.price)) : "Price not set";
-              const stock = defaultVariant?.stockQuantity ?? 0;
+              const variant = product.variants?.[0];
               return (
-                <div className="flex items-center gap-4 rounded-xl border border-slate-100 p-4" key={product.id}>
+                <div key={product.id} className="flex items-center gap-4 rounded-xl border border-slate-100 p-4">
                   <ProductThumb color="bg-blue-600" />
-                  <div>
-                    <p className="font-black line-clamp-1">{product.name}</p>
-                    <p className="mt-1 text-sm font-medium text-slate-500">
-                      {stock} pcs in stock · {price}
+                  <div className="min-w-0">
+                    <p className="truncate font-black text-slate-900">{product.name}</p>
+                    <p className="mt-0.5 text-sm font-medium text-slate-500">
+                      {variant ? `${variant.stockQuantity} in stock · ${formatCurrency(Number(variant.price))}` : "No variants"}
                     </p>
                   </div>
                 </div>

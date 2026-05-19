@@ -164,12 +164,14 @@ export type OrderItemProduct = {
   id: string;
   name: string;
   slug: string;
+  media?: { isFeatured: boolean; media: { url: string; type: string } }[];
 };
 
 export type OrderItemVariant = {
   id: string;
   sku: string;
   price: string | number;
+  media?: { isFeatured: boolean; media: { url: string; type: string } }[];
 };
 
 export type OrderItem = {
@@ -219,6 +221,7 @@ export type ReviewProduct = {
   id: string;
   name: string;
   slug: string;
+  media?: { isFeatured: boolean; media: { url: string; type: string } }[];
 };
 
 export type ReviewUser = {
@@ -277,14 +280,8 @@ export async function apiRequest<T>(
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 10000);
 
-  // Debug logging
-  if (auth && !token) {
-    console.warn('⚠️ Auth required but no token found. Cookies:', document.cookie);
-  }
-
   if (auth && token) {
     requestHeaders.set("Authorization", `Bearer ${token}`);
-    console.log('🔑 Sending request with token to:', path);
   }
 
   try {
@@ -306,14 +303,6 @@ export async function apiRequest<T>(
             ? payload.message.join(", ")
             : String(payload.message)
           : `Request failed with status ${response.status}`;
-
-      console.error('❌ API Error:', {
-        path,
-        status: response.status,
-        message,
-        payload,
-        hasToken: !!token
-      });
 
       throw new Error(message);
     }

@@ -286,7 +286,6 @@ export const productsApi = {
 
 // ─── Categories ───────────────────────────────────────────────────────────────
 
-
 export const categoriesApi = {
   list: () => req<Category[]>("/category"),
 };
@@ -417,9 +416,6 @@ export function getProductImage(product: Product): string {
   const first = product.media?.[0];
   const url = featured?.media.url ?? first?.media.url;
   if (!url) return "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80";
-  // Handle relative URLs from local storage — proxy through Next.js rewrite
-  if (url.startsWith("http")) return url;
-  // Relative path (e.g. /brands/xxx.webp) — served via the Next.js rewrite
   return url;
 }
 

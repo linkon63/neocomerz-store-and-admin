@@ -372,25 +372,34 @@ export default function CanceledOrdersPage() {
 
                   {/* Order Items */}
                   <div className="space-y-6 mb-12">
-                    {(selected.items || []).map((item) => (
-                      <div key={item.id} className="flex items-center gap-4">
-                        <div className="h-16 w-20 shrink-0 bg-slate-50 border border-slate-100 flex items-center justify-center rounded-md">
-                          <AdminIcon className="h-8 w-8 text-slate-300" name="package" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[14px] font-black text-slate-900">{item.product?.name}</p>
-                          <p className="text-[11px] font-bold text-slate-400 mt-1 uppercase">
-                            SKU: {item.variant?.sku || "—"}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="flex items-center justify-end gap-2 mb-1">
-                             <p className="text-sm font-black text-slate-900">{item.quantity} Item(s)</p>
+                    {(selected.items || []).map((item) => {
+                      const variantImg = item.variant?.media?.[0]?.media?.url;
+                      const productImg = item.product?.media?.[0]?.media?.url;
+                      const imgSrc = variantImg || productImg;
+                      return (
+                        <div key={item.id} className="flex items-center gap-4">
+                          <div className="h-16 w-20 shrink-0 overflow-hidden rounded-md border border-slate-100 bg-slate-50 flex items-center justify-center">
+                            {imgSrc ? (
+                              <img src={imgSrc} alt={item.product?.name} className="h-full w-full object-cover" />
+                            ) : (
+                              <AdminIcon className="h-8 w-8 text-slate-300" name="package" />
+                            )}
                           </div>
-                          <p className="text-[15px] font-black text-slate-900">BDT {Number(item.totalPrice).toLocaleString()}</p>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[14px] font-black text-slate-900">{item.product?.name}</p>
+                            <p className="text-[11px] font-bold text-slate-400 mt-1 uppercase">
+                              SKU: {item.variant?.sku || "—"}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <div className="flex items-center justify-end gap-2 mb-1">
+                               <p className="text-sm font-black text-slate-900">{item.quantity} Item(s)</p>
+                            </div>
+                            <p className="text-[15px] font-black text-slate-900">BDT {Number(item.totalPrice).toLocaleString()}</p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {/* Order Summary */}
