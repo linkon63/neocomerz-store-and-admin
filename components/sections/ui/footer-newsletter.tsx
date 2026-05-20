@@ -26,7 +26,7 @@ export default function FooterNewsletter() {
               placeholder="Join Our Newsletter Now"
               className="flex-1 bg-white px-2 sm:px-6 py-3 font-gotham text-sm text-gray-800 placeholder:text-gray-500 outline-none"
             />
-            <button className="bg-white text-gray-800 px-2 sm:px-8 py-3 font-gotham text-sm font-medium uppercase hover:bg-brand-3 hover:text-white transition-colors border-l border-gray-300">
+            <button className="bg-white text-gray-800 px-2 sm:px-8 py-3 font-gotham text-sm font-medium uppercase hover:bg-brand-3 hover:text-white transition-colors border-l border-gray-300 cursor-pointer">
               SUBSCRIBE
             </button>
           </div>
