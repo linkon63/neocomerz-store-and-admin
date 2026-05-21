@@ -32,9 +32,10 @@ export function HeroSection({ categories }: HeroSectionProps) {
       .finally(() => setLoading(false));
   }, []);
 
-  // Use campaign data if available, otherwise fallback to default content
   const heroCampaign = campaigns[0];
-  const heroImage = heroCampaign?.images?.images?.[0];
+  const heroImage = Array.isArray(heroCampaign?.images?.[0]?.images) 
+    ? (heroCampaign.images[0].images as string[])[0] 
+    : undefined;
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">

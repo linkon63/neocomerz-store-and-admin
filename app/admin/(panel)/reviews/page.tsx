@@ -22,14 +22,14 @@ function RatingBar({ rating, count, total }: { rating: number; count: number; to
   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
   return (
     <div className="flex items-center gap-2">
-      <span className="w-3 text-xs font-black text-slate-500">{rating}</span>
+      <span className="w-3 text-xs font-medium text-slate-500">{rating}</span>
       <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
         <div
           className="h-full rounded-full bg-amber-400 transition-all duration-500"
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="w-6 text-right text-xs font-black text-slate-400">{count}</span>
+      <span className="w-6 text-right text-xs font-medium text-slate-400">{count}</span>
     </div>
   );
 }
@@ -54,7 +54,7 @@ function ReviewCard({
             {review.user?.name?.charAt(0).toUpperCase() ?? "?"}
           </div>
           <div>
-            <p className="text-sm font-black text-slate-800">{review.user?.name ?? "Anonymous"}</p>
+            <p className="text-sm font-medium text-slate-800">{review.user?.name ?? "Anonymous"}</p>
             <p className="text-xs font-medium text-slate-400">{formatDate(review.createdAt)}</p>
             <div className="mt-1.5">
               <StarRating rating={review.rating} />
@@ -68,7 +68,7 @@ function ReviewCard({
             <button
               disabled={isActioning}
               onClick={onApprove}
-              className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-xs font-black text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
+              className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-xs font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
             >
               <AdminIcon className="h-3.5 w-3.5" name="check" />
               Approve
@@ -100,7 +100,7 @@ function ReviewCard({
           ★ {review.rating}/5
         </span>
         {review.isApproved && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-black text-blue-700">
+          <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
             <AdminIcon className="h-3 w-3" name="check" /> Published
           </span>
         )}
@@ -252,19 +252,19 @@ export default function ReviewsPage() {
           { label: "Products", value: new Set([...pendingReviews, ...approvedReviews].map(r => r.product?.id)).size, color: "text-blue-600" },
         ].map(({ label, value, color }) => (
           <div key={label} className="rounded-xl border border-slate-200 bg-white p-5">
-            <p className="text-xs font-black uppercase tracking-wide text-slate-500">{label}</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
             <p className={`mt-1.5 text-2xl font-black ${color}`}>{value}</p>
           </div>
         ))}
       </div>
 
       {error && (
-        <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+        <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
           {error}
         </div>
       )}
       {actionError && (
-        <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+        <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
           {actionError}
         </div>
       )}
@@ -278,7 +278,7 @@ export default function ReviewsPage() {
           <button
             key={tab.id}
             onClick={() => { setActiveTab(tab.id); setSelectedProductId(null); }}
-            className={`flex items-center gap-2 rounded-lg px-5 py-2 text-sm font-black transition-all ${
+            className={`flex items-center gap-2 rounded-lg px-5 py-2 text-sm font-medium transition-all ${
               activeTab === tab.id
                 ? "bg-white text-slate-900 shadow-sm"
                 : "text-slate-500 hover:text-slate-700"
@@ -375,7 +375,7 @@ export default function ReviewsPage() {
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h2 className="text-base font-black text-slate-900">{selectedGroup.name}</h2>
+                  <h2 className="text-base font-semibold text-slate-900">{selectedGroup.name}</h2>
                   <p className="text-xs font-medium text-slate-400">{selectedGroup.slug}</p>
                   <div className="mt-2 flex items-center gap-3">
                     <div className="flex items-center gap-1">
@@ -384,7 +384,7 @@ export default function ReviewsPage() {
                           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                         </svg>
                       ))}
-                      <span className="ml-1 text-sm font-black text-slate-700">{avgRating.toFixed(1)}</span>
+                      <span className="ml-1 text-sm font-medium text-slate-700">{avgRating.toFixed(1)}</span>
                     </div>
                     <span className="text-xs font-medium text-slate-400">·</span>
                     <span className="text-xs font-medium text-slate-500">{selectedGroup.reviews.length} total reviews</span>
@@ -424,7 +424,7 @@ export default function ReviewsPage() {
                 <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-xl bg-slate-100">
                   <AdminIcon className="h-6 w-6 text-slate-400" name="reviews" />
                 </div>
-                <p className="text-sm font-black text-slate-500">Select a product to view its reviews</p>
+                <p className="text-sm font-medium text-slate-500">Select a product to view its reviews</p>
                 <p className="mt-1 text-xs font-medium text-slate-400">Choose from the list on the left</p>
               </div>
             </div>

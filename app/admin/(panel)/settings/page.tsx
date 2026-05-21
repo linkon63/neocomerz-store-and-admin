@@ -13,7 +13,7 @@ import { apiRequest } from "../../../../lib/admin-api";
 function PageHeader({ title, description }: { title: string; description: string }) {
   return (
     <div className="mb-6">
-      <h1 className="text-xl font-black text-slate-800">{title}</h1>
+      <h1 className="text-xl font-semibold text-slate-800">{title}</h1>
       <p className="mt-0.5 text-sm font-medium text-slate-500">{description}</p>
     </div>
   );
@@ -31,7 +31,7 @@ function SectionCard({
   return (
     <div className="rounded-xl border border-slate-200 bg-white">
       <div className="border-b border-slate-100 px-6 py-4">
-        <h3 className="text-sm font-black text-slate-800">{title}</h3>
+        <h3 className="text-sm font-medium text-slate-800">{title}</h3>
         {description && <p className="mt-0.5 text-xs font-medium text-slate-500">{description}</p>}
       </div>
       <div className="px-6 py-5">{children}</div>
@@ -41,7 +41,7 @@ function SectionCard({
 
 function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <label className="mb-1.5 block text-xs font-black uppercase tracking-wide text-slate-500">
+    <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500">
       {children}
       {required && <span className="ml-0.5 text-red-500">*</span>}
     </label>
@@ -82,7 +82,7 @@ function ToggleRow({
   return (
     <div className="flex items-center justify-between gap-4 py-3">
       <div>
-        <p className="text-sm font-black text-slate-700">{label}</p>
+        <p className="text-sm font-medium text-slate-700">{label}</p>
         {description && <p className="mt-0.5 text-xs font-medium text-slate-500">{description}</p>}
       </div>
       <Toggle checked={checked} onChange={onChange} />
@@ -115,7 +115,7 @@ function RegistersSection() {
             <thead>
               <tr className="border-b border-slate-100">
                 {["Name", "Branch", "Status", "Actions"].map((h) => (
-                  <th className="pb-3 text-xs font-black uppercase tracking-wide text-slate-500" key={h}>{h}</th>
+                  <th className="pb-3 text-xs font-medium uppercase tracking-wide text-slate-500" key={h}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -125,7 +125,7 @@ function RegistersSection() {
                 { name: "Register 2", branch: "Main Branch", active: false },
               ].map((r) => (
                 <tr className="hover:bg-slate-50/60" key={r.name}>
-                  <td className="py-3.5 text-sm font-black text-slate-800">{r.name}</td>
+                  <td className="py-3.5 text-sm font-medium text-slate-800">{r.name}</td>
                   <td className="py-3.5 text-sm font-medium text-slate-600">{r.branch}</td>
                   <td className="py-3.5">
                     <Badge variant={r.active ? "success" : "neutral"}>{r.active ? "Active" : "Inactive"}</Badge>
@@ -195,7 +195,7 @@ function SiteSettingsSection() {
   }
 
   if (loading) {
-    return <div className="py-8 text-center text-sm font-black text-slate-500">Loading site settings...</div>;
+    return <div className="py-8 text-center text-sm text-slate-500">Loading site settings...</div>;
   }
 
   return (
@@ -327,7 +327,7 @@ function BillingSection() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <p className="text-base font-black text-slate-800">Free Plan</p>
+                <p className="text-base font-semibold text-slate-800">Free Plan</p>
                 <Badge variant="info">Active</Badge>
               </div>
               <p className="mt-1 text-sm font-medium text-slate-500">Up to 100 products · 1 branch · Basic analytics</p>
@@ -342,7 +342,7 @@ function BillingSection() {
             { label: "Storage", used: 1.2, limit: 5, unit: "GB" },
           ].map((item) => (
             <div className="mb-4 last:mb-0" key={item.label}>
-              <div className="mb-1.5 flex items-center justify-between text-xs font-black text-slate-600">
+              <div className="mb-1.5 flex items-center justify-between text-xs font-medium text-slate-600">
                 <span>{item.label}</span>
                 <span>{item.used}{item.unit ?? ""} / {item.limit}{item.unit ?? ""}</span>
               </div>
@@ -478,7 +478,7 @@ export default function SettingsPage() {
       <aside className="hidden w-56 shrink-0 lg:block">
         <div className="sticky top-8 rounded-xl border border-slate-200 bg-white overflow-hidden">
           <div className="border-b border-slate-100 px-5 py-4">
-            <h2 className="text-sm font-black text-slate-800">Settings</h2>
+            <h2 className="text-sm font-medium text-slate-800">Settings</h2>
           </div>
           <SettingsNav active={active} onChange={setActive} />
         </div>
@@ -487,7 +487,7 @@ export default function SettingsPage() {
       {/* Mobile nav */}
       <div className="mb-4 lg:hidden">
         <select
-          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-black text-slate-700 outline-none"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 outline-none"
           onChange={(e) => setActive(e.target.value as SettingsSection)}
           value={active}
         >

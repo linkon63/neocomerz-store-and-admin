@@ -118,7 +118,7 @@ export default function BrandsPage() {
             <button onClick={loadBrands} type="button" className="grid h-14 w-14 place-items-center rounded-lg border border-slate-300 bg-white">
               <AdminIcon className="h-5 w-5" name="refresh" />
             </button>
-            <button onClick={openAddModal} type="button" className="inline-flex h-14 items-center gap-2 rounded-lg bg-blue-600 px-6 font-black text-white shadow-lg shadow-blue-600/15">
+            <button onClick={openAddModal} type="button" className="inline-flex h-14 items-center gap-2 rounded-lg bg-blue-600 px-6 font-medium text-white shadow-lg shadow-blue-600/15">
               <AdminIcon className="h-5 w-5" name="plus" />
               Add Brand
             </button>
@@ -129,7 +129,7 @@ export default function BrandsPage() {
       <section className="overflow-hidden rounded-xl bg-white shadow-sm">
         <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-black">Brand list</h2>
+            <h2 className="text-2xl font-semibold">Brand list</h2>
             <p className="font-medium text-slate-600">{filteredBrands.length} brands</p>
           </div>
           <label className="flex h-12 w-full max-w-md items-center gap-3 rounded-lg border border-slate-300 px-4">
@@ -153,7 +153,7 @@ export default function BrandsPage() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {isLoading ? (
-                <tr><td colSpan={6} className="px-5 py-8 font-bold text-slate-500">Loading brands...</td></tr>
+                <tr><td colSpan={6} className="px-5 py-8 text-slate-500">Loading brands...</td></tr>
               ) : filteredBrands.length === 0 ? (
                 <tr><td colSpan={6} className="px-5 py-8 text-center font-medium text-slate-400">No brands found.</td></tr>
               ) : (
@@ -175,10 +175,10 @@ export default function BrandsPage() {
                     <td className="px-5 py-4 font-medium text-slate-700">{formatDate(brand.createdAt)}</td>
                     <td className="px-5 py-4">
                       <div className="flex gap-2">
-                        <button onClick={() => openEditModal(brand)} type="button" className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-black">
+                        <button onClick={() => openEditModal(brand)} type="button" className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium">
                           <AdminIcon className="h-4 w-4" name="edit" /> Edit
                         </button>
-                        <button onClick={() => setBrandToDelete(brand)} type="button" className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-black text-red-700">
+                        <button onClick={() => setBrandToDelete(brand)} type="button" className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
                           <AdminIcon className="h-4 w-4" name="x" /> Delete
                         </button>
                       </div>
@@ -196,7 +196,7 @@ export default function BrandsPage() {
           <form className="w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-2xl" onSubmit={handleSubmit}>
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-black" id="brand-modal-title">{form.id ? "Edit brand" : "Add brand"}</h2>
+                <h2 className="text-2xl font-semibold" id="brand-modal-title">{form.id ? "Edit brand" : "Add brand"}</h2>
                 <p className="mt-1 font-medium text-slate-600">Name, slug, and optional logo.</p>
               </div>
               <button type="button" disabled={isSaving} onClick={closeModal} className="grid h-10 w-10 place-items-center rounded-lg border border-slate-300 text-slate-600">
@@ -205,7 +205,7 @@ export default function BrandsPage() {
             </div>
             <div className="space-y-4">
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">Name</span>
+                <span className="mb-2 block text-sm font-medium text-slate-700">Name</span>
                 <input
                   autoFocus
                   required
@@ -215,7 +215,7 @@ export default function BrandsPage() {
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">Slug</span>
+                <span className="mb-2 block text-sm font-medium text-slate-700">Slug</span>
                 <input
                   required
                   value={form.slug}
@@ -224,7 +224,7 @@ export default function BrandsPage() {
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">Logo</span>
+                <span className="mb-2 block text-sm font-medium text-slate-700">Logo</span>
                 <input
                   ref={logoInputRef}
                   type="file"
@@ -239,9 +239,9 @@ export default function BrandsPage() {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={logoPreview} alt="Logo preview" className="h-20 w-20 rounded-lg border border-slate-200 bg-white object-cover" />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-black text-slate-800">{form.logo?.name ?? "Current logo"}</p>
+                      <p className="truncate font-medium text-slate-800">{form.logo?.name ?? "Current logo"}</p>
                     </div>
-                    <button type="button" disabled={isSaving} onClick={removeLogo} className="inline-flex h-10 items-center gap-2 rounded-lg bg-red-50 px-3 text-sm font-black text-red-700">
+                    <button type="button" disabled={isSaving} onClick={removeLogo} className="inline-flex h-10 items-center gap-2 rounded-lg bg-red-50 px-3 text-sm font-medium text-red-700">
                       <AdminIcon className="h-4 w-4" name="x" /> Remove
                     </button>
                   </div>
@@ -254,12 +254,12 @@ export default function BrandsPage() {
                   </div>
                 )}
               </div>
-              {error && <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{error}</p>}
+              {error && <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700">{error}</p>}
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" disabled={isSaving} onClick={closeModal} className="h-12 rounded-lg border border-slate-300 bg-white px-5 font-black text-slate-700">
+                <button type="button" disabled={isSaving} onClick={closeModal} className="h-12 rounded-lg border border-slate-300 bg-white px-5 font-medium text-slate-700">
                   Cancel
                 </button>
-                <button type="submit" disabled={isSaving} className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-5 font-black text-white disabled:bg-slate-400">
+                <button type="submit" disabled={isSaving} className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-5 font-medium text-white disabled:bg-slate-400">
                   <AdminIcon className="h-5 w-5" name={form.id ? "check" : "plus"} />
                   {isSaving ? "Saving..." : form.id ? "Update Brand" : "Add Brand"}
                 </button>

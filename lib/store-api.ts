@@ -102,6 +102,33 @@ export type Category = {
 
 export type Brand = { id: string; name: string; slug: string; logoUrl?: string | null };
 
+export type CampaignImage = {
+  id: string;
+  images?: { images?: string[] } | any;
+};
+
+export type Campaign = {
+  id: string;
+  title: string;
+  description?: string | null;
+  hasDiscount: boolean;
+  discountId?: string | null;
+  startAt: string;
+  endAt?: string | null;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  sectionId: string;
+  images?: CampaignImage[];
+  discount?: {
+    id: string;
+    name: string;
+    type: "percentage" | "fixed";
+    value: number | string;
+    products?: any[];
+  } | null;
+};
+
 export type ProductVariant = {
   id: string;
   sku: string;
@@ -206,35 +233,6 @@ export type Review = {
   user: { id: string; name: string };
 };
 
-export type Campaign = {
-  id: string;
-  title: string;
-  description?: string | null;
-  hasDiscount: boolean;
-  startAt: string;
-  endAt?: string | null;
-  status: 'active' | 'inactive';
-  section: {
-    id: string;
-    title: string;
-    page: string;
-    position: number;
-  };
-  images?: {
-    id: string;
-    images: string[];
-  };
-  discount?: {
-    id: string;
-    name: string;
-    type: string;
-    value: number;
-    products?: {
-      product: Product;
-    }[];
-  };
-};
-
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
 export const authApi = {
@@ -263,9 +261,6 @@ export const productsApi = {
     categoryId?: string;
     brandId?: string;
     status?: string;
-    sort?: string;
-    minPrice?: string;
-    maxPrice?: string;
   }) => {
     const qs = new URLSearchParams();
     if (params?.page) qs.set("page", String(params.page));
@@ -274,9 +269,6 @@ export const productsApi = {
     if (params?.categoryId) qs.set("categoryId", params.categoryId);
     if (params?.brandId) qs.set("brandId", params.brandId);
     if (params?.status) qs.set("status", params.status);
-    if (params?.sort) qs.set("sort", params.sort);
-    if (params?.minPrice) qs.set("minPrice", params.minPrice);
-    if (params?.maxPrice) qs.set("maxPrice", params.maxPrice);
     return req<PaginatedProducts>(`/products?${qs}`);
   },
 
@@ -394,7 +386,7 @@ export const couponsApi = {
 
 export const campaignsApi = {
   getActive: (section?: string) => {
-    const qs = section ? `?section=${encodeURIComponent(section)}` : '';
+    const qs = section ? `?section=${encodeURIComponent(section)}` : "";
     return req<Campaign[]>(`/campaigns/public${qs}`);
   },
   getHero: () => req<Campaign[]>("/campaigns/public/hero"),
@@ -416,6 +408,9 @@ export function getProductImage(product: Product): string {
   const first = product.media?.[0];
   const url = featured?.media.url ?? first?.media.url;
   if (!url) return "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80";
+  // Handle relative URLs from local storage — proxy through Next.js rewrite
+  if (url.startsWith("http")) return url;
+  // Relative path (e.g. /brands/xxx.webp) — served via the Next.js rewrite
   return url;
 }
 

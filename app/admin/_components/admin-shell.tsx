@@ -19,7 +19,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   if (isChecking || !user) {
     return (
       <div className="grid min-h-screen place-items-center bg-[#fbfbfc] text-slate-700">
-        <div className="border border-slate-200 bg-white px-6 py-4 font-black">
+        <div className="border border-slate-200 bg-white px-6 py-4">
           Checking admin session...
         </div>
       </div>
@@ -39,7 +39,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           <nav className="flex-1 overflow-y-auto px-3 pb-6 pt-5">
             {menuGroups.map((group) => (
               <div className="mb-7" key={group.title}>
-                <p className="px-3 text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+                <p className="px-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
                   {group.title}
                 </p>
                 <div className="mt-2 space-y-1">
@@ -47,7 +47,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                     const isCurrent = pathname === item.href;
                     return (
                       <Link
-                        className={`flex h-10 items-center gap-3 px-3 text-sm font-bold text-slate-700 hover:bg-slate-50 ${
+                        className={`flex h-10 items-center gap-3 px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 ${
                           item.child ? "ml-5 font-medium" : ""
                         } ${isCurrent ? "bg-slate-100 text-slate-950" : ""}`}
                         href={item.href}
@@ -70,17 +70,17 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
           <div className="border-t border-slate-100 p-4">
             <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-md bg-blue-600 font-black text-white">
+              <div className="grid h-10 w-10 place-items-center rounded-md bg-blue-600 font-semibold text-white">
                 {user?.name?.charAt(0).toUpperCase() ?? "A"}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-black">{user?.name ?? "Admin"}</p>
+                <p className="truncate text-sm font-medium">{user?.name ?? "Admin"}</p>
                 <p className="truncate text-xs font-medium text-slate-500">
                   {user?.email ?? "Store admin"}
                 </p>
               </div>
               <button
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2 text-xs font-black text-slate-600 hover:bg-slate-50"
+                className="inline-flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50"
                 onClick={handleLogout}
                 type="button"
               >

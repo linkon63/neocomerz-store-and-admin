@@ -124,7 +124,7 @@ export default function GiftVouchersPage() {
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-center">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto"></div>
-          <p className="mt-4 font-black text-slate-600">Loading coupons & gift vouchers...</p>
+          <p className="mt-4 text-slate-600">Loading coupons & gift vouchers...</p>
         </div>
       </div>
     );
@@ -145,7 +145,7 @@ export default function GiftVouchersPage() {
             </button>
             <button
               onClick={openAdd}
-              className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-6 font-black text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/10"
+              className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-6 font-medium text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/10"
             >
               <AdminIcon className="h-5 w-5" name="plus" />
               Add Coupon
@@ -155,7 +155,7 @@ export default function GiftVouchersPage() {
       />
 
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 text-red-800 p-4 rounded-xl font-bold">
+        <div className="mb-6 bg-red-50 border border-red-200 text-red-800 p-4 rounded-xl font-medium">
           {error}
         </div>
       )}
@@ -166,7 +166,7 @@ export default function GiftVouchersPage() {
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 {["Coupon Code", "Discount Value", "Usage Stats", "Expiration", "Actions"].map((heading) => (
-                  <th className="px-5 py-4 font-black text-slate-600 text-sm" key={heading}>
+                  <th className="px-5 py-4 font-semibold text-slate-600 text-sm" key={heading}>
                     {heading}
                   </th>
                 ))}
@@ -183,7 +183,7 @@ export default function GiftVouchersPage() {
                 coupons.map((row) => (
                   <tr className="hover:bg-slate-50/50 transition-colors" key={row.id}>
                     <td className="px-5 py-4">
-                      <span className="rounded-md bg-blue-50 border border-blue-200 px-3 py-1 font-black text-blue-700 uppercase tracking-wide">
+                      <span className="rounded-md bg-blue-50 border border-blue-200 px-3 py-1 font-semibold text-blue-700 uppercase tracking-wide">
                         {row.code}
                       </span>
                     </td>
@@ -193,7 +193,7 @@ export default function GiftVouchersPage() {
                     <td className="px-5 py-4 text-sm font-medium text-slate-600">
                       Used: <span className="font-bold">{row.usedCount || 0}</span> / {row.maxUsage} times
                     </td>
-                    <td className="px-5 py-4 text-xs font-semibold text-slate-500">
+                    <td className="px-5 py-4 text-xs font-medium text-slate-500">
                       {row.expiresAt ? new Date(row.expiresAt).toLocaleDateString() : "Never Expires"}
                     </td>
                     <td className="px-5 py-4">
@@ -225,11 +225,11 @@ export default function GiftVouchersPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
           <div className="relative w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-150">
-            <h3 className="text-lg font-black text-slate-800">{editingId ? "Edit Coupon" : "Add Coupon"}</h3>
+            <h3 className="text-lg font-semibold text-slate-800">{editingId ? "Edit Coupon" : "Add Coupon"}</h3>
 
             <form onSubmit={handleSubmit} className="mt-5 space-y-4">
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1">Coupon Code</label>
+                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Coupon Code</label>
                 <input
                   type="text"
                   required
@@ -242,7 +242,7 @@ export default function GiftVouchersPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1">Type</label>
+                  <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Type</label>
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value as "percentage" | "fixed")}
@@ -253,7 +253,7 @@ export default function GiftVouchersPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1">Value</label>
+                  <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Value</label>
                   <input
                     type="number"
                     required
@@ -267,7 +267,7 @@ export default function GiftVouchersPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1">Max Usage Limit</label>
+                  <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Max Usage Limit</label>
                   <input
                     type="number"
                     required
@@ -278,7 +278,7 @@ export default function GiftVouchersPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1">Expiration Date</label>
+                  <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Expiration Date</label>
                   <input
                     type="date"
                     value={expiresAt}
@@ -299,7 +299,7 @@ export default function GiftVouchersPage() {
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="h-11 px-5 rounded-lg bg-blue-600 text-white font-black hover:bg-blue-700 transition-colors disabled:bg-blue-400"
+                  className="h-11 px-5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors disabled:bg-blue-400"
                 >
                   {isSaving ? "Saving..." : "Save Coupon"}
                 </button>

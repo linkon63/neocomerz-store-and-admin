@@ -31,10 +31,10 @@ export function SimpleAdminPage({
         description={description}
         action={
           <div className="flex gap-3">
-            <button className="h-14 rounded-lg border border-slate-300 bg-white px-5 text-xl font-black">
+            <button className="h-14 rounded-lg border border-slate-300 bg-white px-5 text-xl">
               <AdminIcon className="h-5 w-5" name="refresh" />
             </button>
-            <button className="inline-flex h-14 items-center gap-2 rounded-lg bg-blue-600 px-6 font-black text-white">
+            <button className="inline-flex h-14 items-center gap-2 rounded-lg bg-blue-600 px-6 font-medium text-white">
               <AdminIcon className="h-5 w-5" name="plus" />
               {addLabel}
             </button>
@@ -44,7 +44,7 @@ export function SimpleAdminPage({
 
       <section>
         <div className="mb-6">
-          <h2 className="text-2xl font-black">{listTitle}</h2>
+          <h2 className="text-2xl font-semibold">{listTitle}</h2>
           <p className="font-medium text-slate-600">{countLabel}</p>
         </div>
         <div className="overflow-hidden rounded-xl bg-white shadow-sm">
@@ -63,7 +63,7 @@ export function SimpleAdminPage({
                 <tr>
                   {["Name", "Detail", "Meta", "Status", "Actions"].map(
                     (heading) => (
-                      <th className="px-5 py-4 font-black" key={heading}>
+                      <th className="px-5 py-4 font-semibold" key={heading}>
                         {heading}
                       </th>
                     ),
@@ -73,7 +73,7 @@ export function SimpleAdminPage({
               <tbody className="divide-y divide-slate-100">
                 {rows.map((row) => (
                   <tr className="odd:bg-white even:bg-slate-50/70" key={row.name}>
-                    <td className="px-5 py-4 font-black text-slate-800">
+                    <td className="px-5 py-4 font-semibold text-slate-800">
                       {row.name}
                     </td>
                     <td className="px-5 py-4 font-medium text-slate-600">
@@ -86,7 +86,7 @@ export function SimpleAdminPage({
                       {row.status === "Active" ? (
                         <StatusToggle />
                       ) : (
-                        <span className="rounded-md border border-amber-300 bg-amber-50 px-3 py-1 text-sm font-black text-amber-700">
+                        <span className="rounded-md border border-amber-300 bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
                           {row.status}
                         </span>
                       )}

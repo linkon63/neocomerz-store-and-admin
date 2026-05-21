@@ -113,7 +113,7 @@ export default function StockPage() {
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-center">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto"></div>
-          <p className="mt-4 font-black text-slate-600">Loading stock inventory...</p>
+          <p className="mt-4 text-slate-600">Loading stock inventory...</p>
         </div>
       </div>
     );
@@ -121,7 +121,7 @@ export default function StockPage() {
 
   if (error) {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-red-800 font-bold">
+      <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-red-800">
         {error}
       </div>
     );
@@ -150,7 +150,7 @@ export default function StockPage() {
         action={
           <button
             onClick={() => loadStockData()}
-            className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-6 font-black text-white hover:bg-blue-700 transition-colors shadow-md shadow-blue-600/10"
+            className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-6 font-medium text-white hover:bg-blue-700 transition-colors shadow-md shadow-blue-600/10"
           >
             <AdminIcon className="h-5 w-5" name="refresh" />
             Refresh Inventory
@@ -160,16 +160,16 @@ export default function StockPage() {
 
       <section className="grid gap-4 sm:grid-cols-3 mb-6">
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-xs font-black uppercase tracking-wider text-slate-400">Total Pieces in Stock</p>
-          <p className="mt-2 text-2xl font-black text-slate-800">{totalStock} pcs</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-slate-400">Total Pieces in Stock</p>
+          <p className="mt-2 text-2xl font-semibold text-slate-800">{totalStock} pcs</p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-xs font-black uppercase tracking-wider text-slate-400">Low Stock Items</p>
-          <p className="mt-2 text-2xl font-black text-rose-600">{lowStockCount} items</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-slate-400">Low Stock Items</p>
+          <p className="mt-2 text-2xl font-semibold text-rose-600">{lowStockCount} items</p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-xs font-black uppercase tracking-wider text-slate-400">Tracked Variants</p>
-          <p className="mt-2 text-2xl font-black text-slate-800">{totalProductsTracked} variants</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-slate-400">Tracked Variants</p>
+          <p className="mt-2 text-2xl font-semibold text-slate-800">{totalProductsTracked} variants</p>
         </div>
       </section>
 
@@ -189,7 +189,7 @@ export default function StockPage() {
                   <div className="flex items-center gap-4">
                     <ProductThumb color={isLowStock ? "bg-rose-500" : "bg-blue-600"} />
                     <div>
-                      <p className="font-black text-slate-800 line-clamp-1">{product.name}</p>
+                      <p className="font-medium text-slate-800 line-clamp-1">{product.name}</p>
                       <p className="text-sm font-medium text-slate-500">
                         SKU: {defaultVariant.sku} · Alert threshold: {defaultVariant.stockAlertThreshold || 10} pcs
                       </p>
@@ -201,14 +201,14 @@ export default function StockPage() {
                         {defaultVariant.stockQuantity} pcs
                       </p>
                       {isLowStock && (
-                        <span className="text-[10px] font-black uppercase tracking-wider text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] font-medium uppercase tracking-wider text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">
                           Low Stock
                         </span>
                       )}
                     </div>
                     <button
                       onClick={() => openAdjust(product, defaultVariant)}
-                      className="inline-flex h-9 items-center gap-1 px-3.5 text-xs font-black text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors"
+                      className="inline-flex h-9 items-center gap-1 px-3.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors"
                     >
                       Adjust
                     </button>
@@ -225,18 +225,18 @@ export default function StockPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={closeAdjust} />
           <div className="relative w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-150">
-            <h3 className="text-lg font-black text-slate-800">Adjust Inventory</h3>
+            <h3 className="text-lg font-semibold text-slate-800">Adjust Inventory</h3>
             <p className="mt-1 text-sm font-medium text-slate-500">{selectedProduct.name}</p>
             <p className="mt-0.5 text-xs font-bold text-slate-400">SKU: {selectedVariant.sku}</p>
 
             <form onSubmit={handleAdjustSubmit} className="mt-5 space-y-4">
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Adjustment Mode</label>
+                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-2">Adjustment Mode</label>
                 <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-lg">
                   <button
                     type="button"
                     onClick={() => setAdjustType("add")}
-                    className={`h-9 rounded-md text-xs font-black transition-all ${
+                    className={`h-9 rounded-md text-xs font-medium transition-all ${
                       adjustType === "add" ? "bg-white text-blue-600 shadow-sm" : "text-slate-600"
                     }`}
                   >
@@ -245,7 +245,7 @@ export default function StockPage() {
                   <button
                     type="button"
                     onClick={() => setAdjustType("set")}
-                    className={`h-9 rounded-md text-xs font-black transition-all ${
+                    className={`h-9 rounded-md text-xs font-medium transition-all ${
                       adjustType === "set" ? "bg-white text-blue-600 shadow-sm" : "text-slate-600"
                     }`}
                   >
@@ -255,7 +255,7 @@ export default function StockPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Quantity</label>
+                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-2">Quantity</label>
                 <input
                   type="number"
                   required
@@ -269,7 +269,7 @@ export default function StockPage() {
               <div className="rounded-lg bg-slate-50 p-4 border border-slate-200/50">
                 <div className="flex justify-between text-sm">
                   <span className="font-medium text-slate-500">Current Stock:</span>
-                  <span className="font-bold text-slate-800">{selectedVariant.stockQuantity} pcs</span>
+                  <span className="font-medium text-slate-800">{selectedVariant.stockQuantity} pcs</span>
                 </div>
                 <div className="flex justify-between text-sm mt-1.5 pt-1.5 border-t border-slate-200">
                   <span className="font-medium text-slate-500">Resulting Stock:</span>
@@ -295,7 +295,7 @@ export default function StockPage() {
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="h-11 px-5 rounded-lg bg-blue-600 text-white font-black hover:bg-blue-700 transition-colors disabled:bg-blue-400"
+                  className="h-11 px-5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors disabled:bg-blue-400"
                 >
                   {isSaving ? "Saving..." : "Save Changes"}
                 </button>

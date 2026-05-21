@@ -86,7 +86,7 @@ export function SettingsNav({
     <nav className="py-3">
       {settingsNavGroups.map((group) => (
         <div className="mb-1" key={group.title}>
-          <p className="px-5 pb-1 pt-4 text-[11px] font-black uppercase tracking-[0.14em] text-slate-400">
+          <p className="px-5 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
             {group.title}
           </p>
           {group.items.map((item) => {
@@ -95,7 +95,7 @@ export function SettingsNav({
               <button
                 className={`flex w-full items-center gap-2.5 px-5 py-2.5 text-sm transition-colors ${
                   isActive
-                    ? "bg-blue-50 font-black text-blue-700"
+                    ? "bg-blue-50 font-semibold text-blue-700"
                     : "font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 }`}
                 key={item.id}

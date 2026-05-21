@@ -165,7 +165,7 @@ export default function DiscountsPage() {
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-center">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto"></div>
-          <p className="mt-4 font-black text-slate-600">Loading product discounts...</p>
+          <p className="mt-4 text-slate-600">Loading product discounts...</p>
         </div>
       </div>
     );
@@ -186,7 +186,7 @@ export default function DiscountsPage() {
             </button>
             <button
               onClick={openAdd}
-              className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-6 font-black text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/10"
+              className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-6 font-medium text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/10"
             >
               <AdminIcon className="h-5 w-5" name="plus" />
               Add Discount
@@ -196,7 +196,7 @@ export default function DiscountsPage() {
       />
 
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 text-red-800 p-4 rounded-xl font-bold">
+        <div className="mb-6 bg-red-50 border border-red-200 text-red-800 p-4 rounded-xl font-medium">
           {error}
         </div>
       )}
@@ -207,7 +207,7 @@ export default function DiscountsPage() {
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 {["Name", "Type & Value", "Linked Products", "Schedule", "Status", "Actions"].map((heading) => (
-                  <th className="px-5 py-4 font-black text-slate-600 text-sm" key={heading}>
+                  <th className="px-5 py-4 font-semibold text-slate-600 text-sm" key={heading}>
                     {heading}
                   </th>
                 ))}
@@ -277,11 +277,11 @@ export default function DiscountsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
           <div className="relative w-full max-w-2xl rounded-xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-black text-slate-800">{editingId ? "Edit Discount" : "Add Discount"}</h3>
+            <h3 className="text-lg font-semibold text-slate-800">{editingId ? "Edit Discount" : "Add Discount"}</h3>
 
             <form onSubmit={handleSubmit} className="mt-5 space-y-4">
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1">Discount Name</label>
+                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Discount Name</label>
                 <input
                   type="text"
                   required
@@ -294,7 +294,7 @@ export default function DiscountsPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1">Discount Type</label>
+                  <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Discount Type</label>
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value as "percentage" | "fixed")}
@@ -305,7 +305,7 @@ export default function DiscountsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1">Discount Value</label>
+                  <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Discount Value</label>
                   <input
                     type="number"
                     required
@@ -319,7 +319,7 @@ export default function DiscountsPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1">Start Date</label>
+                  <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Start Date</label>
                   <input
                     type="date"
                     value={startDate}
@@ -328,7 +328,7 @@ export default function DiscountsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1">End Date</label>
+                  <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">End Date</label>
                   <input
                     type="date"
                     value={endDate}
@@ -339,7 +339,7 @@ export default function DiscountsPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1">Status</label>
+                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Status</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as "active" | "inactive")}
@@ -351,7 +351,7 @@ export default function DiscountsPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Apply to Products</label>
+                <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-2">Apply to Products</label>
                 <div className="border border-slate-300 rounded-lg p-3 max-h-44 overflow-y-auto space-y-2 bg-slate-50/50">
                   {products.map((prod) => (
                     <label key={prod.id} className="flex items-center gap-3 text-sm font-medium text-slate-700 cursor-pointer">
@@ -378,7 +378,7 @@ export default function DiscountsPage() {
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="h-11 px-5 rounded-lg bg-blue-600 text-white font-black hover:bg-blue-700 transition-colors disabled:bg-blue-400"
+                  className="h-11 px-5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors disabled:bg-blue-400"
                 >
                   {isSaving ? "Saving..." : "Save Discount"}
                 </button>

@@ -261,14 +261,14 @@ export default function CategoriesPage() {
         action={
           <div className="flex gap-3">
             <button
-              className="grid h-14 w-14 place-items-center rounded-lg border border-slate-300 bg-white font-black"
+              className="grid h-14 w-14 place-items-center rounded-lg border border-slate-300 bg-white"
               onClick={loadCategories}
               type="button"
             >
               <AdminIcon className="h-5 w-5" name="refresh" />
             </button>
             <button
-              className="inline-flex h-14 items-center gap-2 rounded-lg bg-blue-600 px-6 font-black text-white shadow-lg shadow-blue-600/15"
+              className="inline-flex h-14 items-center gap-2 rounded-lg bg-blue-600 px-6 font-medium text-white shadow-lg shadow-blue-600/15"
               onClick={openAddModal}
               type="button"
             >
@@ -283,7 +283,7 @@ export default function CategoriesPage() {
         <div className="overflow-hidden rounded-xl bg-white shadow-sm">
           <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-2xl font-black">Categories list</h2>
+              <h2 className="text-2xl font-semibold">Categories list</h2>
               <p className="font-medium text-slate-600">
                 Displaying {filteredRows.length} categories
               </p>
@@ -312,7 +312,7 @@ export default function CategoriesPage() {
                     "Created",
                     "Actions",
                   ].map((heading) => (
-                    <th className="px-5 py-4 font-black" key={heading}>
+                    <th className="px-5 py-4 font-semibold" key={heading}>
                       {heading}
                     </th>
                   ))}
@@ -322,7 +322,7 @@ export default function CategoriesPage() {
                 {isLoading ? (
                   <tr>
                     <td
-                      className="px-5 py-8 font-bold text-slate-500"
+                      className="px-5 py-8 text-slate-500"
                       colSpan={7}
                     >
                       Loading categories...
@@ -331,7 +331,7 @@ export default function CategoriesPage() {
                 ) : filteredRows.length === 0 ? (
                   <tr>
                     <td
-                      className="px-5 py-8 font-bold text-slate-500"
+                      className="px-5 py-8 text-slate-500"
                       colSpan={7}
                     >
                       No categories found.
@@ -383,7 +383,7 @@ export default function CategoriesPage() {
                       <td className="px-5 py-4">
                         <div className="flex gap-2">
                           <button
-                            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-black"
+                            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium"
                             onClick={() => openEditModal(category)}
                             type="button"
                           >
@@ -391,7 +391,7 @@ export default function CategoriesPage() {
                             Edit
                           </button>
                           <button
-                            className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-black text-red-700"
+                            className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700"
                             onClick={() => deleteCategory(category)}
                             type="button"
                           >
@@ -412,12 +412,12 @@ export default function CategoriesPage() {
             <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm font-medium text-slate-500">
                 Showing{" "}
-                <span className="font-black text-slate-800">
+                <span className="font-semibold text-slate-800">
                   {(currentPage - 1) * PAGE_SIZE + 1}–
                   {Math.min(currentPage * PAGE_SIZE, filteredRows.length)}
                 </span>{" "}
                 of{" "}
-                <span className="font-black text-slate-800">
+                <span className="font-semibold text-slate-800">
                   {filteredRows.length}
                 </span>{" "}
                 categories
@@ -425,7 +425,7 @@ export default function CategoriesPage() {
               <div className="flex items-center gap-1">
                 {/* Previous */}
                 <button
-                  className="grid h-9 w-9 place-items-center rounded-lg border border-slate-300 bg-white font-black text-slate-600 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="grid h-9 w-9 place-items-center rounded-lg border border-slate-300 bg-white font-medium text-slate-600 disabled:cursor-not-allowed disabled:opacity-40"
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage((p) => p - 1)}
                   type="button"
@@ -464,7 +464,7 @@ export default function CategoriesPage() {
                     ) : (
                       <button
                         key={item}
-                        className={`grid h-9 w-9 place-items-center rounded-lg text-sm font-black transition-colors ${currentPage === item
+                        className={`grid h-9 w-9 place-items-center rounded-lg text-sm font-medium transition-colors ${currentPage === item
                             ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
                             : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
                           }`}
@@ -480,7 +480,7 @@ export default function CategoriesPage() {
 
                 {/* Next */}
                 <button
-                  className="grid h-9 w-9 place-items-center rounded-lg border border-slate-300 bg-white font-black text-slate-600 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="grid h-9 w-9 place-items-center rounded-lg border border-slate-300 bg-white font-medium text-slate-600 disabled:cursor-not-allowed disabled:opacity-40"
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage((p) => p + 1)}
                   type="button"
@@ -507,7 +507,7 @@ export default function CategoriesPage() {
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-black" id="category-modal-title">
+                <h2 className="text-2xl font-semibold" id="category-modal-title">
                   {form.id ? "Edit category" : "Add category"}
                 </h2>
                 <p className="mt-1 font-medium text-slate-600">
@@ -515,7 +515,7 @@ export default function CategoriesPage() {
                 </p>
               </div>
               <button
-                className="grid h-10 w-10 place-items-center rounded-lg border border-slate-300 text-xl font-black text-slate-600"
+                className="grid h-10 w-10 place-items-center rounded-lg border border-slate-300 text-slate-600"
                 disabled={isSaving}
                 onClick={closeModal}
                 type="button"
@@ -525,7 +525,7 @@ export default function CategoriesPage() {
             </div>
             <div className="space-y-4">
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+                <span className="mb-2 block text-sm font-medium text-slate-700">
                   Name
                 </span>
                 <input
@@ -537,7 +537,7 @@ export default function CategoriesPage() {
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+                <span className="mb-2 block text-sm font-medium text-slate-700">
                   Slug
                 </span>
                 <input
@@ -553,7 +553,7 @@ export default function CategoriesPage() {
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+                <span className="mb-2 block text-sm font-medium text-slate-700">
                   Image
                 </span>
                 <input
@@ -571,7 +571,7 @@ export default function CategoriesPage() {
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+                <span className="mb-2 block text-sm font-medium text-slate-700">
                   Parent category
                 </span>
                 <select
@@ -604,7 +604,7 @@ export default function CategoriesPage() {
                       src={visibleImagePreview}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-black text-slate-800">
+                      <p className="truncate font-medium text-slate-800">
                         {form.image?.name ?? "Current image"}
                       </p>
                       <p className="mt-1 text-sm font-medium text-slate-500">
@@ -612,7 +612,7 @@ export default function CategoriesPage() {
                       </p>
                     </div>
                     <button
-                      className="inline-flex h-10 items-center gap-2 rounded-lg bg-red-50 px-3 text-sm font-black text-red-700"
+                      className="inline-flex h-10 items-center gap-2 rounded-lg bg-red-50 px-3 text-sm font-medium text-red-700"
                       disabled={isSaving}
                       onClick={removeImageFromForm}
                       type="button"
@@ -633,13 +633,13 @@ export default function CategoriesPage() {
                 )}
               </div>
               {error && (
-                <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+                <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
                   {error}
                 </p>
               )}
               <div className="flex justify-end gap-3 pt-2">
                 <button
-                  className="h-12 rounded-lg border border-slate-300 bg-white px-5 font-black text-slate-700"
+                  className="h-12 rounded-lg border border-slate-300 bg-white px-5 font-medium text-slate-700"
                   disabled={isSaving}
                   onClick={closeModal}
                   type="button"
@@ -647,7 +647,7 @@ export default function CategoriesPage() {
                   Cancel
                 </button>
                 <button
-                  className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-5 font-black text-white disabled:bg-slate-400"
+                  className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-5 font-medium text-white disabled:bg-slate-400"
                   disabled={isSaving}
                   type="submit"
                 >

@@ -230,14 +230,14 @@ export default function VariantOptionsPage() {
         action={
           <div className="flex gap-3">
             <button
-              className="grid h-14 w-14 place-items-center rounded-lg border border-slate-300 bg-white font-black"
+              className="grid h-14 w-14 place-items-center rounded-lg border border-slate-300 bg-white"
               onClick={loadVariantOptions}
               type="button"
             >
               <AdminIcon className="h-5 w-5" name="refresh" />
             </button>
             <button
-              className="inline-flex h-14 items-center gap-2 rounded-lg bg-blue-600 px-6 font-black text-white shadow-lg shadow-blue-600/15"
+              className="inline-flex h-14 items-center gap-2 rounded-lg bg-blue-600 px-6 font-medium text-white shadow-lg shadow-blue-600/15"
               onClick={openAddModal}
               type="button"
             >
@@ -252,7 +252,7 @@ export default function VariantOptionsPage() {
         <div className="overflow-hidden rounded-xl bg-white shadow-sm">
           <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-2xl font-black">Variant options list</h2>
+              <h2 className="text-2xl font-semibold">Variant options list</h2>
               <p className="font-medium text-slate-600">
                 Displaying {filteredOptions.length} option groups
               </p>
@@ -282,7 +282,7 @@ export default function VariantOptionsPage() {
                 {isLoading ? (
                   <tr>
                     <td
-                      className="px-5 py-8 font-bold text-slate-500"
+                      className="px-5 py-8 text-slate-500"
                       colSpan={4}
                     >
                       Loading variant options...
@@ -302,7 +302,7 @@ export default function VariantOptionsPage() {
                           {(option.values ?? []).length > 0 ? (
                             option.values?.map((item) => (
                               <span
-                                className="rounded-lg bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700"
+                                className="rounded-lg bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700"
                                 key={item.id}
                               >
                                 {item.value}
@@ -321,7 +321,7 @@ export default function VariantOptionsPage() {
                       <td className="px-5 py-4">
                         <div className="flex gap-2">
                           <button
-                            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-black"
+                            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium"
                             onClick={() => openEditModal(option)}
                             type="button"
                           >
@@ -329,7 +329,7 @@ export default function VariantOptionsPage() {
                             Edit
                           </button>
                           <button
-                            className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-black text-red-700"
+                            className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700"
                             onClick={() => deleteVariantOption(option)}
                             type="button"
                           >
@@ -343,7 +343,7 @@ export default function VariantOptionsPage() {
                 ) : (
                   <tr>
                     <td
-                      className="px-5 py-8 font-bold text-slate-500"
+                      className="px-5 py-8 text-slate-500"
                       colSpan={4}
                     >
                       No variant options found.
@@ -380,7 +380,7 @@ export default function VariantOptionsPage() {
                 </p>
               </div>
               <button
-                className="grid h-10 w-10 place-items-center rounded-lg border border-slate-300 text-xl font-black text-slate-600"
+                className="grid h-10 w-10 place-items-center rounded-lg border border-slate-300 text-slate-600"
                 disabled={isSaving}
                 onClick={closeModal}
                 type="button"
@@ -390,7 +390,7 @@ export default function VariantOptionsPage() {
             </div>
             <div className="space-y-4">
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+                <span className="mb-2 block text-sm font-medium text-slate-700">
                   Name
                 </span>
                 <input
@@ -409,11 +409,11 @@ export default function VariantOptionsPage() {
               </label>
               <div className="rounded-lg border border-slate-200">
                 <div className="sticky top-0 z-10 flex items-center justify-between gap-3 rounded-t-lg border-b border-slate-200 bg-white px-3 py-2">
-                  <span className="block text-sm font-black text-slate-700">
+                  <span className="block text-sm font-medium text-slate-700">
                     Values
                   </span>
                   <button
-                    className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-black"
+                    className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-medium"
                     disabled={isSaving}
                     onClick={addValueInput}
                     type="button"
@@ -448,13 +448,13 @@ export default function VariantOptionsPage() {
                 </div>
               </div>
               {error && (
-                <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+                <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
                   {error}
                 </p>
               )}
               <div className="flex justify-end gap-3 pt-2">
                 <button
-                  className="h-12 rounded-lg border border-slate-300 bg-white px-5 font-black text-slate-700"
+                  className="h-12 rounded-lg border border-slate-300 bg-white px-5 font-medium text-slate-700"
                   disabled={isSaving}
                   onClick={closeModal}
                   type="button"
@@ -462,7 +462,7 @@ export default function VariantOptionsPage() {
                   Cancel
                 </button>
                 <button
-                  className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-5 font-black text-white disabled:bg-slate-400"
+                  className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-5 font-medium text-white disabled:bg-slate-400"
                   disabled={isSaving}
                   type="submit"
                 >
