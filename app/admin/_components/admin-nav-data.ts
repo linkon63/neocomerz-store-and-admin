@@ -27,7 +27,7 @@ export const menuGroups: NavGroup[] = [
       { label: "Categories", href: "/admin/categories", icon: "category", child: true },
       { label: "Variant Options", href: "/admin/variant-options", icon: "variants", child: true },
       { label: "Units of Measurement", href: "/admin/units", icon: "units", child: true },
-      { label: "Products", href: "/admin/products", icon: "package", child: true },
+      { label: "Suppliers", href: "/admin/suppliers", icon: "store", child: true },
       { label: "Stock Management", href: "/admin/stock", icon: "stock" },
     ],
   },
@@ -57,9 +57,6 @@ export const menuGroups: NavGroup[] = [
     items: [
       { label: "Settings", href: "/admin/settings", icon: "settings" },
       { label: "Manage Website", href: "/admin/manage-website", icon: "store", child: true },
-      { label: "Users Management", href: "/admin/users", icon: "user", child: true },
-      { label: "Roles & Permissions", href: "/admin/roles", icon: "variants", child: true },
-      { label: "Activity Logs", href: "/admin/activity-logs", icon: "refresh", child: true },
     ],
   },
 ];
