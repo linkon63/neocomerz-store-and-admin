@@ -645,10 +645,8 @@ export default function NewProductPage() {
                 <p className="text-xs text-slate-500">Add general information for this product</p>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">
-                    Name
-                  </span>
+                <label className="block md:col-span-2">
+                  <span className="mb-2 block text-xs font-semibold text-slate-700">Name</span>
                   <input
                     autoFocus
                     className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
@@ -657,6 +655,35 @@ export default function NewProductPage() {
                     required
                     value={form.name}
                   />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-xs font-semibold text-slate-700">Slug</span>
+                  <input
+                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
+                    onChange={(event) =>
+                      setForm((current) => ({ ...current, slug: event.target.value }))
+                    }
+                    placeholder="product-slug"
+                    required
+                    value={form.slug}
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-xs font-semibold text-slate-700">Status</span>
+                  <select
+                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm capitalize outline-none focus:border-blue-500"
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        status: event.target.value as ProductCreateForm["status"],
+                      }))
+                    }
+                    value={form.status}
+                  >
+                    <option value="active">Active</option>
+                    <option value="draft">Draft</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
                 </label>
                 <label className="block">
                   <span className="mb-2 block text-xs font-semibold text-slate-700">
@@ -835,19 +862,31 @@ export default function NewProductPage() {
                 </div>
 
                 {imagePreviewUrls.length > 0 && (
-                  <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                    {imagePreviewUrls.map((url, index) => (
-                      <div
-                        className="overflow-hidden rounded-lg border border-slate-200"
-                        key={url}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold text-slate-700">Selected images</p>
+                      <button
+                        className="text-xs font-semibold text-red-600 hover:text-red-700"
+                        onClick={() => setForm((current) => ({ ...current, images: [] }))}
+                        type="button"
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img alt="" className="aspect-square w-full object-cover" src={url} />
-                        <p className="truncate px-2 py-1 text-[11px] font-semibold text-slate-600">
-                          {form.images[index]?.name}
-                        </p>
-                      </div>
-                    ))}
+                        Clear images
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                      {imagePreviewUrls.map((url, index) => (
+                        <div
+                          className="overflow-hidden rounded-lg border border-slate-200"
+                          key={url}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img alt="" className="aspect-square w-full object-cover" src={url} />
+                          <p className="truncate px-2 py-1 text-[11px] font-semibold text-slate-600">
+                            {form.images[index]?.name}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -984,6 +1023,50 @@ export default function NewProductPage() {
                   </p>
                 </button>
               </div>
+
+              {form.productType === "simple" && (
+                <div className="mt-6 grid gap-4 md:grid-cols-2">
+                  <label className="block">
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="block text-xs font-semibold text-slate-700">SKU</span>
+                      <button
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-700"
+                        onClick={generateSku}
+                        type="button"
+                      >
+                        <AdminIcon className="h-3 w-3" name="refresh" />
+                        Generate SKU
+                      </button>
+                    </div>
+                    <input
+                      className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm uppercase outline-none focus:border-blue-500"
+                      onChange={(event) =>
+                        setForm((current) => ({ ...current, sku: event.target.value }))
+                      }
+                      placeholder="PRODUCT-SKU"
+                      required
+                      value={form.sku}
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="mb-2 block text-xs font-semibold text-slate-700">Initial stock</span>
+                    <input
+                      className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
+                      min="0"
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          stockQuantity: event.target.value,
+                        }))
+                      }
+                      placeholder="0"
+                      step="1"
+                      type="number"
+                      value={form.stockQuantity}
+                    />
+                  </label>
+                </div>
+              )}
             </section>
 
             <section className="rounded-xl border border-slate-200 bg-white p-5">
@@ -1110,250 +1193,8 @@ export default function NewProductPage() {
               </div>
             </section>
 
-          <label className="block">
-            <span className="mb-2 block text-sm font-black text-slate-700">
-              Product slug
-            </span>
-            <input
-              className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  slug: event.target.value,
-                }))
-              }
-              placeholder="premium-green-tea"
-              required
-              value={form.slug}
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-black text-slate-700">
-              Description
-            </span>
-            <textarea
-              className="min-h-28 w-full rounded-lg border border-slate-300 px-4 py-3 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  description: event.target.value,
-                }))
-              }
-              placeholder="Short product details for admin and storefront display"
-              value={form.description}
-            />
-          </label>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            <label className="block">
-              <span className="mb-2 block text-sm font-black text-slate-700">
-                Brand
-              </span>
-              <select
-                className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                onChange={(event) =>
-                  setForm((current) => ({ ...current, brandId: event.target.value }))
-                }
-                required
-                value={form.brandId}
-              >
-                <option value="">Select brand</option>
-                {brands.map((brand) => (
-                  <option key={brand.id} value={brand.id}>
-                    {brand.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="block">
-              <span className="mb-2 block text-sm font-black text-slate-700">
-                Unit
-              </span>
-              <select
-                className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                onChange={(event) =>
-                  setForm((current) => ({ ...current, unitId: event.target.value }))
-                }
-                value={form.unitId}
-              >
-                <option value="">Select unit</option>
-                {units.map((unit) => (
-                  <option key={unit.id} value={unit.id}>
-                    {unit.name} ({unit.code})
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="block">
-              <span className="mb-2 block text-sm font-black text-slate-700">
-                Status
-              </span>
-              <select
-                className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium capitalize outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    status: event.target.value as ProductCreateForm["status"],
-                  }))
-                }
-                value={form.status}
-              >
-                <option value="active">Active</option>
-                <option value="draft">Draft</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            </label>
-          </div>
-
-          <div>
-            <span className="mb-2 block text-sm font-black text-slate-700">
-              Tags
-            </span>
-            {tags.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => {
-                  const selected = form.tagIds.includes(tag.id);
-
-                  return (
-                    <button
-                      className={`rounded-lg border px-3 py-2 text-sm font-black ${
-                        selected
-                          ? "border-blue-600 bg-blue-50 text-blue-700"
-                          : "border-slate-300 bg-white text-slate-700"
-                      }`}
-                      key={tag.id}
-                      onClick={() => toggleTag(tag.id)}
-                      type="button"
-                    >
-                      {tag.name}
-                    </button>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 font-medium text-slate-500">
-                No active tags found.
-              </p>
-            )}
-          </div>
-
-          <div className="rounded-lg border border-slate-200 p-4">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <h2 className="text-lg font-black">Product type and pricing</h2>
-              <button
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-black"
-                onClick={generateSku}
-                type="button"
-              >
-                <AdminIcon className="h-4 w-4" name="refresh" />
-                Generate SKU
-              </button>
-            </div>
-
-            <div className="mb-4 grid grid-cols-2 gap-2 rounded-lg bg-slate-100 p-1">
-              {[
-                ["simple", "No variant product"],
-                ["variant", "Variant product"],
-              ].map(([value, label]) => (
-                <button
-                  className={`h-11 rounded-lg text-sm font-black ${
-                    form.productType === value
-                      ? "bg-white text-blue-700 shadow-sm"
-                      : "text-slate-600"
-                  }`}
-                  key={value}
-                  onClick={() => {
-                    setForm((current) => ({
-                      ...current,
-                      productType: value as ProductCreateForm["productType"],
-                    }));
-                    if (value === "simple") {
-                      setVariantSelections([{ ...emptyVariantSelection }]);
-                    }
-                  }}
-                  type="button"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-3">
-              <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
-                  SKU
-                </span>
-                <input
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium uppercase outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                  onChange={(event) =>
-                    setForm((current) => ({ ...current, sku: event.target.value }))
-                  }
-                  placeholder="PREMIUMTEA-PCS"
-                  value={form.sku}
-                />
-              </label>
-              <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
-                  Unit price
-                </span>
-                <input
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                  min="0"
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      unitPrice: event.target.value,
-                    }))
-                  }
-                  placeholder="320"
-                  step="0.01"
-                  type="number"
-                  value={form.unitPrice}
-                />
-              </label>
-              <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
-                  Retail price
-                </span>
-                <input
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                  min="0"
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      retailPrice: event.target.value,
-                    }))
-                  }
-                  placeholder="450"
-                  step="0.01"
-                  type="number"
-                  value={form.retailPrice}
-                />
-              </label>
-              <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
-                  Initial stock
-                </span>
-                <input
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                  min="0"
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      stockQuantity: event.target.value,
-                    }))
-                  }
-                  placeholder="0"
-                  step="1"
-                  type="number"
-                  value={form.stockQuantity}
-                />
-              </label>
-            </div>
-
-            {form.productType === "variant" && (
-              <div className="mt-5 border-t border-slate-100 pt-5">
+          {form.productType === "variant" && (
+            <section className="rounded-xl border border-slate-200 bg-white p-5">
                 <div className="mb-4">
                   <h3 className="text-base font-black">Variant options</h3>
                   <p className="mt-1 text-sm font-medium text-slate-500">
@@ -1671,101 +1512,14 @@ export default function NewProductPage() {
                     No variant options found. Add options from Variant Options first.
                   </p>
                 )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="space-y-5 border-t border-slate-100 pt-6">
-          <label className="block">
-            <span className="mb-2 block text-sm font-black text-slate-700">
-              Product images
-            </span>
-            <input
-              accept="image/*"
-              className="block w-full rounded-lg border border-slate-300 px-4 py-3 font-medium"
-              multiple
-              onChange={(event) => updateImages(event.target.files)}
-              ref={imageInputRef}
-              type="file"
-            />
-          </label>
-
-          {imagePreviewUrls.length > 0 ? (
-            <div>
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <h2 className="text-sm font-black text-slate-700">
-                  Selected images
-                </h2>
-                <button
-                  className="text-sm font-black text-red-700"
-                  disabled={isSaving}
-                  onClick={clearImages}
-                  type="button"
-                >
-                  Clear
-                </button>
-              </div>
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-                {imagePreviewUrls.map((url, index) => (
-                  <div
-                    className="overflow-hidden rounded-lg border border-slate-200"
-                    key={url}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      alt=""
-                      className="aspect-square w-full object-cover"
-                      src={url}
-                    />
-                    <p className="truncate px-2 py-1 text-xs font-bold text-slate-600">
-                      {form.images[index]?.name}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="grid min-h-64 place-items-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-slate-500">
-              <div>
-                <AdminIcon className="mx-auto h-8 w-8" name="upload" />
-                <p className="mt-3 font-medium">
-                  Upload product gallery images. The first selected image becomes featured.
-                </p>
-              </div>
-            </div>
+            </section>
           )}
-
-          <div className="rounded-lg bg-slate-50 p-4">
-            <h2 className="font-black text-slate-800">Stock management</h2>
-            <p className="mt-1 text-sm font-medium text-slate-600">
-              Initial stock is set above. You can adjust stock later from Stock Management.
-            </p>
           </div>
-
           {error && (
-            <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+            <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
               {error}
             </p>
           )}
-
-          <div className="flex justify-end gap-3">
-            <Link
-              className="inline-flex h-12 items-center rounded-lg border border-slate-300 bg-white px-5 font-black text-slate-700"
-              href="/admin/products"
-            >
-              Cancel
-            </Link>
-            <button
-              className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-5 font-black text-white disabled:bg-slate-400"
-              disabled={isSaving}
-              type="submit"
-            >
-              <AdminIcon className="h-5 w-5" name="plus" />
-              {isSaving ? "Creating..." : "Create Product"}
-            </button>
-          </div>
-        </div>
       </form>
     </>
   );

@@ -10,6 +10,8 @@ import {
   type Category,
 } from "../../../../lib/admin-api";
 
+const PAGE_SIZE = 8;
+
 type CategoryForm = {
   id?: string;
   name: string;
@@ -49,6 +51,7 @@ export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [form, setForm] = useState<CategoryForm>(emptyForm);
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -62,12 +65,24 @@ export default function CategoriesPage() {
 
   const rows = useMemo(() => flattenCategories(categories), [categories]);
   const filteredRows = useMemo(() => {
-    return rows.filter((category) =>
+    const result = rows.filter((category) =>
       `${category.name} ${category.slug} ${category.parentName}`
         .toLowerCase()
         .includes(search.toLowerCase()),
     );
+    return result;
   }, [rows, search]);
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
+  const paginatedRows = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredRows.slice(start, start + PAGE_SIZE);
+  }, [filteredRows, currentPage]);
 
   useEffect(() => {
     if (!form.image) {
@@ -313,8 +328,17 @@ export default function CategoriesPage() {
                       Loading categories...
                     </td>
                   </tr>
+                ) : filteredRows.length === 0 ? (
+                  <tr>
+                    <td
+                      className="px-5 py-8 font-bold text-slate-500"
+                      colSpan={7}
+                    >
+                      No categories found.
+                    </td>
+                  </tr>
                 ) : (
-                  filteredRows.map((category) => (
+                  paginatedRows.map((category) => (
                     <tr
                       className="odd:bg-white even:bg-slate-50/70"
                       key={category.id}
@@ -382,6 +406,91 @@ export default function CategoriesPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          {!isLoading && filteredRows.length > PAGE_SIZE && (
+            <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm font-medium text-slate-500">
+                Showing{" "}
+                <span className="font-black text-slate-800">
+                  {(currentPage - 1) * PAGE_SIZE + 1}–
+                  {Math.min(currentPage * PAGE_SIZE, filteredRows.length)}
+                </span>{" "}
+                of{" "}
+                <span className="font-black text-slate-800">
+                  {filteredRows.length}
+                </span>{" "}
+                categories
+              </p>
+              <div className="flex items-center gap-1">
+                {/* Previous */}
+                <button
+                  className="grid h-9 w-9 place-items-center rounded-lg border border-slate-300 bg-white font-black text-slate-600 disabled:cursor-not-allowed disabled:opacity-40"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((p) => p - 1)}
+                  type="button"
+                  aria-label="Previous page"
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path d="M15 18l-6-6 6-6" />
+                  </svg>
+                </button>
+
+                {/* Page numbers */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((page) => {
+                    // Show first, last, current, and neighbours
+                    return (
+                      page === 1 ||
+                      page === totalPages ||
+                      Math.abs(page - currentPage) <= 1
+                    );
+                  })
+                  .reduce<(number | "...")[]>((acc, page, idx, arr) => {
+                    if (idx > 0 && page - (arr[idx - 1] as number) > 1) {
+                      acc.push("...");
+                    }
+                    acc.push(page);
+                    return acc;
+                  }, [])
+                  .map((item, idx) =>
+                    item === "..." ? (
+                      <span
+                        key={`ellipsis-${idx}`}
+                        className="grid h-9 w-9 place-items-center text-sm font-bold text-slate-400"
+                      >
+                        …
+                      </span>
+                    ) : (
+                      <button
+                        key={item}
+                        className={`grid h-9 w-9 place-items-center rounded-lg text-sm font-black transition-colors ${currentPage === item
+                            ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
+                            : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                          }`}
+                        onClick={() => setCurrentPage(item as number)}
+                        type="button"
+                        aria-label={`Page ${item}`}
+                        aria-current={currentPage === item ? "page" : undefined}
+                      >
+                        {item}
+                      </button>
+                    ),
+                  )}
+
+                {/* Next */}
+                <button
+                  className="grid h-9 w-9 place-items-center rounded-lg border border-slate-300 bg-white font-black text-slate-600 disabled:cursor-not-allowed disabled:opacity-40"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((p) => p + 1)}
+                  type="button"
+                  aria-label="Next page"
+                >
+                  <AdminIcon className="h-4 w-4" name="chevronRight" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
