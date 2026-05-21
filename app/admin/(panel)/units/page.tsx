@@ -212,7 +212,7 @@ export default function UnitsPage() {
                 <tr>
                   {["Name", "Code", "Description", "Products", "Created", "Status", "Actions"].map(
                     (heading) => (
-                      <th className="px-5 py-4 font-black" key={heading}>
+                      <th className="px-5 py-4 text-sm font-semibold text-slate-700" key={heading}>
                         {heading}
                       </th>
                     ),
@@ -229,7 +229,7 @@ export default function UnitsPage() {
                 ) : filteredUnits.length > 0 ? (
                   filteredUnits.map((unit) => (
                     <tr className="odd:bg-white even:bg-slate-50/70" key={unit.id}>
-                      <td className="px-5 py-4 font-bold text-slate-800">
+                      <td className="px-5 py-4 font-semibold text-slate-800">
                         {unit.name}
                       </td>
                       <td className="px-5 py-4">
@@ -248,7 +248,7 @@ export default function UnitsPage() {
                       </td>
                       <td className="px-5 py-4">
                         <span
-                          className={`rounded-lg px-3 py-1 text-sm font-black ${
+                          className={`rounded-lg px-3 py-1 text-sm font-medium ${
                             unit.isActive
                               ? "bg-emerald-50 text-emerald-700"
                               : "bg-slate-100 text-slate-600"

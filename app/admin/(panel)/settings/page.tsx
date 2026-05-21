@@ -5,6 +5,7 @@ import { AdminIcon } from "../../_components/admin-shell";
 import { SettingsNav, settingsSectionMeta, type SettingsSection } from "../../_components/settings/settings-nav";
 import { BranchesSection } from "../../_components/settings/branches-section";
 import { PlaceholderSection } from "../../_components/settings/placeholder-section";
+import { WebsiteSection } from "../../_components/settings/website-section";
 import { Button, Card, Input, Select, Badge } from "../../_components/enterprise-ui";
 import { apiRequest } from "../../../../lib/admin-api";
 
@@ -456,6 +457,7 @@ const sectionComponents: Record<SettingsSection, React.ComponentType> = {
   branches: BranchesSection,
   registers: RegistersSection,
   "site-settings": SiteSettingsSection,
+  website: WebsiteSection,
   "store-credit": StoreCreditSection,
   "loyalty-program": LoyaltySection,
   "gift-voucher": () => <PlaceholderSection title="Gift Voucher Settings" />,

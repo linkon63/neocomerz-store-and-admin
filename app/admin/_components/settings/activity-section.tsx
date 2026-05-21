@@ -38,7 +38,7 @@ export function ActivitySection() {
     <>
       <div className="mb-5 flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-black text-slate-800">Activity Logs</h2>
+          <h2 className="text-xl font-semibold text-slate-800">Activity Logs</h2>
           <p className="text-sm font-medium text-slate-500">
             Audit trail of all admin actions
           </p>
@@ -81,7 +81,7 @@ export function ActivitySection() {
               <thead className="bg-slate-50">
                 <tr>
                   {["Timestamp", "User", "Action", "Module"].map((h) => (
-                    <th className="px-5 py-3.5 text-sm font-black text-slate-700" key={h}>
+                    <th className="px-5 py-3.5 text-sm font-semibold text-slate-700" key={h}>
                       {h}
                     </th>
                   ))}
@@ -101,11 +101,11 @@ export function ActivitySection() {
                         {new Date(log.createdAt).toLocaleString()}
                       </td>
                       <td className="px-5 py-3.5">
-                        <p className="text-sm font-black text-slate-800">{log.user?.name ?? "System"}</p>
+                        <p className="text-sm font-medium text-slate-800">{log.user?.name ?? "System"}</p>
                         <p className="text-xs font-medium text-slate-400">{log.user?.email}</p>
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-black capitalize ${
+                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
                           log.action.includes("create") || log.action.includes("add")
                             ? "bg-emerald-50 text-emerald-700"
                             : log.action.includes("delete") || log.action.includes("remove")
@@ -115,7 +115,7 @@ export function ActivitySection() {
                           {log.action.replace(/_/g, " ")}
                         </span>
                       </td>
-                      <td className="px-5 py-3.5 font-bold text-slate-700 capitalize">
+                      <td className="px-5 py-3.5 font-medium text-slate-600 capitalize">
                         {log.entityType || "Global"}
                       </td>
                     </tr>

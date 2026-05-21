@@ -166,7 +166,7 @@ export default function GiftVouchersPage() {
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 {["Coupon Code", "Discount Value", "Usage Stats", "Expiration", "Actions"].map((heading) => (
-                  <th className="px-5 py-4 font-semibold text-slate-600 text-sm" key={heading}>
+                  <th className="px-5 py-4 text-sm font-semibold text-slate-700" key={heading}>
                     {heading}
                   </th>
                 ))}
@@ -187,11 +187,11 @@ export default function GiftVouchersPage() {
                         {row.code}
                       </span>
                     </td>
-                    <td className="px-5 py-4 font-bold text-slate-700">
+                    <td className="px-5 py-4 font-medium text-slate-700">
                       {row.type === "percentage" ? `${row.value}% Discount` : `৳${row.value} Fixed Discount`}
                     </td>
                     <td className="px-5 py-4 text-sm font-medium text-slate-600">
-                      Used: <span className="font-bold">{row.usedCount || 0}</span> / {row.maxUsage} times
+                      Used: <span className="font-medium">{row.usedCount || 0}</span> / {row.maxUsage} times
                     </td>
                     <td className="px-5 py-4 text-xs font-medium text-slate-500">
                       {row.expiresAt ? new Date(row.expiresAt).toLocaleDateString() : "Never Expires"}

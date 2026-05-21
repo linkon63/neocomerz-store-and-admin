@@ -20,7 +20,7 @@ export function BranchesSection() {
     <>
       <div className="mb-5 flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-black text-slate-800">Branch list</h2>
+          <h2 className="text-xl font-semibold text-slate-800">Branch list</h2>
           <p className="text-sm font-medium text-slate-500">
             Displaying {filtered.length} branch
           </p>
@@ -33,7 +33,7 @@ export function BranchesSection() {
             <AdminIcon className="h-4 w-4" name="refresh" />
           </button>
           <button
-            className="inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-black text-white hover:bg-blue-700"
+            className="inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white hover:bg-blue-700"
             type="button"
           >
             <AdminIcon className="h-4 w-4" name="plus" />
@@ -59,7 +59,7 @@ export function BranchesSection() {
             <thead className="bg-slate-50">
               <tr>
                 {["Name", "Address", "Status", "Actions"].map((h) => (
-                  <th className="px-5 py-3.5 text-sm font-black text-slate-700" key={h}>
+                  <th className="px-5 py-3.5 text-sm font-semibold text-slate-700" key={h}>
                     {h}
                   </th>
                 ))}
@@ -68,7 +68,7 @@ export function BranchesSection() {
             <tbody className="divide-y divide-slate-100">
               {filtered.map((branch) => (
                 <tr className="bg-white hover:bg-slate-50/60" key={branch.id}>
-                  <td className="px-5 py-4 text-sm font-black text-slate-800">{branch.name}</td>
+                  <td className="px-5 py-4 text-sm font-semibold text-slate-800">{branch.name}</td>
                   <td className="px-5 py-4 text-sm font-medium text-slate-600">{branch.address}</td>
                   <td className="px-5 py-4">
                     <StatusToggle

@@ -87,11 +87,11 @@ export function RolesSection() {
     <>
       <div className="mb-5 flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-black text-slate-800">Roles & Permissions</h2>
+          <h2 className="text-xl font-semibold text-slate-800">Roles & Permissions</h2>
           <p className="text-sm font-medium text-slate-500">Manage security roles and assign permissions</p>
         </div>
         <button
-          className="inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-black text-white hover:bg-blue-700"
+          className="inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white hover:bg-blue-700"
           onClick={() => { setEditingId(null); setRoleName(""); setIsOpen(true); }}
           type="button"
         >
@@ -108,7 +108,7 @@ export function RolesSection() {
         <div className="grid gap-5 md:grid-cols-[0.4fr_0.6fr]">
           {/* Roles list */}
           <div className="overflow-hidden rounded-lg border border-slate-200 bg-white p-4 space-y-2">
-            <p className="text-xs font-black uppercase tracking-wider text-slate-400 pb-2 border-b border-slate-100">Available Roles</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 pb-2 border-b border-slate-100">Available Roles</p>
             {roles.map((r) => {
               const isSelected = selectedRole?.id === r.id;
               return (
@@ -120,7 +120,7 @@ export function RolesSection() {
                   }`}
                 >
                   <div>
-                    <p className="text-sm font-black text-slate-800 capitalize">{r.name}</p>
+                    <p className="text-sm font-semibold text-slate-800 capitalize">{r.name}</p>
                     <p className="text-xs text-slate-400 font-medium">{r.permissions?.length ?? 0} permissions</p>
                   </div>
                   <div className="flex gap-1.5" onClick={(e) => e.stopPropagation()}>
@@ -140,7 +140,7 @@ export function RolesSection() {
 
           {/* Permissions */}
           <div className="overflow-hidden rounded-lg border border-slate-200 bg-white p-4 flex flex-col">
-            <p className="text-xs font-black uppercase tracking-wider text-slate-400 pb-2 border-b border-slate-100 mb-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 pb-2 border-b border-slate-100 mb-3">
               Permissions for: <span className="text-blue-600 capitalize">{selectedRole?.name ?? "None"}</span>
             </p>
             {!selectedRole ? (
@@ -160,14 +160,14 @@ export function RolesSection() {
                           )}
                           className="h-4 w-4 rounded border-slate-300 text-blue-600"
                         />
-                        <span className="text-sm font-black text-slate-700 capitalize">{perm.name.replace(/_/g, " ")}</span>
+                        <span className="text-sm font-medium text-slate-700 capitalize">{perm.name.replace(/_/g, " ")}</span>
                       </label>
                     );
                   })}
                 </div>
                 <div className="flex justify-end pt-4 mt-4 border-t border-slate-100">
                   <button onClick={handleSavePerms} disabled={savingPerms}
-                    className="h-10 px-5 rounded-lg bg-blue-600 text-sm font-black text-white hover:bg-blue-700 disabled:bg-blue-400">
+                    className="h-10 px-5 rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 disabled:bg-blue-400">
                     {savingPerms ? "Saving..." : "Save Permissions"}
                   </button>
                 </div>
@@ -181,10 +181,10 @@ export function RolesSection() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-950/50" onClick={() => setIsOpen(false)} />
           <div className="relative w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-2xl">
-            <h3 className="text-base font-black text-slate-800">{editingId ? "Edit Role" : "Add Role"}</h3>
+            <h3 className="text-base font-semibold text-slate-800">{editingId ? "Edit Role" : "Add Role"}</h3>
             <form onSubmit={handleRoleSubmit} className="mt-4 space-y-4">
               <div>
-                <label className="mb-1 block text-xs font-black uppercase tracking-wider text-slate-500">Role Name</label>
+                <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-slate-500">Role Name</label>
                 <input type="text" required value={roleName} onChange={(e) => setRoleName(e.target.value)}
                   placeholder="e.g. Manager"
                   className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm font-medium outline-none focus:border-blue-500" />
@@ -193,7 +193,7 @@ export function RolesSection() {
                 <button type="button" onClick={() => setIsOpen(false)}
                   className="h-10 px-4 rounded-lg border border-slate-300 text-sm font-bold">Cancel</button>
                 <button type="submit" disabled={saving}
-                  className="h-10 px-4 rounded-lg bg-blue-600 text-sm font-black text-white disabled:bg-blue-400">
+                  className="h-10 px-4 rounded-lg bg-blue-600 text-sm font-medium text-white disabled:bg-blue-400">
                   {saving ? "Saving..." : "Save"}
                 </button>
               </div>

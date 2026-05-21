@@ -84,14 +84,14 @@ export function UsersSection() {
     <>
       <div className="mb-5 flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-black text-slate-800">Users Management</h2>
+          <h2 className="text-xl font-semibold text-slate-800">Users Management</h2>
           <p className="text-sm font-medium text-slate-500">Displaying {filtered.length} users</p>
         </div>
         <div className="flex gap-3">
           <button className="grid h-11 w-11 place-items-center rounded-lg border border-slate-300 bg-white hover:bg-slate-50" onClick={load} type="button">
             <AdminIcon className="h-4 w-4" name="refresh" />
           </button>
-          <button className="inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-black text-white hover:bg-blue-700" onClick={openAdd} type="button">
+          <button className="inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white hover:bg-blue-700" onClick={openAdd} type="button">
             <AdminIcon className="h-4 w-4" name="plus" />
             Add User
           </button>
@@ -116,7 +116,7 @@ export function UsersSection() {
               <thead className="bg-slate-50">
                 <tr>
                   {["Name", "Email", "Phone", "Role", "Joined", "Actions"].map((h) => (
-                    <th className="px-5 py-3.5 text-sm font-black text-slate-700" key={h}>{h}</th>
+                    <th className="px-5 py-3.5 text-sm font-semibold text-slate-700" key={h}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -126,11 +126,11 @@ export function UsersSection() {
                 ) : (
                   filtered.map((user) => (
                     <tr className="bg-white hover:bg-slate-50/60" key={user.id}>
-                      <td className="px-5 py-4 font-black text-slate-800">{user.name}</td>
+                      <td className="px-5 py-4 font-semibold text-slate-800">{user.name}</td>
                       <td className="px-5 py-4 font-medium text-slate-600">{user.email}</td>
                       <td className="px-5 py-4 font-medium text-slate-500">{user.phone || "—"}</td>
                       <td className="px-5 py-4">
-                        <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-black text-blue-700 capitalize">
+                        <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 capitalize">
                           {user.role?.name ?? "No Role"}
                         </span>
                       </td>
@@ -158,7 +158,7 @@ export function UsersSection() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-950/50" onClick={() => setIsOpen(false)} />
           <div className="relative w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-2xl">
-            <h3 className="text-base font-black text-slate-800">{editingId ? "Edit User" : "Add User"}</h3>
+            <h3 className="text-base font-semibold text-slate-800">{editingId ? "Edit User" : "Add User"}</h3>
             <form onSubmit={handleSubmit} className="mt-4 space-y-4">
               {[
                 { label: "Full Name", type: "text", key: "name", required: true, placeholder: "John Doe" },
@@ -166,7 +166,7 @@ export function UsersSection() {
                 { label: "Phone", type: "tel", key: "phone", required: false, placeholder: "+8801700..." },
               ].map(({ label, type, key, required, placeholder }) => (
                 <div key={key}>
-                  <label className="mb-1 block text-xs font-black uppercase tracking-wider text-slate-500">{label}</label>
+                  <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-slate-500">{label}</label>
                   <input type={type} required={required} placeholder={placeholder}
                     value={form[key as keyof UserForm]}
                     onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
@@ -174,7 +174,7 @@ export function UsersSection() {
                 </div>
               ))}
               <div>
-                <label className="mb-1 block text-xs font-black uppercase tracking-wider text-slate-500">
+                <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-slate-500">
                   Password {editingId && <span className="normal-case text-slate-400">(leave blank to keep)</span>}
                 </label>
                 <input type="password" required={!editingId} placeholder="Min 6 characters"
@@ -182,7 +182,7 @@ export function UsersSection() {
                   className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm font-medium outline-none focus:border-blue-500" />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-black uppercase tracking-wider text-slate-500">Role</label>
+                <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-slate-500">Role</label>
                 <select value={form.roleId} onChange={(e) => setForm((f) => ({ ...f, roleId: e.target.value }))}
                   className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm font-medium outline-none focus:border-blue-500">
                   <option value="">No Role</option>
@@ -191,7 +191,7 @@ export function UsersSection() {
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setIsOpen(false)} className="h-10 rounded-lg border border-slate-300 px-4 font-bold">Cancel</button>
-                <button type="submit" disabled={isSaving} className="h-10 rounded-lg bg-blue-600 px-4 font-black text-white disabled:bg-blue-400">
+                <button type="submit" disabled={isSaving} className="h-10 rounded-lg bg-blue-600 px-4 font-medium text-white disabled:bg-blue-400">
                   {isSaving ? "Saving..." : "Save"}
                 </button>
               </div>

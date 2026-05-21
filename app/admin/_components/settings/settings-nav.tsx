@@ -6,6 +6,7 @@ export type SettingsSection =
   | "branches"
   | "registers"
   | "site-settings"
+  | "website"
   | "store-credit"
   | "loyalty-program"
   | "gift-voucher"
@@ -27,6 +28,7 @@ export const settingsNavGroups: {
       { id: "branches", label: "Branches", icon: "store" },
       { id: "registers", label: "Registers", icon: "pos" },
       { id: "site-settings", label: "Site Settings", icon: "settings" },
+      { id: "website", label: "Website Settings", icon: "store" },
     ],
   },
   {
@@ -63,6 +65,7 @@ export const settingsSectionMeta: Record<
   branches: { title: "Branches", description: "A list of all of your branches." },
   registers: { title: "Registers", description: "Manage your POS registers." },
   "site-settings": { title: "Site Settings", description: "Manage & customize your website content & interface." },
+  website: { title: "Website Settings", description: "Manage store contacts, social links, and policy pages." },
   "store-credit": { title: "Store Credit & Refund", description: "Configure store credit and refund policies." },
   "loyalty-program": { title: "Loyalty Program", description: "Manage customer loyalty rewards." },
   "gift-voucher": { title: "Gift Voucher", description: "Configure gift voucher settings." },

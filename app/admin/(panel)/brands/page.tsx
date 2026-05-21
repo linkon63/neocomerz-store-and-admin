@@ -147,7 +147,7 @@ export default function BrandsPage() {
             <thead className="bg-slate-50">
               <tr>
                 {["Name", "Logo", "Slug", "Products", "Created", "Actions"].map((h) => (
-                  <th key={h} className="px-5 py-4 font-black">{h}</th>
+                  <th key={h} className="px-5 py-4 text-sm font-semibold text-slate-700">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -159,7 +159,7 @@ export default function BrandsPage() {
               ) : (
                 filteredBrands.map((brand) => (
                   <tr key={brand.id} className="odd:bg-white even:bg-slate-50/70">
-                    <td className="px-5 py-4 font-bold text-slate-800">{brand.name}</td>
+                    <td className="px-5 py-4 font-semibold text-slate-800">{brand.name}</td>
                     <td className="px-5 py-4">
                       {brand.logoUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element

@@ -197,7 +197,7 @@ export default function StockPage() {
                   </div>
                   <div className="flex items-center gap-5">
                     <div className="text-right">
-                      <p className={`font-black ${isLowStock ? "text-rose-600" : "text-slate-700"}`}>
+                      <p className={`font-semibold ${isLowStock ? "text-rose-600" : "text-slate-700"}`}>
                         {defaultVariant.stockQuantity} pcs
                       </p>
                       {isLowStock && (
@@ -227,7 +227,7 @@ export default function StockPage() {
           <div className="relative w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-150">
             <h3 className="text-lg font-semibold text-slate-800">Adjust Inventory</h3>
             <p className="mt-1 text-sm font-medium text-slate-500">{selectedProduct.name}</p>
-            <p className="mt-0.5 text-xs font-bold text-slate-400">SKU: {selectedVariant.sku}</p>
+            <p className="mt-0.5 text-xs font-medium text-slate-400">SKU: {selectedVariant.sku}</p>
 
             <form onSubmit={handleAdjustSubmit} className="mt-5 space-y-4">
               <div>
@@ -273,7 +273,7 @@ export default function StockPage() {
                 </div>
                 <div className="flex justify-between text-sm mt-1.5 pt-1.5 border-t border-slate-200">
                   <span className="font-medium text-slate-500">Resulting Stock:</span>
-                  <span className="font-black text-blue-600">
+                  <span className="font-semibold text-blue-600">
                     {adjustQty
                       ? adjustType === "add"
                         ? selectedVariant.stockQuantity + Number(adjustQty)

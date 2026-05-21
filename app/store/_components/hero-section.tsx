@@ -107,7 +107,7 @@ export function HeroSection({ categories }: HeroSectionProps) {
                 <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: "#00A651" }} />
               </span>
               <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "#6EE7A8" }}>
-                {heroCampaign?.hasDiscount ? "বিশেষ ছাড়" : "নতুন কালেকশন এসেছে"}
+                {heroCampaign?.hasDiscount ? "SPECIAL OFFER" : "NEW COLLECTION"}
               </span>
             </div>
 
@@ -128,7 +128,7 @@ export function HeroSection({ categories }: HeroSectionProps) {
 
             {/* Subtext */}
             <p className="text-[15px] mb-8 max-w-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.75)" }}>
-              {heroCampaign?.description || "সারাদেশে ক্যাশ অন ডেলিভারি। দ্রুত শিপিং, সহজ রিটার্ন এবং ১০০% অরিজিনাল পণ্যের নিশ্চয়তা।"}
+              {heroCampaign?.description || "Nationwide cash on delivery. Fast shipping, easy returns and 100% original products guaranteed."}
             </p>
 
             <div className="flex flex-wrap gap-3">
@@ -140,7 +140,7 @@ export function HeroSection({ categories }: HeroSectionProps) {
                 className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-[14px] font-bold transition-all hover:opacity-90"
                 style={{ backgroundColor: "#00A651", color: "#FFFFFF" }}
               >
-                {heroCampaign?.hasDiscount ? "অফার দেখুন" : "এখনই কিনুন"}
+                {heroCampaign?.hasDiscount ? "View Offers" : "Shop Now"}
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7" />
                 </svg>
@@ -158,9 +158,9 @@ export function HeroSection({ categories }: HeroSectionProps) {
           {/* Stats */}
           <div className="relative z-10 mt-10 flex flex-wrap gap-8">
             {[
-              { value: "৫০,০০০+", label: "সন্তুষ্ট গ্রাহক" },
-              { value: "১০,০০০+", label: "পণ্যের সংগ্রহ" },
-              { value: "৯৮%", label: "পজিটিভ রিভিউ" },
+              { value: "50,000+", label: "Happy Customers" },
+              { value: "10,000+", label: "Products" },
+              { value: "98%", label: "Positive Reviews" },
             ].map((stat, i) => (
               <div key={i} className="flex flex-col">
                 <span className="text-[22px] font-black" style={{ color: "#FFFFFF" }}>{stat.value}</span>

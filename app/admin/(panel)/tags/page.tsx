@@ -211,7 +211,7 @@ export default function TagsPage() {
                     "Status",
                     "Actions",
                   ].map((heading) => (
-                    <th className="px-5 py-4 font-semibold" key={heading}>
+                    <th className="px-5 py-4 text-sm font-semibold text-slate-700" key={heading}>
                       {heading}
                     </th>
                   ))}

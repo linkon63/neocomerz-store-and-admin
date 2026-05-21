@@ -207,7 +207,7 @@ export default function DiscountsPage() {
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 {["Name", "Type & Value", "Linked Products", "Schedule", "Status", "Actions"].map((heading) => (
-                  <th className="px-5 py-4 font-semibold text-slate-600 text-sm" key={heading}>
+                  <th className="px-5 py-4 text-sm font-semibold text-slate-700" key={heading}>
                     {heading}
                   </th>
                 ))}
@@ -223,8 +223,8 @@ export default function DiscountsPage() {
               ) : (
                 discounts.map((row) => (
                   <tr className="hover:bg-slate-50/50 transition-colors" key={row.id}>
-                    <td className="px-5 py-4 font-black text-slate-800">{row.name}</td>
-                    <td className="px-5 py-4 font-bold text-slate-600">
+                    <td className="px-5 py-4 font-semibold text-slate-800">{row.name}</td>
+                    <td className="px-5 py-4 font-medium text-slate-600">
                       {row.type === "percentage" ? `${row.value}% OFF` : `৳${row.value} OFF`}
                     </td>
                     <td className="px-5 py-4 font-medium text-slate-500 max-w-xs truncate">
@@ -238,14 +238,16 @@ export default function DiscountsPage() {
                     </td>
                     <td className="px-5 py-4">
                       <button
+                        type="button"
                         onClick={() => handleToggleStatus(row)}
-                        className={`inline-flex rounded-full px-3 py-1 text-xs font-black border transition-all ${
-                          row.status === "active"
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-300"
-                            : "bg-slate-100 text-slate-600 border-slate-300"
+                        title={row.status === "active" ? "Active — click to deactivate" : "Inactive — click to activate"}
+                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${
+                          row.status === "active" ? "bg-blue-600" : "bg-slate-200"
                         }`}
                       >
-                        {row.status === "active" ? "Active" : "Inactive"}
+                        <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ${
+                          row.status === "active" ? "translate-x-4" : "translate-x-0"
+                        }`} />
                       </button>
                     </td>
                     <td className="px-5 py-4">

@@ -272,7 +272,7 @@ export default function VariantOptionsPage() {
               <thead className="bg-slate-50">
                 <tr>
                   {["Name", "Values", "Count", "Actions"].map((heading) => (
-                    <th className="px-5 py-4 font-black" key={heading}>
+                    <th className="px-5 py-4 text-sm font-semibold text-slate-700" key={heading}>
                       {heading}
                     </th>
                   ))}
@@ -370,7 +370,7 @@ export default function VariantOptionsPage() {
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <h2
-                  className="text-2xl font-black"
+                  className="text-xl font-semibold text-slate-900"
                   id="variant-option-modal-title"
                 >
                   {form.id ? "Edit variant option" : "Add variant option"}

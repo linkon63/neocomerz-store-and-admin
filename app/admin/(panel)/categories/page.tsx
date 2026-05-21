@@ -312,7 +312,7 @@ export default function CategoriesPage() {
                     "Created",
                     "Actions",
                   ].map((heading) => (
-                    <th className="px-5 py-4 font-semibold" key={heading}>
+                    <th className="px-5 py-4 text-sm font-semibold text-slate-700" key={heading}>
                       {heading}
                     </th>
                   ))}
@@ -343,7 +343,7 @@ export default function CategoriesPage() {
                       className="odd:bg-white even:bg-slate-50/70"
                       key={category.id}
                     >
-                      <td className="px-5 py-4 font-bold text-slate-800">
+                      <td className="px-5 py-4 font-semibold text-slate-800">
                         <span
                           style={{ paddingLeft: `${category.depth * 18}px` }}
                         >
@@ -457,7 +457,7 @@ export default function CategoriesPage() {
                     item === "..." ? (
                       <span
                         key={`ellipsis-${idx}`}
-                        className="grid h-9 w-9 place-items-center text-sm font-bold text-slate-400"
+                        className="grid h-9 w-9 place-items-center text-sm font-medium text-slate-400"
                       >
                         …
                       </span>

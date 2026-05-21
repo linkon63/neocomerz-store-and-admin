@@ -50,7 +50,7 @@ function ReviewCard({
       <div className="flex items-start justify-between gap-4">
         {/* User avatar + info */}
         <div className="flex items-start gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-black text-white">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
             {review.user?.name?.charAt(0).toUpperCase() ?? "?"}
           </div>
           <div>
@@ -92,7 +92,7 @@ function ReviewCard({
 
       {/* Rating badge */}
       <div className="mt-3 flex items-center gap-2">
-        <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-black ${
+        <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
           review.rating >= 4 ? "bg-emerald-50 text-emerald-700" :
           review.rating === 3 ? "bg-amber-50 text-amber-700" :
           "bg-red-50 text-red-700"
@@ -253,7 +253,7 @@ export default function ReviewsPage() {
         ].map(({ label, value, color }) => (
           <div key={label} className="rounded-xl border border-slate-200 bg-white p-5">
             <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
-            <p className={`mt-1.5 text-2xl font-black ${color}`}>{value}</p>
+            <p className={`mt-1.5 text-2xl font-semibold ${color}`}>{value}</p>
           </div>
         ))}
       </div>
@@ -285,7 +285,7 @@ export default function ReviewsPage() {
             }`}
           >
             {tab.label}
-            <span className={`rounded-full px-2 py-0.5 text-xs font-black ${
+            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
               activeTab === tab.id ? tab.color + " bg-slate-100" : "bg-slate-200 text-slate-500"
             }`}>
               {tab.count}
@@ -334,19 +334,19 @@ export default function ReviewsPage() {
                       {group.imageUrl ? (
                         <img src={group.imageUrl} alt={group.name} className="h-full w-full object-cover" />
                       ) : (
-                        <div className="grid h-full w-full place-items-center bg-blue-50 text-sm font-black text-blue-600">
+                        <div className="grid h-full w-full place-items-center bg-blue-50 text-sm font-semibold text-blue-600">
                           {group.name.charAt(0)}
                         </div>
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className={`truncate text-sm font-black ${isSelected ? "text-blue-700" : "text-slate-800"}`}>
+                      <p className={`truncate text-sm font-semibold ${isSelected ? "text-blue-700" : "text-slate-800"}`}>
                         {group.name}
                       </p>
                       <p className="truncate text-xs font-medium text-slate-400">{group.reviews.length} review{group.reviews.length !== 1 ? "s" : ""}</p>
                     </div>
                     {count > 0 && (
-                      <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-black ${
+                      <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
                         activeTab === "pending" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"
                       }`}>
                         {count}
@@ -369,7 +369,7 @@ export default function ReviewsPage() {
                   {selectedGroup.imageUrl ? (
                     <img src={selectedGroup.imageUrl} alt={selectedGroup.name} className="h-full w-full object-cover" />
                   ) : (
-                    <div className="grid h-full w-full place-items-center bg-blue-50 text-lg font-black text-blue-600">
+                    <div className="grid h-full w-full place-items-center bg-blue-50 text-lg font-semibold text-blue-600">
                       {selectedGroup.name.charAt(0)}
                     </div>
                   )}

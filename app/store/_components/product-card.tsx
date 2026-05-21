@@ -39,10 +39,10 @@ export function ProductCard({ product, onCartUpdate }: ProductCardProps) {
       localStorage.setItem("store_cart_count", String(current + 1));
       window.dispatchEvent(new Event("cart-updated"));
       onCartUpdate?.();
-      showToast("কার্টে যোগ হয়েছে!", "success");
+      showToast("Added to cart!", "success");
       setTimeout(() => setAdded(false), 2000);
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "কার্টে যোগ করা যায়নি", "error");
+      showToast(err instanceof Error ? err.message : "Failed to add to cart", "error");
     } finally {
       setAdding(false);
     }
@@ -54,10 +54,10 @@ export function ProductCard({ product, onCartUpdate }: ProductCardProps) {
     setWishlisting(true);
     try {
       await wishlistApi.add(product.id);
-      showToast("উইশলিস্টে যোগ হয়েছে!", "success");
+      showToast("Added to wishlist!", "success");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
-      if (!msg.includes("already")) showToast("উইশলিস্টে যোগ করা যায়নি", "error");
+      if (!msg.includes("already")) showToast("Failed to add to wishlist", "error");
     } finally {
       setWishlisting(false);
     }
@@ -110,7 +110,7 @@ export function ProductCard({ product, onCartUpdate }: ProductCardProps) {
             disabled={wishlisting}
             className="absolute top-2.5 right-2.5 p-1.5 rounded-full bg-white shadow-sm border transition-all duration-200 hover:scale-110 cursor-pointer"
             style={{ borderColor: "var(--store-border)" }}
-            aria-label="উইশলিস্টে যোগ করুন"
+            aria-label="Add to wishlist"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" style={{ color: "var(--store-primary)" }}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
