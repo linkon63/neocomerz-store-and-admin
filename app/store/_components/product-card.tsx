@@ -99,7 +99,7 @@ export function ProductCard({ product, onCartUpdate }: ProductCardProps) {
             </span>
             {isOutOfStock && (
               <span className="rounded-md px-2 py-0.5 text-[10px] font-bold uppercase text-white bg-gray-500">
-                স্টক নেই
+                Out of Stock
               </span>
             )}
           </div>
@@ -182,14 +182,14 @@ export function ProductCard({ product, onCartUpdate }: ProductCardProps) {
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
-                  যোগ হয়েছে
+                  Added
                 </>
               ) : (
                 <>
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                   </svg>
-                  কার্টে যোগ
+                  Add to Cart
                 </>
               )}
             </button>

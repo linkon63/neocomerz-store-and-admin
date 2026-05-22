@@ -148,6 +148,51 @@ export default function NewProductPage() {
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
+  // Add Supplier Modal States
+  const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
+  const [newSupplierName, setNewSupplierName] = useState("");
+  const [newSupplierPhone, setNewSupplierPhone] = useState("");
+  const [newSupplierEmail, setNewSupplierEmail] = useState("");
+  const [newSupplierAddress, setNewSupplierAddress] = useState("");
+  const [isSavingSupplier, setIsSavingSupplier] = useState(false);
+  const [newSupplierError, setNewSupplierError] = useState("");
+
+  async function handleAddSupplier(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newSupplierName) return;
+
+    setIsSavingSupplier(true);
+    setNewSupplierError("");
+    try {
+      const payload = {
+        name: newSupplierName,
+        phone: newSupplierPhone || undefined,
+        email: newSupplierEmail || undefined,
+        address: newSupplierAddress || undefined,
+        isActive: true,
+      };
+
+      const newSupplier = await apiRequest<{ id: string; name: string }>("/suppliers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      setSuppliers((current) => [...current, newSupplier]);
+      setForm((current) => ({ ...current, supplierId: newSupplier.id }));
+
+      setIsSupplierModalOpen(false);
+      setNewSupplierName("");
+      setNewSupplierPhone("");
+      setNewSupplierEmail("");
+      setNewSupplierAddress("");
+    } catch (err) {
+      setNewSupplierError(err instanceof Error ? err.message : "Failed to create supplier.");
+    } finally {
+      setIsSavingSupplier(false);
+    }
+  }
+
   const categoryOptions = useMemo(
     () => flattenCategories(categories),
     [categories],
@@ -192,6 +237,7 @@ export default function NewProductPage() {
   // Keep drafts in sync with the currently selected option values.
   useEffect(() => {
     if (form.productType !== "variant") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVariantDrafts([]);
       return;
     }
@@ -421,6 +467,7 @@ export default function NewProductPage() {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function clearImages() {
     if (imageInputRef.current) imageInputRef.current.value = "";
     setForm((current) => ({ ...current, images: [] }));
@@ -635,36 +682,36 @@ export default function NewProductPage() {
 
         <form
           id="add-product-form"
-          className="mx-auto max-w-5xl space-y-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
+          className="w-full space-y-0"
           onSubmit={handleSubmit}
         >
-          <div className="grid gap-6">
-            <section className="rounded-xl border border-slate-200 bg-white p-5">
-              <div className="mb-4">
-                <h2 className="text-sm font-semibold text-slate-900">General Info</h2>
-                <p className="text-xs text-slate-500">Add general information for this product</p>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <label className="block md:col-span-2">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">Name</span>
-                  <input
-                    autoFocus
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                    onChange={(event) => updateName(event.target.value)}
-                    placeholder="Enter a product name"
-                    required
-                    value={form.name}
-                  />
-                </label>
+          {/* ── General Info ── */}
+          <section className="grid gap-6 border-b border-slate-200 py-8 md:grid-cols-[280px_1fr]">
+            <div className="md:sticky md:top-6 md:self-start">
+              <h2 className="text-sm font-semibold text-slate-900">General Info</h2>
+              <p className="mt-1 text-xs text-slate-500">Add general information for this product</p>
+            </div>
+            <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-5 md:grid-cols-2">
+              <label className="block md:col-span-2">
+                <div className="mb-2 flex items-center gap-1">
+                  <span className="text-xs font-semibold text-slate-700">Name</span>
+                  <span className="text-red-500">*</span>
+                </div>
+                <input
+                  autoFocus
+                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
+                  onChange={(event) => updateName(event.target.value)}
+                  placeholder="Enter a product name"
+                  required
+                  value={form.name}
+                />
+              </label>
+              <div className="hidden">
                 <label className="block">
                   <span className="mb-2 block text-xs font-semibold text-slate-700">Slug</span>
                   <input
                     className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, slug: event.target.value }))
-                    }
-                    placeholder="product-slug"
-                    required
+                    onChange={(event) => setForm((current) => ({ ...current, slug: event.target.value }))}
                     value={form.slug}
                   />
                 </label>
@@ -672,12 +719,7 @@ export default function NewProductPage() {
                   <span className="mb-2 block text-xs font-semibold text-slate-700">Status</span>
                   <select
                     className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm capitalize outline-none focus:border-blue-500"
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        status: event.target.value as ProductCreateForm["status"],
-                      }))
-                    }
+                    onChange={(event) => setForm((current) => ({ ...current, status: event.target.value as ProductCreateForm["status"] }))}
                     value={form.status}
                   >
                     <option value="active">Active</option>
@@ -685,350 +727,340 @@ export default function NewProductPage() {
                     <option value="inactive">Inactive</option>
                   </select>
                 </label>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">
-                    Brand
-                  </span>
-                  <select
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, brandId: event.target.value }))
-                    }
-                    required
-                    value={form.brandId}
-                  >
-                    <option value="">Select brand</option>
-                    {brands.map((brand) => (
-                      <option key={brand.id} value={brand.id}>
-                        {brand.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">
-                    Category
-                  </span>
-                  <select
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        categoryId: event.target.value,
-                      }))
-                    }
-                    required
-                    value={form.categoryId}
-                  >
-                    <option value="">Select category</option>
-                    {categoryOptions.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {"- ".repeat(category.depth)}
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">
-                    Tags
-                  </span>
-                  <div className="flex flex-wrap gap-2">
-                    {tags.map((tag) => {
-                      const selected = form.tagIds.includes(tag.id);
-                      return (
-                        <button
-                          className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
-                            selected
-                              ? "border-blue-500 bg-blue-50 text-blue-700"
-                              : "border-slate-300 bg-white text-slate-600"
-                          }`}
-                          key={tag.id}
-                          onClick={() => toggleTag(tag.id)}
-                          type="button"
-                        >
-                          {tag.name}
-                        </button>
-                      );
-                    })}
+              </div>
+              <label className="block">
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs font-semibold text-slate-700">Brand</span>
+                    <span className="text-red-500">*</span>
                   </div>
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">
-                    Base unit
-                  </span>
-                  <select
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, baseUnitId: event.target.value }))
-                    }
-                    value={form.baseUnitId}
-                  >
-                    <option value="">Select unit</option>
-                    {units.map((unit) => (
-                      <option key={unit.id} value={unit.id}>
-                        {unit.name} ({unit.code})
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">
-                    Unit
-                  </span>
-                  <select
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, unitId: event.target.value }))
-                    }
-                    value={form.unitId}
-                  >
-                    <option value="">Select unit</option>
-                    {units.map((unit) => (
-                      <option key={unit.id} value={unit.id}>
-                        {unit.name} ({unit.code})
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <div className="flex items-center gap-6">
-                  <label className="flex items-center gap-2 text-xs font-semibold text-slate-600">
-                    <input
-                      type="checkbox"
-                      checked={form.purchaseOrderReturnable}
-                      onChange={(event) =>
-                        setForm((current) => ({
-                          ...current,
-                          purchaseOrderReturnable: event.target.checked,
-                        }))
-                      }
-                    />
-                    Purchase order returnable
-                  </label>
-                  <label className="flex items-center gap-2 text-xs font-semibold text-slate-600">
-                    <input
-                      type="checkbox"
-                      checked={form.includeStock}
-                      onChange={(event) =>
-                        setForm((current) => ({
-                          ...current,
-                          includeStock: event.target.checked,
-                        }))
-                      }
-                    />
-                    Include stock
-                  </label>
+                  <button type="button" className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-700 hover:text-blue-600">
+                    <AdminIcon className="h-3 w-3" name="plus" />
+                    Add New
+                  </button>
                 </div>
-                <div className="md:col-span-2">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">Description</span>
-                  <textarea
-                    className="min-h-28 w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-blue-500"
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        description: event.target.value,
-                      }))
-                    }
-                    placeholder="Enter description"
-                    value={form.description}
+                <select
+                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
+                  onChange={(event) => setForm((current) => ({ ...current, brandId: event.target.value }))}
+                  required
+                  value={form.brandId}
+                >
+                  <option value="">Select brand</option>
+                  {brands.map((brand) => (
+                    <option key={brand.id} value={brand.id}>{brand.name}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs font-semibold text-slate-700">Category</span>
+                    <span className="text-red-500">*</span>
+                  </div>
+                  <button type="button" className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-700 hover:text-blue-600">
+                    <AdminIcon className="h-3 w-3" name="plus" />
+                    Add New
+                  </button>
+                </div>
+                <select
+                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
+                  onChange={(event) => setForm((current) => ({ ...current, categoryId: event.target.value }))}
+                  required
+                  value={form.categoryId}
+                >
+                  <option value="">Select Category</option>
+                  {categoryOptions.map((category) => (
+                    <option key={category.id} value={category.id}>{"- ".repeat(category.depth)}{category.name}</option>
+                  ))}
+                </select>
+              </label>
+              <div className="block md:col-span-2">
+                <span className="mb-2 block text-xs font-semibold text-slate-700">Tags</span>
+                <div className="flex min-h-11 flex-wrap items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 focus-within:border-blue-500">
+                  {form.tagIds.map((tagId) => {
+                    const tag = tags.find((t) => t.id === tagId);
+                    if (!tag) return null;
+                    return (
+                      <div key={tag.id} className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
+                        {tag.name}
+                        <button type="button" onClick={() => toggleTag(tag.id)} className="text-slate-400 hover:text-slate-600">
+                          <AdminIcon className="h-3 w-3" name="x" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                  <select
+                    className="flex-1 bg-transparent text-sm outline-none min-w-[120px]"
+                    onChange={(e) => { if (e.target.value) { toggleTag(e.target.value); e.target.value = ""; } }}
+                    defaultValue=""
+                  >
+                    <option value="">Add tag...</option>
+                    {tags.filter((t) => !form.tagIds.includes(t.id)).map((tag) => (
+                      <option key={tag.id} value={tag.id}>{tag.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <label className="block">
+                <span className="mb-2 block text-xs font-semibold text-slate-700">Base unit</span>
+                <select
+                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
+                  onChange={(event) => setForm((current) => ({ ...current, baseUnitId: event.target.value }))}
+                  value={form.baseUnitId}
+                >
+                  <option value="">Select unit</option>
+                  {units.map((unit) => (
+                    <option key={unit.id} value={unit.id}>{unit.name} ({unit.code})</option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-xs font-semibold text-slate-700">Unit</span>
+                <select
+                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
+                  onChange={(event) => setForm((current) => ({ ...current, unitId: event.target.value }))}
+                  value={form.unitId}
+                >
+                  <option value="">Select unit</option>
+                  {units.map((unit) => (
+                    <option key={unit.id} value={unit.id}>{unit.name} ({unit.code})</option>
+                  ))}
+                </select>
+              </label>
+              <div className="flex items-center gap-6 md:col-span-2">
+                <label className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                  <input
+                    type="checkbox"
+                    checked={form.purchaseOrderReturnable}
+                    onChange={(event) => setForm((current) => ({ ...current, purchaseOrderReturnable: event.target.checked }))}
                   />
+                  Purchase order returnable
+                </label>
+                <label className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                  <input
+                    type="checkbox"
+                    checked={form.includeStock}
+                    onChange={(event) => setForm((current) => ({ ...current, includeStock: event.target.checked }))}
+                  />
+                  Include stock
+                </label>
+              </div>
+              <div className="md:col-span-2">
+                <span className="mb-2 block text-xs font-semibold text-slate-700">Description</span>
+                <textarea
+                  className="min-h-28 w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-blue-500"
+                  onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
+                  placeholder="Enter description"
+                  value={form.description}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* ── Media ── */}
+          <section className="grid gap-6 border-b border-slate-200 py-8 md:grid-cols-[280px_1fr]">
+            <div className="md:sticky md:top-6 md:self-start">
+              <h2 className="text-sm font-semibold text-slate-900">Media</h2>
+              <p className="mt-1 text-xs text-slate-500">Upload product, size chart, and care guide files</p>
+            </div>
+            <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-5">
+              <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-slate-700">Upload Images</p>
+                    <p className="text-xs text-slate-500">Click to upload or drag and drop</p>
+                  </div>
+                  <label className="inline-flex h-10 cursor-pointer items-center rounded-lg border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                    <AdminIcon className="mr-2 h-4 w-4" name="upload" />
+                    Upload
+                    <input
+                      accept="image/*"
+                      className="hidden"
+                      multiple
+                      onChange={(event) => updateImages(event.target.files)}
+                      type="file"
+                    />
+                  </label>
                 </div>
               </div>
-            </section>
 
-            <section className="rounded-xl border border-slate-200 bg-white p-5">
-              <div className="mb-4">
-                <h2 className="text-sm font-semibold text-slate-900">Media</h2>
-                <p className="text-xs text-slate-500">Upload product, size chart, and care guide files</p>
-              </div>
-              <div className="grid gap-4">
-                <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4">
+              {imagePreviewUrls.length > 0 && (
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-semibold text-slate-700">Upload Images</p>
-                      <p className="text-xs text-slate-500">Click to upload or drag and drop</p>
-                    </div>
-                    <label className="inline-flex h-10 items-center rounded-lg border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700">
-                      Upload
-                      <input
-                        accept="image/*"
-                        className="hidden"
-                        multiple
-                        onChange={(event) => updateImages(event.target.files)}
-                        type="file"
-                      />
-                    </label>
+                    <p className="text-xs font-semibold text-slate-700">Selected images</p>
+                    <button
+                      className="text-xs font-semibold text-red-600 hover:text-red-700"
+                      onClick={() => setForm((current) => ({ ...current, images: [] }))}
+                      type="button"
+                    >
+                      <AdminIcon className="mr-1 inline h-3 w-3" name="x" />
+                      Clear images
+                    </button>
                   </div>
-                </div>
-
-                {imagePreviewUrls.length > 0 && (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs font-semibold text-slate-700">Selected images</p>
-                      <button
-                        className="text-xs font-semibold text-red-600 hover:text-red-700"
-                        onClick={() => setForm((current) => ({ ...current, images: [] }))}
-                        type="button"
-                      >
-                        Clear images
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                      {imagePreviewUrls.map((url, index) => (
-                        <div
-                          className="overflow-hidden rounded-lg border border-slate-200"
-                          key={url}
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img alt="" className="aspect-square w-full object-cover" src={url} />
-                          <p className="truncate px-2 py-1 text-[11px] font-semibold text-slate-600">
-                            {form.images[index]?.name}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-xl border border-dashed border-slate-300 bg-white p-4">
-                    <p className="text-xs font-semibold text-slate-700">Upload Size Chart</p>
-                    <p className="text-xs text-slate-500">Click to upload</p>
-                    <label className="mt-3 inline-flex h-9 items-center rounded-lg border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700">
-                      Select file
-                      <input
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(event) =>
-                          setForm((current) => ({
-                            ...current,
-                            sizeChart: event.target.files?.[0] ?? null,
-                          }))
-                        }
-                        type="file"
-                      />
-                    </label>
-                    {form.sizeChart && (
-                      <p className="mt-2 text-[11px] text-slate-500">{form.sizeChart.name}</p>
-                    )}
-                  </div>
-                  <div className="rounded-xl border border-dashed border-slate-300 bg-white p-4">
-                    <p className="text-xs font-semibold text-slate-700">Upload Care Guide</p>
-                    <p className="text-xs text-slate-500">Click to upload</p>
-                    <label className="mt-3 inline-flex h-9 items-center rounded-lg border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700">
-                      Select file
-                      <input
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(event) =>
-                          setForm((current) => ({
-                            ...current,
-                            careGuide: event.target.files?.[0] ?? null,
-                          }))
-                        }
-                        type="file"
-                      />
-                    </label>
-                    {form.careGuide && (
-                      <p className="mt-2 text-[11px] text-slate-500">{form.careGuide.name}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section className="rounded-xl border border-slate-200 bg-white p-5">
-              <div className="mb-4">
-                <h2 className="text-sm font-semibold text-slate-900">Channel & Branch</h2>
-                <p className="text-xs text-slate-500">Set where the product is available</p>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">Channel</span>
-                  <div className="flex flex-wrap gap-2">
-                    {channels.map((channel) => {
-                      const selected = form.channelIds.includes(channel.id);
-                      return (
-                        <button
-                          key={channel.id}
-                          type="button"
-                          className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
-                            selected
-                              ? "border-blue-500 bg-blue-50 text-blue-700"
-                              : "border-slate-300 bg-white text-slate-600"
-                          }`}
-                          onClick={() => toggleChannel(channel.id)}
-                        >
-                          {channel.name}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">Branch</span>
-                  <select
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, branchId: event.target.value }))
-                    }
-                    value={form.branchId}
-                  >
-                    <option value="">Select branch</option>
-                    {branches.map((branch) => (
-                      <option key={branch.id} value={branch.id}>
-                        {branch.name}
-                      </option>
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                    {imagePreviewUrls.map((url, index) => (
+                      <div className="overflow-hidden rounded-lg border border-slate-200" key={url}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img alt="" className="aspect-square w-full object-cover" src={url} />
+                        <p className="truncate px-2 py-1 text-[11px] font-semibold text-slate-600">
+                          {form.images[index]?.name}
+                        </p>
+                      </div>
                     ))}
-                  </select>
-                </label>
-              </div>
-            </section>
+                  </div>
+                </div>
+              )}
 
-            <section className="rounded-xl border border-slate-200 bg-white p-5">
-              <div className="mb-4">
-                <h2 className="text-sm font-semibold text-slate-900">Inventory</h2>
-                <p className="text-xs text-slate-500">Choose the product type and inventory details</p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-xl border border-dashed border-slate-300 bg-white p-4">
+                  <p className="text-xs font-semibold text-slate-700">Upload Size Chart</p>
+                  <p className="text-xs text-slate-500">Click to upload</p>
+                  <label className="mt-3 inline-flex h-9 cursor-pointer items-center rounded-lg border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                    <AdminIcon className="mr-2 h-3 w-3" name="upload" />
+                    Select file
+                    <input
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(event) => setForm((current) => ({ ...current, sizeChart: event.target.files?.[0] ?? null }))}
+                      type="file"
+                    />
+                  </label>
+                  {form.sizeChart && (
+                    <p className="mt-2 text-[11px] text-slate-500">{form.sizeChart.name}</p>
+                  )}
+                </div>
+                <div className="rounded-xl border border-dashed border-slate-300 bg-white p-4">
+                  <p className="text-xs font-semibold text-slate-700">Upload Care Guide</p>
+                  <p className="text-xs text-slate-500">Click to upload</p>
+                  <label className="mt-3 inline-flex h-9 cursor-pointer items-center rounded-lg border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                    <AdminIcon className="mr-2 h-3 w-3" name="upload" />
+                    Select file
+                    <input
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(event) => setForm((current) => ({ ...current, careGuide: event.target.files?.[0] ?? null }))}
+                      type="file"
+                    />
+                  </label>
+                  {form.careGuide && (
+                    <p className="mt-2 text-[11px] text-slate-500">{form.careGuide.name}</p>
+                  )}
+                </div>
               </div>
+            </div>
+          </section>
+
+          {/* ── Channel & Branch ── */}
+          <section className="grid gap-6 border-b border-slate-200 py-8 md:grid-cols-[280px_1fr]">
+            <div className="md:sticky md:top-6 md:self-start">
+              <h2 className="text-sm font-semibold text-slate-900">Channel & Branch</h2>
+              <p className="mt-1 text-xs text-slate-500">Set where the product is available</p>
+            </div>
+            <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-5 md:grid-cols-2">
+              <label className="block">
+                <span className="mb-2 block text-xs font-semibold text-slate-700">Channel</span>
+                <div className="flex flex-wrap gap-2">
+                  {channels.map((channel) => {
+                    const selected = form.channelIds.includes(channel.id);
+                    return (
+                      <button
+                        key={channel.id}
+                        type="button"
+                        className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                          selected
+                            ? "border-blue-500 bg-blue-50 text-blue-700"
+                            : "border-slate-300 bg-white text-slate-600"
+                        }`}
+                        onClick={() => toggleChannel(channel.id)}
+                      >
+                        {channel.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-xs font-semibold text-slate-700">Branch</span>
+                <select
+                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
+                  onChange={(event) => setForm((current) => ({ ...current, branchId: event.target.value }))}
+                  value={form.branchId}
+                >
+                  <option value="">Select branch</option>
+                  {branches.map((branch) => (
+                    <option key={branch.id} value={branch.id}>{branch.name}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          </section>
+
+          {/* ── Inventory ── */}
+          <section className="grid gap-6 border-b border-slate-200 py-8 md:grid-cols-[280px_1fr]">
+            <div className="md:sticky md:top-6 md:self-start">
+              <h2 className="text-sm font-semibold text-slate-900">Inventory</h2>
+              <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                The type of product we choose determines how we manage inventory and reporting
+              </p>
+            </div>
+            <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-5">
               <div className="grid gap-4 md:grid-cols-2">
                 <button
                   type="button"
-                  className={`rounded-xl border p-4 text-left ${
+                  className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all ${
                     form.productType === "simple"
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-slate-200"
+                      ? "border-blue-500 bg-blue-50/40 ring-1 ring-blue-500"
+                      : "border-slate-200 bg-white hover:border-slate-300"
                   }`}
                   onClick={() => {
                     setForm((current) => ({ ...current, productType: "simple" }));
                     setVariantSelections([{ ...emptyVariantSelection }]);
                   }}
                 >
-                  <p className="text-sm font-semibold text-slate-900">Single/Non variant product</p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    This product is a single SKU with its own inventory
-                  </p>
+                  <div className="pr-4">
+                    <p className="text-sm font-semibold text-slate-900">Single/Non variant product</p>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                      This product is a single SKU with its own inventory
+                    </p>
+                  </div>
+                  <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-all ${
+                    form.productType === "simple" ? "border-blue-600 bg-blue-50" : "border-slate-300"
+                  }`}>
+                    {form.productType === "simple" && (
+                      <div className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+                    )}
+                  </div>
                 </button>
                 <button
                   type="button"
-                  className={`rounded-xl border p-4 text-left ${
+                  className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all ${
                     form.productType === "variant"
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-slate-200"
+                      ? "border-blue-500 bg-blue-50/40 ring-1 ring-blue-500"
+                      : "border-slate-200 bg-white hover:border-slate-300"
                   }`}
                   onClick={() => setForm((current) => ({ ...current, productType: "variant" }))}
                 >
-                  <p className="text-sm font-semibold text-slate-900">Variant Product</p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    This product has multiple variants like size or color
-                  </p>
+                  <div className="pr-4">
+                    <p className="text-sm font-semibold text-slate-900">Variant Product</p>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                      This is a group of similiar Products with different attribute like size or color. Each variant is a unique SKU with its own inventory
+                    </p>
+                  </div>
+                  <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-all ${
+                    form.productType === "variant" ? "border-blue-600 bg-blue-50" : "border-slate-300"
+                  }`}>
+                    {form.productType === "variant" && (
+                      <div className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+                    )}
+                  </div>
                 </button>
               </div>
 
               {form.productType === "simple" && (
-                <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  <label className="block">
-                    <div className="mb-2 flex items-center justify-between">
-                      <span className="block text-xs font-semibold text-slate-700">SKU</span>
+                <div className="mt-4 grid gap-4 md:grid-cols-2 border-t border-slate-100 pt-4">
+                  <div>
+                    <div className="mb-1.5 flex items-center justify-between">
+                      <span className="block text-sm font-medium text-slate-700">SKU</span>
                       <button
                         className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-700"
                         onClick={generateSku}
@@ -1039,168 +1071,186 @@ export default function NewProductPage() {
                       </button>
                     </div>
                     <input
-                      className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm uppercase outline-none focus:border-blue-500"
-                      onChange={(event) =>
-                        setForm((current) => ({ ...current, sku: event.target.value }))
-                      }
+                      className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm uppercase outline-none focus:border-blue-400 focus:bg-white"
+                      onChange={(event) => setForm((current) => ({ ...current, sku: event.target.value }))}
                       placeholder="PRODUCT-SKU"
                       required
                       value={form.sku}
                     />
-                  </label>
-                  <label className="block">
-                    <span className="mb-2 block text-xs font-semibold text-slate-700">Initial stock</span>
+                  </div>
+                  <div>
+                    <span className="mb-1.5 block text-sm font-medium text-slate-700">Initial stock</span>
                     <input
-                      className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
+                      className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none focus:border-blue-400 focus:bg-white"
                       min="0"
-                      onChange={(event) =>
-                        setForm((current) => ({
-                          ...current,
-                          stockQuantity: event.target.value,
-                        }))
-                      }
+                      onChange={(event) => setForm((current) => ({ ...current, stockQuantity: event.target.value }))}
                       placeholder="0"
                       step="1"
                       type="number"
                       value={form.stockQuantity}
                     />
-                  </label>
+                  </div>
                 </div>
               )}
-            </section>
 
-            <section className="rounded-xl border border-slate-200 bg-white p-5">
-              <div className="mb-4">
-                <h2 className="text-sm font-semibold text-slate-900">Supplier & VAT</h2>
-                <p className="text-xs text-slate-500">Supplier, VAT, and purchasing details</p>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">Supplier Name</span>
+              <div className="mt-4 grid gap-4 md:grid-cols-2 border-t border-slate-100 pt-4">
+                <div>
+                  <div className="mb-1.5 flex items-center justify-between">
+                    <span className="block text-sm font-medium text-slate-700">Supplier Name</span>
+                    <button
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700"
+                      onClick={() => setIsSupplierModalOpen(true)}
+                      type="button"
+                    >
+                      <AdminIcon className="h-3.5 w-3.5" name="plus" />
+                      Add New
+                    </button>
+                  </div>
                   <select
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, supplierId: event.target.value }))
-                    }
+                    className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none focus:border-blue-400 focus:bg-white"
+                    onChange={(event) => setForm((current) => ({ ...current, supplierId: event.target.value }))}
                     value={form.supplierId}
                   >
                     <option value="">Select supplier</option>
                     {suppliers.map((supplier) => (
-                      <option key={supplier.id} value={supplier.id}>
-                        {supplier.name}
-                      </option>
+                      <option key={supplier.id} value={supplier.id}>{supplier.name}</option>
                     ))}
                   </select>
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">Supplier Price</span>
+                </div>
+                <div>
+                  <span className="mb-1.5 block text-sm font-medium text-slate-700">Supplier Price</span>
+                  <div className="flex h-10 overflow-hidden rounded-lg border border-slate-200 bg-slate-50 focus-within:border-blue-400 focus-within:bg-white">
+                    <span className="flex items-center bg-slate-100 px-3 text-sm font-semibold text-slate-500 border-r border-slate-200">৳</span>
+                    <input
+                      className="w-full bg-transparent px-3 text-sm outline-none placeholder:text-slate-400 text-right"
+                      type="number"
+                      step="0.01"
+                      value={form.supplierPrice}
+                      onChange={(event) => setForm((current) => ({ ...current, supplierPrice: event.target.value }))}
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <span className="mb-1.5 block text-sm font-medium text-slate-700">Purchase Date</span>
                   <input
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                    type="number"
-                    step="0.01"
-                    value={form.supplierPrice}
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, supplierPrice: event.target.value }))
-                    }
-                    placeholder="0.00"
-                  />
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">Purchase Date</span>
-                  <input
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
+                    className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none focus:border-blue-400 focus:bg-white"
                     type="date"
                     value={form.purchaseDate}
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, purchaseDate: event.target.value }))
-                    }
+                    onChange={(event) => setForm((current) => ({ ...current, purchaseDate: event.target.value }))}
                   />
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">VAT</span>
-                  <select
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                    value={form.vatId}
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, vatId: event.target.value }))
-                    }
-                  >
-                    <option value="">Select VAT</option>
-                    {vats.map((vat) => (
-                      <option key={vat.id} value={vat.id}>
-                        {vat.name} ({vat.rate}%)
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                </div>
               </div>
-            </section>
+            </div>
+          </section>
 
-            <section className="rounded-xl border border-slate-200 bg-white p-5">
-              <div className="mb-4">
-                <h2 className="text-sm font-semibold text-slate-900">Price</h2>
-                <p className="text-xs text-slate-500">Set the selling price details</p>
-              </div>
-              <div className="grid gap-4 md:grid-cols-4">
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">Factor</span>
+          {/* ── VAT ── */}
+          <section className="grid gap-6 border-b border-slate-200 py-8 md:grid-cols-[280px_1fr]">
+            <div className="md:sticky md:top-6 md:self-start">
+              <h2 className="text-sm font-semibold text-slate-900">VAT</h2>
+              <p className="mt-1 text-xs leading-relaxed text-slate-400 font-normal">
+                Add the sales VAT thats applicable for products. This VAT will be auto-populated when you create transection with products.
+              </p>
+            </div>
+            <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-5">
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-medium text-slate-700">VAT</span>
+                <select
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none focus:border-blue-400 focus:bg-white"
+                  value={form.vatId}
+                  onChange={(event) => setForm((current) => ({ ...current, vatId: event.target.value }))}
+                >
+                  <option value="">Default select vat</option>
+                  {vats.map((vat) => (
+                    <option key={vat.id} value={vat.id}>{vat.name} ({vat.rate}%)</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          </section>
+
+          {/* ── Price ── */}
+          <section className="grid gap-6 border-b border-slate-200 py-8 md:grid-cols-[280px_1fr]">
+            <div className="md:sticky md:top-6 md:self-start">
+              <h2 className="text-sm font-semibold text-slate-900">Price</h2>
+              <p className="mt-1 text-xs leading-relaxed text-slate-400">The rate at you are going to sell inventory.</p>
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-white p-5 flex items-center gap-6">
+              <span className="text-sm font-semibold text-slate-800 shrink-0">Piece</span>
+              <div className="grid grid-cols-4 gap-4 flex-1">
+                <div>
+                  <span className="mb-1.5 block text-sm font-medium text-slate-700">Factor</span>
                   <input
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
+                    className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none focus:border-blue-400 focus:bg-white text-right"
                     type="number"
                     step="0.01"
                     value={form.factor}
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, factor: event.target.value }))
-                    }
+                    onChange={(event) => setForm((current) => ({ ...current, factor: event.target.value }))}
                   />
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">Unit Price</span>
-                  <input
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                    type="number"
-                    step="0.01"
-                    value={form.unitPrice}
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, unitPrice: event.target.value }))
-                    }
-                  />
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">Retail Price</span>
-                  <input
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                    type="number"
-                    step="0.01"
-                    value={form.retailPrice}
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, retailPrice: event.target.value }))
-                    }
-                  />
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">Markup</span>
-                  <input
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                    type="number"
-                    step="0.01"
-                    value={form.markup}
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, markup: event.target.value }))
-                    }
-                  />
-                </label>
+                </div>
+                <div>
+                  <div className="mb-1.5 flex items-center gap-1 text-sm font-medium text-slate-700">
+                    <span>Unit Price</span>
+                    <span className="inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full bg-slate-200 text-[10px] text-slate-500 font-bold" title="Initial cost per unit">?</span>
+                  </div>
+                  <div className="flex h-10 overflow-hidden rounded-lg border border-slate-200 bg-slate-50 focus-within:border-blue-400 focus-within:bg-white">
+                    <span className="flex items-center bg-slate-100 px-3 text-sm font-semibold text-slate-500 border-r border-slate-200">৳</span>
+                    <input
+                      className="w-full bg-transparent px-3 text-sm outline-none placeholder:text-slate-400 text-right"
+                      type="number"
+                      step="0.01"
+                      value={form.unitPrice}
+                      onChange={(event) => setForm((current) => ({ ...current, unitPrice: event.target.value }))}
+                      placeholder="200.00"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="mb-1.5 flex items-center gap-1 text-sm font-medium text-slate-700">
+                    <span>Retail Price</span>
+                    <span className="inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full bg-slate-200 text-[10px] text-slate-500 font-bold" title="Regular selling price">?</span>
+                  </div>
+                  <div className="flex h-10 overflow-hidden rounded-lg border border-slate-200 bg-slate-50 focus-within:border-blue-400 focus-within:bg-white">
+                    <span className="flex items-center bg-slate-100 px-3 text-sm font-semibold text-slate-500 border-r border-slate-200">৳</span>
+                    <input
+                      className="w-full bg-transparent px-3 text-sm outline-none placeholder:text-slate-400 text-right"
+                      type="number"
+                      step="0.01"
+                      value={form.retailPrice}
+                      onChange={(event) => setForm((current) => ({ ...current, retailPrice: event.target.value }))}
+                      placeholder="200.00"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="mb-1.5 flex items-center gap-1 text-sm font-medium text-slate-700">
+                    <span>Markup</span>
+                    <span className="inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full bg-slate-200 text-[10px] text-slate-500 font-bold" title="Percentage markup over unit cost">?</span>
+                  </div>
+                  <div className="flex h-10 overflow-hidden rounded-lg border border-slate-200 bg-slate-50 focus-within:border-blue-400 focus-within:bg-white">
+                    <span className="flex items-center bg-slate-100 px-3 text-sm font-semibold text-slate-500 border-r border-slate-200">%</span>
+                    <input
+                      className="w-full bg-transparent px-3 text-sm outline-none placeholder:text-slate-400 text-right"
+                      type="text"
+                      value={form.markup}
+                      onChange={(event) => setForm((current) => ({ ...current, markup: event.target.value }))}
+                      placeholder="1.5 or 100"
+                    />
+                  </div>
+                </div>
               </div>
-            </section>
+            </div>
+          </section>
 
           {form.productType === "variant" && (
-            <section className="rounded-xl border border-slate-200 bg-white p-5">
-                <div className="mb-4">
-                  <h3 className="text-base font-black">Variant options</h3>
-                  <p className="mt-1 text-sm font-medium text-slate-500">
-                    Choose a variant option first, then choose values from that option.
-                  </p>
-                </div>
+            <section className="grid gap-6 border-b border-slate-200 py-8 md:grid-cols-[280px_1fr]">
+              <div className="md:sticky md:top-6 md:self-start">
+                <h2 className="text-sm font-semibold text-slate-900">Variant Options</h2>
+                <p className="mt-1 text-xs text-slate-500">
+                  Choose a variant option first, then choose values from that option.
+                </p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
                 {variantOptions.length > 0 ? (
                   <div className="space-y-4">
                     {variantSelections.map((selection, index) => {
@@ -1233,12 +1283,14 @@ export default function NewProductPage() {
                             </button>
                           </div>
                           <div className="grid gap-3 md:grid-cols-[0.8fr_1.2fr]">
-                            <label className="block">
-                              <span className="mb-2 block text-sm font-black text-slate-700">
-                                Variant option
-                              </span>
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <div>
+                              <div className="mb-1.5 flex items-center gap-1 text-sm font-medium text-slate-700">
+                                <span>Attribute (e.g. Color)</span>
+                                <span className="inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full bg-slate-200 text-[10px] text-slate-500 font-bold" title="Product attribute group (e.g. Color, Size)">?</span>
+                              </div>
                               <select
-                                className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                                className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none focus:border-blue-400 focus:bg-white"
                                 onChange={(event) =>
                                   updateVariantSelection(selection.key, {
                                     optionId: event.target.value,
@@ -1248,7 +1300,7 @@ export default function NewProductPage() {
                                 }
                                 value={selection.optionId}
                               >
-                                <option value="">Select option</option>
+                                <option value="">Select Attribute</option>
                                 {variantOptions
                                   .filter(
                                     (item) =>
@@ -1261,56 +1313,59 @@ export default function NewProductPage() {
                                     </option>
                                   ))}
                               </select>
-                            </label>
-                            <div className="block">
-                              <span className="mb-2 block text-sm font-black text-slate-700">
-                                Option values
+                            </div>
+                            <div>
+                              <span className="mb-1.5 block text-sm font-medium text-slate-700">
+                                Value
                               </span>
-                              <div className="mb-2 flex min-h-12 flex-wrap items-center gap-2 rounded-lg border border-slate-300 px-3 py-2">
-                                {selection.valueIds.length > 0 ? (
-                                  selection.valueIds.map((valueId) => (
-                                    <button
-                                      className="inline-flex items-center gap-2 rounded-lg bg-blue-50 px-2.5 py-1.5 text-sm font-black text-blue-700"
-                                      key={valueId}
-                                      onClick={() =>
-                                        removeVariantValue(selection.key, valueId)
-                                      }
-                                      type="button"
-                                    >
-                                      {getAttributeValueLabel(
-                                        selection.optionId,
-                                        valueId,
-                                      )}
-                                      <AdminIcon className="h-4 w-4" name="x" />
-                                    </button>
-                                  ))
-                                ) : (
-                                  <span className="font-medium text-slate-400">
-                                    Selected values will appear here
-                                  </span>
-                                )}
-                              </div>
                               <select
-                                className="min-h-28 w-full rounded-lg border border-slate-300 px-4 py-3 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                                className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none focus:border-blue-400 focus:bg-white"
                                 disabled={!option}
-                                multiple
-                                onChange={(event) =>
-                                  updateVariantSelection(selection.key, {
-                                    valueIds: Array.from(
-                                      event.target.selectedOptions,
-                                      (selectedOption) => selectedOption.value,
-                                    ),
-                                  })
-                                }
-                                value={selection.valueIds}
+                                onChange={(event) => {
+                                  const valId = event.target.value;
+                                  if (!valId) return;
+                                  if (!selection.valueIds.includes(valId)) {
+                                    updateVariantSelection(selection.key, {
+                                      valueIds: [...selection.valueIds, valId],
+                                    });
+                                  }
+                                  event.target.value = "";
+                                }}
                               >
+                                <option value="">Select Values</option>
                                 {option?.values?.map((value) => (
                                   <option key={value.id} value={value.id}>
                                     {value.value}
                                   </option>
                                 ))}
                               </select>
+
+                              {selection.valueIds.length > 0 && (
+                                <div className="mt-2 flex flex-wrap gap-1.5">
+                                  {selection.valueIds.map((valueId) => (
+                                    <span
+                                      className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 border border-blue-100"
+                                      key={valueId}
+                                    >
+                                      {getAttributeValueLabel(
+                                        selection.optionId,
+                                        valueId,
+                                      )}
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          removeVariantValue(selection.key, valueId)
+                                        }
+                                        className="text-blue-500 hover:text-blue-700 flex items-center justify-center shrink-0"
+                                      >
+                                        <AdminIcon className="h-3 w-3" name="x" />
+                                      </button>
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
                             </div>
+                          </div>
                           </div>
                         </div>
                       );
@@ -1512,15 +1567,95 @@ export default function NewProductPage() {
                     No variant options found. Add options from Variant Options first.
                   </p>
                 )}
+              </div>
             </section>
           )}
-          </div>
           {error && (
             <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
               {error}
             </p>
           )}
       </form>
+
+      {isSupplierModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={() => setIsSupplierModalOpen(false)} />
+          <div className="relative w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-150">
+            <h3 className="text-lg font-semibold text-slate-800">Add Supplier</h3>
+            <p className="mt-1 text-xs text-slate-500">Provide company details below.</p>
+
+            {newSupplierError && (
+              <div className="mt-3 rounded-lg bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-200">
+                {newSupplierError}
+              </div>
+            )}
+
+            <form onSubmit={handleAddSupplier} className="mt-4 space-y-3.5">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Company Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={newSupplierName}
+                  onChange={(e) => setNewSupplierName(e.target.value)}
+                  placeholder="e.g. New Era Cap Company"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none focus:border-blue-400 focus:bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Business Phone No.</label>
+                <input
+                  type="text"
+                  value={newSupplierPhone}
+                  onChange={(e) => setNewSupplierPhone(e.target.value)}
+                  placeholder="e.g. 01722301927"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none focus:border-blue-400 focus:bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+                <input
+                  type="email"
+                  value={newSupplierEmail}
+                  onChange={(e) => setNewSupplierEmail(e.target.value)}
+                  placeholder="e.g. almumeetu@gmail.com"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none focus:border-blue-400 focus:bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Address</label>
+                <textarea
+                  value={newSupplierAddress}
+                  onChange={(e) => setNewSupplierAddress(e.target.value)}
+                  placeholder="e.g. Tropical Akhand Tower, 23 Gareeb-e-Newaz Ave, Dhaka 1230"
+                  rows={2}
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-sm outline-none focus:border-blue-400 focus:bg-white resize-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setIsSupplierModalOpen(false)}
+                  className="h-10 px-4 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingSupplier}
+                  className="h-10 px-4 rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 transition-colors disabled:bg-blue-400"
+                >
+                  {isSavingSupplier ? "Adding..." : "Add Supplier"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 }

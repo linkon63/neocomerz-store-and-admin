@@ -110,11 +110,11 @@ export default function AccountPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 min-h-[calc(100vh-280px)]">
       <div className="mb-8 flex flex-col gap-1 border-b pb-5" style={{ borderColor: "var(--store-border)" }}>
-        <h1 className="text-[26px] font-black" style={{ color: "var(--store-text)" }}>
-          আমার অ্যাকাউন্ট
+        <h1 className="text-[26px] font-black tracking-tight" style={{ color: "var(--store-text)" }}>
+          My Account
         </h1>
         <p className="text-[13px]" style={{ color: "var(--store-text-muted)" }}>
-          প্রোফাইল এবং ঠিকানা ব্যবস্থাপনা
+          Manage your profile and saved addresses
         </p>
       </div>
 
@@ -142,10 +142,10 @@ export default function AccountPage() {
 
             <nav className="space-y-1">
               {[
-                { href: "/store/account", label: "অ্যাকাউন্ট", icon: "👤", active: true },
-                { href: "/store/orders", label: "অর্ডারসমূহ", icon: "📦" },
-                { href: "/store/wishlist", label: "উইশলিস্ট", icon: "♡" },
-                { href: "/store/cart", label: "কার্ট", icon: "🛒" },
+                { href: "/store/account", label: "Account", icon: "👤", active: true },
+                { href: "/store/orders", label: "My Orders", icon: "📦" },
+                { href: "/store/wishlist", label: "Wishlist", icon: "♡" },
+                { href: "/store/cart", label: "Cart", icon: "🛒" },
               ].map((item) => (
                 <Link
                   key={item.href}
@@ -156,7 +156,7 @@ export default function AccountPage() {
                       ? {
                           backgroundColor: "var(--store-primary-light)",
                           color: "var(--store-primary)",
-                          border: "1px solid var(--store-primary)",
+                          border: "1px solid var(--store-primary-mid)",
                         }
                       : { color: "var(--store-text-muted)" }
                   }
@@ -171,7 +171,7 @@ export default function AccountPage() {
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-semibold text-red-600 hover:bg-red-50 transition"
               >
                 <span className="text-sm">🚪</span>
-                <span>লগআউট</span>
+                <span>Sign Out</span>
               </button>
             </nav>
           </div>
@@ -185,14 +185,14 @@ export default function AccountPage() {
             <div className="flex items-center gap-3 mb-6 pb-4 border-b" style={{ borderColor: "var(--store-border)" }}>
               <span className="text-lg">👤</span>
               <h2 className="text-[14px] font-bold" style={{ color: "var(--store-text)" }}>
-                ব্যক্তিগত তথ্য
+                Personal Information
               </h2>
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 text-xs">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: "var(--store-text-muted)" }}>
-                  নাম
+                  Full Name
                 </p>
                 <p className="font-bold text-[14px] px-4 py-2.5 rounded-xl border" style={{ borderColor: "var(--store-border)" }}>
                   {user?.name ?? "—"}
@@ -200,7 +200,7 @@ export default function AccountPage() {
               </div>
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: "var(--store-text-muted)" }}>
-                  ইমেইল
+                  Email Address
                 </p>
                 <p className="font-bold text-[14px] px-4 py-2.5 rounded-xl border" style={{ borderColor: "var(--store-border)" }}>
                   {user?.email ?? "—"}
@@ -209,7 +209,7 @@ export default function AccountPage() {
               {user?.phone && (
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: "var(--store-text-muted)" }}>
-                    ফোন
+                    Phone
                   </p>
                   <p className="font-bold text-[14px] px-4 py-2.5 rounded-xl border" style={{ borderColor: "var(--store-border)" }}>
                     {user.phone}
@@ -225,7 +225,7 @@ export default function AccountPage() {
               <div className="flex items-center gap-3">
                 <span className="text-lg">📍</span>
                 <h2 className="text-[14px] font-bold" style={{ color: "var(--store-text)" }}>
-                  ঠিকানা
+                  Saved Addresses
                 </h2>
               </div>
               <button
@@ -233,7 +233,7 @@ export default function AccountPage() {
                 className="text-[12px] font-bold underline decoration-2 underline-offset-2 transition"
                 style={{ color: "var(--store-primary)" }}
               >
-                {showAddressForm && !editingAddress ? "বাতিল" : "+ নতুন ঠিকানা"}
+                {showAddressForm && !editingAddress ? "Cancel" : "+ Add Address"}
               </button>
             </div>
 
@@ -245,7 +245,7 @@ export default function AccountPage() {
                 style={{ borderColor: "var(--store-border)", backgroundColor: "var(--store-bg)" }}
               >
                 <p className="text-xs font-extrabold uppercase tracking-widest border-b pb-2" style={{ borderColor: "var(--store-border)", color: "var(--store-text)" }}>
-                  {editingAddress ? "ঠিকানা আপডেট" : "নতুন ঠিকানা যোগ করুন"}
+                  {editingAddress ? "Update Address" : "Add New Address"}
                 </p>
                 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -274,15 +274,15 @@ export default function AccountPage() {
                     className="rounded-xl px-6 py-3 text-xs font-bold uppercase tracking-widest text-white transition-colors disabled:opacity-50"
                     style={{ backgroundColor: "var(--store-primary)" }}
                   >
-                    {savingAddress ? "সেভ হচ্ছে..." : editingAddress ? "আপডেট" : "সেভ"}
+                    {savingAddress ? "Saving..." : editingAddress ? "Update" : "Save"}
                   </button>
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="rounded-xl border bg-white px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors"
+                    className="rounded-xl border bg-white px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors hover:bg-slate-50"
                     style={{ borderColor: "var(--store-border)", color: "var(--store-text-muted)" }}
                   >
-                    বাতিল
+                    Cancel
                   </button>
                 </div>
               </form>
@@ -292,14 +292,14 @@ export default function AccountPage() {
             {loadingAddresses ? (
               <div className="space-y-4 animate-pulse">
                 {[1, 2].map((i) => (
-                  <div key={i} className="h-24 bg-gray-100 rounded-2xl border" style={{ borderColor: "var(--store-border)" }} />
+                  <div key={i} className="h-24 bg-slate-100 rounded-2xl border" style={{ borderColor: "var(--store-border)" }} />
                 ))}
               </div>
             ) : addresses.length === 0 ? (
-              <div className="text-center py-8 rounded-2xl border border-dashed" style={{ borderColor: "var(--store-border)" }}>
-                <p className="text-xs font-semibold" style={{ color: "var(--store-text-muted)" }}>
-                  এখনো কোনো ঠিকানা যোগ করা হয়নি। উপরে থেকে নতুন ঠিকানা যোগ করুন।
-                </p>
+              <div className="text-center py-10 rounded-2xl border border-dashed" style={{ borderColor: "var(--store-border)" }}>
+                <p className="text-sm mb-1.5" style={{ color: "var(--store-text-muted)" }}>📍</p>
+                <p className="text-xs font-bold" style={{ color: "var(--store-text)" }}>No addresses saved yet</p>
+                <p className="text-xs mt-1" style={{ color: "var(--store-text-muted)" }}>Add an address to speed up checkout.</p>
               </div>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2">
@@ -312,7 +312,7 @@ export default function AccountPage() {
                       backgroundColor: addr.isDefault ? "var(--store-primary-light)" : "#fff",
                     }}
                   >
-                    <div className="text-xs text-foreground">
+                    <div className="text-xs">
                       <div className="flex items-center justify-between mb-2 pb-1.5 border-b" style={{ borderColor: "var(--store-border)" }}>
                         <p className="font-bold tracking-wide" style={{ color: "var(--store-text)" }}>{addr.fullName}</p>
                         {addr.isDefault && (
@@ -321,22 +321,21 @@ export default function AccountPage() {
                           </span>
                         )}
                       </div>
-                      <div className="space-y-1 font-semibold leading-relaxed" style={{ color: "var(--store-text-muted)" }}>
+                      <div className="space-y-1 font-medium leading-relaxed" style={{ color: "var(--store-text-muted)" }}>
                         <p>{addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ""}</p>
                         <p>{addr.city}, {addr.state} {addr.postalCode}</p>
                         <p className="uppercase tracking-widest text-[10px]">{addr.country}</p>
                         <p className="font-bold mt-1.5" style={{ color: "var(--store-primary)" }}>{addr.phone}</p>
                       </div>
                     </div>
-                    
+
                     <div className="flex gap-4 border-t pt-4 mt-4 text-[10px] font-bold uppercase tracking-wider justify-end" style={{ borderColor: "var(--store-border)", color: "var(--store-text-muted)" }}>
                       {!addr.isDefault && (
                         <button
                           onClick={() => handleSetDefault(addr.id)}
-                          className="transition cursor-pointer"
-                          style={{ color: "var(--store-text-muted)" }}
+                          className="hover:text-slate-800 transition cursor-pointer"
                         >
-                          ডিফল্ট করুন
+                          Set Default
                         </button>
                       )}
                       <button
@@ -344,14 +343,14 @@ export default function AccountPage() {
                         className="transition cursor-pointer"
                         style={{ color: "var(--store-primary)" }}
                       >
-                        এডিট
+                        Edit
                       </button>
                       <button
                         onClick={() => handleDelete(addr.id)}
                         disabled={deletingAddress === addr.id}
-                        className="transition text-red-500 cursor-pointer disabled:opacity-50"
+                        className="transition text-red-500 cursor-pointer disabled:opacity-50 hover:text-red-700"
                       >
-                        ডিলিট
+                        Delete
                       </button>
                     </div>
                   </div>

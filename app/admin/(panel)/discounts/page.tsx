@@ -206,7 +206,7 @@ export default function DiscountsPage() {
           <table className="w-full min-w-[900px] text-left">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                {["Name", "Type & Value", "Linked Products", "Schedule", "Status", "Actions"].map((heading) => (
+                {["Discount Name", "Discount Type", "Discount Value", "Starts At", "Ends At", "Status", "Action"].map((heading) => (
                   <th className="px-5 py-4 text-sm font-semibold text-slate-700" key={heading}>
                     {heading}
                   </th>
@@ -216,7 +216,7 @@ export default function DiscountsPage() {
             <tbody className="divide-y divide-slate-100">
               {discounts.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-5 py-12 text-center text-slate-400 font-medium">
+                  <td colSpan={7} className="px-5 py-12 text-center text-slate-400 font-medium">
                     No discounts created yet.
                   </td>
                 </tr>
@@ -224,17 +224,31 @@ export default function DiscountsPage() {
                 discounts.map((row) => (
                   <tr className="hover:bg-slate-50/50 transition-colors" key={row.id}>
                     <td className="px-5 py-4 font-semibold text-slate-800">{row.name}</td>
+                    <td className="px-5 py-4 font-medium text-slate-600 capitalize">
+                      {row.type === "percentage" ? "Percentage" : "Fixed"}
+                    </td>
                     <td className="px-5 py-4 font-medium text-slate-600">
-                      {row.type === "percentage" ? `${row.value}% OFF` : `৳${row.value} OFF`}
+                      {row.type === "percentage" ? `${row.value}%` : `৳${row.value}`}
                     </td>
-                    <td className="px-5 py-4 font-medium text-slate-500 max-w-xs truncate">
-                      {row.products && row.products.length > 0
-                        ? row.products.map((p) => p.name).join(", ")
-                        : "All Products"}
+                    <td className="px-5 py-4 font-medium text-slate-500 text-sm">
+                      {row.startDate ? new Date(row.startDate).toLocaleString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit",
+                        hour12: true
+                      }) : "Always"}
                     </td>
-                    <td className="px-5 py-4 font-medium text-slate-500 text-xs">
-                      {row.startDate ? new Date(row.startDate).toLocaleDateString() : "Always"} -{" "}
-                      {row.endDate ? new Date(row.endDate).toLocaleDateString() : "Always"}
+                    <td className="px-5 py-4 font-medium text-slate-500 text-sm">
+                      {row.endDate ? new Date(row.endDate).toLocaleString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit",
+                        hour12: true
+                      }) : "Always"}
                     </td>
                     <td className="px-5 py-4">
                       <button
@@ -254,15 +268,17 @@ export default function DiscountsPage() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => openEdit(row)}
+                          title="View"
+                          className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100"
+                        >
+                          <AdminIcon className="h-4 w-4" name="eye" />
+                        </button>
+                        <button
+                          onClick={() => openEdit(row)}
+                          title="Edit"
                           className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100"
                         >
                           <AdminIcon className="h-4 w-4" name="edit" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(row.id)}
-                          className="grid h-8 w-8 place-items-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50"
-                        >
-                          <AdminIcon className="h-4 w-4" name="x" />
                         </button>
                       </div>
                     </td>

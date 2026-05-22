@@ -16,6 +16,7 @@ export type AdminIconName =
   | "discount"
   | "download"
   | "edit"
+  | "eye"
   | "filter"
   | "image"
   | "link"
@@ -108,6 +109,12 @@ const iconPaths: Record<AdminIconName, ReactNode> = {
     <>
       <path d="M12 20h9" />
       <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+    </>
+  ),
+  eye: (
+    <>
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
     </>
   ),
   filter: (

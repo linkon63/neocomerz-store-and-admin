@@ -72,9 +72,9 @@ export function SearchAutocomplete() {
           }}
           onFocus={() => setIsOpen(true)}
           placeholder="Search products..."
-          className="w-48 md:w-64 rounded-full border border-[#ded7ce] bg-[#f7f4ef] px-4 py-2 pl-10 text-sm focus:border-[#171412] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d7f36b] transition-all"
+          className="w-48 md:w-64 rounded-full border border-[var(--store-border)] bg-[var(--store-bg)] px-4 py-2 pl-10 text-sm focus:border-[var(--store-primary)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--store-primary-light)] text-[var(--store-text)] transition-all"
         />
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#756b60]">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--store-text-muted)]">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <circle cx="11" cy="11" r="8" />
             <path d="m21 21-4.35-4.35" />
@@ -85,17 +85,17 @@ export function SearchAutocomplete() {
       {isOpen && query.trim().length >= 2 && (
         <div className="absolute right-0 top-full mt-2 w-[320px] md:w-[400px] rounded-2xl bg-white shadow-lg ring-1 ring-black/5 overflow-hidden z-50">
           {loading ? (
-            <div className="p-4 text-center text-sm text-[#756b60]">Searching...</div>
+            <div className="p-4 text-center text-sm text-[var(--store-text-muted)]">Searching...</div>
           ) : (
             <>
               {suggestions.length > 0 && (
-                <div className="border-b border-[#ede8e1] p-2">
-                  <p className="px-3 py-1 text-xs font-black uppercase tracking-wider text-[#9a9088]">Suggestions</p>
+                <div className="border-b border-[var(--store-border)] p-2">
+                  <p className="px-3 py-1 text-xs font-black uppercase tracking-wider text-[var(--store-text-light)]">Suggestions</p>
                   {suggestions.map((s, i) => (
                     <Link
                       key={i}
                       href={`/store/products?search=${encodeURIComponent(s)}`}
-                      className="block rounded-lg px-3 py-2 text-sm font-semibold hover:bg-[#f7f4ef] transition"
+                      className="block rounded-lg px-3 py-2 text-sm font-semibold hover:bg-[var(--store-primary-light)] hover:text-[var(--store-primary)] text-[var(--store-text)] transition"
                       onClick={() => setIsOpen(false)}
                     >
                       {s}
@@ -106,22 +106,22 @@ export function SearchAutocomplete() {
 
               {products.length > 0 ? (
                 <div className="p-2">
-                  <p className="px-3 py-1 text-xs font-black uppercase tracking-wider text-[#9a9088]">Products</p>
+                  <p className="px-3 py-1 text-xs font-black uppercase tracking-wider text-[var(--store-text-light)]">Products</p>
                   {products.map((p) => {
                     const variant = getDefaultVariant(p);
                     return (
                       <Link
                         key={p.id}
                         href={`/store/products/${p.slug}`}
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-[#f7f4ef] transition"
+                        className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-[var(--store-primary-light)] text-[var(--store-text)] transition"
                         onClick={() => setIsOpen(false)}
                       >
-                        <div className="h-10 w-10 shrink-0 overflow-hidden rounded bg-[#ede8e1]">
+                        <div className="h-10 w-10 shrink-0 overflow-hidden rounded bg-slate-200">
                           <img src={getProductImage(p)} alt={p.name} className="h-full w-full object-cover" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-bold text-[#171412]">{p.name}</p>
-                          <p className="text-xs font-black text-[#756b60]">
+                          <p className="truncate text-sm font-bold text-[var(--store-text)]">{p.name}</p>
+                          <p className="text-xs font-semibold text-[var(--store-primary)]">
                             {variant ? formatPrice(variant.price) : "—"}
                           </p>
                         </div>
@@ -130,14 +130,14 @@ export function SearchAutocomplete() {
                   })}
                   <Link
                     href={`/store/products?search=${encodeURIComponent(query)}`}
-                    className="mt-2 block rounded-lg bg-[#f0ece6] px-3 py-2 text-center text-xs font-black uppercase tracking-wider text-[#171412] hover:bg-[#e4ddd4] transition"
+                    className="mt-2 block rounded-lg bg-[var(--store-surface-2)] px-3 py-2 text-center text-xs font-black uppercase tracking-wider text-[var(--store-text)] hover:bg-[var(--store-surface-3)] transition"
                     onClick={() => setIsOpen(false)}
                   >
                     View all results
                   </Link>
                 </div>
               ) : (
-                <div className="p-4 text-center text-sm text-[#756b60]">
+                <div className="p-4 text-center text-sm text-[var(--store-text-muted)]">
                   No products found for "{query}"
                 </div>
               )}

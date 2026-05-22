@@ -13,8 +13,8 @@ export default function StoreRegisterPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (form.password !== form.confirm) { setError("পাসওয়ার্ড মিলছে না"); return; }
-    if (form.password.length < 6) { setError("পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে"); return; }
+    if (form.password !== form.confirm) { setError("Passwords do not match"); return; }
+    if (form.password.length < 6) { setError("Password must be at least 6 characters long"); return; }
     setLoading(true);
     setError(null);
     try {
@@ -22,7 +22,7 @@ export default function StoreRegisterPage() {
       setStoreSession(res.accessToken, res.user);
       router.push("/store");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "রেজিস্ট্রেশন ব্যর্থ হয়েছে");
+      setError(err instanceof Error ? err.message : "Registration failed. Please verify your details.");
     } finally {
       setLoading(false);
     }
@@ -39,7 +39,7 @@ export default function StoreRegisterPage() {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl overflow-hidden shadow-sm" style={{ border: "1px solid var(--store-border)" }}>
           {/* Top accent */}
-          <div className="h-1.5 w-full" style={{ background: "linear-gradient(90deg, var(--store-primary), #F59E0B)" }} />
+          <div className="h-1.5 w-full" style={{ background: "linear-gradient(90deg, var(--store-primary), var(--store-accent))" }} />
 
           <div className="p-8">
             {/* Logo */}
@@ -47,20 +47,20 @@ export default function StoreRegisterPage() {
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3" style={{ backgroundColor: "var(--store-primary)" }}>
                 <span className="text-white font-black text-xl">N</span>
               </div>
-              <h1 className="text-[24px] font-black" style={{ color: "var(--store-text)" }}>অ্যাকাউন্ট খুলুন</h1>
-              <p className="text-[14px] mt-1" style={{ color: "var(--store-text-muted)" }}>NeoComerz-এ যোগ দিন এবং কেনাকাটা শুরু করুন</p>
+              <h1 className="text-[24px] font-black tracking-tight" style={{ color: "var(--store-text)" }}>Create Account</h1>
+              <p className="text-[13px] mt-1 text-center" style={{ color: "var(--store-text-muted)" }}>Join NeoComerz and discover premium curated shopping</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Name */}
               <div>
-                <label className="block text-[13px] font-semibold mb-1.5" style={{ color: "var(--store-text)" }}>পূর্ণ নাম</label>
+                <label className="block text-[13px] font-semibold mb-1.5" style={{ color: "var(--store-text)" }}>Full Name</label>
                 <input
                   type="text"
                   required
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="আপনার নাম লিখুন"
+                  placeholder="Enter your full name"
                   className="w-full rounded-xl px-4 py-3 text-[14px] outline-none transition-all"
                   style={inputStyle}
                   onFocus={(e) => (e.target.style.borderColor = "var(--store-primary)")}
@@ -70,7 +70,7 @@ export default function StoreRegisterPage() {
 
               {/* Email */}
               <div>
-                <label className="block text-[13px] font-semibold mb-1.5" style={{ color: "var(--store-text)" }}>ইমেইল ঠিকানা</label>
+                <label className="block text-[13px] font-semibold mb-1.5" style={{ color: "var(--store-text)" }}>Email Address</label>
                 <input
                   type="email"
                   required
@@ -86,13 +86,13 @@ export default function StoreRegisterPage() {
 
               {/* Password */}
               <div>
-                <label className="block text-[13px] font-semibold mb-1.5" style={{ color: "var(--store-text)" }}>পাসওয়ার্ড</label>
+                <label className="block text-[13px] font-semibold mb-1.5" style={{ color: "var(--store-text)" }}>Password</label>
                 <input
                   type="password"
                   required
                   value={form.password}
                   onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-                  placeholder="কমপক্ষে ৬ অক্ষর"
+                  placeholder="At least 6 characters"
                   className="w-full rounded-xl px-4 py-3 text-[14px] outline-none transition-all"
                   style={inputStyle}
                   onFocus={(e) => (e.target.style.borderColor = "var(--store-primary)")}
@@ -102,13 +102,13 @@ export default function StoreRegisterPage() {
 
               {/* Confirm Password */}
               <div>
-                <label className="block text-[13px] font-semibold mb-1.5" style={{ color: "var(--store-text)" }}>পাসওয়ার্ড নিশ্চিত করুন</label>
+                <label className="block text-[13px] font-semibold mb-1.5" style={{ color: "var(--store-text)" }}>Confirm Password</label>
                 <input
                   type="password"
                   required
                   value={form.confirm}
                   onChange={(e) => setForm((f) => ({ ...f, confirm: e.target.value }))}
-                  placeholder="পাসওয়ার্ড আবার লিখুন"
+                  placeholder="Re-enter password"
                   className="w-full rounded-xl px-4 py-3 text-[14px] outline-none transition-all"
                   style={inputStyle}
                   onFocus={(e) => (e.target.style.borderColor = "var(--store-primary)")}
@@ -139,22 +139,22 @@ export default function StoreRegisterPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    অ্যাকাউন্ট তৈরি হচ্ছে...
+                    Creating Account...
                   </>
-                ) : "অ্যাকাউন্ট তৈরি করুন"}
+                ) : "Create Account"}
               </button>
             </form>
 
             <div className="flex items-center gap-3 my-5">
               <div className="flex-1 h-px" style={{ backgroundColor: "var(--store-border)" }} />
-              <span className="text-[12px] font-medium" style={{ color: "var(--store-text-muted)" }}>অথবা</span>
+              <span className="text-[12px] font-medium" style={{ color: "var(--store-text-muted)" }}>or</span>
               <div className="flex-1 h-px" style={{ backgroundColor: "var(--store-border)" }} />
             </div>
 
             <p className="text-center text-[14px]" style={{ color: "var(--store-text-muted)" }}>
-              ইতিমধ্যে অ্যাকাউন্ট আছে?{" "}
+              Already have an account?{" "}
               <Link href="/store/login" className="font-bold hover:underline" style={{ color: "var(--store-primary)" }}>
-                লগইন করুন
+                Sign In
               </Link>
             </p>
           </div>

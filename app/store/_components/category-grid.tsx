@@ -9,8 +9,8 @@ interface CategoryGridProps {
 }
 
 const CATEGORY_GRADIENTS: string[] = [
-  "from-emerald-500 to-teal-600",
-  "from-orange-500 to-rose-600",
+  "from-indigo-500 to-indigo-600",
+  "from-amber-500 to-rose-600",
   "from-blue-500 to-indigo-600",
   "from-violet-500 to-purple-600",
   "from-pink-500 to-fuchsia-600",
@@ -44,14 +44,14 @@ export function CategoryGrid({ categories, loading = false }: CategoryGridProps)
         <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-4" style={{ backgroundColor: "var(--store-primary-light)" }}>
           <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--store-primary)" }} />
           <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "var(--store-primary)" }}>
-            ব্রাউজ ক্যাটাগরি
+            Browse Categories
           </span>
         </div>
         <h2 className="text-[28px] sm:text-[34px] font-black mb-2" style={{ color: "var(--store-text)" }}>
-          ক্যাটাগরি অনুযায়ী কিনুন
+          Shop by Category
         </h2>
         <p className="text-[14px]" style={{ color: "var(--store-text-muted)" }}>
-          আপনার পছন্দের ক্যাটাগরি বেছে নিন
+          Select your favorite category to discover amazing products
         </p>
       </div>
 
@@ -107,7 +107,7 @@ export function CategoryGrid({ categories, loading = false }: CategoryGridProps)
                   </h3>
                   <div className="flex items-center gap-1.5">
                     <span className="text-[12px] font-medium text-white/80 transition-all duration-300 group-hover:text-white">
-                      এখনই দেখুন
+                      Explore Now
                     </span>
                     <svg className="w-3.5 h-3.5 text-white/60 transition-all duration-300 group-hover:translate-x-1 group-hover:text-white" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7" />
@@ -130,7 +130,7 @@ export function CategoryGrid({ categories, loading = false }: CategoryGridProps)
           className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-[14px] font-bold transition-all duration-300 hover:gap-3 hover:shadow-lg"
           style={{ backgroundColor: "var(--store-primary)", color: "#FFFFFF" }}
         >
-          সব ক্যাটাগরি ব্রাউজ করুন
+          Browse All Categories
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7" />
           </svg>

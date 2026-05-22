@@ -65,11 +65,11 @@ function SearchContent() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-8 flex flex-col gap-1 border-b pb-5" style={{ borderColor: "var(--store-border)" }}>
-        <h1 className="text-[26px] font-black" style={{ color: "var(--store-text)" }}>
-          পণ্য খুঁজুন
+        <h1 className="text-[26px] font-black tracking-tight" style={{ color: "var(--store-text)" }}>
+          Search Products
         </h1>
         <p className="text-[13px]" style={{ color: "var(--store-text-muted)" }}>
-          পণ্য, ক্যাটাগরি অথবা ব্র্যান্ড দিয়ে দ্রুত খুঁজে নিন
+          Find products, categories, or brands quickly
         </p>
       </div>
 
@@ -85,7 +85,7 @@ function SearchContent() {
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              placeholder="পণ্য, ব্র্যান্ড বা ক্যাটাগরি লিখুন..."
+              placeholder="Type product, brand, or category..."
               className="w-full rounded-xl border px-4 py-3 text-[14px] font-medium outline-none transition-all pr-12"
               style={{
                 borderColor: "var(--store-border)",
@@ -115,7 +115,7 @@ function SearchContent() {
                   <button
                     key={s}
                     onMouseDown={() => handleSearch(s)}
-                    className="block w-full text-left px-4 py-2 text-[13px] font-semibold transition-colors"
+                    className="block w-full text-left px-4 py-2 text-[13px] font-semibold transition-colors hover:bg-slate-50"
                     style={{ color: "var(--store-text-muted)" }}
                   >
                     <span>{s}</span>
@@ -126,10 +126,10 @@ function SearchContent() {
           </div>
           <button
             onClick={() => handleSearch()}
-            className="rounded-xl px-6 py-3 text-[13px] font-bold text-white transition-colors"
+            className="rounded-xl px-6 py-3 text-[13px] font-bold text-white transition-all hover:opacity-90"
             style={{ backgroundColor: "var(--store-primary)" }}
           >
-            খুঁজুন
+            Search
           </button>
         </div>
       </div>
@@ -139,8 +139,8 @@ function SearchContent() {
         <div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-gold mb-6">
             {loading
-              ? "খোঁজা হচ্ছে..."
-              : `"${q}" এর জন্য ${total} টি ফলাফল পাওয়া গেছে`}
+              ? "Searching..."
+              : `${total} result${total !== 1 ? "s" : ""} found for "${q}"`}
           </p>
 
           {loading ? (
@@ -158,11 +158,11 @@ function SearchContent() {
           ) : products.length === 0 ? (
             <div className="rounded-2xl bg-white border p-12 text-center" style={{ borderColor: "var(--store-border)" }}>
               <p className="text-2xl mb-3">🔍</p>
-              <p className="text-[16px] font-semibold" style={{ color: "var(--store-text)" }}>
-                কোনো পণ্য পাওয়া যায়নি
+              <p className="text-[16px] font-bold" style={{ color: "var(--store-text)" }}>
+                No products found
               </p>
               <p className="mt-2 text-[13px]" style={{ color: "var(--store-text-muted)" }}>
-                অন্য কোনো কিওয়ার্ড দিয়ে আবার চেষ্টা করুন।
+                Please try again with a different keyword.
               </p>
             </div>
           ) : (
@@ -178,11 +178,11 @@ function SearchContent() {
       {!q && (
         <div className="rounded-2xl bg-white border p-12 text-center" style={{ borderColor: "var(--store-border)" }}>
           <p className="text-2xl mb-3">✨</p>
-          <p className="text-[16px] font-semibold" style={{ color: "var(--store-text)" }}>
-            আপনার পছন্দের পণ্য খুঁজুন
+          <p className="text-[16px] font-bold" style={{ color: "var(--store-text)" }}>
+            Find Your Favorite Products
           </p>
           <p className="mt-2 text-[13px]" style={{ color: "var(--store-text-muted)" }}>
-            উপরের সার্চ বক্সে লিখে খোঁজা শুরু করুন।
+            Start searching by typing in the search box above.
           </p>
         </div>
       )}

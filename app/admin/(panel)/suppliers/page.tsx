@@ -61,6 +61,8 @@ export default function SuppliersPage() {
   const [search, setSearch] = useState("");
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [viewSupplier, setViewSupplier] = useState<Supplier | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<SupplierForm>(emptyForm);
@@ -89,7 +91,8 @@ export default function SuppliersPage() {
       !q ||
       s.name.toLowerCase().includes(q) ||
       s.email?.toLowerCase().includes(q) ||
-      s.phone?.toLowerCase().includes(q)
+      s.phone?.toLowerCase().includes(q) ||
+      s.address?.toLowerCase().includes(q)
     );
   });
 
@@ -109,6 +112,11 @@ export default function SuppliersPage() {
       isActive: s.isActive,
     });
     setIsOpen(true);
+  }
+
+  function openView(s: Supplier) {
+    setViewSupplier(s);
+    setIsViewOpen(true);
   }
 
   async function handleToggle(s: Supplier) {
@@ -172,20 +180,21 @@ export default function SuppliersPage() {
     <>
       <PageHeader
         title="Suppliers"
-        description="Manage vendors and procurement sources for your products."
+        description="A list of all suppliers"
         action={
           <div className="flex gap-3">
             <button
               onClick={loadSuppliers}
               type="button"
-              className="grid h-14 w-14 place-items-center rounded-lg border border-slate-300 bg-white hover:bg-slate-50"
+              className="grid h-12 w-12 place-items-center rounded-lg border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm"
+              title="Refresh suppliers"
             >
-              <AdminIcon className="h-5 w-5" name="refresh" />
+              <AdminIcon className="h-5 w-5 text-slate-600" name="refresh" />
             </button>
             <button
               onClick={openAdd}
               type="button"
-              className="inline-flex h-14 items-center gap-2 rounded-lg bg-blue-600 px-6 font-medium text-white shadow-lg shadow-blue-600/15 hover:bg-blue-700"
+              className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-6 text-[14px] font-semibold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20"
             >
               <AdminIcon className="h-5 w-5" name="plus" />
               Add Supplier
@@ -200,19 +209,19 @@ export default function SuppliersPage() {
         </div>
       )}
 
-      <section className="overflow-hidden rounded-xl bg-white shadow-sm">
-        <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+      <section className="overflow-hidden rounded-xl bg-white shadow-sm border border-slate-200">
+        <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100">
           <div>
-            <h2 className="text-xl font-semibold text-slate-900">Suppliers list</h2>
-            <p className="text-sm font-medium text-slate-500">
+            <h2 className="text-lg font-bold text-slate-900">Supplier list</h2>
+            <p className="text-xs font-semibold text-slate-500 mt-0.5">
               Displaying {filtered.length} supplier{filtered.length !== 1 ? "s" : ""}
             </p>
           </div>
-          <label className="flex h-12 w-full max-w-md items-center gap-3 rounded-lg border border-slate-300 px-4">
+          <label className="flex h-12 w-full max-w-md items-center gap-3 rounded-lg border-2 border-slate-200 bg-white px-4 transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 shadow-sm">
             <AdminIcon className="h-5 w-5 text-slate-400" name="search" />
             <input
-              className="w-full bg-transparent font-medium outline-none"
-              placeholder="Search suppliers by name, email, phone"
+              className="w-full bg-transparent text-[15px] font-medium outline-none placeholder:text-slate-400 text-slate-700"
+              placeholder="Search suppliers by name, phone etc"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -221,11 +230,11 @@ export default function SuppliersPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[860px] text-left">
-            <thead className="bg-slate-50">
+            <thead className="bg-slate-50/75 border-b border-slate-200">
               <tr>
-                {["Company Name", "Phone", "Email", "Address", "Created", "Status", "Actions"].map(
+                {["Company Name", "Business Phone No.", "Address", "Status", "Actions"].map(
                   (h) => (
-                    <th key={h} className="px-5 py-4 text-sm font-semibold text-slate-700">
+                    <th key={h} className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">
                       {h}
                     </th>
                   )
@@ -235,48 +244,44 @@ export default function SuppliersPage() {
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-8 text-sm text-slate-500">
+                  <td colSpan={5} className="px-6 py-8 text-sm text-slate-500">
                     Loading suppliers...
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-10 text-center text-sm font-medium text-slate-400">
+                  <td colSpan={5} className="px-6 py-10 text-center text-sm font-medium text-slate-400">
                     No suppliers found.
                   </td>
                 </tr>
               ) : (
                 filtered.map((s) => (
-                  <tr key={s.id} className="odd:bg-white even:bg-slate-50/70 hover:bg-slate-50/60">
-                    <td className="px-5 py-4 font-semibold text-slate-800">{s.name}</td>
-                    <td className="px-5 py-4 text-sm font-medium text-slate-600">{s.phone || "—"}</td>
-                    <td className="px-5 py-4 text-sm font-medium text-slate-600">{s.email || "—"}</td>
-                    <td className="max-w-xs px-5 py-4 text-sm font-medium text-slate-600 truncate">
+                  <tr key={s.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4.5 font-semibold text-slate-800 text-sm">{s.name}</td>
+                    <td className="px-6 py-4.5 text-sm font-medium text-slate-600">{s.phone || "—"}</td>
+                    <td className="max-w-xs px-6 py-4.5 text-sm font-medium text-slate-600 truncate">
                       {s.address || "—"}
                     </td>
-                    <td className="px-5 py-4 text-sm font-medium text-slate-500">
-                      {s.createdAt ? formatDate(s.createdAt) : "—"}
-                    </td>
-                    <td className="px-5 py-4">
+                    <td className="px-6 py-4.5">
                       <ToggleSwitch checked={s.isActive} onChange={() => handleToggle(s)} />
                     </td>
-                    <td className="px-5 py-4">
+                    <td className="px-6 py-4.5">
                       <div className="flex gap-2">
+                        <button
+                          onClick={() => openView(s)}
+                          type="button"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
+                          title="View Details"
+                        >
+                          <AdminIcon className="h-4.5 w-4.5" name="eye" />
+                        </button>
                         <button
                           onClick={() => openEdit(s)}
                           type="button"
-                          className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
+                          title="Edit Supplier"
                         >
                           <AdminIcon className="h-4 w-4" name="edit" />
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(s.id)}
-                          type="button"
-                          className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-100"
-                        >
-                          <AdminIcon className="h-4 w-4" name="x" />
-                          Delete
                         </button>
                       </div>
                     </td>
@@ -297,7 +302,7 @@ export default function SuppliersPage() {
         >
           <form
             onSubmit={handleSubmit}
-            className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-2xl"
+            className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-150"
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
@@ -312,7 +317,7 @@ export default function SuppliersPage() {
                 type="button"
                 onClick={() => setIsOpen(false)}
                 disabled={isSaving}
-                className="grid h-9 w-9 place-items-center rounded-lg border border-slate-300 text-slate-500 hover:bg-slate-50"
+                className="grid h-9 w-9 place-items-center rounded-lg border border-slate-300 text-slate-500 hover:bg-slate-50 transition-colors"
               >
                 <AdminIcon className="h-4 w-4" name="x" />
               </button>
@@ -320,7 +325,7 @@ export default function SuppliersPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                <label className="mb-1.5 block text-xs font-semibold text-slate-700">
                   Company Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -330,11 +335,11 @@ export default function SuppliersPage() {
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                   placeholder="e.g. New Era Cap Company"
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none focus:border-blue-400 focus:bg-white"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none focus:border-blue-400 focus:bg-white transition-all font-medium text-slate-800"
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                <label className="mb-1.5 block text-xs font-semibold text-slate-700">
                   Business Phone No.
                 </label>
                 <input
@@ -342,11 +347,11 @@ export default function SuppliersPage() {
                   value={form.phone}
                   onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                   placeholder="01700000000"
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none focus:border-blue-400 focus:bg-white"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none focus:border-blue-400 focus:bg-white transition-all font-medium text-slate-800"
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                <label className="mb-1.5 block text-xs font-semibold text-slate-700">
                   Email Address
                 </label>
                 <input
@@ -354,17 +359,17 @@ export default function SuppliersPage() {
                   value={form.email}
                   onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                   placeholder="supplier@company.com"
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none focus:border-blue-400 focus:bg-white"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none focus:border-blue-400 focus:bg-white transition-all font-medium text-slate-800"
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">Address</label>
+                <label className="mb-1.5 block text-xs font-semibold text-slate-700">Address</label>
                 <textarea
                   value={form.address}
                   onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
                   placeholder="Full business address"
                   rows={2}
-                  className="min-h-[72px] w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:border-blue-400 focus:bg-white"
+                  className="min-h-[72px] w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:border-blue-400 focus:bg-white transition-all font-medium text-slate-800"
                 />
               </div>
               <div className="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-3">
@@ -384,19 +389,118 @@ export default function SuppliersPage() {
                 type="button"
                 onClick={() => setIsOpen(false)}
                 disabled={isSaving}
-                className="h-10 rounded-lg border border-slate-300 px-5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="h-10 rounded-lg border border-slate-300 px-5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSaving}
-                className="h-10 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white hover:bg-blue-700 disabled:bg-blue-400"
+                className="h-10 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white hover:bg-blue-700 disabled:bg-blue-400 transition-colors"
               >
                 {isSaving ? "Saving..." : editingId ? "Update Supplier" : "Add Supplier"}
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* View Supplier Modal */}
+      {isViewOpen && viewSupplier && (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-150">
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">Supplier Details</h2>
+                <p className="mt-0.5 text-sm font-medium text-slate-500">
+                  Full profile details of the vendor.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsViewOpen(false)}
+                className="grid h-9 w-9 place-items-center rounded-lg border border-slate-300 text-slate-500 hover:bg-slate-50 transition-colors"
+              >
+                <AdminIcon className="h-4 w-4" name="x" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-sm">
+              <div className="border-b border-slate-100 pb-3">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Company Name</span>
+                <p className="mt-1 font-semibold text-slate-800 text-base">{viewSupplier.name}</p>
+              </div>
+              <div className="border-b border-slate-100 pb-3">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Business Phone No.</span>
+                <p className="mt-1 font-medium text-slate-800">{viewSupplier.phone || "—"}</p>
+              </div>
+              <div className="border-b border-slate-100 pb-3">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Email Address</span>
+                <p className="mt-1 font-medium text-slate-800">{viewSupplier.email || "—"}</p>
+              </div>
+              <div className="border-b border-slate-100 pb-3">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Address</span>
+                <p className="mt-1 font-medium text-slate-800 whitespace-pre-wrap">{viewSupplier.address || "—"}</p>
+              </div>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                  <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Active Status</span>
+                  <p className="mt-0.5 text-xs text-slate-400">Current availability status</p>
+                </div>
+                <span
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                    viewSupplier.isActive
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                      : "bg-slate-50 text-slate-700 border border-slate-150"
+                  }`}
+                >
+                  {viewSupplier.isActive ? "Active" : "Inactive"}
+                </span>
+              </div>
+              <div>
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Created At</span>
+                <p className="mt-1 font-medium text-slate-800">
+                  {viewSupplier.createdAt ? formatDate(viewSupplier.createdAt) : "—"}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm("Are you sure you want to delete this supplier?")) {
+                    handleDelete(viewSupplier.id);
+                    setIsViewOpen(false);
+                  }
+                }}
+                className="h-10 rounded-lg bg-red-50 px-4 text-sm font-medium text-red-700 hover:bg-red-100 transition-colors mr-auto"
+              >
+                Delete Supplier
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsViewOpen(false);
+                  openEdit(viewSupplier);
+                }}
+                className="h-10 rounded-lg bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsViewOpen(false)}
+                className="h-10 rounded-lg border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </>

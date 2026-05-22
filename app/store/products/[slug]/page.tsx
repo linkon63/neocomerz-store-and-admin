@@ -83,9 +83,9 @@ export default function ProductDetailPage() {
       const current = parseInt(localStorage.getItem("store_cart_count") ?? "0", 10);
       localStorage.setItem("store_cart_count", String(current + quantity));
       window.dispatchEvent(new Event("cart-updated"));
-      showToast(`কার্টে ${quantity} টি যোগ হয়েছে!`, "success");
+      showToast(`${quantity} item${quantity !== 1 ? "s" : ""} added to cart!`, "success");
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "ব্যর্থ হয়েছে", "error");
+      showToast(err instanceof Error ? err.message : "Failed", "error");
     } finally {
       setAdding(false);
     }
@@ -96,10 +96,10 @@ export default function ProductDetailPage() {
     if (!isLoggedIn) { router.push("/store/login"); return; }
     try {
       await wishlistApi.add(product.id);
-      showToast("উইশলিস্টে যোগ হয়েছে!", "success");
+      showToast("Added to wishlist!", "success");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
-      if (!msg.includes("already")) showToast("ব্যর্থ হয়েছে", "error");
+      if (!msg.includes("already")) showToast("Failed", "error");
     }
   }
 
@@ -111,11 +111,11 @@ export default function ProductDetailPage() {
     try {
       await reviewsApi.create(product.id, reviewForm);
       setReviewForm({ rating: 5, comment: "" });
-      showToast("রিভিউ সাবমিট হয়েছে!", "success");
+      showToast("Review submitted successfully!", "success");
       const updated = await reviewsApi.forProduct(product.id);
       setReviews(updated);
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "ব্যর্থ হয়েছে", "error");
+      showToast(err instanceof Error ? err.message : "Failed", "error");
     } finally {
       setSubmittingReview(false);
     }
@@ -145,8 +145,8 @@ export default function ProductDetailPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <Breadcrumb items={[
-        { label: "হোম", href: "/store" },
-        { label: "পণ্য", href: "/store/products" },
+        { label: "Home", href: "/store" },
+        { label: "Products", href: "/store/products" },
         { label: product.name }
       ]} />
 
@@ -181,11 +181,11 @@ export default function ProductDetailPage() {
               <div className="flex items-center gap-1">
                 <span className="text-yellow-400 text-lg">★</span>
                 <span className="text-sm font-bold">{avgRating}</span>
-                <span className="text-xs" style={{ color: "var(--store-text-muted)" }}>({reviews.length} রিভিউ)</span>
+                <span className="text-xs" style={{ color: "var(--store-text-muted)" }}>({reviews.length} review{reviews.length !== 1 ? "s" : ""})</span>
               </div>
               <span style={{ color: "var(--store-border-dark)" }}>|</span>
-              <span className="text-sm font-medium" style={{ color: "var(--store-success)" }}>
-                {isOutOfStock ? "স্টক শেষ" : "স্টকে আছে"}
+              <span className="text-sm font-bold" style={{ color: isOutOfStock ? "var(--store-accent)" : "var(--store-success)" }}>
+                {isOutOfStock ? "Out of Stock" : "In Stock"}
               </span>
             </div>
           </div>
@@ -202,21 +202,21 @@ export default function ProductDetailPage() {
                 </span>
               )}
               <span className="ml-2 rounded px-2 py-1 text-[10px] font-bold text-white mb-1.5" style={{ backgroundColor: "var(--store-accent)" }}>
-                ২০% ছাড়
+                20% OFF
               </span>
             </div>
-            <p className="text-xs font-medium" style={{ color: "var(--store-text-muted)" }}>ভ্যাট ও অন্যান্য কর অন্তর্ভুক্ত (প্রযোজ্য ক্ষেত্রে)</p>
+            <p className="text-xs font-semibold" style={{ color: "var(--store-text-muted)" }}>VAT & other taxes included (where applicable)</p>
           </div>
 
           {/* Short Description */}
           <p className="text-sm leading-relaxed mb-8" style={{ color: "var(--store-text)" }}>
-            {product.description || "এই পণ্যের কোন বিবরণ দেওয়া হয়নি। বিস্তারিত জানতে আমাদের সাথে যোগাযোগ করুন।"}
+            {product.description || "No description provided for this product. Please contact us for details."}
           </p>
 
           {/* Variants */}
           {product.variants && product.variants.length > 1 && (
             <div className="mb-6">
-              <p className="text-sm font-bold mb-3" style={{ color: "var(--store-text)" }}>ভ্যারিয়েন্ট নির্বাচন করুন</p>
+              <p className="text-sm font-bold mb-3" style={{ color: "var(--store-text)" }}>Select Variant</p>
               <div className="flex flex-wrap gap-2">
                 {product.variants.map((v) => (
                   <button
@@ -248,10 +248,10 @@ export default function ProductDetailPage() {
               <button
                 onClick={handleAddToCart}
                 disabled={adding || isOutOfStock}
-                className="flex-1 flex items-center justify-center gap-2 rounded-xl text-white font-bold h-11 transition-transform active:scale-95 disabled:opacity-50"
+                className="flex-1 flex items-center justify-center gap-2 rounded-xl text-white font-bold h-11 transition-all active:scale-95 disabled:opacity-50 hover:opacity-90"
                 style={{ backgroundColor: "var(--store-primary)" }}
               >
-                {adding ? "অপেক্ষা করুন..." : isOutOfStock ? "স্টক শেষ" : "কার্টে যোগ করুন"}
+                {adding ? "Please wait..." : isOutOfStock ? "Out of Stock" : "Add to Cart"}
               </button>
 
               <button
@@ -268,10 +268,10 @@ export default function ProductDetailPage() {
             {/* Delivery Features */}
             <div className="grid grid-cols-2 gap-3 mt-5 pt-5 border-t" style={{ borderColor: "var(--store-border)" }}>
               <div className="flex items-center gap-2 text-xs font-semibold" style={{ color: "var(--store-text-muted)" }}>
-                <span className="text-lg">🚚</span> দ্রুত ডেলিভারি
+                <span className="text-lg">🚚</span> Fast Delivery
               </div>
               <div className="flex items-center gap-2 text-xs font-semibold" style={{ color: "var(--store-text-muted)" }}>
-                <span className="text-lg">🛡️</span> ১০০% অরিজিনাল
+                <span className="text-lg">🛡️</span> 100% Original
               </div>
             </div>
           </div>
@@ -282,9 +282,9 @@ export default function ProductDetailPage() {
       <div className="mt-16 rounded-2xl border bg-white overflow-hidden" style={{ borderColor: "var(--store-border)" }}>
         <div className="flex border-b overflow-x-auto scrollbar-hide" style={{ borderColor: "var(--store-border)" }}>
           {[
-            { id: "description", label: "বিবরণ" },
-            { id: "specifications", label: "স্পেসিফিকেশন" },
-            { id: "reviews", label: `রিভিউ (${reviews.length})` },
+            { id: "description", label: "Description" },
+            { id: "specifications", label: "Specifications" },
+            { id: "reviews", label: `Reviews (${reviews.length})` },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -302,7 +302,7 @@ export default function ProductDetailPage() {
           {/* Tab 1: Description */}
           {activeTab === "description" && (
             <div className="prose max-w-none text-sm leading-relaxed" style={{ color: "var(--store-text)" }}>
-              <p>{product.description || "এই পণ্যের বিস্তারিত বিবরণ শীঘ্রই যুক্ত করা হবে।"}</p>
+              <p>{product.description || "Detailed description of this product will be added soon."}</p>
             </div>
           )}
 
@@ -310,12 +310,12 @@ export default function ProductDetailPage() {
           {activeTab === "specifications" && (
             <div className="space-y-4">
               <div className="grid grid-cols-3 py-3 border-b text-sm" style={{ borderColor: "var(--store-border)" }}>
-                <span className="font-bold text-gray-500">ব্র্যান্ড</span>
-                <span className="col-span-2 font-medium">{product.brand?.name || "জানা নেই"}</span>
+                <span className="font-bold text-gray-500">Brand</span>
+                <span className="col-span-2 font-medium">{product.brand?.name || "Unknown"}</span>
               </div>
               <div className="grid grid-cols-3 py-3 border-b text-sm" style={{ borderColor: "var(--store-border)" }}>
-                <span className="font-bold text-gray-500">ক্যাটাগরি</span>
-                <span className="col-span-2 font-medium">{product.category?.name || "জানা নেই"}</span>
+                <span className="font-bold text-gray-500">Category</span>
+                <span className="col-span-2 font-medium">{product.category?.name || "Unknown"}</span>
               </div>
               {selectedVariant && (
                 <div className="grid grid-cols-3 py-3 border-b text-sm" style={{ borderColor: "var(--store-border)" }}>
@@ -331,9 +331,9 @@ export default function ProductDetailPage() {
             <div className="grid gap-10 md:grid-cols-[1fr_2fr]">
               {/* Write Review */}
               <div className="bg-gray-50 rounded-xl p-6 h-fit border" style={{ borderColor: "var(--store-border)" }}>
-                <h3 className="font-bold mb-4">রিভিউ দিন</h3>
+                <h3 className="font-bold mb-4">Write a Review</h3>
                 {!isLoggedIn ? (
-                  <p className="text-sm text-gray-500">রিভিউ দিতে <Link href="/store/login" className="text-[var(--store-primary)] font-bold">লগইন</Link> করুন।</p>
+                  <p className="text-sm text-gray-500">Please <Link href="/store/login" className="text-[var(--store-primary)] font-bold">login</Link> to leave a review.</p>
                 ) : (
                   <form onSubmit={handleReviewSubmit} className="space-y-4">
                     <div>
@@ -351,11 +351,11 @@ export default function ProductDetailPage() {
                       className="w-full border rounded-lg p-3 text-sm focus:outline-[var(--store-primary)]"
                       style={{ borderColor: "var(--store-border)" }}
                       rows={4}
-                      placeholder="আপনার মতামত লিখুন..."
+                      placeholder="Write your review here..."
                       required
                     />
-                    <button disabled={submittingReview} type="submit" className="w-full bg-[var(--store-primary)] text-white font-bold py-2.5 rounded-lg disabled:opacity-50">
-                      সাবমিট করুন
+                    <button disabled={submittingReview} type="submit" className="w-full bg-[var(--store-primary)] text-white font-bold py-2.5 rounded-lg disabled:opacity-50 hover:opacity-90">
+                      Submit Review
                     </button>
                   </form>
                 )}
@@ -363,21 +363,21 @@ export default function ProductDetailPage() {
 
               {/* Review List */}
               <div className="space-y-4">
-                {reviewLoading ? <p>লোড হচ্ছে...</p> : reviews.length === 0 ? (
+                {reviewLoading ? <p>Loading...</p> : reviews.length === 0 ? (
                   <div className="text-center py-10 bg-gray-50 rounded-xl border border-dashed" style={{ borderColor: "var(--store-border)" }}>
-                    <p className="text-gray-500">এখনও কোনো রিভিউ নেই।</p>
+                    <p className="text-gray-500">No reviews yet.</p>
                   </div>
                 ) : (
                   reviews.map(r => (
                     <div key={r.id} className="border-b pb-4 last:border-0" style={{ borderColor: "var(--store-border)" }}>
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <p className="font-bold text-sm">{r.user?.name || "গ্রাহক"}</p>
+                          <p className="font-bold text-sm">{r.user?.name || "Customer"}</p>
                           <div className="flex text-yellow-400 text-xs">
                             {"★".repeat(r.rating)}{"☆".repeat(5-r.rating)}
                           </div>
                         </div>
-                        <span className="text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString('bn-BD')}</span>
+                        <span className="text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString('en-US', { year: "numeric", month: "short", day: "numeric" })}</span>
                       </div>
                       <p className="text-sm text-gray-600">{r.comment}</p>
                     </div>

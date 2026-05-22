@@ -33,8 +33,8 @@ export function HeroSection({ categories }: HeroSectionProps) {
   }, []);
 
   const heroCampaign = campaigns[0];
-  const heroImage = Array.isArray(heroCampaign?.images?.[0]?.images) 
-    ? (heroCampaign.images[0].images as string[])[0] 
+  const heroImage = Array.isArray(heroCampaign?.images?.[0]?.images)
+    ? (heroCampaign.images[0].images as string[])[0]
     : undefined;
 
   return (
@@ -47,7 +47,7 @@ export function HeroSection({ categories }: HeroSectionProps) {
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
-            <span className="text-[13px] font-bold text-white uppercase tracking-wide">সব ক্যাটাগরি</span>
+            <span className="text-[13px] font-bold text-white uppercase tracking-wide">Categories</span>
           </div>
           <nav className="py-1">
             {categories.length === 0
@@ -58,7 +58,7 @@ export function HeroSection({ categories }: HeroSectionProps) {
                   <Link
                     key={cat.id}
                     href={`/store/products?categoryId=${cat.id}`}
-                    className="flex items-center justify-between px-4 py-2.5 text-[13px] font-medium transition-all hover:bg-orange-50 group"
+                    className="flex items-center justify-between px-4 py-2.5 text-[13px] font-medium transition-all hover:bg-slate-50 group"
                     style={{ color: "var(--store-text)" }}
                   >
                     <div className="flex items-center gap-2.5">
@@ -73,10 +73,10 @@ export function HeroSection({ categories }: HeroSectionProps) {
             <div className="px-3 py-2">
               <Link
                 href="/store/products"
-                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-[13px] font-bold text-white transition-all"
+                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-[13px] font-bold text-white transition-all hover:opacity-90"
                 style={{ backgroundColor: "var(--store-primary)" }}
               >
-                সব পণ্য দেখুন →
+                Shop All Products →
               </Link>
             </div>
           </nav>
@@ -87,27 +87,27 @@ export function HeroSection({ categories }: HeroSectionProps) {
           className="relative overflow-hidden rounded-xl min-h-[380px] flex flex-col justify-center p-8 sm:p-12" 
           style={{ 
             background: heroImage 
-              ? `linear-gradient(135deg, rgba(13,33,55,0.8) 0%, rgba(10,61,43,0.8) 60%, rgba(13,33,55,0.8) 100%), url(${heroImage.startsWith('http') ? heroImage : `http://localhost:5010${heroImage}`}) center/cover`
-              : "linear-gradient(135deg, #0D2137 0%, #0A3D2B 60%, #0D2137 100%)"
+              ? `linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(79, 70, 229, 0.8) 60%, rgba(15, 23, 42, 0.9) 100%), url(${heroImage.startsWith('http') ? heroImage : `http://localhost:5010${heroImage}`}) center/cover`
+              : "linear-gradient(135deg, #0F172A 0%, #4F46E5 60%, #0F172A 100%)"
           }}
         >
           {/* Decorative circles - only show if no campaign image */}
           {!heroImage && (
             <>
-              <div className="absolute top-0 right-0 w-80 h-80 rounded-full" style={{ background: "radial-gradient(circle, rgba(0,166,81,0.25), transparent)", transform: "translate(25%, -25%)" }} />
-              <div className="absolute bottom-0 left-0 w-56 h-56 rounded-full" style={{ background: "radial-gradient(circle, rgba(0,166,81,0.15), transparent)", transform: "translate(-25%, 25%)" }} />
+              <div className="absolute top-0 right-0 w-80 h-80 rounded-full" style={{ background: "radial-gradient(circle, rgba(79,70,229,0.25), transparent)", transform: "translate(25%, -25%)" }} />
+              <div className="absolute bottom-0 left-0 w-56 h-56 rounded-full" style={{ background: "radial-gradient(circle, rgba(79,70,229,0.15), transparent)", transform: "translate(-25%, 25%)" }} />
             </>
           )}
 
           <div className="relative z-10 max-w-lg">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mb-6" style={{ backgroundColor: "rgba(0,166,81,0.2)", border: "1px solid rgba(0,166,81,0.5)" }}>
+            <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mb-6" style={{ backgroundColor: "rgba(245,158,11,0.2)", border: "1px solid rgba(245,158,11,0.5)" }}>
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: "#00A651" }} />
-                <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: "#00A651" }} />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: "#F59E0B" }} />
+                <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: "#F59E0B" }} />
               </span>
-              <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "#6EE7A8" }}>
-                {heroCampaign?.hasDiscount ? "SPECIAL OFFER" : "NEW COLLECTION"}
+              <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "#FBBF24" }}>
+                {heroCampaign?.hasDiscount ? "Special Discount" : "New Arrivals"}
               </span>
             </div>
 
@@ -116,19 +116,19 @@ export function HeroSection({ categories }: HeroSectionProps) {
               {heroCampaign?.title ? (
                 <>
                   {heroCampaign.title.split(' ').slice(0, -1).join(' ')}<br />
-                  <span style={{ color: "#4ADE80" }}>{heroCampaign.title.split(' ').slice(-1)[0]}।</span>
+                  <span style={{ color: "#C7D2FE" }}>{heroCampaign.title.split(' ').slice(-1)[0]}</span>
                 </>
               ) : (
                 <>
-                  সেরা পণ্য,<br />
-                  <span style={{ color: "#4ADE80" }}>সেরা দামে।</span>
+                  Premium Products,<br />
+                  <span className="text-amber-400">Best Prices.</span>
                 </>
               )}
             </h1>
 
             {/* Subtext */}
-            <p className="text-[15px] mb-8 max-w-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.75)" }}>
-              {heroCampaign?.description || "Nationwide cash on delivery. Fast shipping, easy returns and 100% original products guaranteed."}
+            <p className="text-[15px] mb-8 max-w-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.8)" }}>
+              {heroCampaign?.description || "Cash on delivery nationwide. Fast shipping, easy returns, and 100% authentic product guarantee."}
             </p>
 
             <div className="flex flex-wrap gap-3">
@@ -138,7 +138,7 @@ export function HeroSection({ categories }: HeroSectionProps) {
                   "/store/products"
                 }
                 className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-[14px] font-bold transition-all hover:opacity-90"
-                style={{ backgroundColor: "#00A651", color: "#FFFFFF" }}
+                style={{ backgroundColor: "var(--store-primary)", color: "#FFFFFF" }}
               >
                 {heroCampaign?.hasDiscount ? "View Offers" : "Shop Now"}
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
@@ -150,7 +150,7 @@ export function HeroSection({ categories }: HeroSectionProps) {
                 className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-[14px] font-bold transition-all"
                 style={{ backgroundColor: "rgba(255,255,255,0.12)", color: "#FFFFFF", border: "1.5px solid rgba(255,255,255,0.3)" }}
               >
-                অ্যাকাউন্ট খুলুন
+                Create Account
               </Link>
             </div>
           </div>
@@ -159,7 +159,7 @@ export function HeroSection({ categories }: HeroSectionProps) {
           <div className="relative z-10 mt-10 flex flex-wrap gap-8">
             {[
               { value: "50,000+", label: "Happy Customers" },
-              { value: "10,000+", label: "Products" },
+              { value: "10,000+", label: "Products Curated" },
               { value: "98%", label: "Positive Reviews" },
             ].map((stat, i) => (
               <div key={i} className="flex flex-col">

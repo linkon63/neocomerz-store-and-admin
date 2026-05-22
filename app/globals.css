@@ -7,23 +7,23 @@
    ============================================================ */
 :root {
   /* Base */
-  --store-bg: #F7F8FA;
+  --store-bg: #F8FAFC;
   --store-white: #FFFFFF;
-  --store-text: #1A1A2E;
-  --store-text-muted: #6B7280;
-  --store-text-light: #9CA3AF;
+  --store-text: #0F172A;
+  --store-text-muted: #475569;
+  --store-text-light: #94A3B8;
 
-  /* Brand — vibrant green (BD flag inspired, eye-catching) */
-  --store-primary: #00A651;
-  --store-primary-hover: #008A43;
-  --store-primary-light: #E6F7EE;
-  --store-primary-mid: #C3EDD5;
+  /* Brand — premium deep indigo */
+  --store-primary: #4F46E5;
+  --store-primary-hover: #4338CA;
+  --store-primary-light: #EEF2FF;
+  --store-primary-mid: #C7D2FE;
 
-  /* Secondary — deep navy */
-  --store-secondary: #1A1A2E;
-  --store-secondary-hover: #0F0F1E;
+  /* Secondary — sleek slate */
+  --store-secondary: #0F172A;
+  --store-secondary-hover: #1E293B;
 
-  /* Accent — warm yellow for badges/sale */
+  /* Accent — warm amber for badges/rating/sale */
   --store-accent: #F59E0B;
   --store-accent-light: #FEF3C7;
 
@@ -32,11 +32,11 @@
   --store-error: #EF4444;
 
   /* Borders & Surfaces */
-  --store-border: #E5E7EB;
-  --store-border-dark: #D1D5DB;
+  --store-border: #E2E8F0;
+  --store-border-dark: #CBD5E1;
   --store-surface: #FFFFFF;
-  --store-surface-2: #F3F4F6;
-  --store-surface-3: #EEF0F4;
+  --store-surface-2: #F1F5F9;
+  --store-surface-3: #E2E8F0;
 }
 
 @theme {
@@ -53,7 +53,7 @@
   --color-success: var(--store-success);
   --color-gold: var(--store-accent);
 
-  --font-sans: "Inter", "Hind Siliguri", -apple-system, sans-serif;
+  --font-sans: "Inter", -apple-system, sans-serif;
   --font-serif: "Inter", Georgia, serif;
 }
 
@@ -102,7 +102,7 @@ body {
 .btn-premium:hover {
   background-color: var(--store-primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(0, 166, 81, 0.35);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
 }
 
 .btn-outline {

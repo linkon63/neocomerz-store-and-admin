@@ -65,29 +65,29 @@ export default function WishlistPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-8 flex flex-col gap-1 border-b pb-5" style={{ borderColor: "var(--store-border)" }}>
-        <h1 className="text-[26px] font-black" style={{ color: "var(--store-text)" }}>
-          উইশলিস্ট
+        <h1 className="text-[26px] font-black tracking-tight" style={{ color: "var(--store-text)" }}>
+          My Wishlist
         </h1>
         <p className="text-[13px]" style={{ color: "var(--store-text-muted)" }}>
-          আপনার পছন্দের পণ্যগুলো এখানে থাকবে
+          Your saved premium choices are preserved here.
         </p>
       </div>
 
       {items.length === 0 ? (
         <div className="rounded-2xl bg-white border p-12 text-center" style={{ borderColor: "var(--store-border)" }}>
           <p className="text-2xl mb-3">💖</p>
-          <p className="text-[16px] font-semibold" style={{ color: "var(--store-text)" }}>
-            এখনো কোনো পণ্য নেই
+          <p className="text-[16px] font-bold text-slate-800">
+            Your wishlist is empty
           </p>
           <p className="mt-2 text-[13px]" style={{ color: "var(--store-text-muted)" }}>
-            প্রোডাক্ট ব্রাউজ করে পছন্দেরটি যোগ করুন।
+            Explore our curated luxury collections to add items you love.
           </p>
           <Link
             href="/store/products"
-            className="mt-6 inline-flex rounded-xl px-6 py-3 text-[13px] font-bold text-white transition-colors"
+            className="mt-6 inline-flex rounded-xl px-6 py-3 text-[13px] font-bold text-white transition-all hover:opacity-90 shadow-sm"
             style={{ backgroundColor: "var(--store-primary)" }}
           >
-            পণ্য দেখুন
+            Explore Collection
           </Link>
         </div>
       ) : (
@@ -102,31 +102,31 @@ export default function WishlistPage() {
                 style={{ borderColor: "var(--store-border)" }}
               >
                 <Link href={`/store/products/${item.product.slug}`} className="block">
-                  <div className="aspect-[4/5] overflow-hidden bg-gray-50">
+                  <div className="aspect-[4/5] overflow-hidden bg-slate-50">
                     <img
                       src={image}
                       alt={item.product.name}
-                      className="h-full w-full object-cover transition duration-500 hover:scale-[1.03]"
+                      className="h-full w-full object-cover transition duration-500 hover:scale-[1.02]"
                     />
                   </div>
                 </Link>
-                <div className="p-4 flex flex-col gap-2">
+                <div className="p-4 flex flex-col gap-2 flex-1 justify-between">
                   <div className="min-h-[40px]">
                     <Link
                       href={`/store/products/${item.product.slug}`}
-                      className="text-[14px] font-semibold line-clamp-2"
+                      className="text-[14px] font-bold line-clamp-2 hover:text-[var(--store-primary)] transition-colors"
                       style={{ color: "var(--store-text)" }}
                     >
                       {item.product.name}
                     </Link>
                     {item.product.category && (
-                      <p className="text-[11px] mt-1" style={{ color: "var(--store-text-muted)" }}>
+                      <p className="text-[11px] mt-1 font-semibold uppercase tracking-wider text-indigo-600">
                         {item.product.category.name}
                       </p>
                     )}
                   </div>
-                  <div className="flex items-center justify-between pt-2" style={{ borderTop: "1px solid var(--store-border)" }}>
-                    <span className="text-[16px] font-bold" style={{ color: "var(--store-primary)" }}>
+                  <div className="flex items-center justify-between pt-3 mt-1" style={{ borderTop: "1px solid var(--store-border)" }}>
+                    <span className="text-[15px] font-bold" style={{ color: "var(--store-text)" }}>
                       {variant ? formatPrice(variant.price) : "—"}
                     </span>
                     <div className="flex gap-2">
@@ -136,16 +136,16 @@ export default function WishlistPage() {
                         className="rounded-lg px-3 py-2 text-[11px] font-bold text-white transition-colors disabled:opacity-50"
                         style={{ backgroundColor: "var(--store-primary)" }}
                       >
-                        {adding === item.product.id ? "Adding..." : "কার্টে যোগ"}
+                        {adding === item.product.id ? "Adding..." : "Add to Cart"}
                       </button>
                       <button
                         onClick={() => handleRemove(item.product.id)}
                         disabled={removing === item.product.id}
-                        className="rounded-lg border px-3 py-2 text-[11px] font-bold text-red-600 transition-colors disabled:opacity-50"
-                        style={{ borderColor: "rgba(220,38,38,0.3)" }}
+                        className="rounded-lg border px-3 py-2 text-[11px] font-bold text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                        style={{ borderColor: "rgba(220,38,38,0.2)" }}
                         aria-label="Remove from wishlist"
                       >
-                        মুছুন
+                        Remove
                       </button>
                     </div>
                   </div>

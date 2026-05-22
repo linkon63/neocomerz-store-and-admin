@@ -18,14 +18,14 @@ export default function ProductsPage() {
 function ProductsLoading() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="h-8 bg-[#ede8e1] rounded w-1/4 mb-8 animate-pulse" />
+      <div className="h-8 bg-slate-200 rounded w-1/4 mb-8 animate-pulse" />
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 animate-pulse">
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="rounded-2xl bg-white shadow-sm">
-            <div className="aspect-[4/5] bg-[#ede8e1] rounded-t-2xl" />
+            <div className="aspect-[4/5] bg-slate-200 rounded-t-2xl" />
             <div className="p-4 space-y-2">
-              <div className="h-3 bg-[#ede8e1] rounded w-1/3" />
-              <div className="h-4 bg-[#ede8e1] rounded w-3/4" />
+              <div className="h-3 bg-slate-200 rounded w-1/3" />
+              <div className="h-4 bg-slate-200 rounded w-3/4" />
             </div>
           </div>
         ))}
@@ -101,11 +101,11 @@ function ProductsContent() {
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black tracking-tight">Products</h1>
-          <p className="mt-1 text-sm text-[#756b60]">{total} items</p>
+          <p className="mt-1 text-sm text-[var(--store-text-muted)]">{total} items</p>
         </div>
         <button
           onClick={() => setFiltersOpen((o) => !o)}
-          className="flex items-center gap-2 rounded-full border border-[#cfc6ba] px-4 py-2 text-sm font-bold hover:border-[#171412] transition lg:hidden"
+          className="flex items-center gap-2 rounded-full border border-[var(--store-border)] px-4 py-2 text-sm font-bold hover:border-[var(--store-secondary)] text-[var(--store-text)] transition lg:hidden"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" />
@@ -120,12 +120,12 @@ function ProductsContent() {
           <div className="sticky top-20 space-y-6">
             {/* Search */}
             <div>
-              <h3 className="text-xs font-black uppercase tracking-widest text-[#756b60] mb-3">Search</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-[var(--store-text-muted)] mb-3">Search</h3>
               <input
                 type="text"
                 defaultValue={search}
                 placeholder="Search products..."
-                className="w-full rounded-xl border border-[#cfc6ba] px-3 py-2 text-sm focus:border-[#171412] focus:outline-none"
+                className="w-full rounded-xl border border-[var(--store-border)] px-3 py-2 text-sm focus:border-[var(--store-primary)] focus:outline-none bg-[var(--store-bg)] text-[var(--store-text)]"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") setParam("search", (e.target as HTMLInputElement).value);
                 }}
@@ -135,11 +135,11 @@ function ProductsContent() {
             {/* Categories */}
             {categories.length > 0 && (
               <div>
-                <h3 className="text-xs font-black uppercase tracking-widest text-[#756b60] mb-3">Category</h3>
+                <h3 className="text-xs font-black uppercase tracking-widest text-[var(--store-text-muted)] mb-3">Category</h3>
                 <div className="space-y-1">
                   <button
                     onClick={() => setParam("categoryId", "")}
-                    className={`block w-full text-left rounded-lg px-3 py-2 text-sm font-semibold transition ${!categoryId ? "bg-[#171412] text-white" : "hover:bg-[#ede8e1]"}`}
+                    className={`block w-full text-left rounded-lg px-3 py-2 text-sm font-semibold transition ${!categoryId ? "bg-[var(--store-secondary)] text-white" : "hover:bg-[var(--store-surface-2)] text-[var(--store-text)]"}`}
                   >
                     All Categories
                   </button>
@@ -147,7 +147,7 @@ function ProductsContent() {
                     <button
                       key={c.id}
                       onClick={() => setParam("categoryId", c.id)}
-                      className={`block w-full text-left rounded-lg px-3 py-2 text-sm font-semibold transition ${categoryId === c.id ? "bg-[#171412] text-white" : "hover:bg-[#ede8e1]"}`}
+                      className={`block w-full text-left rounded-lg px-3 py-2 text-sm font-semibold transition ${categoryId === c.id ? "bg-[var(--store-secondary)] text-white" : "hover:bg-[var(--store-surface-2)] text-[var(--store-text)]"}`}
                     >
                       {c.name}
                     </button>
@@ -159,11 +159,11 @@ function ProductsContent() {
             {/* Brands */}
             {brands.length > 0 && (
               <div>
-                <h3 className="text-xs font-black uppercase tracking-widest text-[#756b60] mb-3">Brand</h3>
+                <h3 className="text-xs font-black uppercase tracking-widest text-[var(--store-text-muted)] mb-3">Brand</h3>
                 <div className="space-y-1">
                   <button
                     onClick={() => setParam("brandId", "")}
-                    className={`block w-full text-left rounded-lg px-3 py-2 text-sm font-semibold transition ${!brandId ? "bg-[#171412] text-white" : "hover:bg-[#ede8e1]"}`}
+                    className={`block w-full text-left rounded-lg px-3 py-2 text-sm font-semibold transition ${!brandId ? "bg-[var(--store-secondary)] text-white" : "hover:bg-[var(--store-surface-2)] text-[var(--store-text)]"}`}
                   >
                     All Brands
                   </button>
@@ -171,7 +171,7 @@ function ProductsContent() {
                     <button
                       key={b.id}
                       onClick={() => setParam("brandId", b.id)}
-                      className={`block w-full text-left rounded-lg px-3 py-2 text-sm font-semibold transition ${brandId === b.id ? "bg-[#171412] text-white" : "hover:bg-[#ede8e1]"}`}
+                      className={`block w-full text-left rounded-lg px-3 py-2 text-sm font-semibold transition ${brandId === b.id ? "bg-[var(--store-secondary)] text-white" : "hover:bg-[var(--store-surface-2)] text-[var(--store-text)]"}`}
                     >
                       {b.name}
                     </button>
@@ -198,11 +198,11 @@ function ProductsContent() {
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {Array.from({ length: LIMIT }).map((_, i) => (
                 <div key={i} className="rounded-2xl bg-white shadow-sm animate-pulse">
-                  <div className="aspect-[4/5] bg-[#ede8e1] rounded-t-2xl" />
+                  <div className="aspect-[4/5] bg-slate-200 rounded-t-2xl" />
                   <div className="p-4 space-y-2">
-                    <div className="h-3 bg-[#ede8e1] rounded w-1/3" />
-                    <div className="h-4 bg-[#ede8e1] rounded w-3/4" />
-                    <div className="h-4 bg-[#ede8e1] rounded w-1/2" />
+                    <div className="h-3 bg-slate-200 rounded w-1/3" />
+                    <div className="h-4 bg-slate-200 rounded w-3/4" />
+                    <div className="h-4 bg-slate-200 rounded w-1/2" />
                   </div>
                 </div>
               ))}
@@ -211,7 +211,7 @@ function ProductsContent() {
             <div className="rounded-2xl bg-white p-16 text-center shadow-sm">
               <p className="text-4xl mb-4">🔍</p>
               <p className="text-lg font-bold">No products found</p>
-              <p className="mt-2 text-sm text-[#756b60]">Try adjusting your filters or search term.</p>
+              <p className="mt-2 text-sm text-[var(--store-text-muted)]">Try adjusting your filters or search term.</p>
             </div>
           ) : (
             <>
@@ -227,7 +227,7 @@ function ProductsContent() {
                   <button
                     onClick={() => setPage(page - 1)}
                     disabled={page <= 1}
-                    className="rounded-full border border-[#cfc6ba] px-4 py-2 text-sm font-bold disabled:opacity-40 hover:border-[#171412] transition"
+                    className="rounded-full border border-[var(--store-border)] px-4 py-2 text-sm font-bold disabled:opacity-40 hover:border-[var(--store-secondary)] text-[var(--store-text)] transition"
                   >
                     ← Prev
                   </button>
@@ -237,7 +237,7 @@ function ProductsContent() {
                       <button
                         key={p}
                         onClick={() => setPage(p)}
-                        className={`rounded-full w-10 h-10 text-sm font-bold transition ${p === page ? "bg-[#171412] text-white" : "border border-[#cfc6ba] hover:border-[#171412]"}`}
+                        className={`rounded-full w-10 h-10 text-sm font-bold transition ${p === page ? "bg-[var(--store-secondary)] text-white" : "border border-[var(--store-border)] hover:border-[var(--store-secondary)] text-[var(--store-text)]"}`}
                       >
                         {p}
                       </button>
@@ -245,7 +245,7 @@ function ProductsContent() {
                   <button
                     onClick={() => setPage(page + 1)}
                     disabled={page >= totalPages}
-                    className="rounded-full border border-[#cfc6ba] px-4 py-2 text-sm font-bold disabled:opacity-40 hover:border-[#171412] transition"
+                    className="rounded-full border border-[var(--store-border)] px-4 py-2 text-sm font-bold disabled:opacity-40 hover:border-[var(--store-secondary)] text-[var(--store-text)] transition"
                   >
                     Next →
                   </button>

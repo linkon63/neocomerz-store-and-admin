@@ -50,11 +50,11 @@ export default function OrdersPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 min-h-[calc(100vh-280px)]">
       <div className="mb-8 flex flex-col gap-1 border-b pb-5" style={{ borderColor: "var(--store-border)" }}>
-        <h1 className="text-[26px] font-black" style={{ color: "var(--store-text)" }}>
-          আমার অর্ডারসমূহ
+        <h1 className="text-[26px] font-black tracking-tight" style={{ color: "var(--store-text)" }}>
+          My Orders
         </h1>
         <p className="text-[13px]" style={{ color: "var(--store-text-muted)" }}>
-          ডেলিভারি স্ট্যাটাস ও অর্ডার ডিটেইলস দেখুন
+          Track delivery status and view order details
         </p>
       </div>
 
@@ -82,10 +82,10 @@ export default function OrdersPage() {
 
             <nav className="space-y-1">
               {[
-                { href: "/store/account", label: "অ্যাকাউন্ট", icon: "👤" },
-                { href: "/store/orders", label: "অর্ডারসমূহ", icon: "📦", active: true },
-                { href: "/store/wishlist", label: "উইশলিস্ট", icon: "♡" },
-                { href: "/store/cart", label: "কার্ট", icon: "🛒" },
+                { href: "/store/account", label: "Account", icon: "👤" },
+                { href: "/store/orders", label: "My Orders", icon: "📦", active: true },
+                { href: "/store/wishlist", label: "Wishlist", icon: "♡" },
+                { href: "/store/cart", label: "Cart", icon: "🛒" },
               ].map((item) => (
                 <Link
                   key={item.href}
@@ -96,7 +96,7 @@ export default function OrdersPage() {
                       ? {
                           backgroundColor: "var(--store-primary-light)",
                           color: "var(--store-primary)",
-                          border: "1px solid var(--store-primary)",
+                          border: "1px solid var(--store-primary-mid)",
                         }
                       : { color: "var(--store-text-muted)" }
                   }
@@ -117,7 +117,7 @@ export default function OrdersPage() {
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-semibold text-red-600 hover:bg-red-50 transition"
               >
                 <span className="text-sm">🚪</span>
-                <span>লগআউট</span>
+                <span>Sign Out</span>
               </button>
             </nav>
           </div>
@@ -128,18 +128,18 @@ export default function OrdersPage() {
           {orders.length === 0 ? (
             <div className="rounded-2xl bg-white border p-12 text-center" style={{ borderColor: "var(--store-border)" }}>
               <p className="text-3xl mb-3">📦</p>
-              <p className="text-[16px] font-semibold" style={{ color: "var(--store-text)" }}>
-                এখনো কোনো অর্ডার নেই
+              <p className="text-[16px] font-bold" style={{ color: "var(--store-text)" }}>
+                No orders placed yet
               </p>
               <p className="mt-2 text-[13px]" style={{ color: "var(--store-text-muted)" }}>
-                নতুন পণ্য দেখতে আমাদের কালেকশন ব্রাউজ করুন।
+                Browse our curated collections and find something premium.
               </p>
               <Link
                 href="/store/products"
-                className="mt-6 inline-flex rounded-xl px-6 py-3 text-[13px] font-bold text-white transition-colors"
+                className="mt-6 inline-flex rounded-xl px-6 py-3 text-[13px] font-bold text-white transition-all hover:opacity-90"
                 style={{ backgroundColor: "var(--store-primary)" }}
               >
-                পণ্য দেখুন
+                Shop Now
               </Link>
             </div>
           ) : (
@@ -162,10 +162,10 @@ export default function OrdersPage() {
                         </span>
                       </div>
                       <p className="text-[11px]" style={{ color: "var(--store-text-muted)" }}>
-                        তারিখ: {new Date(order.placedAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                        Placed: {new Date(order.placedAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
                       </p>
                       <p className="text-[12px]" style={{ color: "var(--store-text-muted)" }}>
-                        মোট {order.items.length}টি আইটেম
+                        {order.items.length} item{order.items.length !== 1 ? "s" : ""}
                       </p>
                     </div>
                     <div className="text-left sm:text-right shrink-0 border-t sm:border-t-0 pt-3.5 sm:pt-0" style={{ borderColor: "var(--store-border)" }}>
@@ -173,7 +173,7 @@ export default function OrdersPage() {
                         {formatPrice(order.total)}
                       </p>
                       <p className="text-[11px] mt-1" style={{ color: "var(--store-text-muted)" }}>
-                        পেমেন্ট: {order.paymentStatus}
+                        Payment: {order.paymentStatus}
                       </p>
                     </div>
                   </div>
