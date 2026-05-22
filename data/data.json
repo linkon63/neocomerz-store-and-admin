@@ -30,5 +30,58 @@
       ],
       "default": "bd"
     }
+  },
+
+  "products": {
+    "newArrivals": [
+      {
+        "id": "1",
+        "name": "Velvet Leaf Signature",
+        "price": 1999,
+        "originalPrice": 2499,
+        "image": "/images/products/Product-1.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "2",
+        "name": "Sylhet Imperial Noir",
+        "price": 1999,
+        "originalPrice": 2499,
+        "image": "/images/products/Product-2.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "3",
+        "name": "Emerald Garden Reserve",
+        "price": 1999,
+        "originalPrice": 2499,
+        "image": "/images/products/Product-3.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "4",
+        "name": "Golden Mist Elixir",
+        "price": 1999,
+        "originalPrice": 2499,
+        "image": "/images/products/Product-4.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "5",
+        "name": "White Aurora Collection",
+        "price": 1999,
+        "originalPrice": 2499,
+        "image": "/images/products/Product-5.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "6",
+        "name": "White Aurora Collection",
+        "price": 1999,
+        "originalPrice": 2499,
+        "image": "/images/products/Product-6.png",
+        "badge": "NEW"
+      }
+    ]
   }
 }
