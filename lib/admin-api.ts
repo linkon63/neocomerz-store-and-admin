@@ -116,6 +116,62 @@ export type PaginatedProducts = {
   };
 };
 
+export type WholesaleRequestStatus =
+  | "pending"
+  | "info_requested"
+  | "approved"
+  | "rejected"
+  | "converted";
+
+export type CustomerAddress = {
+  id: string;
+  fullName?: string;
+  phone?: string;
+  addressLine1?: string;
+  addressLine2?: string | null;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+  isDefault?: boolean;
+};
+
+export type WholesaleRequestUser = {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  addresses?: CustomerAddress[];
+};
+
+export type WholesaleRequestItem = {
+  id: string;
+  productId?: string;
+  product?: Product | null;
+  variantId?: string | null;
+  variant?: ProductVariant | null;
+  requestedQuantity: number;
+  targetPrice?: string | number | null;
+  note?: string | null;
+};
+
+export type WholesaleOrderRequest = {
+  id: string;
+  requestNumber: string;
+  status: WholesaleRequestStatus;
+  customerNote?: string | null;
+  adminNote?: string | null;
+  infoRequestMessage?: string | null;
+  contactPhone?: string | null;
+  user: WholesaleRequestUser;
+  items: WholesaleRequestItem[];
+  orderId?: string | null;
+  order?: { id: string; orderNumber?: string } | null;
+  createdAt?: string;
+  updatedAt?: string;
+  reviewedAt?: string | null;
+};
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/v1";
 
 export function getAdminToken() {
@@ -211,4 +267,12 @@ export function formatDate(value?: string) {
     month: "short",
     day: "numeric",
   }).format(new Date(value));
+}
+
+export function formatMoney(value?: string | number | null) {
+  if (value === undefined || value === null || value === "") return "-";
+
+  return `৳${Number(value).toLocaleString("en", {
+    maximumFractionDigits: 2,
+  })}`;
 }
