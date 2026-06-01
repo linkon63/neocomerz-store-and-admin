@@ -81,6 +81,22 @@
         "originalPrice": 2499,
         "image": "/images/products/Product-6.png",
         "badge": "NEW"
+      },
+      {
+        "id": "7",
+        "name": "White Aurora Collection",
+        "price": 1999,
+        "originalPrice": 2499,
+        "image": "/images/products/Product-3.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "8",
+        "name": "White Aurora Collection",
+        "price": 1999,
+        "originalPrice": 2499,
+        "image": "/images/products/Product-4.png",
+        "badge": "NEW"
       }
     ]
   }
