@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AdminIcon, PageHeader, ProductThumb } from "../../_components/admin-shell";
+import Image from "next/image";
+import { AdminIcon, PageHeader } from "../../_components/admin-shell";
 import { apiRequest } from "../../../../lib/admin-api";
 
 type Variant = {
@@ -17,6 +18,7 @@ type Product = {
   id: string;
   name: string;
   slug: string;
+  image?: string | null;
   variants?: Variant[];
 };
 
@@ -187,7 +189,21 @@ export default function StockPage() {
               return (
                 <div className="flex items-center justify-between gap-5 p-5 hover:bg-slate-50/60 transition-colors" key={product.id}>
                   <div className="flex items-center gap-4">
-                    <ProductThumb color={isLowStock ? "bg-rose-500" : "bg-blue-600"} />
+                    <div className="relative h-12 w-16 overflow-hidden rounded-md bg-slate-50 flex-shrink-0">
+                      {product.image ? (
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          fill
+                          className="object-cover"
+                          sizes="64px"
+                        />
+                      ) : (
+                        <div className={`w-full h-full flex items-center justify-center ${isLowStock ? "bg-rose-500" : "bg-blue-600"}`}>
+                          <AdminIcon className="h-6 w-6 text-white" name="package" />
+                        </div>
+                      )}
+                    </div>
                     <div>
                       <p className="font-medium text-slate-800 line-clamp-1">{product.name}</p>
                       <p className="text-sm font-medium text-slate-500">

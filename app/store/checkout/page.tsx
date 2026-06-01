@@ -106,7 +106,7 @@ export default function CheckoutPage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 animate-pulse">
-        <div className="h-8 bg-[#ede8e1] rounded w-1/4 mb-8" />
+        <div className="h-8 bg-[var(--store-border)] rounded w-1/4 mb-8" />
         <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
           <div className="space-y-4">
             <div className="h-40 bg-white rounded-2xl shadow-sm" />
@@ -127,13 +127,13 @@ export default function CheckoutPage() {
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-6">
         <h1 className="text-3xl font-black tracking-tight">Checkout</h1>
-        <p className="mt-1 text-sm text-[#756b60]">{items.length} item{items.length !== 1 ? "s" : ""} in your cart</p>
+        <p className="mt-1 text-sm text-[var(--store-text-muted)]">{items.length} item{items.length !== 1 ? "s" : ""} in your cart</p>
       </div>
 
       {items.length === 0 ? (
         <div className="rounded-2xl bg-white p-12 text-center shadow-sm">
           <p className="text-lg font-bold">Your cart is empty</p>
-          <Link href="/store/products" className="mt-4 inline-flex rounded-full bg-[#171412] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#3c332b] transition">
+          <Link href="/store/products" className="mt-4 inline-flex rounded-full bg-[var(--store-primary)] px-5 py-2.5 text-sm font-bold text-white hover:bg-[var(--store-primary-hover)] transition">
             Browse Products
           </Link>
         </div>
@@ -147,14 +147,14 @@ export default function CheckoutPage() {
                 <h2 className="text-lg font-black">Delivery Address</h2>
                 <button
                   onClick={() => setShowAddressForm((o) => !o)}
-                  className="text-sm font-bold text-[#171412] underline decoration-[#d7f36b] decoration-2 underline-offset-2"
+                  className="text-sm font-bold text-[var(--store-text)] hover:text-[var(--store-primary)] transition underline decoration-[var(--store-primary-mid)] decoration-2 underline-offset-2"
                 >
                   {showAddressForm ? "Cancel" : "+ Add New"}
                 </button>
               </div>
 
               {showAddressForm && (
-                <form onSubmit={handleSaveAddress} className="mb-5 rounded-xl border border-[#ede8e1] p-4 space-y-3">
+                <form onSubmit={handleSaveAddress} className="mb-5 rounded-xl border border-[var(--store-border)] p-4 space-y-3">
                   <div className="grid gap-3 sm:grid-cols-2">
                     {[
                       { key: "fullName", label: "Full Name", placeholder: "John Doe" },
@@ -167,14 +167,14 @@ export default function CheckoutPage() {
                       { key: "country", label: "Country", placeholder: "US" },
                     ].map(({ key, label, placeholder }) => (
                       <div key={key}>
-                        <label className="block text-xs font-bold text-[#756b60] mb-1">{label}</label>
+                        <label className="block text-xs font-bold text-[var(--store-text-muted)] mb-1">{label}</label>
                         <input
                           type="text"
                           required={key !== "addressLine2"}
                           value={addressForm[key as keyof typeof addressForm]}
                           onChange={(e) => setAddressForm((f) => ({ ...f, [key]: e.target.value }))}
                           placeholder={placeholder}
-                          className="w-full rounded-xl border border-[#cfc6ba] px-3 py-2 text-sm focus:border-[#171412] focus:outline-none"
+                          className="w-full rounded-xl border border-[var(--store-border)] px-3 py-2 text-sm focus:border-[var(--store-primary)] focus:outline-none"
                         />
                       </div>
                     ))}
@@ -182,7 +182,7 @@ export default function CheckoutPage() {
                   <button
                     type="submit"
                     disabled={savingAddress}
-                    className="rounded-full bg-[#171412] px-5 py-2 text-sm font-black text-white hover:bg-[#3c332b] transition disabled:opacity-50"
+                    className="rounded-full bg-[var(--store-primary)] px-5 py-2 text-sm font-black text-white hover:bg-[var(--store-primary-hover)] transition disabled:opacity-50"
                   >
                     {savingAddress ? "Saving..." : "Save Address"}
                   </button>
@@ -190,13 +190,13 @@ export default function CheckoutPage() {
               )}
 
               {addresses.length === 0 && !showAddressForm ? (
-                <p className="text-sm text-[#756b60]">No addresses saved. Add one above.</p>
+                <p className="text-sm text-[var(--store-text-muted)]">No addresses saved. Add one above.</p>
               ) : (
                 <div className="space-y-3">
                   {addresses.map((addr) => (
                     <label
                       key={addr.id}
-                      className={`flex gap-3 rounded-xl border p-4 cursor-pointer transition ${selectedAddress === addr.id ? "border-[#171412] bg-[#f7f4ef]" : "border-[#ede8e1] hover:border-[#cfc6ba]"}`}
+                      className={`flex gap-3 rounded-xl border p-4 cursor-pointer transition ${selectedAddress === addr.id ? "border-[var(--store-primary)] bg-[var(--store-primary-light)]" : "border-[var(--store-border)] hover:border-[var(--store-border-dark)]"}`}
                     >
                       <input
                         type="radio"
@@ -204,14 +204,14 @@ export default function CheckoutPage() {
                         value={addr.id}
                         checked={selectedAddress === addr.id}
                         onChange={() => setSelectedAddress(addr.id)}
-                        className="mt-0.5 accent-[#171412]"
+                        className="mt-0.5 accent-[var(--store-primary)]"
                       />
                       <div className="text-sm">
                         <p className="font-black">{addr.fullName}</p>
-                        <p className="text-[#756b60]">{addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ""}</p>
-                        <p className="text-[#756b60]">{addr.city}, {addr.state} {addr.postalCode}, {addr.country}</p>
-                        <p className="text-[#756b60]">{addr.phone}</p>
-                        {addr.isDefault && <span className="text-xs font-black text-[#d7f36b] bg-[#171412] px-2 py-0.5 rounded-full mt-1 inline-block">Default</span>}
+                        <p className="text-[var(--store-text-muted)]">{addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ""}</p>
+                        <p className="text-[var(--store-text-muted)]">{addr.city}, {addr.state} {addr.postalCode}, {addr.country}</p>
+                        <p className="text-[var(--store-text-muted)]">{addr.phone}</p>
+                        {addr.isDefault && <span className="text-xs font-bold text-[var(--store-primary)] bg-[var(--store-primary-light)] px-2 py-0.5 rounded-full mt-1 inline-block">Default</span>}
                       </div>
                     </label>
                   ))}
@@ -226,7 +226,7 @@ export default function CheckoutPage() {
                 {PAYMENT_METHODS.map((method) => (
                   <label
                     key={method}
-                    className={`flex items-center gap-3 rounded-xl border p-4 cursor-pointer transition ${paymentMethod === method ? "border-[#171412] bg-[#f7f4ef]" : "border-[#ede8e1] hover:border-[#cfc6ba]"}`}
+                    className={`flex items-center gap-3 rounded-xl border p-4 cursor-pointer transition ${paymentMethod === method ? "border-[var(--store-primary)] bg-[var(--store-primary-light)]" : "border-[var(--store-border)] hover:border-[var(--store-border-dark)]"}`}
                   >
                     <input
                       type="radio"
@@ -234,7 +234,7 @@ export default function CheckoutPage() {
                       value={method}
                       checked={paymentMethod === method}
                       onChange={() => setPaymentMethod(method)}
-                      className="accent-[#171412]"
+                      className="accent-[var(--store-primary)]"
                     />
                     <span className="text-sm font-bold capitalize">{method.replace(/_/g, " ")}</span>
                   </label>
@@ -250,7 +250,7 @@ export default function CheckoutPage() {
               <div className="space-y-3 mb-4">
                 {items.map((item) => (
                   <div key={item.id} className="flex justify-between text-sm">
-                    <span className="text-[#51483f] line-clamp-1 flex-1 mr-2">
+                    <span className="text-[var(--store-text)] line-clamp-1 flex-1 mr-2">
                       {item.variant.product.name} × {item.quantity}
                     </span>
                     <span className="font-bold shrink-0">
@@ -259,10 +259,10 @@ export default function CheckoutPage() {
                   </div>
                 ))}
               </div>
-              <hr className="border-[#ede8e1] mb-4" />
+              <hr className="border-[var(--store-border)] mb-4" />
               <div className="space-y-2 mb-6 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-[#756b60]">Subtotal</span>
+                  <span className="text-[var(--store-text-muted)]">Subtotal</span>
                   <span className="font-bold">{formatPrice(subtotal)}</span>
                 </div>
                 {discount > 0 && (
@@ -271,7 +271,7 @@ export default function CheckoutPage() {
                     <span className="font-bold">-{formatPrice(discount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-base font-black pt-2 border-t border-[#ede8e1]">
+                <div className="flex justify-between text-base font-black pt-2 border-t border-[var(--store-border)]">
                   <span>Total</span>
                   <span>{formatPrice(total)}</span>
                 </div>
@@ -286,13 +286,13 @@ export default function CheckoutPage() {
               <button
                 onClick={handlePlaceOrder}
                 disabled={placing || !selectedAddress}
-                className="w-full rounded-full bg-[#171412] py-3 text-sm font-black text-white hover:bg-[#3c332b] transition disabled:opacity-50"
+                className="w-full rounded-full bg-[var(--store-primary)] py-3 text-sm font-black text-white hover:bg-[var(--store-primary-hover)] transition disabled:opacity-50"
               >
                 {placing ? "Placing Order..." : "Place Order"}
               </button>
               <Link
                 href="/store/cart"
-                className="mt-3 block w-full rounded-full border border-[#cfc6ba] py-3 text-center text-sm font-bold hover:border-[#171412] transition"
+                className="mt-3 block w-full rounded-full border border-[var(--store-border)] py-3 text-center text-sm font-bold hover:border-[var(--store-primary)] hover:text-[var(--store-primary)] transition"
               >
                 ← Back to Cart
               </Link>

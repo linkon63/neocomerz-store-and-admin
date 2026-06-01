@@ -18,7 +18,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function OrderDetailPage() {
   return (
-    <Suspense fallback={<div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8 animate-pulse"><div className="h-8 bg-[#ede8e1] rounded w-1/3 mb-8" /></div>}>
+    <Suspense fallback={<div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8 animate-pulse"><div className="h-8 bg-[var(--store-border)] rounded w-1/3 mb-8" /></div>}>
       <OrderDetailContent />
     </Suspense>
   );
@@ -59,7 +59,7 @@ function OrderDetailContent() {
   if (loading) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8 animate-pulse space-y-4">
-        <div className="h-8 bg-[#ede8e1] rounded w-1/3" />
+        <div className="h-8 bg-[var(--store-border)] rounded w-1/3" />
         <div className="h-48 bg-white rounded-2xl shadow-sm" />
         <div className="h-32 bg-white rounded-2xl shadow-sm" />
       </div>
@@ -87,11 +87,11 @@ function OrderDetailContent() {
       {/* Header */}
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
-          <Link href="/store/orders" className="text-sm text-[#756b60] hover:text-[#171412] transition">
+          <Link href="/store/orders" className="text-sm text-[var(--store-text-muted)] hover:text-[var(--store-primary)] transition">
             ← My Orders
           </Link>
           <h1 className="mt-2 text-2xl font-black tracking-tight">Order #{order.orderNumber}</h1>
-          <p className="text-sm text-[#756b60] mt-0.5">
+          <p className="text-sm text-[var(--store-text-muted)] mt-0.5">
             Placed {new Date(order.placedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
           </p>
         </div>
@@ -111,23 +111,23 @@ function OrderDetailContent() {
           <div className="flex items-center justify-between">
             {STATUS_STEPS.map((step, i) => (
               <div key={step} className="flex-1 flex flex-col items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition ${i <= stepIndex ? "bg-[#171412] text-white" : "bg-[#ede8e1] text-[#9a9088]"}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition ${i <= stepIndex ? "bg-[var(--store-primary)] text-white" : "bg-[var(--store-border)] text-[var(--store-text-light)]"}`}>
                   {i < stepIndex ? "✓" : i + 1}
                 </div>
-                <p className={`mt-2 text-xs font-bold capitalize text-center ${i <= stepIndex ? "text-[#171412]" : "text-[#9a9088]"}`}>
+                <p className={`mt-2 text-xs font-bold capitalize text-center ${i <= stepIndex ? "text-[var(--store-primary)]" : "text-[var(--store-text-light)]"}`}>
                   {step}
                 </p>
                 {i < STATUS_STEPS.length - 1 && (
-                  <div className={`absolute h-0.5 w-full ${i < stepIndex ? "bg-[#171412]" : "bg-[#ede8e1]"}`} style={{ display: "none" }} />
+                  <div className={`absolute h-0.5 w-full ${i < stepIndex ? "bg-[var(--store-primary)]" : "bg-[var(--store-border)]"}`} style={{ display: "none" }} />
                 )}
               </div>
             ))}
           </div>
           {/* Connector line */}
           <div className="relative mt-[-2.5rem] mb-8 mx-4 hidden sm:block">
-            <div className="h-0.5 bg-[#ede8e1] absolute top-0 left-0 right-0" />
+            <div className="h-0.5 bg-[var(--store-border)] absolute top-0 left-0 right-0" />
             <div
-              className="h-0.5 bg-[#171412] absolute top-0 left-0 transition-all"
+              className="h-0.5 bg-[var(--store-primary)] absolute top-0 left-0 transition-all"
               style={{ width: `${(stepIndex / (STATUS_STEPS.length - 1)) * 100}%` }}
             />
           </div>
@@ -146,16 +146,16 @@ function OrderDetailContent() {
                     <Link href={`/store/products/${item.product.slug}`} className="font-bold hover:underline">
                       {item.product.name}
                     </Link>
-                    <p className="text-[#756b60] text-xs mt-0.5">SKU: {item.variant.sku} × {item.quantity}</p>
+                    <p className="text-[var(--store-text-muted)] text-xs mt-0.5">SKU: {item.variant.sku} × {item.quantity}</p>
                   </div>
                   <p className="font-black shrink-0">{formatPrice(item.totalPrice)}</p>
                 </div>
               ))}
             </div>
-            <hr className="border-[#ede8e1] my-4" />
+            <hr className="border-[var(--store-border)] my-4" />
             <div className="space-y-1.5 text-sm">
               <div className="flex justify-between">
-                <span className="text-[#756b60]">Subtotal</span>
+                <span className="text-[var(--store-text-muted)]">Subtotal</span>
                 <span className="font-bold">{formatPrice(parseFloat(String(order.total)) + parseFloat(String(order.discount)) - parseFloat(String(order.shippingCost)))}</span>
               </div>
               {parseFloat(String(order.discount)) > 0 && (
@@ -165,10 +165,10 @@ function OrderDetailContent() {
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-[#756b60]">Shipping</span>
+                <span className="text-[var(--store-text-muted)]">Shipping</span>
                 <span className="font-bold">{formatPrice(order.shippingCost)}</span>
               </div>
-              <div className="flex justify-between text-base font-black pt-1 border-t border-[#ede8e1]">
+              <div className="flex justify-between text-base font-black pt-1 border-t border-[var(--store-border)]">
                 <span>Total</span>
                 <span>{formatPrice(order.total)}</span>
               </div>
@@ -192,14 +192,14 @@ function OrderDetailContent() {
           {/* Delivery address */}
               {order.address && (
             <div className="rounded-2xl bg-white p-5 shadow-sm">
-              <h3 className="text-sm font-black uppercase tracking-wider text-[#756b60] mb-3">Delivery Address</h3>
+              <h3 className="text-sm font-black uppercase tracking-wider text-[var(--store-text-muted)] mb-3">Delivery Address</h3>
               <div className="text-sm space-y-0.5">
                 <p className="font-black">{order.address.fullName}</p>
-                <p className="text-[#51483f]">{order.address.addressLine1}</p>
-                {order.address.addressLine2 && <p className="text-[#51483f]">{order.address.addressLine2}</p>}
-                <p className="text-[#51483f]">{order.address.city}, {order.address.state} {order.address.postalCode}</p>
-                <p className="text-[#51483f]">{order.address.country}</p>
-                <p className="text-[#51483f]">{order.address.phone}</p>
+                <p className="text-[var(--store-text)]">{order.address.addressLine1}</p>
+                {order.address.addressLine2 && <p className="text-[var(--store-text)]">{order.address.addressLine2}</p>}
+                <p className="text-[var(--store-text)]">{order.address.city}, {order.address.state} {order.address.postalCode}</p>
+                <p className="text-[var(--store-text)]">{order.address.country}</p>
+                <p className="text-[var(--store-text)]">{order.address.phone}</p>
               </div>
             </div>
           )}
@@ -207,7 +207,7 @@ function OrderDetailContent() {
           {/* Payment */}
           {order.payments && order.payments.length > 0 && (
             <div className="rounded-2xl bg-white p-5 shadow-sm">
-              <h3 className="text-sm font-black uppercase tracking-wider text-[#756b60] mb-3">Payment</h3>
+              <h3 className="text-sm font-black uppercase tracking-wider text-[var(--store-text-muted)] mb-3">Payment</h3>
               {order.payments.map((p) => (
                 <div key={p.id} className="text-sm space-y-1">
                   <p className="font-bold capitalize">{p.method?.replace(/_/g, " ")}</p>

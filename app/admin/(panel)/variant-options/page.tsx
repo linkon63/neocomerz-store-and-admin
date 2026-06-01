@@ -294,7 +294,7 @@ export default function VariantOptionsPage() {
                       className="odd:bg-white even:bg-slate-50/70"
                       key={option.id}
                     >
-                      <td className="px-5 py-4 font-bold text-slate-800">
+                      <td className="px-5 py-4 text-sm text-slate-800">
                         {option.name}
                       </td>
                       <td className="px-5 py-4">
@@ -302,39 +302,37 @@ export default function VariantOptionsPage() {
                           {(option.values ?? []).length > 0 ? (
                             option.values?.map((item) => (
                               <span
-                                className="rounded-lg bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700"
+                                className="rounded-md border border-slate-200/50 bg-slate-50 px-2 py-0.5 text-xs text-slate-600 font-normal"
                                 key={item.id}
                               >
                                 {item.value}
                               </span>
                             ))
                           ) : (
-                            <span className="font-medium text-slate-500">
+                            <span className="text-xs text-slate-400">
                               No values
                             </span>
                           )}
                         </div>
                       </td>
-                      <td className="px-5 py-4 font-medium text-slate-700">
+                      <td className="px-5 py-4 text-sm text-slate-600">
                         {option.values?.length ?? 0} values
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex gap-2">
                           <button
-                            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium"
                             onClick={() => openEditModal(option)}
+                            className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors"
                             type="button"
                           >
                             <AdminIcon className="h-4 w-4" name="edit" />
-                            Edit
                           </button>
                           <button
-                            className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700"
                             onClick={() => deleteVariantOption(option)}
+                            className="grid h-8 w-8 place-items-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors"
                             type="button"
                           >
                             <AdminIcon className="h-4 w-4" name="x" />
-                            Delete
                           </button>
                         </div>
                       </td>
@@ -369,23 +367,23 @@ export default function VariantOptionsPage() {
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <h2
-                  className="text-xl font-semibold text-slate-900"
+                <h3
+                  className="text-base font-semibold text-slate-900"
                   id="variant-option-modal-title"
                 >
-                  {form.id ? "Edit variant option" : "Add variant option"}
-                </h2>
-                <p className="mt-1 font-medium text-slate-600">
+                  {form.id ? "Edit Variant Option" : "Add Variant Option"}
+                </h3>
+                <p className="mt-1 text-xs text-slate-500">
                   Set the option group and the values customers can select.
                 </p>
               </div>
               <button
-                className="grid h-10 w-10 place-items-center rounded-lg border border-slate-300 text-slate-600"
+                className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600"
                 disabled={isSaving}
                 onClick={closeModal}
                 type="button"
               >
-                <AdminIcon className="h-5 w-5" name="x" />
+                <AdminIcon className="h-4 w-4" name="x" />
               </button>
             </div>
             <div className="space-y-4">
@@ -395,7 +393,7 @@ export default function VariantOptionsPage() {
                 </span>
                 <input
                   autoFocus
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
@@ -413,12 +411,12 @@ export default function VariantOptionsPage() {
                     Values
                   </span>
                   <button
-                    className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-medium"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-medium hover:bg-slate-100 transition-colors"
                     disabled={isSaving}
                     onClick={addValueInput}
                     type="button"
                   >
-                    <AdminIcon className="h-4 w-4" name="plus" />
+                    <AdminIcon className="h-3.5 w-3.5" name="plus" />
                     Add Value
                   </button>
                 </div>
@@ -427,7 +425,7 @@ export default function VariantOptionsPage() {
                     {form.values.map((item, index) => (
                       <div className="flex gap-2" key={item.id ?? index}>
                         <input
-                          className="h-12 min-w-0 flex-1 rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                          className="h-10 min-w-0 flex-1 rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                           onChange={(event) =>
                             updateValue(index, event.target.value)
                           }
@@ -435,12 +433,12 @@ export default function VariantOptionsPage() {
                           value={item.value}
                         />
                         <button
-                          className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-red-50 text-red-700 disabled:opacity-50"
+                          className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-red-100 bg-red-50/50 hover:bg-red-50 text-red-500 hover:border-red-200 transition-colors disabled:opacity-50"
                           disabled={isSaving || form.values.length === 1}
                           onClick={() => removeValueInput(index)}
                           type="button"
                         >
-                          <AdminIcon className="h-5 w-5" name="x" />
+                          <AdminIcon className="h-4 w-4" name="x" />
                         </button>
                       </div>
                     ))}
@@ -454,7 +452,7 @@ export default function VariantOptionsPage() {
               )}
               <div className="flex justify-end gap-3 pt-2">
                 <button
-                  className="h-12 rounded-lg border border-slate-300 bg-white px-5 font-medium text-slate-700"
+                  className="h-10 rounded-lg border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
                   disabled={isSaving}
                   onClick={closeModal}
                   type="button"
@@ -462,12 +460,12 @@ export default function VariantOptionsPage() {
                   Cancel
                 </button>
                 <button
-                  className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-5 font-medium text-white disabled:bg-slate-400"
+                  className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white disabled:bg-slate-400 hover:bg-blue-700 transition-colors"
                   disabled={isSaving}
                   type="submit"
                 >
                   <AdminIcon
-                    className="h-5 w-5"
+                    className="h-4 w-4"
                     name={form.id ? "check" : "plus"}
                   />
                   {isSaving

@@ -23,6 +23,26 @@ type Product = {
   name: string;
 };
 
+function formatDateTime(dateStr?: string) {
+  if (!dateStr) return "Always";
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return "Always";
+  
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const month = months[date.getMonth()];
+  const day = date.getDate();
+  const year = date.getFullYear();
+  
+  let hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  const minStr = minutes < 10 ? "0" + minutes : minutes;
+  
+  return `${month} ${day}, ${year}, ${hours}:${minStr} ${ampm}`;
+}
+
 export default function DiscountsPage() {
   const [discounts, setDiscounts] = useState<Discount[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -33,6 +53,7 @@ export default function DiscountsPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isViewOnly, setIsViewOnly] = useState(false);
 
   // Form Fields
   const [name, setName] = useState("");
@@ -76,6 +97,7 @@ export default function DiscountsPage() {
     setEndDate("");
     setStatus("active");
     setSelectedProductIds([]);
+    setIsViewOnly(false);
     setIsOpen(true);
   };
 
@@ -88,6 +110,20 @@ export default function DiscountsPage() {
     setEndDate(disc.endDate ? new Date(disc.endDate).toISOString().split("T")[0] : "");
     setStatus(disc.status);
     setSelectedProductIds(disc.products?.map((p) => p.id) ?? []);
+    setIsViewOnly(false);
+    setIsOpen(true);
+  };
+
+  const openView = (disc: Discount) => {
+    setEditingId(disc.id);
+    setName(disc.name);
+    setType(disc.type);
+    setValue(disc.value.toString());
+    setStartDate(disc.startDate ? new Date(disc.startDate).toISOString().split("T")[0] : "");
+    setEndDate(disc.endDate ? new Date(disc.endDate).toISOString().split("T")[0] : "");
+    setStatus(disc.status);
+    setSelectedProductIds(disc.products?.map((p) => p.id) ?? []);
+    setIsViewOnly(true);
     setIsOpen(true);
   };
 
@@ -206,7 +242,7 @@ export default function DiscountsPage() {
           <table className="w-full min-w-[900px] text-left">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                {["Name", "Type & Value", "Linked Products", "Schedule", "Status", "Actions"].map((heading) => (
+                {["Discount Name", "Discount Type", "Discount Value", "Starts At", "Ends At", "Status", "Action"].map((heading) => (
                   <th className="px-5 py-4 text-sm font-semibold text-slate-700" key={heading}>
                     {heading}
                   </th>
@@ -216,7 +252,7 @@ export default function DiscountsPage() {
             <tbody className="divide-y divide-slate-100">
               {discounts.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-5 py-12 text-center text-slate-400 font-medium">
+                  <td colSpan={7} className="px-5 py-12 text-center text-slate-400 font-medium">
                     No discounts created yet.
                   </td>
                 </tr>
@@ -225,16 +261,16 @@ export default function DiscountsPage() {
                   <tr className="hover:bg-slate-50/50 transition-colors" key={row.id}>
                     <td className="px-5 py-4 font-semibold text-slate-800">{row.name}</td>
                     <td className="px-5 py-4 font-medium text-slate-600">
-                      {row.type === "percentage" ? `${row.value}% OFF` : `৳${row.value} OFF`}
+                      {row.type === "percentage" ? "Percentage" : "Fixed Flat Rate"}
                     </td>
-                    <td className="px-5 py-4 font-medium text-slate-500 max-w-xs truncate">
-                      {row.products && row.products.length > 0
-                        ? row.products.map((p) => p.name).join(", ")
-                        : "All Products"}
+                    <td className="px-5 py-4 font-medium text-slate-600">
+                      {row.type === "percentage" ? `${row.value}%` : `৳${row.value}`}
                     </td>
                     <td className="px-5 py-4 font-medium text-slate-500 text-xs">
-                      {row.startDate ? new Date(row.startDate).toLocaleDateString() : "Always"} -{" "}
-                      {row.endDate ? new Date(row.endDate).toLocaleDateString() : "Always"}
+                      {formatDateTime(row.startDate)}
+                    </td>
+                    <td className="px-5 py-4 font-medium text-slate-500 text-xs">
+                      {formatDateTime(row.endDate)}
                     </td>
                     <td className="px-5 py-4">
                       <button
@@ -253,16 +289,23 @@ export default function DiscountsPage() {
                     <td className="px-5 py-4">
                       <div className="flex gap-2">
                         <button
-                          onClick={() => openEdit(row)}
+                          onClick={() => openView(row)}
                           className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100"
+                          title="View Details"
                         >
-                          <AdminIcon className="h-4 w-4" name="edit" />
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
                         </button>
                         <button
-                          onClick={() => handleDelete(row.id)}
-                          className="grid h-8 w-8 place-items-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50"
+                          onClick={() => openEdit(row)}
+                          className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100"
+                          title="Edit"
                         >
-                          <AdminIcon className="h-4 w-4" name="x" />
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                          </svg>
                         </button>
                       </div>
                     </td>
@@ -279,7 +322,9 @@ export default function DiscountsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
           <div className="relative w-full max-w-2xl rounded-xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold text-slate-800">{editingId ? "Edit Discount" : "Add Discount"}</h3>
+            <h3 className="text-lg font-semibold text-slate-800">
+              {isViewOnly ? "Discount Details" : editingId ? "Edit Discount" : "Add Discount"}
+            </h3>
 
             <form onSubmit={handleSubmit} className="mt-5 space-y-4">
               <div>
@@ -287,10 +332,11 @@ export default function DiscountsPage() {
                 <input
                   type="text"
                   required
+                  disabled={isViewOnly}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Eid Mega Sale"
-                  className="w-full h-11 border border-slate-300 rounded-lg px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full h-11 border border-slate-300 rounded-lg px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50 disabled:text-slate-500"
                 />
               </div>
 
@@ -299,8 +345,9 @@ export default function DiscountsPage() {
                   <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Discount Type</label>
                   <select
                     value={type}
+                    disabled={isViewOnly}
                     onChange={(e) => setType(e.target.value as "percentage" | "fixed")}
-                    className="w-full h-11 border border-slate-300 rounded-lg px-4 text-sm font-medium bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full h-11 border border-slate-300 rounded-lg px-4 text-sm font-medium bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50 disabled:text-slate-500"
                   >
                     <option value="percentage">Percentage (%)</option>
                     <option value="fixed">Fixed Flat Rate (৳)</option>
@@ -311,10 +358,11 @@ export default function DiscountsPage() {
                   <input
                     type="number"
                     required
+                    disabled={isViewOnly}
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
                     placeholder="e.g. 15"
-                    className="w-full h-11 border border-slate-300 rounded-lg px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full h-11 border border-slate-300 rounded-lg px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50 disabled:text-slate-500"
                   />
                 </div>
               </div>
@@ -324,18 +372,20 @@ export default function DiscountsPage() {
                   <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Start Date</label>
                   <input
                     type="date"
+                    disabled={isViewOnly}
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full h-11 border border-slate-300 rounded-lg px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full h-11 border border-slate-300 rounded-lg px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50 disabled:text-slate-500"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">End Date</label>
                   <input
                     type="date"
+                    disabled={isViewOnly}
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full h-11 border border-slate-300 rounded-lg px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full h-11 border border-slate-300 rounded-lg px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50 disabled:text-slate-500"
                   />
                 </div>
               </div>
@@ -344,8 +394,9 @@ export default function DiscountsPage() {
                 <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Status</label>
                 <select
                   value={status}
+                  disabled={isViewOnly}
                   onChange={(e) => setStatus(e.target.value as "active" | "inactive")}
-                  className="w-full h-11 border border-slate-300 rounded-lg px-4 text-sm font-medium bg-white outline-none focus:border-blue-500"
+                  className="w-full h-11 border border-slate-300 rounded-lg px-4 text-sm font-medium bg-white outline-none focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-500"
                 >
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
@@ -359,9 +410,10 @@ export default function DiscountsPage() {
                     <label key={prod.id} className="flex items-center gap-3 text-sm font-medium text-slate-700 cursor-pointer">
                       <input
                         type="checkbox"
+                        disabled={isViewOnly}
                         checked={selectedProductIds.includes(prod.id)}
                         onChange={() => toggleProductSelect(prod.id)}
-                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4.5 w-4.5"
+                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4.5 w-4.5 disabled:opacity-50"
                       />
                       <span>{prod.name}</span>
                     </label>
@@ -375,15 +427,17 @@ export default function DiscountsPage() {
                   onClick={() => setIsOpen(false)}
                   className="h-11 px-5 rounded-lg border border-slate-300 font-bold hover:bg-slate-50 transition-colors"
                 >
-                  Discard
+                  {isViewOnly ? "Close" : "Discard"}
                 </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="h-11 px-5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors disabled:bg-blue-400"
-                >
-                  {isSaving ? "Saving..." : "Save Discount"}
-                </button>
+                {!isViewOnly && (
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className="h-11 px-5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors disabled:bg-blue-400"
+                  >
+                    {isSaving ? "Saving..." : "Save Discount"}
+                  </button>
+                )}
               </div>
             </form>
           </div>

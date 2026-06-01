@@ -135,7 +135,7 @@ export function ProductCard({ product, onCartUpdate }: ProductCardProps) {
           </div>
 
           {/* Name */}
-          <h3 className="text-[14px] font-semibold leading-snug line-clamp-2 group-hover:text-orange-600 transition-colors" style={{ color: "var(--store-text)" }}>
+          <h3 className="text-[14px] font-semibold leading-snug line-clamp-2 group-hover:text-[var(--store-primary)] transition-colors" style={{ color: "var(--store-text)" }}>
             {product.name}
           </h3>
 

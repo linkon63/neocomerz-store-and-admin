@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useMemo } from "react";
 import { AdminIcon } from "./admin-icons";
 import { menuGroups } from "./admin-nav-data";
 import { useAdminAuth } from "../_hooks/use-admin-auth";
@@ -15,6 +16,29 @@ export { PageHeader, StatusToggle, ProductThumb } from "./admin-ui";
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, isChecking, handleLogout } = useAdminAuth();
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+
+  const toggleGroup = (groupTitle: string) => {
+    setExpandedGroups((prev) => ({
+      ...prev,
+      [groupTitle]: !prev[groupTitle],
+    }));
+  };
+
+  const initialExpandedGroups = useMemo(() => {
+    const expanded: Record<string, boolean> = {};
+    menuGroups.forEach((group) => {
+      const hasActiveChild = group.items.some((item) => pathname === item.href);
+      if (hasActiveChild) {
+        expanded[group.title] = true;
+      }
+    });
+    return expanded;
+  }, [pathname]);
+
+  const mergedExpandedGroups = useMemo(() => {
+    return { ...initialExpandedGroups, ...expandedGroups };
+  }, [initialExpandedGroups, expandedGroups]);
 
   if (isChecking || !user) {
     return (
@@ -37,35 +61,70 @@ export function AdminShell({ children }: { children: ReactNode }) {
           </div>
 
           <nav className="flex-1 overflow-y-auto px-3 pb-6 pt-5">
-            {menuGroups.map((group) => (
-              <div className="mb-7" key={group.title}>
-                <p className="px-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                  {group.title}
-                </p>
-                <div className="mt-2 space-y-1">
-                  {group.items.map((item) => {
-                    const isCurrent = pathname === item.href;
-                    return (
-                      <Link
-                        className={`flex h-10 items-center gap-3 px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 ${
-                          item.child ? "ml-5 font-medium" : ""
-                        } ${isCurrent ? "bg-slate-100 text-slate-950" : ""}`}
-                        href={item.href}
-                        key={`${group.title}-${item.label}`}
-                      >
-                        <span className={item.child ? "text-slate-400" : "text-slate-500"}>
-                          <AdminIcon name={item.icon} />
-                        </span>
-                        <span className="flex-1">{item.label}</span>
-                        {!item.child && (
-                          <AdminIcon className="h-4 w-4 text-slate-400" name="chevronRight" />
-                        )}
-                      </Link>
-                    );
-                  })}
+            {menuGroups.map((group) => {
+              const groupParentItems = group.items.filter((item) => !item.child);
+              const isGroupExpanded = mergedExpandedGroups[group.title] ?? groupParentItems.length > 0;
+
+              return (
+                <div className="mb-7" key={group.title}>
+                  <p className="px-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    {group.title}
+                  </p>
+                  <div className="mt-2 space-y-1">
+                    {group.items.map((item) => {
+                      const isCurrent = pathname === item.href;
+                      const hasChildren = group.items.some((i) => i.child && i.href.startsWith(item.href));
+
+                      if (item.child && !isGroupExpanded) return null;
+
+                      return (
+                        <div key={`${group.title}-${item.label}`}>
+                          {hasChildren && !item.child ? (
+                            <button
+                              onClick={() => toggleGroup(group.title)}
+                              className={`flex w-full h-10 items-center gap-3 px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors ${
+                                isCurrent ? "bg-slate-100 text-slate-950" : ""
+                              }`}
+                            >
+                              <span className="text-slate-500">
+                                <AdminIcon name={item.icon} />
+                              </span>
+                              <span className="flex-1 text-left">{item.label}</span>
+                              <AdminIcon
+                                className={`h-4 w-4 text-slate-400 transition-transform ${
+                                  isGroupExpanded ? "rotate-90" : ""
+                                }`}
+                                name="chevronRight"
+                              />
+                            </button>
+                          ) : (
+                            <Link
+                              className={`flex h-10 items-center gap-3 px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors ${
+                                item.child ? "ml-5 font-medium" : ""
+                              } ${isCurrent ? "bg-slate-100 text-slate-950" : ""}`}
+                              href={item.href}
+                            >
+                              <span className={item.child ? "text-slate-400" : "text-slate-500"}>
+                                <AdminIcon name={item.icon} />
+                              </span>
+                              <span className="flex-1">{item.label}</span>
+                              {!item.child && hasChildren && (
+                                <AdminIcon
+                                  className={`h-4 w-4 text-slate-400 transition-transform ${
+                                    isGroupExpanded ? "rotate-90" : ""
+                                  }`}
+                                  name="chevronRight"
+                                />
+                              )}
+                            </Link>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </nav>
 
           <div className="border-t border-slate-100 p-4">

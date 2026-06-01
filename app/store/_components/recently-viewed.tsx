@@ -43,7 +43,7 @@ export function RecentlyViewed() {
   if (loading || products.length === 0) return null;
 
   return (
-    <section className="mt-16 border-t border-[#ded7ce] pt-12">
+    <section className="mt-16 border-t border-[var(--store-border)] pt-12">
       <h2 className="text-2xl font-black tracking-tight mb-8">Recently Viewed</h2>
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {products.map((product) => {
@@ -54,7 +54,7 @@ export function RecentlyViewed() {
               href={`/store/products/${product.slug}`}
               className="group block rounded-2xl bg-white p-3 shadow-sm transition hover:shadow-md"
             >
-              <div className="aspect-[4/5] overflow-hidden rounded-xl bg-[#f0ece6] mb-3">
+              <div className="aspect-[4/5] overflow-hidden rounded-xl bg-[var(--store-surface-2)] mb-3">
                 <img
                   src={getProductImage(product)}
                   alt={product.name}
@@ -62,8 +62,8 @@ export function RecentlyViewed() {
                 />
               </div>
               <div>
-                <p className="text-sm font-bold text-[#171412] line-clamp-1">{product.name}</p>
-                <p className="mt-1 text-sm font-black text-[#171412]">
+                <p className="text-sm font-bold text-[var(--store-text)] line-clamp-1">{product.name}</p>
+                <p className="mt-1 text-sm font-black text-[var(--store-text)]">
                   {variant ? formatPrice(variant.price) : "—"}
                 </p>
               </div>

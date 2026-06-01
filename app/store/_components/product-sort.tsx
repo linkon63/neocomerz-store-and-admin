@@ -27,14 +27,14 @@ export function ProductSort() {
 
   return (
     <div className="flex items-center gap-3">
-      <label htmlFor="sort" className="text-sm font-semibold text-[#51483f]">
+      <label htmlFor="sort" className="text-sm font-semibold text-[var(--store-text-muted)]">
         Sort by:
       </label>
       <select
         id="sort"
         value={currentSort}
         onChange={(e) => handleSort(e.target.value as SortOption)}
-        className="rounded-lg border border-[#ded7ce] bg-white px-3 py-2 text-sm font-medium text-[#171412] focus:outline-none focus:ring-2 focus:ring-[#d7f36b] transition"
+        className="rounded-lg border border-[var(--store-border)] bg-white px-3 py-2 text-sm font-medium text-[var(--store-text)] focus:outline-none focus:ring-2 focus:ring-[var(--store-primary-mid)] transition"
       >
         {SORT_OPTIONS.map((option) => (
           <option key={option.value} value={option.value}>

@@ -233,26 +233,26 @@ export default function TagsPage() {
                       className="odd:bg-white even:bg-slate-50/70"
                       key={tag.id}
                     >
-                      <td className="px-5 py-4 font-bold text-slate-800">
+                      <td className="px-5 py-4 text-sm text-slate-800">
                         {tag.name}
                       </td>
-                      <td className="px-5 py-4 font-medium text-slate-700">
+                      <td className="px-5 py-4 text-sm text-slate-600">
                         {tag.slug}
                       </td>
-                      <td className="px-5 py-4 font-medium text-slate-700">
+                      <td className="px-5 py-4 text-sm text-slate-600">
                         {tag.description || "-"}
                       </td>
-                      <td className="px-5 py-4 font-medium text-slate-700">
+                      <td className="px-5 py-4 text-sm text-slate-600">
                         {tag._count?.products ?? 0}
                       </td>
-                      <td className="px-5 py-4 font-medium text-slate-700">
+                      <td className="px-5 py-4 text-sm text-slate-600">
                         {formatDate(tag.createdAt)}
                       </td>
                       <td className="px-5 py-4">
                         {tag.isActive ? (
                           <StatusToggle />
                         ) : (
-                          <span className="rounded-md border border-amber-300 bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
+                          <span className="rounded-md border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-normal text-amber-700">
                             Draft
                           </span>
                         )}
@@ -260,20 +260,18 @@ export default function TagsPage() {
                       <td className="px-5 py-4">
                         <div className="flex gap-2">
                           <button
-                            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium"
                             onClick={() => openEditModal(tag)}
+                            className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors"
                             type="button"
                           >
                             <AdminIcon className="h-4 w-4" name="edit" />
-                            Edit
                           </button>
                           <button
-                            className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700"
                             onClick={() => deleteTag(tag)}
+                            className="grid h-8 w-8 place-items-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors"
                             type="button"
                           >
                             <AdminIcon className="h-4 w-4" name="x" />
-                            Delete
                           </button>
                         </div>
                       </td>
@@ -299,20 +297,20 @@ export default function TagsPage() {
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-semibold" id="tag-modal-title">
-                  {form.id ? "Edit tag" : "Add tag"}
-                </h2>
-                <p className="mt-1 font-medium text-slate-600">
+                <h3 className="text-base font-semibold text-slate-900" id="tag-modal-title">
+                  {form.id ? "Edit Tag" : "Add Tag"}
+                </h3>
+                <p className="mt-1 text-xs text-slate-500">
                   Manage product tag name, slug, and visibility.
                 </p>
               </div>
               <button
-                className="grid h-10 w-10 place-items-center rounded-lg border border-slate-300 text-slate-600"
+                className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600"
                 disabled={isSaving}
                 onClick={closeModal}
                 type="button"
               >
-                <AdminIcon className="h-5 w-5" name="x" />
+                <AdminIcon className="h-4 w-4" name="x" />
               </button>
             </div>
 
@@ -323,7 +321,7 @@ export default function TagsPage() {
                 </span>
                 <input
                   autoFocus
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(event) => updateName(event.target.value)}
                   required
                   value={form.name}
@@ -334,7 +332,7 @@ export default function TagsPage() {
                   Slug
                 </span>
                 <input
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
@@ -350,7 +348,7 @@ export default function TagsPage() {
                   Description
                 </span>
                 <textarea
-                  className="min-h-24 w-full rounded-lg border border-slate-300 px-4 py-3 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="min-h-24 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
@@ -360,7 +358,7 @@ export default function TagsPage() {
                   value={form.description}
                 />
               </label>
-              <label className="flex items-center gap-3 rounded-lg border border-slate-300 px-4 py-3 font-medium text-slate-700">
+              <label className="flex items-center gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
                 <input
                   checked={form.isActive}
                   className="h-4 w-4 accent-blue-600"
@@ -381,7 +379,7 @@ export default function TagsPage() {
               )}
               <div className="flex justify-end gap-3 pt-2">
                 <button
-                  className="h-12 rounded-lg border border-slate-300 bg-white px-5 font-medium text-slate-700"
+                  className="h-10 rounded-lg border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
                   disabled={isSaving}
                   onClick={closeModal}
                   type="button"
@@ -389,12 +387,12 @@ export default function TagsPage() {
                   Cancel
                 </button>
                 <button
-                  className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-5 font-medium text-white disabled:bg-slate-400"
+                  className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white disabled:bg-slate-400 hover:bg-blue-700 transition-colors"
                   disabled={isSaving}
                   type="submit"
                 >
                   <AdminIcon
-                    className="h-5 w-5"
+                    className="h-4 w-4"
                     name={form.id ? "check" : "plus"}
                   />
                   {isSaving ? "Saving..." : form.id ? "Update Tag" : "Add Tag"}

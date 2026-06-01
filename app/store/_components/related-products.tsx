@@ -37,10 +37,10 @@ export function RelatedProducts({ productId, categoryId }: RelatedProductsProps)
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 animate-pulse">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="rounded-2xl bg-white shadow-sm">
-              <div className="aspect-[4/5] bg-[#ede8e1] rounded-t-2xl" />
+              <div className="aspect-[4/5] bg-[var(--store-border)] rounded-t-2xl" />
               <div className="p-4 space-y-2">
-                <div className="h-3 bg-[#ede8e1] rounded w-1/3" />
-                <div className="h-4 bg-[#ede8e1] rounded w-3/4" />
+                <div className="h-3 bg-[var(--store-border)] rounded w-1/3" />
+                <div className="h-4 bg-[var(--store-border)] rounded w-3/4" />
               </div>
             </div>
           ))}

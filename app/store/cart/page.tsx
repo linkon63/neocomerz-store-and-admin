@@ -103,10 +103,10 @@ export default function CartPage() {
         <div className="animate-pulse space-y-4">
           {[1, 2, 3].map((i) => (
             <div key={i} className="rounded-2xl bg-white p-5 shadow-sm flex gap-4">
-              <div className="w-20 h-20 rounded-xl bg-[#ede8e1]" />
+              <div className="w-20 h-20 rounded-xl bg-[var(--store-border)]" />
               <div className="flex-1 space-y-2">
-                <div className="h-4 bg-[#ede8e1] rounded w-1/2" />
-                <div className="h-3 bg-[#ede8e1] rounded w-1/4" />
+                <div className="h-4 bg-[var(--store-border)] rounded w-1/2" />
+                <div className="h-3 bg-[var(--store-border)] rounded w-1/4" />
               </div>
             </div>
           ))}
@@ -137,10 +137,10 @@ export default function CartPage() {
         <div className="rounded-2xl bg-white p-16 text-center shadow-sm">
           <p className="text-5xl mb-4">🛒</p>
           <p className="text-xl font-black">Your cart is empty</p>
-          <p className="mt-2 text-sm text-[#756b60]">Add some products to get started.</p>
+          <p className="mt-2 text-sm text-[var(--store-text-muted)]">Add some products to get started.</p>
           <Link
             href="/store/products"
-            className="mt-6 inline-flex rounded-full bg-[#171412] px-6 py-3 text-sm font-black text-white hover:bg-[#3c332b] transition"
+            className="mt-6 inline-flex rounded-full bg-[var(--store-primary)] px-6 py-3 text-sm font-black text-white hover:bg-[var(--store-primary-hover)] transition"
           >
             Browse Products
           </Link>
@@ -161,35 +161,35 @@ export default function CartPage() {
                     <img
                       src={resolvedImg}
                       alt={product.name}
-                      className="w-20 h-20 rounded-xl object-cover bg-[#f0ece6]"
+                      className="w-20 h-20 rounded-xl object-cover bg-[var(--store-surface-2)]"
                     />
                   </Link>
                   <div className="flex-1 min-w-0">
                     <Link href={`/store/products/${product.slug}`} className="font-black text-sm hover:underline line-clamp-2">
                       {product.name}
                     </Link>
-                    <p className="text-xs text-[#756b60] mt-0.5">SKU: {item.variant.sku}</p>
+                    <p className="text-xs text-[var(--store-text-muted)] mt-0.5">SKU: {item.variant.sku}</p>
                     <p className="text-sm font-black mt-1">{formatPrice(item.variant.price)}</p>
                   </div>
                   <div className="flex flex-col items-end justify-between shrink-0">
                     <button
                       onClick={() => handleRemove(item.id)}
-                      className="text-[#9a9088] hover:text-red-500 transition"
+                      className="text-[var(--store-text-light)] hover:text-red-500 transition"
                       aria-label="Remove"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                         <path d="M18 6 6 18M6 6l12 12" />
                       </svg>
                     </button>
-                    <div className="flex items-center rounded-xl border border-[#cfc6ba] overflow-hidden">
+                    <div className="flex items-center rounded-xl border border-[var(--store-border)] overflow-hidden">
                       <button
                         onClick={() => handleQuantity(item.id, item.quantity - 1)}
-                        className="px-2.5 py-1.5 text-sm font-bold hover:bg-[#f0ece6] transition"
+                        className="px-2.5 py-1.5 text-sm font-bold hover:bg-[var(--store-surface-2)] transition"
                       >−</button>
                       <span className="px-3 py-1.5 text-sm font-black min-w-[2rem] text-center">{item.quantity}</span>
                       <button
                         onClick={() => handleQuantity(item.id, item.quantity + 1)}
-                        className="px-2.5 py-1.5 text-sm font-bold hover:bg-[#f0ece6] transition"
+                        className="px-2.5 py-1.5 text-sm font-bold hover:bg-[var(--store-surface-2)] transition"
                       >+</button>
                     </div>
                     <p className="text-sm font-black">{formatPrice(parseFloat(String(item.variant.price)) * item.quantity)}</p>
@@ -206,7 +206,7 @@ export default function CartPage() {
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-[#756b60]">Subtotal ({items.length} items)</span>
+                  <span className="text-[var(--store-text-muted)]">Subtotal ({items.length} items)</span>
                   <span className="font-bold">{formatPrice(subtotal)}</span>
                 </div>
                 {couponDiscount > 0 && (
@@ -216,10 +216,10 @@ export default function CartPage() {
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-[#756b60]">Shipping</span>
+                  <span className="text-[var(--store-text-muted)]">Shipping</span>
                   <span className="font-bold text-green-600">Calculated at checkout</span>
                 </div>
-                <hr className="border-[#ede8e1] my-2" />
+                <hr className="border-[var(--store-border)] my-2" />
                 <div className="flex justify-between text-base font-black">
                   <span>Total</span>
                   <span>{formatPrice(total)}</span>
@@ -228,19 +228,19 @@ export default function CartPage() {
 
               {/* Coupon */}
               <div className="mt-5">
-                <p className="text-xs font-black uppercase tracking-wider text-[#756b60] mb-2">Coupon Code</p>
+                <p className="text-xs font-black uppercase tracking-wider text-[var(--store-text-muted)] mb-2">Coupon Code</p>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
                     placeholder="Enter code"
-                    className="flex-1 rounded-xl border border-[#cfc6ba] px-3 py-2 text-sm focus:border-[#171412] focus:outline-none"
+                    className="flex-1 rounded-xl border border-[var(--store-border)] px-3 py-2 text-sm focus:border-[var(--store-primary)] focus:outline-none"
                   />
                   <button
                     onClick={handleApplyCoupon}
                     disabled={applyingCoupon}
-                    className="rounded-xl bg-[#171412] px-3 py-2 text-sm font-bold text-white hover:bg-[#3c332b] transition disabled:opacity-50"
+                    className="rounded-xl bg-[var(--store-primary)] px-3 py-2 text-sm font-bold text-white hover:bg-[var(--store-primary-hover)] transition disabled:opacity-50"
                   >
                     {applyingCoupon ? "..." : "Apply"}
                   </button>
@@ -251,13 +251,13 @@ export default function CartPage() {
 
               <Link
                 href="/store/checkout"
-                className="mt-5 block w-full rounded-full bg-[#171412] py-3 text-center text-sm font-black text-white hover:bg-[#3c332b] transition"
+                className="mt-5 block w-full rounded-full bg-[var(--store-primary)] py-3 text-center text-sm font-black text-white hover:bg-[var(--store-primary-hover)] transition"
               >
                 Proceed to Checkout
               </Link>
               <Link
                 href="/store/products"
-                className="mt-3 block w-full rounded-full border border-[#cfc6ba] py-3 text-center text-sm font-bold hover:border-[#171412] transition"
+                className="mt-3 block w-full rounded-full border border-[var(--store-border)] py-3 text-center text-sm font-bold hover:border-[var(--store-primary)] hover:text-[var(--store-primary)] transition"
               >
                 Continue Shopping
               </Link>

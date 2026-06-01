@@ -51,7 +51,7 @@ export function ToastContainer() {
               ? "bg-red-500/90 text-white"
               : toast.type === "warning"
               ? "bg-yellow-500/90 text-white"
-              : "bg-[#171412]/90 text-white"
+              : "bg-[var(--store-secondary)]/90 text-white"
           }`}
         >
           <div className="flex items-center gap-3">

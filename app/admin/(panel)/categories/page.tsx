@@ -343,7 +343,7 @@ export default function CategoriesPage() {
                       className="odd:bg-white even:bg-slate-50/70"
                       key={category.id}
                     >
-                      <td className="px-5 py-4 font-semibold text-slate-800">
+                      <td className="px-5 py-4 text-sm text-slate-800">
                         <span
                           style={{ paddingLeft: `${category.depth * 18}px` }}
                         >
@@ -368,35 +368,33 @@ export default function CategoriesPage() {
                           </div>
                         )}
                       </td>
-                      <td className="px-5 py-4 font-medium text-slate-700">
+                      <td className="px-5 py-4 text-sm text-slate-600">
                         {category.slug}
                       </td>
-                      <td className="px-5 py-4 font-medium text-slate-700">
+                      <td className="px-5 py-4 text-sm text-slate-600">
                         {category.parentName}
                       </td>
-                      <td className="px-5 py-4 font-medium text-slate-700">
+                      <td className="px-5 py-4 text-sm text-slate-600">
                         {category.products?.length ?? 0}
                       </td>
-                      <td className="px-5 py-4 font-medium text-slate-700">
+                      <td className="px-5 py-4 text-sm text-slate-600">
                         {formatDate(category.createdAt)}
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex gap-2">
                           <button
-                            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium"
                             onClick={() => openEditModal(category)}
+                            className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors"
                             type="button"
                           >
                             <AdminIcon className="h-4 w-4" name="edit" />
-                            Edit
                           </button>
                           <button
-                            className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700"
                             onClick={() => deleteCategory(category)}
+                            className="grid h-8 w-8 place-items-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors"
                             type="button"
                           >
                             <AdminIcon className="h-4 w-4" name="x" />
-                            Delete
                           </button>
                         </div>
                       </td>
@@ -507,20 +505,20 @@ export default function CategoriesPage() {
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-semibold" id="category-modal-title">
-                  {form.id ? "Edit category" : "Add category"}
-                </h2>
-                <p className="mt-1 font-medium text-slate-600">
+                <h3 className="text-base font-semibold text-slate-900" id="category-modal-title">
+                  {form.id ? "Edit Category" : "Add Category"}
+                </h3>
+                <p className="mt-1 text-xs text-slate-500">
                   Build root and nested category records.
                 </p>
               </div>
               <button
-                className="grid h-10 w-10 place-items-center rounded-lg border border-slate-300 text-slate-600"
+                className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600"
                 disabled={isSaving}
                 onClick={closeModal}
                 type="button"
               >
-                <AdminIcon className="h-5 w-5" name="x" />
+                <AdminIcon className="h-4 w-4" name="x" />
               </button>
             </div>
             <div className="space-y-4">
@@ -530,7 +528,7 @@ export default function CategoriesPage() {
                 </span>
                 <input
                   autoFocus
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(event) => updateName(event.target.value)}
                   required
                   value={form.name}
@@ -541,7 +539,7 @@ export default function CategoriesPage() {
                   Slug
                 </span>
                 <input
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
@@ -557,7 +555,7 @@ export default function CategoriesPage() {
                   Image
                 </span>
                 <input
-                  className="block w-full rounded-lg border border-slate-300 px-4 py-3 font-medium"
+                  className="block w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white file:mr-4 file:rounded-lg file:border-0 file:bg-slate-200 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-300"
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
@@ -575,7 +573,7 @@ export default function CategoriesPage() {
                   Parent category
                 </span>
                 <select
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
@@ -594,7 +592,7 @@ export default function CategoriesPage() {
                     ))}
                 </select>
               </label>
-              <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
+              <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4">
                 {visibleImagePreview ? (
                   <div className="flex items-center gap-4">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -604,20 +602,20 @@ export default function CategoriesPage() {
                       src={visibleImagePreview}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium text-slate-800">
+                      <p className="truncate text-sm text-slate-800">
                         {form.image?.name ?? "Current image"}
                       </p>
-                      <p className="mt-1 text-sm font-medium text-slate-500">
+                      <p className="mt-1 text-xs text-slate-500">
                         Preview before saving.
                       </p>
                     </div>
                     <button
-                      className="inline-flex h-10 items-center gap-2 rounded-lg bg-red-50 px-3 text-sm font-medium text-red-700"
+                      className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-red-50 px-3 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors"
                       disabled={isSaving}
                       onClick={removeImageFromForm}
                       type="button"
                     >
-                      <AdminIcon className="h-4 w-4" name="x" />
+                      <AdminIcon className="h-3.5 w-3.5" name="x" />
                       Remove
                     </button>
                   </div>
@@ -626,7 +624,7 @@ export default function CategoriesPage() {
                     <span className="grid h-12 w-12 place-items-center rounded-lg border border-slate-200 bg-white">
                       <AdminIcon className="h-5 w-5" name="category" />
                     </span>
-                    <p className="font-medium">
+                    <p className="text-sm font-medium">
                       No image selected. Upload an image to preview it here.
                     </p>
                   </div>
@@ -639,7 +637,7 @@ export default function CategoriesPage() {
               )}
               <div className="flex justify-end gap-3 pt-2">
                 <button
-                  className="h-12 rounded-lg border border-slate-300 bg-white px-5 font-medium text-slate-700"
+                  className="h-10 rounded-lg border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
                   disabled={isSaving}
                   onClick={closeModal}
                   type="button"
@@ -647,12 +645,12 @@ export default function CategoriesPage() {
                   Cancel
                 </button>
                 <button
-                  className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-5 font-medium text-white disabled:bg-slate-400"
+                  className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white disabled:bg-slate-400 hover:bg-blue-700 transition-colors"
                   disabled={isSaving}
                   type="submit"
                 >
                   <AdminIcon
-                    className="h-5 w-5"
+                    className="h-4 w-4"
                     name={form.id ? "check" : "plus"}
                   />
                   {isSaving

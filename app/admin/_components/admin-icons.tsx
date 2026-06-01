@@ -18,6 +18,7 @@ export type AdminIconName =
   | "edit"
   | "filter"
   | "image"
+  | "info"
   | "link"
   | "logout"
   | "orders"
@@ -122,6 +123,13 @@ const iconPaths: Record<AdminIconName, ReactNode> = {
       <rect height="18" rx="2" width="18" x="3" y="3" />
       <circle cx="8.5" cy="8.5" r="1.5" />
       <path d="M21 15l-5-5L5 21" />
+    </>
+  ),
+  info: (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 16v-4" />
+      <path d="M12 8h.01" />
     </>
   ),
   link: (

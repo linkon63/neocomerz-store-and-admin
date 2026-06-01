@@ -14,9 +14,9 @@ export function ImageGallery({ media, productName }: ImageGalleryProps) {
 
   if (!media || media.length === 0) {
     return (
-      <div className="aspect-square rounded-2xl bg-[#f0ece6] flex items-center justify-center">
+      <div className="aspect-square rounded-2xl bg-[var(--store-surface-2)] flex items-center justify-center">
         <svg
-          className="w-24 h-24 text-[#ded7ce]"
+          className="w-24 h-24 text-[var(--store-text-light)]"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -43,7 +43,7 @@ export function ImageGallery({ media, productName }: ImageGalleryProps) {
     <div className="space-y-4">
       {/* Main Image */}
       <div
-        className={`relative aspect-square rounded-2xl bg-[#f0ece6] overflow-hidden group ${
+        className={`relative aspect-square rounded-2xl bg-[var(--store-surface-2)] overflow-hidden group ${
           isZoomed ? "cursor-zoom-out" : "cursor-zoom-in"
         }`}
         onClick={() => setIsZoomed(!isZoomed)}
@@ -59,7 +59,7 @@ export function ImageGallery({ media, productName }: ImageGalleryProps) {
         {!isZoomed && (
           <div className="absolute top-4 right-4 p-2 rounded-full bg-white/90 shadow opacity-0 group-hover:opacity-100 transition">
             <svg
-              className="w-5 h-5 text-[#171412]"
+              className="w-5 h-5 text-[var(--store-text)]"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -84,8 +84,8 @@ export function ImageGallery({ media, productName }: ImageGalleryProps) {
               onClick={() => setSelectedIndex(index)}
               className={`aspect-square rounded-lg overflow-hidden border-2 transition ${
                 index === selectedIndex
-                  ? "border-[#171412] ring-2 ring-[#d7f36b]"
-                  : "border-transparent hover:border-[#ded7ce]"
+                  ? "border-[var(--store-primary)] ring-2 ring-[var(--store-primary-mid)]"
+                  : "border-transparent hover:border-[var(--store-border-dark)]"
               }`}
             >
               <img
