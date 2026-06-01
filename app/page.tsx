@@ -4,6 +4,7 @@ import Header from '@/components/sections/header';
 import Hero from '@/components/sections/hero';
 import Invitation from '@/components/sections/invitation';
 import Mainfooter from '@/components/sections/main-footer';
+import NewArrivals from '@/components/sections/new-arrivals';
 import TopHeader from '@/components/sections/top-header';
 
 export default function Home() {
@@ -13,6 +14,7 @@ export default function Home() {
       <Header />
       <Hero />
       <Invitation />
+      <NewArrivals />
       <Collection />
       <Mainfooter />
       <Bottomfooter />
