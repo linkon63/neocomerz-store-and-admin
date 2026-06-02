@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Tailwind v4 doesn't scan node_modules by default — include the date picker so its utility classes are generated. */
+@source "../node_modules/react-tailwindcss-datepicker/dist";
+
 @theme {
   /* Text Colors */
   --color-text-primary: rgba(35, 31, 32, 1);
