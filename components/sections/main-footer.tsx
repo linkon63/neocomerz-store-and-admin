@@ -11,21 +11,22 @@ export default function Mainfooter() {
     { label: "Report abuse", href: "/report" },
   ];
 
-  const paymentLinks = [
-    { label: "Sales tax and VAT", href: "/tax" },
-    { label: "Safe and easy payments", href: "/payments" },
-    { label: "Money-back policy", href: "/money-back" },
-    { label: "On-time shipment", href: "/shipment" },
-    { label: "After-sales protections", href: "/protections" },
-    { label: "Product monitoring services", href: "/monitoring" },
+  const exploreLinks = [
+    { label: "Sylheti Tea", href: "/sylheti-tea" },
+    { label: "Gift Sets", href: "/gift-sets" },
+    { label: "Best Sellers", href: "/best-sellers" },
+    { label: "Loose Leaf Tea", href: "/collections" },
+    { label: "New Arrivals", href: "/new-arrivals" },
   ];
-  const knowUsLinks = [
-    { label: "About Us", href: "/about" },
-    { label: "Corporate Responsibility", href: "/responsibility" },
-    { label: "Citizenship Program", href: "/citizenship" },
-    { label: "News Center", href: "/news" },
+
+  const experienceLinks = [
+    { label: "Our Heritage", href: "/about" },
+    { label: "Tea Houses", href: "/tea-houses" },
+    { label: "Brewing Guide", href: "/brewing-guide" },
+    { label: "Sustainability", href: "/sustainability" },
     { label: "Careers", href: "/careers" },
   ];
+
   return (
     <section className="w-full bg-gray-50 border-t border-gray-200">
       <div className="mainfooter-wrapper"> 
@@ -77,10 +78,10 @@ export default function Mainfooter() {
             </div>
             <div className="xl:col-span-2">
               <h3 className="font-bembo font-medium text-text-primary text-sm mb-4 uppercase">
-                PAYMENTS AND PROTECTION
+                EXPLORE
               </h3>
               <ul className="space-y-2">
-                {paymentLinks.map((link) => (
+                {exploreLinks.map((link) => (
                   <li key={link.label}>
                     <Link 
                       href={link.href}
@@ -94,10 +95,10 @@ export default function Mainfooter() {
             </div>
             <div className="xl:col-span-2">
               <h3 className="font-bembo font-medium text-text-primary text-sm mb-4 uppercase">
-                GET TO KNOW US
+                THE EXPERIENCE
               </h3>
               <ul className="space-y-2">
-                {knowUsLinks.map((link) => (
+                {experienceLinks.map((link) => (
                   <li key={link.label}>
                     <Link 
                       href={link.href}

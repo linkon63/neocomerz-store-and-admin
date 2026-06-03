@@ -2,41 +2,45 @@ import { IoIosArrowDown } from "react-icons/io";
 import { IoCallOutline, IoLocationOutline } from "react-icons/io5";
 import TopSlider from "./ui/topslider";
 import data from "@/data/top-header.json";
+
 export default function TopHeader() {
   const { help, selectors } = data;
 
   return (
-    <section className="w-full bg-brand-primary text-white font-medium px-2 sm:px-4 md:px-6">
-      <div className="topheader-wrapper">
+    <section className="w-full bg-[#f6f6f6] border-b border-zinc-200 text-zinc-600 font-medium px-2 sm:px-4 md:px-6 py-0.5">
+      <div className="topheader-wrapper max-w-[1440px] mx-auto">
         <div className="flex items-center justify-between py-1 sm:py-1.5 gap-2 md:gap-4">
           {/* Left Section - Help & Phone */}
-          <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-white">
-            <span className="font-gotham text-white hidden sm:inline">
+          <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-zinc-600">
+            <span className="font-gotham text-zinc-600 hidden sm:inline">
               {help.text}
             </span>
-            <span className="font-gotham text-white hidden sm:inline">|</span>
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <IoCallOutline className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="font-gotham text-white text-xs sm:text-sm hidden md:inline">
-                {help.phone.label}: {help.phone.full}
+            <span className="font-gotham text-zinc-400 hidden sm:inline">|</span>
+            <div className="flex items-center gap-1 sm:gap-1.5 text-zinc-600">
+              <IoCallOutline className="w-3.5 h-3.5 text-zinc-500" />
+              <span className="font-gotham text-zinc-600 text-xs sm:text-sm hidden md:inline">
+                {help.phone.label} {help.phone.full}
               </span>
-              <span className="font-gotham text-white text-xs sm:text-sm md:hidden">
+              <span className="font-gotham text-zinc-600 text-xs sm:text-sm md:hidden">
                 {help.phone.short}
               </span>
             </div>
           </div>
+
           {/* Center Section - Promotional Text */}
           <div className="hidden lg:block flex-1 max-w-xl mx-4">
             <TopSlider />
           </div>
+
           {/* Right Section - Location, Language & Currency */}
-          <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-white">
+          <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-zinc-600">
             {/* Location Icon */}
-            <IoLocationOutline className="w-3 h-3 sm:w-4 sm:h-4 hidden sm:inline" />
+            <IoLocationOutline className="w-4 h-4 text-zinc-500 hidden sm:inline" />
+            
             {/* Language Selector */}
-            <div className="flex items-center gap-0.5">
+            <div className="flex items-center gap-0.5 cursor-pointer">
               <select
-                className="bg-transparent text-white border-none outline-none cursor-pointer font-gotham text-xs sm:text-sm appearance-none pr-0.5"
+                className="bg-transparent text-zinc-600 border-none outline-none cursor-pointer font-gotham text-xs sm:text-sm appearance-none pr-0.5"
                 defaultValue={selectors.language.default}
               >
                 {selectors.language.options.map((option: { value: string; label: string }) => (
@@ -49,13 +53,13 @@ export default function TopHeader() {
                   </option>
                 ))}
               </select>
-              <IoIosArrowDown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              <IoIosArrowDown className="w-2.5 h-2.5 text-zinc-500" />
             </div>
 
             {/* Currency Selector */}
-            <div className="flex items-center gap-0.5">
+            <div className="flex items-center gap-0.5 cursor-pointer">
               <select
-                className="bg-transparent text-white border-none outline-none cursor-pointer font-gotham text-xs sm:text-sm appearance-none pr-0.5"
+                className="bg-transparent text-zinc-600 border-none outline-none cursor-pointer font-gotham text-xs sm:text-sm appearance-none pr-0.5"
                 defaultValue={selectors.currency.default}
               >
                 {selectors.currency.options.map((option: { value: string; label: string }) => (
@@ -68,7 +72,7 @@ export default function TopHeader() {
                   </option>
                 ))}
               </select>
-              <IoIosArrowDown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              <IoIosArrowDown className="w-2.5 h-2.5 text-zinc-500" />
             </div>
           </div>
         </div>
@@ -81,3 +85,4 @@ export default function TopHeader() {
     </section>
   );
 }
+

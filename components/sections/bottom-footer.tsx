@@ -7,23 +7,19 @@ export default function Bottomfooter() {
   const features = [
     {
       icon: <GiTeapotLeaves />,
-      title: "DISTINCT IN CHARACTER",
+      title: "Sovereign Seal",
     },
     {
       icon: <GiTeapotLeaves />,
-      title: "QUIET IN ITS CONFIDENCE",
-    },
-    {
-      icon: <GiTeapotLeaves  />,
-      title: "LIMITED IN NATURE",
+      title: "Grand Passage",
     },
     {
       icon: <GiTeapotLeaves />,
-      title: "SECURE PAYMENT",
+      title: "Noble Balance",
     },
     {
       icon: <GiTeapotLeaves />,
-      title: "BEAUTIFUL GIFT PACKAGING",
+      title: "World Assembly",
     },
   ];
 

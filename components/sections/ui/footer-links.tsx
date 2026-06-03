@@ -101,7 +101,7 @@ export default function FooterLinks() {
         </div>
         <div className="copyright text-center mt-4">
           <p className="font-gotham text-white text-xs">
-            © 1999-2025 sylhetea.com. All rights reserved.
+            © 2026 London Tea Exchange. All rights reserved.
           </p>
         </div>
       </div>

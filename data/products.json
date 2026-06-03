@@ -1,0 +1,183 @@
+[
+  {
+    "id": "1",
+    "name": "Tea Book Collection",
+    "price": "৳34,650",
+    "originalPrice": "৳35,000",
+    "image": "/images/products/product-4.webp",
+    "collection": "Tea Books",
+    "priceNum": 34650,
+    "category": "Black Tea",
+    "origin": "London, UK",
+    "subtitle": "A grand loose-leaf tea treasury bound in a royal velvet and gold-embossed edition.",
+    "description": "Tea Book Collection: An extraordinary velvet-bound luxury box featuring a premium curation of loose-leaf black teas from the finest gardens of Sylhet and Darjeeling.",
+    "teas": [
+      { "name": "Sovereign Black Blend", "description": "Our signature black tea, harvested at peak maturity from ancient tea trees in Sylhet. Rich, full-bodied, and deeply satisfying." },
+      { "name": "Imperial Darjeeling First Flush", "description": "A delicate and floral black tea hand-picked in early spring. Notes of muscatel grapes and dry grass with a sweet finish." },
+      { "name": "Noble Earl Grey Supreme", "description": "Premium black tea leaves infused with double-distilled oil of Italian Bergamot, creating a bright citrus aroma." }
+    ],
+    "ingredients": [
+      "Velvet presentation box",
+      "100% organic loose-leaf tea (Black Tea, Darjeeling, Bergamot Infused)",
+      "Aromatic natural flavors"
+    ],
+    "galleryImages": [
+      "/images/products/product-4.webp",
+      "/images/products/gallery-1.webp",
+      "/images/products/gallery-3.webp"
+    ]
+  },
+  {
+    "id": "2",
+    "name": "Assorted Classic Collection",
+    "price": "৳2,900",
+    "originalPrice": "৳3,000",
+    "image": "/images/products/product-3.webp",
+    "collection": "Classic Collections",
+    "priceNum": 2900,
+    "category": "Black Tea",
+    "origin": "Sylhet, Bangladesh",
+    "subtitle": "An elegant selection of classic loose-leaf black teas from the finest estates.",
+    "description": "Assorted Classic Collection: A beautiful introduction to traditional black tea blends, presented in our classic gold-patterned gift case.",
+    "teas": [
+      { "name": "Classic English Breakfast", "description": "A traditional robust blend of Assam and Sylhet black teas. Malty, rich, and perfect with milk." },
+      { "name": "Classic Afternoon Darjeeling", "description": "A medium-bodied black tea with fruity undertones and a clean, refreshing finish." }
+    ],
+    "ingredients": [
+      "Classic gold-patterned metal tin",
+      "100% loose-leaf black tea blend",
+      "Natural leaf processing"
+    ],
+    "galleryImages": [
+      "/images/products/product-3.webp",
+      "/images/products/gallery-2.webp",
+      "/images/products/gallery-4.webp"
+    ]
+  },
+  {
+    "id": "3",
+    "name": "Vol. 2 Royal Collection",
+    "price": "৳4,950",
+    "originalPrice": "৳5,000",
+    "image": "/images/products/product-6.webp",
+    "collection": "Royal Collections",
+    "priceNum": 4950,
+    "category": "Green Tea",
+    "origin": "Sylhet, Bangladesh",
+    "subtitle": "A refined introduction to our signature selections. Balanced, timeless, and crafted for everyday elegance.",
+    "description": "Tea Book Vol. 2 Royal Collection: Part of our Nobel collection, this tea book contains the following loose-leaf teas:",
+    "teas": [
+      {
+        "name": "Premium White Chai",
+        "description": "A true classic from India infused with premium white tea. This comforting and aromatic blend of rich, natural spices creates an irresistible, heart-warming, sweet-and-spicy infusion."
+      },
+      {
+        "name": "Premium Emperor’s Green",
+        "description": "Originally reserved only for Chinese Royalty, this leaf is only found in mountainous regions in the Fujian province. This pure green cup boasts a light flavour with nuances of honey."
+      },
+      {
+        "name": "Premium Shangri La",
+        "description": "Produced by hand in pristine beauty, nestling among the foothills of the Himalayas, is this exceptionally rare white tea. Hints of subtle elegance and floral aromas merge harmoniously with smooth and fruity texture."
+      },
+      {
+        "name": "Premium Royal Yellow Tea",
+        "description": "One of the rarest teas in the world and a closely guarded secret, this yellow tea has a truly unique taste with a hint of Papaya and an underlying spiciness."
+      }
+    ],
+    "ingredients": [
+      "Apple",
+      "Hibiscus (16%), Rosehip, Peach (7%)",
+      "Natural peach flavor (3%), Natural apricot flavor (2%), Natural watermelon flavor",
+      "Natural aromas (peach, apricot, watermelon)",
+      "Organically grown ingredients"
+    ],
+    "galleryImages": [
+      "/images/products/product-6.webp",
+      "/images/products/gallery-1.webp",
+      "/images/products/gallery-2.webp",
+      "/images/products/gallery-3.webp"
+    ]
+  },
+  {
+    "id": "4",
+    "name": "Vol. 2 Royal Collection (Stacked Tins)",
+    "price": "৳4,950",
+    "originalPrice": "৳5,000",
+    "image": "/images/products/product-2.webp",
+    "collection": "Royal Collections",
+    "priceNum": 4950,
+    "category": "Black Tea",
+    "origin": "Darjeeling, India",
+    "subtitle": "A special edition of our Royal Collection, packaged beautifully in 3 stacked luxury tins.",
+    "description": "Tea Book Vol. 2 Royal Collection (Stacked Edition): Packaged in a stunning set of three stacked embossed tins, ideal for gifting and high-end tea storage.",
+    "teas": [
+      { "name": "Royal Jasmine Green", "description": "Exquisite green tea leaves scented with fresh jasmine blossoms. Sweet, aromatic, and exceptionally clean." },
+      { "name": "Royal Oolong Reserve", "description": "A semi-fermented tea with rich creamy notes, sweet floral aroma, and a long-lasting velvet finish." }
+    ],
+    "ingredients": [
+      "Three stacked luxury tins",
+      "Premium jasmine green tea, high-mountain oolong tea",
+      "Hand-picked organic leaves"
+    ],
+    "galleryImages": [
+      "/images/products/product-2.webp",
+      "/images/products/gallery-1.webp",
+      "/images/products/gallery-3.webp",
+      "/images/products/gallery-4.webp"
+    ]
+  },
+  {
+    "id": "5",
+    "name": "Assorted Wild Orchard Collection",
+    "price": "৳2,900",
+    "originalPrice": "৳3,000",
+    "image": "/images/products/gallery-2.webp",
+    "collection": "Classic Collections",
+    "priceNum": 2900,
+    "category": "Herbal Infusions",
+    "origin": "Sylhet, Bangladesh",
+    "subtitle": "A fragrant selection of wild-grown herbal infusions and fruit blends harvested at peak maturity.",
+    "description": "Assorted Wild Orchard Collection: A vibrant range of naturally caffeine-free herbal teas infused with real dried orchard fruits and field flowers.",
+    "teas": [
+      { "name": "Wild Peach & Apricot", "description": "A succulent blend of orchard peaches, ripe apricots, and wild hibiscus flowers. Naturally sweet and refreshing." },
+      { "name": "Wild Watermelon Herbal", "description": "A juicy infusion of organic rosehip, dried apple, and watermelon flavor. Perfect hot or iced." }
+    ],
+    "ingredients": [
+      "Orchard presentation box",
+      "Hibiscus (20%), Rosehip, Peach bits, Apricot bits",
+      "Natural peach, apricot, and watermelon fruit flavors"
+    ],
+    "galleryImages": [
+      "/images/products/gallery-2.webp",
+      "/images/products/gallery-1.webp",
+      "/images/products/gallery-3.webp"
+    ]
+  },
+  {
+    "id": "6",
+    "name": "Tea Book Collection (Velvet Edition)",
+    "price": "৳34,650",
+    "originalPrice": "৳35,000",
+    "image": "/images/products/product-4.webp",
+    "collection": "Tea Books",
+    "priceNum": 34650,
+    "category": "Black Tea",
+    "origin": "London, UK",
+    "subtitle": "A luxury compilation of fine loose-leaf teas from our flagship collections.",
+    "description": "Tea Book Collection (Velvet Edition): Features our premium selection of rare and aged loose-leaf black teas presented in an elegant velvet-lined chest.",
+    "teas": [
+      { "name": "Vintage Yunnan Pu-Erh", "description": "A deeply fermented, earthy tea aged for 5 years. Nuanced notes of wet wood, tobacco, and dark chocolate." },
+      { "name": "Premium Assam Gold Tip", "description": "A rich, malty black tea from the Brahmaputra valley. Exceptionally smooth with natural honey sweetness." }
+    ],
+    "ingredients": [
+      "Velvet-lined luxury wood chest",
+      "Premium vintage Pu-Erh, Gold Tip Assam",
+      "Pure natural leaf processing"
+    ],
+    "galleryImages": [
+      "/images/products/product-4.webp",
+      "/images/products/gallery-2.webp",
+      "/images/products/gallery-4.webp"
+    ]
+  }
+]
