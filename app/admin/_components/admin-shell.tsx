@@ -334,7 +334,13 @@ const menuGroups: {
   },
   {
     title: "Finance",
-    items: [{ label: "Report", href: "/admin/reports", icon: "report" }],
+    items: [
+      { label: "Report", href: "/admin/reports", icon: "report", active: true },
+      { label: "Sales Report", href: "/admin/reports/sales", icon: "report", child: true },
+      { label: "Purchase Report", href: "/admin/reports/purchase", icon: "stock", child: true },
+      { label: "Discount Report", href: "/admin/reports/discount", icon: "discount", child: true },
+      { label: "Customer Report", href: "/admin/reports/customer", icon: "reviews", child: true },
+    ],
   },
   {
     title: "Administration",
