@@ -3,57 +3,35 @@
 import { AdminIcon, type AdminIconName } from "../admin-shell";
 
 export type SettingsSection =
+  | "general"
+  | "contacts"
+  | "manage-policy"
+  | "campaigns"
   | "branches"
-  | "registers"
-  | "site-settings"
-  | "website"
-  | "store-credit"
-  | "loyalty-program"
-  | "gift-voucher"
-  | "customer-groups"
-  | "discount"
-  | "billing"
-  | "inventory-settings"
-  | "pos-settings"
-  | "notifications"
-  | "message";
+  | "users"
+  | "roles"
+  | "activity-logs";
 
 export const settingsNavGroups: {
   title: string;
   items: { id: SettingsSection; label: string; icon: AdminIconName }[];
 }[] = [
   {
-    title: "General",
+    title: "Store Settings",
     items: [
-      { id: "branches", label: "Branches", icon: "store" },
-      { id: "registers", label: "Registers", icon: "pos" },
-      { id: "site-settings", label: "Site Settings", icon: "settings" },
-      { id: "website", label: "Website Settings", icon: "store" },
+      { id: "general", label: "General & Branding", icon: "settings" },
+      { id: "contacts", label: "Contact & Socials", icon: "reviews" },
+      { id: "manage-policy", label: "Policy Pages", icon: "orders" },
+      { id: "campaigns", label: "Banners & Campaigns", icon: "discount" },
+      { id: "branches", label: "Store Branches", icon: "store" },
     ],
   },
   {
-    title: "Finance",
+    title: "Access & Security",
     items: [
-      { id: "store-credit", label: "Store Credit & Refund", icon: "discount" },
-      { id: "loyalty-program", label: "Loyalty Program", icon: "tag" },
-      { id: "gift-voucher", label: "Gift Voucher", icon: "voucher" },
-      { id: "customer-groups", label: "Customer Groups", icon: "reviews" },
-      { id: "discount", label: "Discount", icon: "discount" },
-      { id: "billing", label: "Billing & Subscription", icon: "orders" },
-    ],
-  },
-  {
-    title: "Operations",
-    items: [
-      { id: "inventory-settings", label: "Inventory Settings", icon: "stock" },
-      { id: "pos-settings", label: "POS Settings", icon: "pos" },
-    ],
-  },
-  {
-    title: "Communication",
-    items: [
-      { id: "notifications", label: "Notification Settings", icon: "settings" },
-      { id: "message", label: "Message", icon: "reviews" },
+      { id: "users", label: "Users Management", icon: "user" },
+      { id: "roles", label: "Roles & Permissions", icon: "variants" },
+      { id: "activity-logs", label: "Activity Logs", icon: "refresh" },
     ],
   },
 ];
@@ -62,20 +40,14 @@ export const settingsSectionMeta: Record<
   SettingsSection,
   { title: string; description: string }
 > = {
-  branches: { title: "Branches", description: "A list of all of your branches." },
-  registers: { title: "Registers", description: "Manage your POS registers." },
-  "site-settings": { title: "Site Settings", description: "Manage & customize your website content & interface." },
-  website: { title: "Website Settings", description: "Manage store contacts, social links, and policy pages." },
-  "store-credit": { title: "Store Credit & Refund", description: "Configure store credit and refund policies." },
-  "loyalty-program": { title: "Loyalty Program", description: "Manage customer loyalty rewards." },
-  "gift-voucher": { title: "Gift Voucher", description: "Configure gift voucher settings." },
-  "customer-groups": { title: "Customer Groups", description: "Manage customer segments and groups." },
-  discount: { title: "Discount", description: "Configure discount rules and codes." },
-  billing: { title: "Billing & Subscription", description: "Manage your billing and subscription plan." },
-  "inventory-settings": { title: "Inventory Settings", description: "Configure inventory management settings." },
-  "pos-settings": { title: "POS Settings", description: "Configure point of sale settings." },
-  notifications: { title: "Notification Settings", description: "Manage notification preferences." },
-  message: { title: "Message", description: "Configure messaging settings." },
+  general: { title: "General & Branding", description: "Store metadata, shipping rates, and branding copyrights." },
+  contacts: { title: "Contact & Socials", description: "Manage customer helpline, support emails, and social links." },
+  "manage-policy": { title: "Policy Pages", description: "Customize delivery, return, cancellation, and privacy terms." },
+  campaigns: { title: "Banners & Campaigns", description: "Configure landing page promotional banners and active campaigns." },
+  branches: { title: "Store Branches", description: "Manage physical store locations and contact details." },
+  users: { title: "Users Management", description: "Create and manage system user accounts and credentials." },
+  roles: { title: "Roles & Permissions", description: "Configure custom security roles and restrict API permission access." },
+  "activity-logs": { title: "Activity Logs", description: "Chronological audit logs of actions taken by administrators." },
 };
 
 export function SettingsNav({

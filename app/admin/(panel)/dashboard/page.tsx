@@ -25,10 +25,22 @@ type DashboardSummary = {
   }[];
 };
 
+type ProductMedia = {
+  id: string;
+  isFeatured: boolean;
+  sortOrder: number;
+  media: {
+    id: string;
+    url: string;
+    type: "image" | "video";
+  };
+};
+
 type Product = {
   id: string;
   name: string;
   status: string;
+  media?: ProductMedia[];
   variants?: { stockQuantity: number; price: string | number }[];
 };
 
@@ -396,9 +408,25 @@ export default function DashboardPage() {
           ) : (
             products.slice(0, 3).map((product) => {
               const variant = product.variants?.[0];
+              const rawUrl = product.media?.find((item) => item.isFeatured)?.media.url ?? product.media?.[0]?.media.url;
+              const imgUrl = rawUrl
+                ? (rawUrl.includes("/products/")
+                  ? `/products/${rawUrl.split("/products/").pop()}`
+                  : rawUrl.includes("/variants/")
+                    ? `/variants/${rawUrl.split("/variants/").pop()}`
+                    : rawUrl)
+                : undefined;
+
               return (
                 <div key={product.id} className="flex items-center gap-4 rounded-lg border border-slate-100 p-4">
-                  <ProductThumb color="bg-blue-600" />
+                  {imgUrl ? (
+                    <div className="relative h-12 w-12 overflow-hidden rounded-lg border border-slate-200 flex-shrink-0 bg-slate-50">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={imgUrl} alt={product.name} className="h-full w-full object-cover" />
+                    </div>
+                  ) : (
+                    <ProductThumb color="bg-blue-600" />
+                  )}
                   <div className="min-w-0">
                     <p className="truncate font-medium text-slate-900">{product.name}</p>
                     <p className="mt-0.5 text-sm text-slate-500">

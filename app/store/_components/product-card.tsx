@@ -68,37 +68,23 @@ export function ProductCard({ product, onCartUpdate }: ProductCardProps) {
 
   return (
     <Link href={`/store/products/${product.slug}`} className="group block outline-none h-full">
-      <article
-        className="relative overflow-hidden h-full flex flex-col bg-white transition-all duration-200"
-        style={{
-          border: "1px solid var(--store-border)",
-          borderRadius: "12px",
-        }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 24px rgba(0,0,0,0.10)";
-          (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)";
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLElement).style.boxShadow = "none";
-          (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-        }}
-      >
+      <article className="store-card relative overflow-hidden h-full flex flex-col bg-white rounded-2xl border border-slate-100 hover:border-teal-200 transition-all duration-300 shadow-sm hover:shadow-md">
         {/* Image */}
-        <div className="relative overflow-hidden bg-gray-50" style={{ aspectRatio: "1/1", borderRadius: "12px 12px 0 0" }}>
+        <div className="relative overflow-hidden bg-slate-50/50 aspect-square rounded-t-2xl border-b border-slate-100/80">
           <img
             src={image}
             alt={product.name}
-            className="h-full w-full object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-contain p-6 transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
 
           {/* Badges */}
-          <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">
-            <span className="rounded-md px-2 py-0.5 text-[10px] font-bold uppercase text-white" style={{ backgroundColor: "var(--store-primary)" }}>
+          <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+            <span className="rounded-lg bg-rose-500 text-white px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase shadow-sm">
               -20%
             </span>
             {isOutOfStock && (
-              <span className="rounded-md px-2 py-0.5 text-[10px] font-bold uppercase text-white bg-gray-500">
+              <span className="rounded-lg bg-slate-500 text-white px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase shadow-sm">
                 স্টক নেই
               </span>
             )}
@@ -108,58 +94,57 @@ export function ProductCard({ product, onCartUpdate }: ProductCardProps) {
           <button
             onClick={handleWishlist}
             disabled={wishlisting}
-            className="absolute top-2.5 right-2.5 p-1.5 rounded-full bg-white shadow-sm border transition-all duration-200 hover:scale-110 cursor-pointer"
-            style={{ borderColor: "var(--store-border)" }}
+            className="absolute top-3 right-3 p-1.5 rounded-full bg-white border border-slate-100 text-slate-400 hover:text-rose-500 hover:border-rose-100 transition-all duration-200 cursor-pointer shadow-sm"
             aria-label="Add to wishlist"
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" style={{ color: "var(--store-primary)" }}>
+            <svg className="w-3.5 h-3.5 fill-none hover:fill-rose-500 transition-colors" stroke="currentColor" strokeWidth={2.2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
           </button>
         </div>
 
         {/* Info */}
-        <div className="p-3.5 flex flex-col flex-1 gap-2">
+        <div className="p-4 flex flex-col flex-1 gap-2.5">
           {/* Category & Brand */}
-          <div className="flex items-center gap-1.5 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap text-[9px] font-semibold tracking-wider uppercase text-teal-600">
             {product.category && (
-              <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded" style={{ backgroundColor: "var(--store-primary-light)", color: "var(--store-primary)" }}>
+              <span className="bg-teal-50 px-2 py-0.5 rounded">
                 {product.category.name}
               </span>
             )}
             {product.brand && (
-              <span className="text-[10px] font-medium" style={{ color: "var(--store-text-muted)" }}>
-                {product.brand.name}
+              <span className="text-slate-400 font-medium">
+                • {product.brand.name}
               </span>
             )}
           </div>
 
           {/* Name */}
-          <h3 className="text-[14px] font-semibold leading-snug line-clamp-2 group-hover:text-[var(--store-primary)] transition-colors" style={{ color: "var(--store-text)" }}>
+          <h3 className="text-xs font-bold leading-relaxed text-slate-800 line-clamp-2 transition-colors duration-150 group-hover:text-teal-700">
             {product.name}
           </h3>
 
           {/* Stars */}
-          <div className="flex items-center gap-1">
-            <div className="flex">
+          <div className="flex items-center gap-1.5">
+            <div className="flex text-amber-400">
               {[1, 2, 3, 4, 5].map((s) => (
-                <svg key={s} className="w-3 h-3 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                <svg key={s} className="w-2.5 h-2.5 fill-current" viewBox="0 0 20 20">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
               ))}
             </div>
-            <span className="text-[11px]" style={{ color: "var(--store-text-muted)" }}>(4.9)</span>
+            <span className="text-[10px] font-semibold text-slate-400">(4.8)</span>
           </div>
 
           {/* Price + Cart button */}
-          <div className="mt-auto pt-2.5 flex items-center justify-between gap-2" style={{ borderTop: "1px solid var(--store-border)" }}>
-            <div className="flex flex-col gap-0.5">
+          <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+            <div className="flex flex-col">
               {originalPrice && (
-                <span className="text-[11px] line-through" style={{ color: "var(--store-text-light)" }}>
+                <span className="text-[9px] font-medium text-slate-400 line-through">
                   {variant ? formatPrice(originalPrice) : ""}
                 </span>
               )}
-              <span className="text-[16px] font-bold" style={{ color: "var(--store-primary)" }}>
+              <span className="text-sm font-extrabold text-slate-900">
                 {variant ? formatPrice(variant.price) : "—"}
               </span>
             </div>
@@ -167,10 +152,11 @@ export function ProductCard({ product, onCartUpdate }: ProductCardProps) {
             <button
               onClick={handleAddToCart}
               disabled={adding || !variant || isOutOfStock}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-[12px] font-bold text-white transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                backgroundColor: added ? "var(--store-success)" : "var(--store-primary)",
-              }}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[9px] font-bold transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border ${
+                added 
+                  ? "bg-teal-600 border-teal-600 text-white shadow-sm" 
+                  : "bg-teal-50 border-teal-100 text-teal-700 hover:bg-teal-600 hover:border-teal-600 hover:text-white hover:shadow-sm"
+              }`}
             >
               {adding ? (
                 <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -186,7 +172,7 @@ export function ProductCard({ product, onCartUpdate }: ProductCardProps) {
                 </>
               ) : (
                 <>
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.2} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                   </svg>
                   কার্টে যোগ

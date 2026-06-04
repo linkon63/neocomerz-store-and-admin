@@ -9,8 +9,8 @@ export default function SearchPage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 animate-pulse">
-          <div className="h-6 w-40 rounded-lg bg-gray-100" />
+        <div className="mx-auto max-w-[1800px] w-full px-6 py-12 sm:px-12 lg:px-16 animate-pulse">
+          <div className="h-6 w-40 rounded-none bg-stone-100" />
         </div>
       }
     >
@@ -63,13 +63,13 @@ function SearchContent() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mb-8 flex flex-col gap-1 border-b pb-5" style={{ borderColor: "var(--store-border)" }}>
-        <h1 className="text-[26px] font-black" style={{ color: "var(--store-text)" }}>
+    <div className="mx-auto max-w-[1800px] w-full px-6 py-10 sm:px-12 lg:px-16 font-sans">
+      <div className="mb-8 flex flex-col gap-1 border-b border-stroke pb-5">
+        <h1 className="text-2xl font-bold font-serif uppercase text-foreground">
           পণ্য খুঁজুন
         </h1>
-        <p className="text-[13px]" style={{ color: "var(--store-text-muted)" }}>
-          পণ্য, ক্যাটাগরি অথবা ব্র্যান্ড দিয়ে দ্রুত খুঁজে নিন
+        <p className="text-xs text-stone-500 font-medium tracking-wide">
+          [ পণ্য, ক্যাটাগরি অথবা ব্র্যান্ড দিয়ে দ্রুত খুঁজে নিন ]
         </p>
       </div>
 
@@ -86,19 +86,13 @@ function SearchContent() {
               onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
               placeholder="পণ্য, ব্র্যান্ড বা ক্যাটাগরি লিখুন..."
-              className="w-full rounded-xl border px-4 py-3 text-[14px] font-medium outline-none transition-all pr-12"
-              style={{
-                borderColor: "var(--store-border)",
-                backgroundColor: "var(--store-white)",
-                color: "var(--store-text)",
-              }}
+              className="w-full rounded-none border border-stroke px-4 py-3 text-xs font-semibold outline-none transition-all pr-12 focus:border-primary shadow-none bg-white text-foreground placeholder-stone-400"
               autoFocus
             />
             {query && (
               <button
                 onClick={() => { setQuery(""); setSuggestions([]); inputRef.current?.focus(); }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
-                style={{ color: "var(--store-text-muted)" }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-stone-400 hover:text-stone-600 transition"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                   <path d="M18 6 6 18M6 6l12 12" />
@@ -108,17 +102,15 @@ function SearchContent() {
             {/* Suggestions dropdown */}
             {showSuggestions && suggestions.length > 0 && (
               <div
-                className="absolute top-full left-0 right-0 mt-2 rounded-xl border bg-white shadow-xl py-2 z-50"
-                style={{ borderColor: "var(--store-border)" }}
+                className="absolute top-full left-0 right-0 mt-2 rounded-none border border-stroke bg-white shadow-none py-2 z-50 animate-scale-in"
               >
                 {suggestions.map((s) => (
                   <button
                     key={s}
                     onMouseDown={() => handleSearch(s)}
-                    className="block w-full text-left px-4 py-2 text-[13px] font-semibold transition-colors"
-                    style={{ color: "var(--store-text-muted)" }}
+                    className="block w-full text-left px-4 py-2.5 text-xs font-semibold text-stone-650 hover:bg-stone-50 hover:text-primary transition-colors cursor-pointer"
                   >
-                    <span>{s}</span>
+                    <span>[{s}]</span>
                   </button>
                 ))}
               </div>
@@ -126,8 +118,7 @@ function SearchContent() {
           </div>
           <button
             onClick={() => handleSearch()}
-            className="rounded-xl px-6 py-3 text-[13px] font-bold text-white transition-colors"
-            style={{ backgroundColor: "var(--store-primary)" }}
+            className="rounded-none px-6 py-3 text-xs font-bold uppercase tracking-widest text-white transition-all bg-primary hover:bg-primary-hover shadow-none cursor-pointer"
           >
             খুঁজুন
           </button>
@@ -146,22 +137,22 @@ function SearchContent() {
           {loading ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="rounded-2xl bg-white border animate-pulse" style={{ borderColor: "var(--store-border)" }}>
-                  <div className="aspect-[3/4] bg-gray-100 rounded-t-2xl" />
+                <div key={i} className="rounded-none bg-white border border-stroke animate-pulse">
+                  <div className="aspect-[4/5] bg-stone-100 rounded-none border-b border-stroke" />
                   <div className="p-5 space-y-3">
-                    <div className="h-4 bg-gray-100 rounded w-3/4" />
-                    <div className="h-3.5 bg-gray-100 rounded w-1/2" />
+                    <div className="h-4 bg-stone-100 rounded-none w-3/4" />
+                    <div className="h-3.5 bg-stone-100 rounded-none w-1/2" />
                   </div>
                 </div>
               ))}
             </div>
           ) : products.length === 0 ? (
-            <div className="rounded-2xl bg-white border p-12 text-center" style={{ borderColor: "var(--store-border)" }}>
+            <div className="rounded-none bg-white border border-stroke p-12 text-center shadow-none">
               <p className="text-2xl mb-3">🔍</p>
-              <p className="text-[16px] font-semibold" style={{ color: "var(--store-text)" }}>
+              <p className="text-xs font-bold uppercase tracking-wider text-stone-700">
                 কোনো পণ্য পাওয়া যায়নি
               </p>
-              <p className="mt-2 text-[13px]" style={{ color: "var(--store-text-muted)" }}>
+              <p className="mt-2 text-xs text-stone-500 font-medium">
                 অন্য কোনো কিওয়ার্ড দিয়ে আবার চেষ্টা করুন।
               </p>
             </div>
@@ -176,12 +167,12 @@ function SearchContent() {
       )}
 
       {!q && (
-        <div className="rounded-2xl bg-white border p-12 text-center" style={{ borderColor: "var(--store-border)" }}>
-          <p className="text-2xl mb-3">✨</p>
-          <p className="text-[16px] font-semibold" style={{ color: "var(--store-text)" }}>
+        <div className="rounded-none bg-white border border-stroke p-16 text-center shadow-none">
+          <p className="text-2xl mb-4">✨</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-stone-700">
             আপনার পছন্দের পণ্য খুঁজুন
           </p>
-          <p className="mt-2 text-[13px]" style={{ color: "var(--store-text-muted)" }}>
+          <p className="mt-2 text-xs text-stone-500 font-medium">
             উপরের সার্চ বক্সে লিখে খোঁজা শুরু করুন।
           </p>
         </div>

@@ -57,10 +57,6 @@ export const menuGroups: NavGroup[] = [
     title: "Administration",
     items: [
       { label: "Settings", href: "/admin/settings", icon: "settings" },
-      { label: "Manage Website", href: "/admin/manage-website", icon: "store", child: true },
-      { label: "Users Management", href: "/admin/users", icon: "user", child: true },
-      { label: "Roles & Permissions", href: "/admin/roles", icon: "variants", child: true },
-      { label: "Activity Logs", href: "/admin/activity-logs", icon: "refresh", child: true },
     ],
   },
 ];

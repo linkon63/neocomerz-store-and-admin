@@ -261,6 +261,7 @@ export const productsApi = {
     categoryId?: string;
     brandId?: string;
     status?: string;
+    discountId?: string;
   }) => {
     const qs = new URLSearchParams();
     if (params?.page) qs.set("page", String(params.page));
@@ -269,6 +270,7 @@ export const productsApi = {
     if (params?.categoryId) qs.set("categoryId", params.categoryId);
     if (params?.brandId) qs.set("brandId", params.brandId);
     if (params?.status) qs.set("status", params.status);
+    if (params?.discountId) qs.set("discountId", params.discountId);
     return req<PaginatedProducts>(`/products?${qs}`);
   },
 

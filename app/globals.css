@@ -1,42 +1,50 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 /* ============================================================
-   STORE DESIGN TOKENS — Light, Modern, BD E-commerce Feel
-   Admin uses its own inline Tailwind classes, untouched here.
+   STORE DESIGN TOKENS — Luxury, Premium E-commerce Design System
    ============================================================ */
 :root {
   /* Base */
-  --store-bg: #F7F8FA;
-  --store-white: #FFFFFF;
-  --store-text: #1A1A2E;
-  --store-text-muted: #6B7280;
-  --store-text-light: #9CA3AF;
+  --store-bg: #f8fafc; /* Crisp, clean slate-50 background */
+  --store-white: #ffffff;
+  --store-text: #0f172a; /* Slate 900 Charcoal */
+  --store-text-muted: #475569; /* Slate 600 */
+  --store-text-light: #64748b; /* Slate 500 */
 
-  /* Brand — vibrant green (BD flag inspired, eye-catching) */
-  --store-primary: #00A651;
-  --store-primary-hover: #008A43;
-  --store-primary-light: #E6F7EE;
-  --store-primary-mid: #C3EDD5;
+  /* Brand — Vibrant premium emerald/teal green */
+  --store-primary: #0d9488; /* Teal 600 */
+  --store-primary-hover: #0f766e; /* Teal 700 */
+  --store-primary-light: #f0fdfa; /* Teal 50 */
+  --store-primary-mid: #ccfbf1; /* Teal 100 */
 
-  /* Secondary — deep navy */
-  --store-secondary: #1A1A2E;
-  --store-secondary-hover: #0F0F1E;
+  /* Secondary — Deep slate/navy for contrast */
+  --store-secondary: #0f172a;
+  --store-secondary-hover: #1e293b;
 
-  /* Accent — warm yellow for badges/sale */
-  --store-accent: #F59E0B;
-  --store-accent-light: #FEF3C7;
+  /* Accent — Vibrant rose/red for badges and discounts */
+  --store-accent: #e11d48;
+  --store-accent-light: #fff1f2;
 
   /* Success / Error */
-  --store-success: #10B981;
-  --store-error: #EF4444;
+  --store-success: #10b981;
+  --store-error: #ef4444;
 
-  /* Borders & Surfaces */
-  --store-border: #E5E7EB;
-  --store-border-dark: #D1D5DB;
-  --store-surface: #FFFFFF;
-  --store-surface-2: #F3F4F6;
-  --store-surface-3: #EEF0F4;
+  /* Borders & Surfaces — ultra clean */
+  --store-border: #e8edf4;
+  --store-border-dark: #cbd5e1;
+  --store-surface: #ffffff;
+  --store-surface-2: #f8fafc;
+  --store-surface-3: #f1f5f9;
+
+  /* Hero gradient colors */
+  --hero-from: #042f2e;
+  --hero-via: #134e4a;
+  --hero-to: #0f4c3a;
+
+  /* Premium card glow */
+  --glow-teal: rgba(13, 148, 136, 0.12);
+  --glow-amber: rgba(245, 158, 11, 0.08);
 }
 
 @theme {
@@ -53,8 +61,19 @@
   --color-success: var(--store-success);
   --color-gold: var(--store-accent);
 
-  --font-sans: "Inter", "Hind Siliguri", -apple-system, sans-serif;
-  --font-serif: "Inter", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", "Hind Siliguri", -apple-system, sans-serif;
+  --font-serif: "Playfair Display", "Hind Siliguri", Georgia, serif;
+
+  /* Modern rounded corners */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-4xl: 32px;
+  --radius-full: 9999px;
 }
 
 * {
@@ -75,42 +94,57 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 /* ── Store-specific utility classes ── */
 .store-heading {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-sans);
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
-/* Legacy class used in store pages */
+/* Luxury serif heading */
 .heading-premium {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-serif);
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
-/* Buttons */
+/* Buttons (Modern, Soft rounded) */
 .btn-premium {
-  background-color: var(--store-primary);
+  background: linear-gradient(135deg, var(--store-primary) 0%, #0f766e 100%);
   color: #ffffff;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  font-weight: 700;
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1.5rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px -2px rgba(13, 148, 136, 0.3), 0 2px 4px -1px rgba(13, 148, 136, 0.12);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  letter-spacing: 0.02em;
 }
 .btn-premium:hover {
-  background-color: var(--store-primary-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(0, 166, 81, 0.35);
+  background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px -6px rgba(13, 148, 136, 0.35), 0 4px 8px -2px rgba(13, 148, 136, 0.15);
 }
 
 .btn-outline {
   background-color: transparent;
-  border: 1.5px solid var(--store-border-dark);
+  border: 1.5px solid var(--store-border);
   color: var(--store-text);
-  font-weight: 500;
-  transition: all 0.2s ease;
+  font-weight: 600;
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1.5rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 .btn-outline:hover {
   border-color: var(--store-primary);
@@ -118,37 +152,63 @@ body {
   background-color: var(--store-primary-light);
 }
 
-/* Card shadow */
+/* Card layout - Soft rounded corners and subtle shadows */
 .store-card {
   background: var(--store-white);
   border: 1px solid var(--store-border);
-  border-radius: 12px;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  border-radius: var(--radius-xl);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  overflow: hidden;
 }
 .store-card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+  transform: translateY(-5px);
+  box-shadow: 0 16px 32px -8px rgba(13, 148, 136, 0.10), 0 4px 8px -2px rgba(0, 0, 0, 0.05);
+  border-color: rgba(13, 148, 136, 0.25);
 }
 
 .premium-shadow-hover {
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: all 0.3s ease;
 }
 .premium-shadow-hover:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.08), 0 8px 12px -6px rgba(0, 0, 0, 0.04);
 }
 
-/* Glass panel — now light frosted */
+/* Glass panel — clean off-white overlay */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--store-border);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(226, 237, 244, 0.8);
+}
+
+/* Section container */
+.section-clean {
+  background: #ffffff;
+  border: 1px solid var(--store-border);
+  border-radius: 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+/* Category ring animation */
+.category-ring {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.category-ring:hover {
+  transform: translateY(-6px) scale(1.04);
+}
+
+/* Hero glow orb */
+.hero-glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
 }
 
 /* Animations */
 @keyframes slide-up-fade {
-  0% { opacity: 0; transform: translateY(10px); }
+  0% { opacity: 0; transform: translateY(16px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 @keyframes fade-in-soft {
@@ -159,16 +219,57 @@ body {
   0% { opacity: 0; transform: scale(0.96); }
   100% { opacity: 1; transform: scale(1); }
 }
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes slide-in-right {
+  0% { opacity: 0; transform: translateX(20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
 
-.animate-slide-up { animation: slide-up-fade 0.4s ease forwards; }
-.animate-fade-in  { animation: fade-in-soft 0.4s ease forwards; }
-.animate-scale-in { animation: scale-in 0.3s ease forwards; }
+.animate-slide-up { animation: slide-up-fade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-fade-in  { animation: fade-in-soft 0.5s ease forwards; }
+.animate-scale-in { animation: scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-float    { animation: float-gentle 4s ease-in-out infinite; }
+.animate-slide-in-right { animation: slide-in-right 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+
+/* Loading skeleton shimmer */
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e8edf4 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--store-bg); }
-::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ============================================================
+   ADMIN THEME OVERRIDES — Professional Rounded Corners
+   ============================================================ */
+.neocomerz-admin {
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-4xl: 32px;
+  --radius-full: 9999px;
+}

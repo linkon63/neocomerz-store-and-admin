@@ -51,7 +51,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#fbfbfc] text-[#111827]">
+    <div className="min-h-screen bg-[#fbfbfc] text-[#111827] neocomerz-admin">
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-[312px] border-r border-slate-200 bg-white lg:block">
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between px-5 py-5">

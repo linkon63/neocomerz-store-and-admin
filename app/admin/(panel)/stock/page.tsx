@@ -14,11 +14,22 @@ type Variant = {
   isDefault: boolean;
 };
 
+type ProductMedia = {
+  id: string;
+  isFeatured: boolean;
+  sortOrder: number;
+  media: {
+    id: string;
+    url: string;
+    type: "image" | "video";
+  };
+};
+
 type Product = {
   id: string;
   name: string;
   slug: string;
-  image?: string | null;
+  media?: ProductMedia[];
   variants?: Variant[];
 };
 
@@ -186,13 +197,22 @@ export default function StockPage() {
 
               const isLowStock = defaultVariant.stockQuantity <= (defaultVariant.stockAlertThreshold || 10);
 
+              const rawUrl = product.media?.find((item) => item.isFeatured)?.media.url ?? product.media?.[0]?.media.url;
+              const imgUrl = rawUrl
+                ? (rawUrl.includes("/products/")
+                  ? `/products/${rawUrl.split("/products/").pop()}`
+                  : rawUrl.includes("/variants/")
+                    ? `/variants/${rawUrl.split("/variants/").pop()}`
+                    : rawUrl)
+                : undefined;
+
               return (
                 <div className="flex items-center justify-between gap-5 p-5 hover:bg-slate-50/60 transition-colors" key={product.id}>
                   <div className="flex items-center gap-4">
                     <div className="relative h-12 w-16 overflow-hidden rounded-md bg-slate-50 flex-shrink-0">
-                      {product.image ? (
+                      {imgUrl ? (
                         <Image
-                          src={product.image}
+                          src={imgUrl}
                           alt={product.name}
                           fill
                           className="object-cover"

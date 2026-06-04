@@ -105,14 +105,14 @@ export default function CheckoutPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 animate-pulse">
-        <div className="h-8 bg-[var(--store-border)] rounded w-1/4 mb-8" />
+      <div className="mx-auto max-w-[1800px] w-full px-6 py-12 sm:px-12 lg:px-16 animate-pulse">
+        <div className="h-6 bg-stone-200 rounded-none w-1/4 mb-8" />
         <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
           <div className="space-y-4">
-            <div className="h-40 bg-white rounded-2xl shadow-sm" />
-            <div className="h-32 bg-white rounded-2xl shadow-sm" />
+            <div className="h-40 bg-white border border-stroke rounded-none shadow-none" />
+            <div className="h-32 bg-white border border-stroke rounded-none shadow-none" />
           </div>
-          <div className="h-64 bg-white rounded-2xl shadow-sm" />
+          <div className="h-64 bg-white border border-stroke rounded-none shadow-none" />
         </div>
       </div>
     );
@@ -124,16 +124,16 @@ export default function CheckoutPage() {
   const total = Math.max(subtotal - discount, 0);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-black tracking-tight">Checkout</h1>
-        <p className="mt-1 text-sm text-[var(--store-text-muted)]">{items.length} item{items.length !== 1 ? "s" : ""} in your cart</p>
+    <div className="mx-auto max-w-[1800px] w-full px-6 py-10 sm:px-12 lg:px-16 font-sans">
+      <div className="mb-8 border-b border-stroke pb-6">
+        <h1 className="text-2xl font-bold tracking-wider font-serif uppercase">Checkout</h1>
+        <p className="mt-1 text-xs text-stone-500 font-medium tracking-wider">[ {items.length} item{items.length !== 1 ? "s" : ""} in your cart ]</p>
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-2xl bg-white p-12 text-center shadow-sm">
-          <p className="text-lg font-bold">Your cart is empty</p>
-          <Link href="/store/products" className="mt-4 inline-flex rounded-full bg-[var(--store-primary)] px-5 py-2.5 text-sm font-bold text-white hover:bg-[var(--store-primary-hover)] transition">
+        <div className="rounded-none bg-white p-12 text-center shadow-none border border-stroke">
+          <p className="text-sm font-bold uppercase tracking-wider text-stone-700">Your cart is empty</p>
+          <Link href="/store/products" className="mt-6 inline-flex rounded-none btn-premium px-6 py-3 text-xs font-bold tracking-widest uppercase text-white hover:opacity-95 transition">
             Browse Products
           </Link>
         </div>
@@ -142,20 +142,20 @@ export default function CheckoutPage() {
           {/* Left: Address + Payment */}
           <div className="space-y-6">
             {/* Delivery Address */}
-            <div className="rounded-2xl bg-white p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-black">Delivery Address</h2>
+            <div className="rounded-none bg-white p-6 shadow-none border border-stroke">
+              <div className="flex items-center justify-between mb-4 pb-2 border-b border-stroke">
+                <h2 className="text-xs font-bold uppercase tracking-widest text-foreground">[ Delivery Address ]</h2>
                 <button
                   onClick={() => setShowAddressForm((o) => !o)}
-                  className="text-sm font-bold text-[var(--store-text)] hover:text-[var(--store-primary)] transition underline decoration-[var(--store-primary-mid)] decoration-2 underline-offset-2"
+                  className="text-xs font-semibold uppercase tracking-wider text-primary hover:underline cursor-pointer"
                 >
                   {showAddressForm ? "Cancel" : "+ Add New"}
                 </button>
               </div>
 
               {showAddressForm && (
-                <form onSubmit={handleSaveAddress} className="mb-5 rounded-xl border border-[var(--store-border)] p-4 space-y-3">
-                  <div className="grid gap-3 sm:grid-cols-2">
+                <form onSubmit={handleSaveAddress} className="mb-5 rounded-none border border-stroke p-5 bg-stone-50/50 space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
                     {[
                       { key: "fullName", label: "Full Name", placeholder: "John Doe" },
                       { key: "phone", label: "Phone", placeholder: "+1 555 0000" },
@@ -167,14 +167,14 @@ export default function CheckoutPage() {
                       { key: "country", label: "Country", placeholder: "US" },
                     ].map(({ key, label, placeholder }) => (
                       <div key={key}>
-                        <label className="block text-xs font-bold text-[var(--store-text-muted)] mb-1">{label}</label>
+                        <label className="block text-[9px] font-bold uppercase tracking-widest text-stone-550 mb-1.5">{label}</label>
                         <input
                           type="text"
                           required={key !== "addressLine2"}
                           value={addressForm[key as keyof typeof addressForm]}
                           onChange={(e) => setAddressForm((f) => ({ ...f, [key]: e.target.value }))}
                           placeholder={placeholder}
-                          className="w-full rounded-xl border border-[var(--store-border)] px-3 py-2 text-sm focus:border-[var(--store-primary)] focus:outline-none"
+                          className="w-full rounded-none border border-stroke px-3.5 py-2 text-xs focus:border-primary focus:outline-none bg-white text-foreground placeholder-stone-400 font-semibold"
                         />
                       </div>
                     ))}
@@ -182,7 +182,7 @@ export default function CheckoutPage() {
                   <button
                     type="submit"
                     disabled={savingAddress}
-                    className="rounded-full bg-[var(--store-primary)] px-5 py-2 text-sm font-black text-white hover:bg-[var(--store-primary-hover)] transition disabled:opacity-50"
+                    className="rounded-none btn-premium text-xs tracking-wider uppercase px-5 py-2.5 disabled:opacity-50 cursor-pointer"
                   >
                     {savingAddress ? "Saving..." : "Save Address"}
                   </button>
@@ -190,13 +190,13 @@ export default function CheckoutPage() {
               )}
 
               {addresses.length === 0 && !showAddressForm ? (
-                <p className="text-sm text-[var(--store-text-muted)]">No addresses saved. Add one above.</p>
+                <p className="text-xs text-stone-400 font-semibold">No addresses saved. Add one above.</p>
               ) : (
                 <div className="space-y-3">
                   {addresses.map((addr) => (
                     <label
                       key={addr.id}
-                      className={`flex gap-3 rounded-xl border p-4 cursor-pointer transition ${selectedAddress === addr.id ? "border-[var(--store-primary)] bg-[var(--store-primary-light)]" : "border-[var(--store-border)] hover:border-[var(--store-border-dark)]"}`}
+                      className={`flex gap-3 rounded-none border p-4 cursor-pointer transition duration-150 ${selectedAddress === addr.id ? "border-primary bg-stone-50 shadow-none" : "border-stroke hover:border-foreground bg-white"}`}
                     >
                       <input
                         type="radio"
@@ -204,14 +204,14 @@ export default function CheckoutPage() {
                         value={addr.id}
                         checked={selectedAddress === addr.id}
                         onChange={() => setSelectedAddress(addr.id)}
-                        className="mt-0.5 accent-[var(--store-primary)]"
+                        className="mt-0.5 accent-primary"
                       />
-                      <div className="text-sm">
-                        <p className="font-black">{addr.fullName}</p>
-                        <p className="text-[var(--store-text-muted)]">{addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ""}</p>
-                        <p className="text-[var(--store-text-muted)]">{addr.city}, {addr.state} {addr.postalCode}, {addr.country}</p>
-                        <p className="text-[var(--store-text-muted)]">{addr.phone}</p>
-                        {addr.isDefault && <span className="text-xs font-bold text-[var(--store-primary)] bg-[var(--store-primary-light)] px-2 py-0.5 rounded-full mt-1 inline-block">Default</span>}
+                      <div className="text-xs">
+                        <p className="font-bold text-foreground">{addr.fullName}</p>
+                        <p className="text-stone-500 font-medium mt-0.5">{addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ""}</p>
+                        <p className="text-stone-500 font-medium">{addr.city}, {addr.state} {addr.postalCode}, {addr.country}</p>
+                        <p className="text-stone-500 font-semibold mt-1">{addr.phone}</p>
+                        {addr.isDefault && <span className="text-[9px] font-bold text-primary bg-primary-light px-2 py-0.5 border border-primary/20 mt-2 inline-block">Default Address</span>}
                       </div>
                     </label>
                   ))}
@@ -220,13 +220,13 @@ export default function CheckoutPage() {
             </div>
 
             {/* Payment Method */}
-            <div className="rounded-2xl bg-white p-6 shadow-sm">
-              <h2 className="text-lg font-black mb-4">Payment Method</h2>
+            <div className="rounded-none bg-white p-6 shadow-none border border-stroke">
+              <h2 className="text-xs font-bold uppercase tracking-widest text-foreground mb-4 pb-2 border-b border-stroke">[ Payment Method ]</h2>
               <div className="space-y-2">
                 {PAYMENT_METHODS.map((method) => (
                   <label
                     key={method}
-                    className={`flex items-center gap-3 rounded-xl border p-4 cursor-pointer transition ${paymentMethod === method ? "border-[var(--store-primary)] bg-[var(--store-primary-light)]" : "border-[var(--store-border)] hover:border-[var(--store-border-dark)]"}`}
+                    className={`flex items-center gap-3 rounded-none border p-4 cursor-pointer transition duration-150 ${paymentMethod === method ? "border-primary bg-stone-50 shadow-none" : "border-stroke hover:border-foreground bg-white"}`}
                   >
                     <input
                       type="radio"
@@ -234,9 +234,9 @@ export default function CheckoutPage() {
                       value={method}
                       checked={paymentMethod === method}
                       onChange={() => setPaymentMethod(method)}
-                      className="accent-[var(--store-primary)]"
+                      className="accent-primary"
                     />
-                    <span className="text-sm font-bold capitalize">{method.replace(/_/g, " ")}</span>
+                    <span className="text-xs font-semibold text-stone-700 capitalize">{method.replace(/_/g, " ")}</span>
                   </label>
                 ))}
               </div>
@@ -245,40 +245,40 @@ export default function CheckoutPage() {
 
           {/* Right: Order summary */}
           <div>
-            <div className="rounded-2xl bg-white p-6 shadow-sm sticky top-20">
-              <h2 className="text-lg font-black mb-4">Order Summary</h2>
+            <div className="rounded-none bg-[#fdfcfb] p-6 border border-stroke shadow-none sticky top-24">
+              <h2 className="text-xs font-bold uppercase tracking-widest text-foreground mb-4 pb-2 border-b border-stroke">[ Order Summary ]</h2>
               <div className="space-y-3 mb-4">
                 {items.map((item) => (
-                  <div key={item.id} className="flex justify-between text-sm">
-                    <span className="text-[var(--store-text)] line-clamp-1 flex-1 mr-2">
+                  <div key={item.id} className="flex justify-between text-xs">
+                    <span className="text-stone-700 font-medium line-clamp-1 flex-1 mr-2">
                       {item.variant.product.name} × {item.quantity}
                     </span>
-                    <span className="font-bold shrink-0">
+                    <span className="font-bold text-foreground shrink-0">
                       {formatPrice(parseFloat(String(item.variant.price)) * item.quantity)}
                     </span>
                   </div>
                 ))}
               </div>
-              <hr className="border-[var(--store-border)] mb-4" />
-              <div className="space-y-2 mb-6 text-sm">
+              <hr className="border-stroke mb-4" />
+              <div className="space-y-2.5 mb-6 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-[var(--store-text-muted)]">Subtotal</span>
-                  <span className="font-bold">{formatPrice(subtotal)}</span>
+                  <span className="text-stone-450 font-medium">Subtotal</span>
+                  <span className="font-bold text-foreground">{formatPrice(subtotal)}</span>
                 </div>
                 {discount > 0 && (
-                  <div className="flex justify-between text-green-600">
-                    <span>Coupon{couponCode ? ` (${couponCode})` : ""}</span>
+                  <div className="flex justify-between text-emerald-700">
+                    <span className="font-medium">Coupon{couponCode ? ` (${couponCode})` : ""}</span>
                     <span className="font-bold">-{formatPrice(discount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-base font-black pt-2 border-t border-[var(--store-border)]">
-                  <span>Total</span>
-                  <span>{formatPrice(total)}</span>
+                <div className="flex justify-between text-xs font-bold pt-3 border-t border-stroke">
+                  <span className="text-foreground">Total</span>
+                  <span className="text-primary">{formatPrice(total)}</span>
                 </div>
               </div>
 
               {error && (
-                <div className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600 font-semibold">
+                <div className="mb-4 rounded-none bg-red-50 px-4 py-3 text-xs text-red-655 font-bold border border-red-200">
                   {error}
                 </div>
               )}
@@ -286,13 +286,13 @@ export default function CheckoutPage() {
               <button
                 onClick={handlePlaceOrder}
                 disabled={placing || !selectedAddress}
-                className="w-full rounded-full bg-[var(--store-primary)] py-3 text-sm font-black text-white hover:bg-[var(--store-primary-hover)] transition disabled:opacity-50"
+                className="w-full rounded-none bg-primary py-3 text-xs font-bold uppercase tracking-widest text-white hover:bg-primary-hover shadow-none transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {placing ? "Placing Order..." : "Place Order"}
               </button>
               <Link
                 href="/store/cart"
-                className="mt-3 block w-full rounded-full border border-[var(--store-border)] py-3 text-center text-sm font-bold hover:border-[var(--store-primary)] hover:text-[var(--store-primary)] transition"
+                className="mt-3 block w-full rounded-none border border-stroke py-3 text-center text-xs font-bold uppercase tracking-widest text-stone-600 hover:border-primary hover:text-primary transition bg-white cursor-pointer"
               >
                 ← Back to Cart
               </Link>

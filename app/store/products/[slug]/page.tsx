@@ -114,8 +114,8 @@ export default function ProductDetailPage() {
       showToast("রিভিউ সাবমিট হয়েছে!", "success");
       const updated = await reviewsApi.forProduct(product.id);
       setReviews(updated);
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : "ব্যর্থ হয়েছে", "error");
+    } catch {
+      showToast("রিভিউ সাবমিট ব্যর্থ হয়েছে", "error");
     } finally {
       setSubmittingReview(false);
     }
@@ -123,13 +123,13 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-12 animate-pulse">
+      <div className="mx-auto max-w-[1800px] w-full px-6 py-12 sm:px-12 lg:px-16 animate-pulse">
         <div className="grid gap-10 lg:grid-cols-2">
-          <div className="aspect-square bg-gray-100 rounded-2xl" />
+          <div className="aspect-square bg-stone-100 rounded-none border border-stroke" />
           <div className="space-y-6">
-            <div className="h-8 bg-gray-100 rounded-lg w-3/4" />
-            <div className="h-6 bg-gray-100 rounded-lg w-1/4" />
-            <div className="h-24 bg-gray-100 rounded-lg" />
+            <div className="h-8 bg-stone-100 rounded-none w-3/4" />
+            <div className="h-6 bg-stone-100 rounded-none w-1/4" />
+            <div className="h-24 bg-stone-100 rounded-none" />
           </div>
         </div>
       </div>
@@ -143,14 +143,14 @@ export default function ProductDetailPage() {
   const isOutOfStock = selectedVariant?.stockQuantity === 0;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-[1800px] w-full px-6 py-10 sm:px-12 lg:px-16 font-sans">
       <Breadcrumb items={[
         { label: "হোম", href: "/store" },
         { label: "পণ্য", href: "/store/products" },
         { label: product.name }
       ]} />
 
-      <div className="mt-6 grid gap-10 lg:grid-cols-2">
+      <div className="mt-8 grid gap-10 lg:grid-cols-2">
         {/* Images */}
         <div className="sticky top-24 h-fit">
           <ImageGallery media={product.media || []} productName={product.name} />
@@ -159,33 +159,33 @@ export default function ProductDetailPage() {
         {/* Details */}
         <div className="flex flex-col">
           {/* Header Info */}
-          <div className="mb-6 border-b pb-6" style={{ borderColor: "var(--store-border)" }}>
+          <div className="mb-6 border-b border-stroke pb-6">
             <div className="flex items-center gap-2 mb-3">
               {product.category && (
-                <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md" style={{ backgroundColor: "var(--store-primary-light)", color: "var(--store-primary)" }}>
-                  {product.category.name}
+                <span className="text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 border border-stroke text-stone-500">
+                  [{product.category.name}]
                 </span>
               )}
               {product.brand && (
-                <span className="text-[12px] font-semibold" style={{ color: "var(--store-text-muted)" }}>
-                  • {product.brand.name}
+                <span className="text-xs font-semibold text-stone-400">
+                  / {product.brand.name}
                 </span>
               )}
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-black mb-3 leading-tight" style={{ color: "var(--store-text)" }}>
+            <h1 className="text-2xl sm:text-3xl font-bold font-serif mb-4 leading-tight text-foreground">
               {product.name}
             </h1>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 text-xs font-semibold text-stone-500">
               <div className="flex items-center gap-1">
-                <span className="text-yellow-400 text-lg">★</span>
-                <span className="text-sm font-bold">{avgRating}</span>
-                <span className="text-xs" style={{ color: "var(--store-text-muted)" }}>({reviews.length} রিভিউ)</span>
+                <span className="text-amber-500">★</span>
+                <span className="font-bold text-foreground">{avgRating}</span>
+                <span className="text-stone-400 font-medium">({reviews.length} রিভিউ)</span>
               </div>
-              <span style={{ color: "var(--store-border-dark)" }}>|</span>
-              <span className="text-sm font-medium" style={{ color: "var(--store-success)" }}>
-                {isOutOfStock ? "স্টক শেষ" : "স্টকে আছে"}
+              <span className="text-stone-200">|</span>
+              <span className={`font-bold ${isOutOfStock ? "text-red-650" : "text-emerald-700"}`}>
+                {isOutOfStock ? "স্টক শেষ" : "[ স্টকে আছে ]"}
               </span>
             </div>
           </div>
@@ -193,41 +193,41 @@ export default function ProductDetailPage() {
           {/* Pricing */}
           <div className="mb-8">
             <div className="flex items-end gap-3 mb-2">
-              <span className="text-3xl font-black" style={{ color: "var(--store-primary)" }}>
+              <span className="text-3xl font-bold text-foreground">
                 {selectedVariant ? formatPrice(selectedVariant.price) : "—"}
               </span>
               {selectedVariant && discount > 0 && (
-                <span className="text-lg line-through font-semibold mb-1" style={{ color: "var(--store-text-light)" }}>
+                <span className="text-base line-through font-medium mb-1 text-stone-400">
                   {formatPrice(discount)}
                 </span>
               )}
-              <span className="ml-2 rounded px-2 py-1 text-[10px] font-bold text-white mb-1.5" style={{ backgroundColor: "var(--store-accent)" }}>
+              <span className="ml-2 rounded-none px-2 py-0.5 text-[9px] font-bold text-white mb-1.5 bg-gold tracking-wider uppercase">
                 ২০% ছাড়
               </span>
             </div>
-            <p className="text-xs font-medium" style={{ color: "var(--store-text-muted)" }}>ভ্যাট ও অন্যান্য কর অন্তর্ভুক্ত (প্রযোজ্য ক্ষেত্রে)</p>
+            <p className="text-[10px] font-semibold text-stone-400">ভ্যাট ও অন্যান্য কর অন্তর্ভুক্ত (প্রযোজ্য ক্ষেত্রে)</p>
           </div>
 
           {/* Short Description */}
-          <p className="text-sm leading-relaxed mb-8" style={{ color: "var(--store-text)" }}>
+          <p className="text-xs sm:text-sm leading-relaxed mb-8 text-stone-600">
             {product.description || "এই পণ্যের কোন বিবরণ দেওয়া হয়নি। বিস্তারিত জানতে আমাদের সাথে যোগাযোগ করুন।"}
           </p>
 
           {/* Variants */}
           {product.variants && product.variants.length > 1 && (
             <div className="mb-6">
-              <p className="text-sm font-bold mb-3" style={{ color: "var(--store-text)" }}>ভ্যারিয়েন্ট নির্বাচন করুন</p>
+              <p className="text-xs font-bold mb-3 uppercase tracking-widest text-stone-600">[ ভ্যারিয়েন্ট নির্বাচন করুন ]</p>
               <div className="flex flex-wrap gap-2">
                 {product.variants.map((v) => (
                   <button
                     key={v.id}
                     onClick={() => setSelectedVariant(v)}
                     disabled={v.stockQuantity === 0}
-                    className={`px-4 py-2 text-sm font-bold rounded-lg border-2 transition-all ${
+                    className={`px-4 py-2 text-xs font-semibold rounded-none border transition-all cursor-pointer ${
                       selectedVariant?.id === v.id
-                        ? "border-[var(--store-primary)] text-[var(--store-primary)] bg-[var(--store-primary-light)]"
-                        : "border-[var(--store-border)] hover:border-[var(--store-border-dark)]"
-                    } ${v.stockQuantity === 0 ? "opacity-40 cursor-not-allowed" : ""}`}
+                        ? "border-primary text-white bg-primary"
+                        : "border-stroke hover:border-foreground bg-white text-stone-700"
+                    } ${v.stockQuantity === 0 ? "opacity-30 cursor-not-allowed" : ""}`}
                   >
                     {v.sku}
                   </button>
@@ -237,18 +237,18 @@ export default function ProductDetailPage() {
           )}
 
           {/* Quantity & Actions */}
-          <div className="mb-8 p-5 rounded-2xl" style={{ backgroundColor: "var(--store-surface-2)" }}>
+          <div className="mb-8 p-6 rounded-none bg-[#fdfcfb] border border-stroke">
             <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex items-center justify-between bg-white border rounded-xl overflow-hidden" style={{ borderColor: "var(--store-border)", width: "140px" }}>
-                <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="w-10 h-11 flex items-center justify-center text-lg hover:bg-gray-50">−</button>
-                <span className="font-bold text-sm">{quantity}</span>
-                <button onClick={() => setQuantity(q => Math.min(selectedVariant?.stockQuantity ?? 99, q + 1))} className="w-10 h-11 flex items-center justify-center text-lg hover:bg-gray-50">+</button>
+              <div className="flex items-center justify-between bg-white border border-stroke rounded-none overflow-hidden w-[130px] shrink-0">
+                <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="w-10 h-11 flex items-center justify-center text-lg font-bold text-stone-500 hover:bg-stone-50 cursor-pointer">−</button>
+                <span className="font-bold text-sm text-foreground">{quantity}</span>
+                <button onClick={() => setQuantity(q => Math.min(selectedVariant?.stockQuantity ?? 99, q + 1))} className="w-10 h-11 flex items-center justify-center text-lg font-bold text-stone-500 hover:bg-stone-50 cursor-pointer">+</button>
               </div>
 
               <button
                 onClick={handleAddToCart}
                 disabled={adding || isOutOfStock}
-                className="flex-1 flex items-center justify-center gap-2 rounded-xl text-white font-bold h-11 transition-transform active:scale-95 disabled:opacity-50"
+                className="flex-1 flex items-center justify-center gap-2 rounded-none text-white font-semibold text-xs tracking-wider uppercase h-11 transition-all duration-200 hover:bg-primary-hover cursor-pointer disabled:opacity-50"
                 style={{ backgroundColor: "var(--store-primary)" }}
               >
                 {adding ? "অপেক্ষা করুন..." : isOutOfStock ? "স্টক শেষ" : "কার্টে যোগ করুন"}
@@ -256,22 +256,21 @@ export default function ProductDetailPage() {
 
               <button
                 onClick={handleWishlist}
-                className="w-11 h-11 rounded-xl bg-white border flex items-center justify-center hover:bg-gray-50 transition-colors"
-                style={{ borderColor: "var(--store-border)", color: "var(--store-text)" }}
+                className="w-11 h-11 rounded-none bg-white border border-stroke text-stone-500 flex items-center justify-center hover:bg-stone-50 hover:text-red-500 hover:border-red-500 transition-colors cursor-pointer shadow-none"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <svg className="w-5 h-5 fill-none hover:fill-red-500 transition-colors" stroke="currentColor" strokeWidth={2.2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
               </button>
             </div>
             
             {/* Delivery Features */}
-            <div className="grid grid-cols-2 gap-3 mt-5 pt-5 border-t" style={{ borderColor: "var(--store-border)" }}>
-              <div className="flex items-center gap-2 text-xs font-semibold" style={{ color: "var(--store-text-muted)" }}>
-                <span className="text-lg">🚚</span> দ্রুত ডেলিভারি
+            <div className="grid grid-cols-2 gap-3 mt-5 pt-5 border-t border-stroke">
+              <div className="flex items-center gap-2 text-[10px] font-bold tracking-wider uppercase text-stone-500">
+                <span className="text-base">🚚</span> দ্রুত ডেলিভারি
               </div>
-              <div className="flex items-center gap-2 text-xs font-semibold" style={{ color: "var(--store-text-muted)" }}>
-                <span className="text-lg">🛡️</span> ১০০% অরিজিনাল
+              <div className="flex items-center gap-2 text-[10px] font-bold tracking-wider uppercase text-stone-500">
+                <span className="text-base">🛡️</span> ১০০% অরিজিনাল পণ্য
               </div>
             </div>
           </div>
@@ -279,8 +278,8 @@ export default function ProductDetailPage() {
       </div>
 
       {/* ── TABS SECTION ── */}
-      <div className="mt-16 rounded-2xl border bg-white overflow-hidden" style={{ borderColor: "var(--store-border)" }}>
-        <div className="flex border-b overflow-x-auto scrollbar-hide" style={{ borderColor: "var(--store-border)" }}>
+      <div className="mt-16 rounded-none border border-stroke bg-white overflow-hidden shadow-none">
+        <div className="flex border-b border-stroke overflow-x-auto scrollbar-hide">
           {[
             { id: "description", label: "বিবরণ" },
             { id: "specifications", label: "স্পেসিফিকেশন" },
@@ -289,8 +288,10 @@ export default function ProductDetailPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as ActiveTab)}
-              className={`px-8 py-4 text-sm font-bold whitespace-nowrap border-b-2 transition-colors ${
-                activeTab === tab.id ? "text-[var(--store-primary)] border-[var(--store-primary)]" : "text-[var(--store-text-muted)] border-transparent hover:text-[var(--store-text)]"
+              className={`px-8 py-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap border-b transition-all duration-150 cursor-pointer ${
+                activeTab === tab.id 
+                  ? "text-primary border-primary bg-[#fdfcfb]" 
+                  : "text-stone-500 border-transparent hover:text-stone-800 hover:bg-stone-50/20"
               }`}
             >
               {tab.label}
@@ -298,29 +299,29 @@ export default function ProductDetailPage() {
           ))}
         </div>
 
-        <div className="p-6 sm:p-10 min-h-[300px]">
+        <div className="p-6 sm:p-10 min-h-[250px]">
           {/* Tab 1: Description */}
           {activeTab === "description" && (
-            <div className="prose max-w-none text-sm leading-relaxed" style={{ color: "var(--store-text)" }}>
+            <div className="prose max-w-none text-xs sm:text-sm leading-relaxed text-stone-700">
               <p>{product.description || "এই পণ্যের বিস্তারিত বিবরণ শীঘ্রই যুক্ত করা হবে।"}</p>
             </div>
           )}
 
           {/* Tab 2: Specs */}
           {activeTab === "specifications" && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 py-3 border-b text-sm" style={{ borderColor: "var(--store-border)" }}>
-                <span className="font-bold text-gray-500">ব্র্যান্ড</span>
-                <span className="col-span-2 font-medium">{product.brand?.name || "জানা নেই"}</span>
+            <div className="space-y-1">
+              <div className="grid grid-cols-3 py-3 border-b border-stroke text-xs">
+                <span className="font-bold text-stone-400 uppercase tracking-widest">[ ব্র্যান্ড ]</span>
+                <span className="col-span-2 font-semibold text-stone-700">{product.brand?.name || "জানা নেই"}</span>
               </div>
-              <div className="grid grid-cols-3 py-3 border-b text-sm" style={{ borderColor: "var(--store-border)" }}>
-                <span className="font-bold text-gray-500">ক্যাটাগরি</span>
-                <span className="col-span-2 font-medium">{product.category?.name || "জানা নেই"}</span>
+              <div className="grid grid-cols-3 py-3 border-b border-stroke text-xs">
+                <span className="font-bold text-stone-400 uppercase tracking-widest">[ ক্যাটাগরি ]</span>
+                <span className="col-span-2 font-semibold text-stone-700">{product.category?.name || "জানা নেই"}</span>
               </div>
               {selectedVariant && (
-                <div className="grid grid-cols-3 py-3 border-b text-sm" style={{ borderColor: "var(--store-border)" }}>
-                  <span className="font-bold text-gray-500">SKU</span>
-                  <span className="col-span-2 font-medium">{selectedVariant.sku}</span>
+                <div className="grid grid-cols-3 py-3 border-b border-stroke text-xs">
+                  <span className="font-bold text-stone-400 uppercase tracking-widest">[ SKU ]</span>
+                  <span className="col-span-2 font-semibold text-stone-700">{selectedVariant.sku}</span>
                 </div>
               )}
             </div>
@@ -330,17 +331,17 @@ export default function ProductDetailPage() {
           {activeTab === "reviews" && (
             <div className="grid gap-10 md:grid-cols-[1fr_2fr]">
               {/* Write Review */}
-              <div className="bg-gray-50 rounded-xl p-6 h-fit border" style={{ borderColor: "var(--store-border)" }}>
-                <h3 className="font-bold mb-4">রিভিউ দিন</h3>
+              <div className="bg-[#fdfcfb] rounded-none p-6 h-fit border border-stroke">
+                <h3 className="font-bold text-xs uppercase tracking-wider text-stone-700 mb-4">[ রিভিউ দিন ]</h3>
                 {!isLoggedIn ? (
-                  <p className="text-sm text-gray-500">রিভিউ দিতে <Link href="/store/login" className="text-[var(--store-primary)] font-bold">লগইন</Link> করুন।</p>
+                  <p className="text-xs text-stone-500">রিভিউ দিতে <Link href="/store/login" className="text-primary font-bold hover:underline">লগইন</Link> করুন।</p>
                 ) : (
                   <form onSubmit={handleReviewSubmit} className="space-y-4">
                     <div>
                       <div className="flex gap-1">
                         {[1, 2, 3, 4, 5].map((s) => (
-                          <button key={s} type="button" onClick={() => setReviewForm(f => ({...f, rating: s}))} className="text-2xl">
-                            <span className={s <= reviewForm.rating ? "text-yellow-400" : "text-gray-300"}>★</span>
+                          <button key={s} type="button" onClick={() => setReviewForm(f => ({...f, rating: s}))} className="text-xl cursor-pointer hover:scale-105 transition-transform">
+                            <span className={s <= reviewForm.rating ? "text-amber-500" : "text-stone-200"}>★</span>
                           </button>
                         ))}
                       </div>
@@ -348,13 +349,12 @@ export default function ProductDetailPage() {
                     <textarea
                       value={reviewForm.comment}
                       onChange={e => setReviewForm(f => ({...f, comment: e.target.value}))}
-                      className="w-full border rounded-lg p-3 text-sm focus:outline-[var(--store-primary)]"
-                      style={{ borderColor: "var(--store-border)" }}
+                      className="w-full border border-stroke rounded-none p-3 text-xs focus:border-primary focus:outline-none bg-white placeholder-stone-400"
                       rows={4}
                       placeholder="আপনার মতামত লিখুন..."
                       required
                     />
-                    <button disabled={submittingReview} type="submit" className="w-full bg-[var(--store-primary)] text-white font-bold py-2.5 rounded-lg disabled:opacity-50">
+                    <button disabled={submittingReview} type="submit" className="w-full btn-premium text-xs tracking-wider uppercase py-2.5 rounded-none disabled:opacity-50 cursor-pointer text-white">
                       সাবমিট করুন
                     </button>
                   </form>
@@ -363,23 +363,23 @@ export default function ProductDetailPage() {
 
               {/* Review List */}
               <div className="space-y-4">
-                {reviewLoading ? <p>লোড হচ্ছে...</p> : reviews.length === 0 ? (
-                  <div className="text-center py-10 bg-gray-50 rounded-xl border border-dashed" style={{ borderColor: "var(--store-border)" }}>
-                    <p className="text-gray-500">এখনও কোনো রিভিউ নেই।</p>
+                {reviewLoading ? <p className="text-xs text-stone-500">লোড হচ্ছে...</p> : reviews.length === 0 ? (
+                  <div className="text-center py-12 bg-stone-50 border border-dashed border-stroke">
+                    <p className="text-stone-400 text-xs font-semibold">এখনও কোনো রিভিউ নেই।</p>
                   </div>
                 ) : (
                   reviews.map(r => (
-                    <div key={r.id} className="border-b pb-4 last:border-0" style={{ borderColor: "var(--store-border)" }}>
+                    <div key={r.id} className="border-b border-stroke pb-4 last:border-0">
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <p className="font-bold text-sm">{r.user?.name || "গ্রাহক"}</p>
-                          <div className="flex text-yellow-400 text-xs">
+                          <p className="font-bold text-xs text-stone-700">{r.user?.name || "গ্রাহক"}</p>
+                          <div className="flex text-amber-500 text-[10px] mt-0.5">
                             {"★".repeat(r.rating)}{"☆".repeat(5-r.rating)}
                           </div>
                         </div>
-                        <span className="text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString('bn-BD')}</span>
+                        <span className="text-[10px] text-stone-400 font-semibold">{new Date(r.createdAt).toLocaleDateString('bn-BD')}</span>
                       </div>
-                      <p className="text-sm text-gray-600">{r.comment}</p>
+                      <p className="text-xs text-stone-600 leading-relaxed">{r.comment}</p>
                     </div>
                   ))
                 )}

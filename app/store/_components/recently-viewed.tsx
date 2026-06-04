@@ -43,27 +43,30 @@ export function RecentlyViewed() {
   if (loading || products.length === 0) return null;
 
   return (
-    <section className="mt-16 border-t border-[var(--store-border)] pt-12">
-      <h2 className="text-2xl font-black tracking-tight mb-8">Recently Viewed</h2>
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <section className="mt-16 border-t border-stroke pt-12 font-sans">
+      <h2 className="text-xs font-bold uppercase tracking-widest text-foreground mb-8">
+        [ Recently Viewed / সম্প্রতি দেখা পণ্যসমূহ ]
+      </h2>
+      <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
         {products.map((product) => {
           const variant = getDefaultVariant(product);
           return (
             <Link
               key={product.id}
               href={`/store/products/${product.slug}`}
-              className="group block rounded-2xl bg-white p-3 shadow-sm transition hover:shadow-md"
+              className="group block rounded-none border border-stroke bg-white p-4 transition-all hover:border-foreground shadow-none"
             >
-              <div className="aspect-[4/5] overflow-hidden rounded-xl bg-[var(--store-surface-2)] mb-3">
+              <div className="aspect-[4/5] overflow-hidden bg-stone-50 border-b border-stroke mb-4">
                 <img
                   src={getProductImage(product)}
                   alt={product.name}
-                  className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                  className="h-full w-full object-contain p-4 transition-transform duration-550 group-hover:scale-[1.02]"
+                  loading="lazy"
                 />
               </div>
-              <div>
-                <p className="text-sm font-bold text-[var(--store-text)] line-clamp-1">{product.name}</p>
-                <p className="mt-1 text-sm font-black text-[var(--store-text)]">
+              <div className="space-y-1">
+                <p className="text-xs font-semibold text-foreground line-clamp-2 leading-relaxed min-h-[36px]">{product.name}</p>
+                <p className="text-xs font-bold text-foreground mt-1">
                   {variant ? formatPrice(variant.price) : "—"}
                 </p>
               </div>

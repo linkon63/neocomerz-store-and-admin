@@ -22,7 +22,7 @@ export function PageHeader({
 
 export function StatusToggle() {
   return (
-    <span className="inline-flex h-8 w-14 items-center rounded-full bg-blue-600 p-1">
+    <span className="inline-flex h-8 w-14 items-center rounded-full bg-emerald-600 p-1">
       <span className="ml-auto h-6 w-6 rounded-full bg-white" />
     </span>
   );

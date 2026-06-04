@@ -14,9 +14,9 @@ export function ImageGallery({ media, productName }: ImageGalleryProps) {
 
   if (!media || media.length === 0) {
     return (
-      <div className="aspect-square rounded-2xl bg-[var(--store-surface-2)] flex items-center justify-center">
+      <div className="aspect-square rounded-none bg-stone-50 border border-stroke flex items-center justify-center">
         <svg
-          className="w-24 h-24 text-[var(--store-text-light)]"
+          className="w-16 h-16 text-stone-300"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -24,7 +24,7 @@ export function ImageGallery({ media, productName }: ImageGalleryProps) {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={1.5}
+            strokeWidth={1.2}
             d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
           />
         </svg>
@@ -36,14 +36,14 @@ export function ImageGallery({ media, productName }: ImageGalleryProps) {
 
   function resolveImageUrl(url: string): string {
     if (url.startsWith("http")) return url;
-    return `${process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ?? "http://localhost:5010"}${url}`;
+    return url;
   }
 
   return (
     <div className="space-y-4">
       {/* Main Image */}
       <div
-        className={`relative aspect-square rounded-2xl bg-[var(--store-surface-2)] overflow-hidden group ${
+        className={`relative aspect-square rounded-none bg-stone-50 border border-stroke overflow-hidden group ${
           isZoomed ? "cursor-zoom-out" : "cursor-zoom-in"
         }`}
         onClick={() => setIsZoomed(!isZoomed)}
@@ -52,12 +52,12 @@ export function ImageGallery({ media, productName }: ImageGalleryProps) {
           src={resolveImageUrl(currentImage.media.url)}
           alt={productName}
           className={`w-full h-full object-cover transition-transform duration-300 ${
-            isZoomed ? "scale-150" : "scale-100 group-hover:scale-105"
+            isZoomed ? "scale-150" : "scale-100 group-hover:scale-[1.02]"
           }`}
         />
         {/* Zoom Icon */}
         {!isZoomed && (
-          <div className="absolute top-4 right-4 p-2 rounded-full bg-white/90 shadow opacity-0 group-hover:opacity-100 transition">
+          <div className="absolute top-4 right-4 p-2 rounded-none bg-white border border-stroke shadow-none opacity-0 group-hover:opacity-100 transition">
             <svg
               className="w-5 h-5 text-[var(--store-text)]"
               fill="none"
@@ -82,10 +82,10 @@ export function ImageGallery({ media, productName }: ImageGalleryProps) {
             <button
               key={item.id}
               onClick={() => setSelectedIndex(index)}
-              className={`aspect-square rounded-lg overflow-hidden border-2 transition ${
+              className={`aspect-square rounded-none overflow-hidden border transition cursor-pointer ${
                 index === selectedIndex
-                  ? "border-[var(--store-primary)] ring-2 ring-[var(--store-primary-mid)]"
-                  : "border-transparent hover:border-[var(--store-border-dark)]"
+                  ? "border-primary"
+                  : "border-stroke hover:border-stone-400"
               }`}
             >
               <img
