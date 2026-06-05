@@ -373,6 +373,47 @@ export type ReportOverviewInventory = {
   period: { start: string; end: string };
 };
 
+export type InventoryVariant = {
+  id: string | null;
+  sku: string | null;
+  price: string | null;
+  cost: string | null;
+  stockQuantity: number;
+  stockAlertThreshold: number;
+  isDefault: boolean;
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    status: string;
+  };
+};
+
+export type InventoryLog = {
+  id: string;
+  change: number;
+  reason: "sale" | "restock" | "return" | "correction" | "manual";
+  referenceId?: string | null;
+  note?: string | null;
+  createdAt: string;
+  variantId: string;
+};
+
+export type InventoryLogResponse = InventoryLog & {
+  variant: {
+    sku: string;
+    product: { id: string; name: string };
+  };
+};
+
+export type AdjustInventoryPayload = {
+  variantId: string;
+  change: number;
+  reason: "sale" | "restock" | "return" | "correction" | "manual";
+  referenceId?: string;
+  note?: string;
+};
+
 export type ReportOverviewPurchases = {
   totalPurchases: number;
   totalUnits: number;
