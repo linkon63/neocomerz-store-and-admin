@@ -44,14 +44,14 @@ export function ToastContainer() {
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className={`pointer-events-auto min-w-[300px] rounded-xl px-4 py-3 shadow-lg backdrop-blur-sm animate-slide-in-right ${
+          className={`pointer-events-auto min-w-[300px] rounded-xl px-4 py-3 shadow-lg border backdrop-blur-md animate-slide-in-right ${
             toast.type === "success"
-              ? "bg-green-500/90 text-white"
+              ? "bg-[#2E7D32]/95 border-emerald-800/10 text-white"
               : toast.type === "error"
-              ? "bg-red-500/90 text-white"
+              ? "bg-rose-600/95 border-rose-800/10 text-white"
               : toast.type === "warning"
-              ? "bg-yellow-500/90 text-white"
-              : "bg-[var(--store-secondary)]/90 text-white"
+              ? "bg-[#FFC72C]/95 border-amber-500/15 text-stone-900"
+              : "bg-stone-900/95 border-stone-850/15 text-white"
           }`}
         >
           <div className="flex items-center gap-3">

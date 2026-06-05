@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authApi, setStoreSession } from "@/lib/store-api";
+import { MangoLogo } from "../_components/store-shell";
 
 export default function StoreRegisterPage() {
   const router = useRouter();
@@ -28,79 +29,73 @@ export default function StoreRegisterPage() {
     }
   }
 
-  const inputStyle = {
-    border: "1.5px solid var(--store-border)",
-    backgroundColor: "var(--store-bg)",
-    color: "var(--store-text)",
-  };
-
   return (
-    <div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12 font-sans">
+    <div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12 font-sans bg-stone-50/50">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-3xl overflow-hidden shadow-md border border-slate-100">
+        <div className="bg-white rounded-3xl overflow-hidden shadow-md border border-stone-200/60">
           {/* Top accent */}
-          <div className="h-1.5 w-full bg-linear-to-r from-primary to-gold" />
+          <div className="h-1.5 w-full bg-linear-to-r from-[#2E7D32] to-[#FFC72C]" />
 
           <div className="p-8">
             {/* Logo */}
             <div className="flex flex-col items-center mb-7">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 bg-primary shadow-xs shadow-primary/30 text-white font-black text-xl">
-                <span>N</span>
-              </div>
-              <h1 className="text-[24px] font-extrabold text-slate-800">অ্যাকাউন্ট খুলুন</h1>
-              <p className="text-[14px] mt-1 text-slate-400 font-semibold text-center">NeoComerz-এ যোগ দিন এবং কেনাকাটা শুরু করুন</p>
+              <Link href="/store" className="mb-4 transition-opacity hover:opacity-90">
+                <MangoLogo className="scale-110" />
+              </Link>
+              <h1 className="text-[24px] font-extrabold text-stone-850">অ্যাকাউন্ট খুলুন</h1>
+              <p className="text-[14px] mt-1 text-stone-500 font-semibold text-center">আম এক্সপ্রেস-এ যোগ দিন এবং ফ্রেশ আম অর্ডার করুন</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Name */}
               <div>
-                <label className="block text-[13px] font-bold mb-1.5 text-slate-700">পূর্ণ নাম</label>
+                <label className="block text-[13px] font-bold mb-1.5 text-stone-750">পূর্ণ নাম</label>
                 <input
                   type="text"
                   required
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                   placeholder="আপনার নাম লিখুন"
-                  className="w-full rounded-xl px-4 py-3 text-[14px] outline-none border border-slate-200 bg-slate-50 focus:border-primary text-slate-805 placeholder-slate-400 font-semibold transition"
+                  className="w-full rounded-xl px-4 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#2E7D32] text-stone-800 placeholder-stone-400 font-semibold transition"
                 />
               </div>
 
               {/* Email */}
               <div>
-                <label className="block text-[13px] font-bold mb-1.5 text-slate-700">ইমেইল ঠিকানা</label>
+                <label className="block text-[13px] font-bold mb-1.5 text-stone-750">ইমেইল ঠিকানা</label>
                 <input
                   type="email"
                   required
                   value={form.email}
                   onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                   placeholder="you@example.com"
-                  className="w-full rounded-xl px-4 py-3 text-[14px] outline-none border border-slate-200 bg-slate-50 focus:border-primary text-slate-805 placeholder-slate-400 font-semibold transition"
+                  className="w-full rounded-xl px-4 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#2E7D32] text-stone-800 placeholder-stone-400 font-semibold transition"
                 />
               </div>
 
               {/* Password */}
               <div>
-                <label className="block text-[13px] font-bold mb-1.5 text-slate-700">পাসওয়ার্ড</label>
+                <label className="block text-[13px] font-bold mb-1.5 text-stone-750">পাসওয়ার্ড</label>
                 <input
                   type="password"
                   required
                   value={form.password}
                   onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                   placeholder="কমপক্ষে ৬ অক্ষর"
-                  className="w-full rounded-xl px-4 py-3 text-[14px] outline-none border border-slate-200 bg-slate-50 focus:border-primary text-slate-805 placeholder-slate-400 font-semibold transition"
+                  className="w-full rounded-xl px-4 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#2E7D32] text-stone-800 placeholder-stone-400 font-semibold transition"
                 />
               </div>
 
               {/* Confirm Password */}
               <div>
-                <label className="block text-[13px] font-bold mb-1.5 text-slate-700">পাসওয়ার্ড নিশ্চিত করুন</label>
+                <label className="block text-[13px] font-bold mb-1.5 text-stone-750">পাসওয়ার্ড নিশ্চিত করুন</label>
                 <input
                   type="password"
                   required
                   value={form.confirm}
                   onChange={(e) => setForm((f) => ({ ...f, confirm: e.target.value }))}
                   placeholder="পাসওয়ার্ড আবার লিখুন"
-                  className="w-full rounded-xl px-4 py-3 text-[14px] outline-none border border-slate-200 bg-slate-50 focus:border-primary text-slate-805 placeholder-slate-400 font-semibold transition"
+                  className="w-full rounded-xl px-4 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#2E7D32] text-stone-800 placeholder-stone-400 font-semibold transition"
                 />
               </div>
 
@@ -133,14 +128,14 @@ export default function StoreRegisterPage() {
             </form>
 
             <div className="flex items-center gap-3 my-5">
-              <div className="flex-1 h-px bg-slate-100" />
-              <span className="text-[12px] font-bold text-slate-400">অথবা</span>
-              <div className="flex-1 h-px bg-slate-100" />
+              <div className="flex-1 h-px bg-stone-150" />
+              <span className="text-[12px] font-bold text-stone-400">অথবা</span>
+              <div className="flex-1 h-px bg-stone-150" />
             </div>
 
-            <p className="text-center text-[14px] text-slate-500 font-medium">
+            <p className="text-center text-[14px] text-stone-550 font-medium">
               ইতিমধ্যে অ্যাকাউন্ট আছে?{" "}
-              <Link href="/store/login" className="font-bold text-primary hover:text-primary-hover hover:underline">
+              <Link href="/store/login" className="font-bold text-[#2E7D32] hover:text-[#1B5E20] hover:underline">
                 লগইন করুন
               </Link>
             </p>

@@ -23,7 +23,7 @@ const ProcessingIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
 const ShippedIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
   </svg>
 );
 
@@ -34,10 +34,10 @@ const DeliveredIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
 );
 
 const STATUS_COLORS: Record<string, string> = {
-  pending: "bg-stone-50 text-stone-705 border border-stone-200",
-  processing: "bg-stone-50 text-stone-705 border border-stone-200",
-  shipped: "bg-primary-light/50 text-primary border border-primary/20",
-  delivered: "bg-primary-light/50 text-primary border border-primary/20",
+  pending: "bg-stone-50 text-stone-750 border border-stone-200",
+  processing: "bg-stone-50 text-stone-750 border border-stone-200",
+  shipped: "bg-emerald-50 text-[#2E7D32] border border-[#2E7D32]/20",
+  delivered: "bg-emerald-50 text-[#2E7D32] border border-[#2E7D32]/20",
   cancelled: "bg-red-50 text-red-700 border border-red-200/50",
   returned: "bg-stone-50 text-stone-600 border border-stone-200",
 };
@@ -47,9 +47,9 @@ export default function OrderDetailPage() {
     <Suspense
       fallback={
         <div className="mx-auto max-w-[1800px] w-full px-6 py-10 sm:px-12 lg:px-16 min-h-[calc(100vh-280px)] animate-pulse space-y-4 font-sans">
-          <div className="h-8 bg-stone-100 rounded-none w-1/3 mb-8" />
-          <div className="h-48 bg-white rounded-none border border-stroke" />
-          <div className="h-32 bg-white rounded-none border border-stroke" />
+          <div className="h-8 bg-stone-100 rounded-xl w-1/3 mb-8" />
+          <div className="h-48 bg-white rounded-3xl border border-stone-200" />
+          <div className="h-32 bg-white rounded-3xl border border-stone-200" />
         </div>
       }
     >
@@ -93,9 +93,9 @@ function OrderDetailContent() {
   if (loading) {
     return (
       <div className="mx-auto max-w-[1800px] w-full px-6 py-10 sm:px-12 lg:px-16 min-h-[calc(100vh-280px)] animate-pulse space-y-4 font-sans">
-        <div className="h-8 bg-stone-100 rounded-none w-1/3" />
-        <div className="h-48 bg-white rounded-none border border-stroke" />
-        <div className="h-32 bg-white rounded-none border border-stroke" />
+        <div className="h-8 bg-stone-100 rounded-xl w-1/3" />
+        <div className="h-48 bg-white rounded-3xl border border-stone-200" />
+        <div className="h-32 bg-white rounded-3xl border border-stone-200" />
       </div>
     );
   }
@@ -109,51 +109,51 @@ function OrderDetailContent() {
     <div className="mx-auto max-w-[1800px] w-full px-6 py-10 sm:px-12 lg:px-16 min-h-[calc(100vh-280px)] font-sans">
       {/* Success banner */}
       {isSuccess && (
-        <div className="mb-8 border-l-4 border-l-primary border border-stroke bg-white p-6 flex items-start gap-4">
+        <div className="mb-8 border-l-4 border-l-[#2E7D32] border border-stone-200/60 bg-[#E8F5E9]/50 rounded-2xl p-6 flex items-start gap-4 shadow-xs">
           <span className="text-xl">🎉</span>
           <div>
-            <p className="font-bold text-foreground text-xs uppercase tracking-wider">Order placed successfully!</p>
-            <p className="text-xs text-stone-500 mt-1 font-semibold">Your order #{order.orderNumber} has been received.</p>
+            <p className="font-extrabold text-stone-850 text-xs uppercase tracking-wider">অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে! (Order Placed Successfully!)</p>
+            <p className="text-xs text-stone-500 mt-1 font-semibold">আপনার অর্ডার নম্বর #{order.orderNumber} সফলভাবে সিস্টেমে যোগ করা হয়েছে।</p>
           </div>
         </div>
       )}
 
       {/* Header */}
-      <div className="mb-8 flex items-start justify-between gap-4 border-b pb-6 border-stroke">
+      <div className="mb-8 flex items-start justify-between gap-4 border-b pb-6 border-stone-200">
         <div className="space-y-1">
-          <Link href="/store/orders" className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-primary transition">
-            ← My Orders
+          <Link href="/store/orders" className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-[#2E7D32] transition">
+            ← অর্ডারসমূহ (My Orders)
           </Link>
-          <h1 className="mt-3 text-2xl font-bold font-serif uppercase text-foreground">Order #{order.orderNumber}</h1>
+          <h1 className="mt-3 text-2xl font-bold font-serif uppercase text-stone-850">অর্ডার #{order.orderNumber}</h1>
           <p className="text-[10px] text-stone-500 font-semibold tracking-wider">
-            Placed {new Date(order.placedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+            তারিখ: {new Date(order.placedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
           </p>
         </div>
         <div className="text-right space-y-2">
-          <span className={`inline-block rounded-none px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest ${STATUS_COLORS[order.status] ?? "bg-stone-100 text-stone-700"}`}>
+          <span className={`inline-block rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${STATUS_COLORS[order.status] ?? "bg-stone-100 text-stone-700 border border-stone-200"}`}>
             {order.status}
           </span>
-          <p className={`text-[10px] font-bold uppercase tracking-widest ${order.paymentStatus === "paid" ? "text-primary" : "text-stone-500"}`}>
-            Payment: <span className="font-bold">[{order.paymentStatus}]</span>
+          <p className={`text-[10px] font-bold uppercase tracking-widest ${order.paymentStatus === "paid" ? "text-[#2E7D32]" : "text-stone-500"}`}>
+            পেমেন্ট: <span className="font-black text-[#2E7D32]">[{order.paymentStatus}]</span>
           </p>
         </div>
       </div>
 
       {/* Progress tracker */}
       {!isCancelled && (
-        <div className="bg-white border border-stroke p-6 mb-8 relative shadow-none">
-          <h2 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-6 flex items-center gap-2">
-            <span className="text-primary font-bold">■</span> Order Status
+        <div className="bg-white border border-stone-200/60 p-6 mb-8 relative shadow-xs rounded-3xl">
+          <h2 className="text-[10px] font-extrabold uppercase tracking-widest text-stone-500 mb-6 flex items-center gap-2 font-display">
+            <span className="text-[#2E7D32] font-black">■</span> অর্ডারের বর্তমান অবস্থা (Order Status)
           </h2>
           
           {/* Desktop Stepper */}
           <div className="hidden md:block relative my-8">
             {/* Background Line */}
-            <div className="absolute top-[20px] left-[12.5%] w-[75%] h-[1px] bg-stroke" />
+            <div className="absolute top-[20px] left-[12.5%] w-[75%] h-[1px] bg-stone-200" />
             
             {/* Active Progress Line */}
             <div 
-              className="absolute top-[20px] left-[12.5%] h-[1px] bg-primary transition-all duration-700 ease-out"
+              className="absolute top-[20px] left-[12.5%] h-[1px] bg-[#2E7D32] transition-all duration-700 ease-out"
               style={{ width: `${stepIndex === 0 ? 0 : stepIndex === 1 ? 25 : stepIndex === 2 ? 50 : 75}%` }} 
             />
 
@@ -162,12 +162,12 @@ function OrderDetailContent() {
                 const isActive = i <= stepIndex;
                 const isCurrent = i === stepIndex;
                 
-                const labels = ["Pending", "Processing", "Shipped", "Delivered"];
+                const labels = ["অপেক্ষমাণ (Pending)", "প্যাকিং চলছে (Processing)", "পাঠানো হয়েছে (Shipped)", "ডেলিভার্ড (Delivered)"];
                 const descs = [
-                  "Order placed & pending check",
-                  "Being packed & prepared",
-                  "Handed over to delivery agent",
-                  "Delivered successfully"
+                  "অর্ডারটি যাচাইকরণ সম্পন্ন হচ্ছে",
+                  "বাগান থেকে ফ্রেশ আম সংগ্রহ ও প্যাকেট করা হচ্ছে",
+                  "আম কুরিয়ার সার্ভিসে হস্তান্তর করা হয়েছে",
+                  "আপনার ঠিকানায় আম সফলভাবে পৌঁছে দেওয়া হয়েছে"
                 ];
 
                 const renderIcon = (active: boolean) => {
@@ -184,12 +184,12 @@ function OrderDetailContent() {
                   <div key={step} className="flex flex-col items-center flex-1 text-center px-2">
                     {/* Node */}
                     <div 
-                      className={`w-10 h-10 flex items-center justify-center transition-all duration-300 border ${
+                      className={`w-10 h-10 flex items-center justify-center transition-all duration-300 border rounded-xl ${
                         isCurrent 
-                          ? "bg-primary text-white border-primary shadow-none" 
+                          ? "bg-[#2E7D32] text-white border-[#2E7D32] shadow-xs shadow-[#2E7D32]/20" 
                           : isActive 
-                            ? "bg-primary text-white border-primary" 
-                            : "bg-white text-stone-450 border-stroke"
+                            ? "bg-[#2E7D32] text-white border-[#2E7D32]" 
+                            : "bg-white text-stone-400 border-stone-200"
                       }`}
                     >
                       {renderIcon(isActive)}
@@ -197,20 +197,20 @@ function OrderDetailContent() {
 
                     {/* Content */}
                     <div className="mt-4">
-                      <span className={`text-[8px] font-bold tracking-widest uppercase ${isActive ? "text-primary" : "text-stone-450"}`}>
-                        STEP 0{i + 1}
+                      <span className={`text-[8px] font-extrabold tracking-widest uppercase ${isActive ? "text-[#2E7D32]" : "text-stone-400"}`}>
+                        ধাপ ০{i + 1}
                       </span>
-                      <h3 className={`text-xs font-bold uppercase tracking-widest mt-1 ${isActive ? "text-foreground" : "text-stone-400"}`}>
-                        [{labels[i]}]
+                      <h3 className={`text-xs font-bold uppercase tracking-widest mt-1 ${isActive ? "text-stone-850" : "text-stone-400"}`}>
+                        {labels[i]}
                       </h3>
-                      <p className="text-[10px] text-stone-500 mt-1.5 leading-snug font-medium max-w-[140px] mx-auto">
+                      <p className="text-[10px] text-stone-500 mt-1.5 leading-snug font-semibold max-w-[150px] mx-auto">
                         {descs[i]}
                       </p>
                     </div>
 
                     {isCurrent && (
-                      <span className="mt-2 inline-block bg-primary/10 text-primary text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5">
-                        Active
+                      <span className="mt-2.5 inline-block bg-[#E8F5E9] text-[#2E7D32] text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md shadow-xs">
+                        চলমান (Active)
                       </span>
                     )}
                   </div>
@@ -226,12 +226,12 @@ function OrderDetailContent() {
               const isCurrent = i === stepIndex;
               const isLast = i === STATUS_STEPS.length - 1;
               
-              const labels = ["Pending", "Processing", "Shipped", "Delivered"];
+              const labels = ["পেন্ডিং (Pending)", "প্রসেসিং (Processing)", "শিপড (Shipped)", "ডেলিভার্ড (Delivered)"];
               const descs = [
-                "Order placed & pending check",
-                "Being packed & prepared",
-                "Handed over to delivery agent",
-                "Delivered successfully"
+                "অর্ডারটি যাচাইকরণ সম্পন্ন হচ্ছে",
+                "বাগান থেকে ফ্রেশ আম সংগ্রহ ও প্যাকেট করা হচ্ছে",
+                "আম কুরিয়ার সার্ভিসে হস্তান্তর করা হয়েছে",
+                "আপনার ঠিকানায় আম সফলভাবে পৌঁছে দেওয়া হয়েছে"
               ];
 
               const renderIcon = (active: boolean) => {
@@ -250,12 +250,12 @@ function OrderDetailContent() {
                   <div className="flex flex-col items-center shrink-0 w-8">
                     {/* Node */}
                     <div 
-                      className={`w-8 h-8 flex items-center justify-center relative z-10 transition-all duration-300 border ${
+                      className={`w-8 h-8 flex items-center justify-center relative z-10 transition-all duration-300 border rounded-xl ${
                         isCurrent 
-                          ? "bg-primary text-white border-primary shadow-none" 
+                          ? "bg-[#2E7D32] text-white border-[#2E7D32] shadow-xs shadow-[#2E7D32]/25" 
                           : isActive 
-                            ? "bg-primary text-white border-primary" 
-                            : "bg-white text-stone-450 border-stroke"
+                            ? "bg-[#2E7D32] text-white border-[#2E7D32]" 
+                            : "bg-white text-stone-400 border-stone-200"
                       }`}
                     >
                       {renderIcon(isActive)}
@@ -264,7 +264,7 @@ function OrderDetailContent() {
                     {!isLast && (
                       <div 
                         className={`w-[1px] absolute top-8 bottom-[-24px] left-[15px] ${
-                          i < stepIndex ? "bg-primary" : "bg-stroke"
+                          i < stepIndex ? "bg-[#2E7D32]" : "bg-stone-200"
                         }`} 
                       />
                     )}
@@ -273,17 +273,17 @@ function OrderDetailContent() {
                   {/* Right Content Column */}
                   <div className="flex-1 pt-0.5">
                     <div className="flex items-center gap-2">
-                      <span className={`text-[8px] font-bold tracking-widest uppercase ${isActive ? "text-primary" : "text-stone-450"}`}>
-                        STEP 0{i + 1}
+                      <span className={`text-[8px] font-extrabold tracking-widest uppercase ${isActive ? "text-[#2E7D32]" : "text-stone-400"}`}>
+                        ধাপ ০{i + 1}
                       </span>
                       {isCurrent && (
-                        <span className="bg-primary/10 text-primary text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5">
-                          Active
+                        <span className="bg-[#E8F5E9] text-[#2E7D32] text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md">
+                          চলমান (Active)
                         </span>
                       )}
                     </div>
-                    <h3 className={`text-xs font-bold uppercase tracking-widest mt-0.5 ${isActive ? "text-foreground" : "text-stone-400"}`}>
-                      [{labels[i]}]
+                    <h3 className={`text-xs font-bold uppercase tracking-widest mt-0.5 ${isActive ? "text-stone-850" : "text-stone-400"}`}>
+                      {labels[i]}
                     </h3>
                     <p className="text-[10px] text-stone-500 mt-1 leading-relaxed font-semibold">
                       {descs[i]}
@@ -299,47 +299,47 @@ function OrderDetailContent() {
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         {/* Items */}
         <div className="space-y-4">
-          <div className="bg-white p-6 border border-stroke shadow-none">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-foreground mb-6">
-              [ Items / পণ্যসমূহ ]
+          <div className="rounded-3xl bg-white p-6 border border-stone-200/60 shadow-xs">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-[#2E7D32] mb-6 font-display">
+              অর্ডারকৃত আমসমূহ (Ordered Items)
             </h2>
             <div className="space-y-6">
               {order.items.map((item) => (
                 <div key={item.id} className="flex justify-between gap-4 text-xs font-semibold">
                   <div>
-                    <Link href={`/store/products/${item.product.slug}`} className="font-bold text-foreground hover:text-primary transition hover:underline">
+                    <Link href={`/store/products/${item.product.slug}`} className="font-bold text-stone-850 hover:text-[#2E7D32] transition hover:underline">
                       {item.product.name}
                     </Link>
                     <p className="text-stone-500 text-[10px] font-semibold mt-1">SKU: {item.variant.sku} × {item.quantity}</p>
                   </div>
-                  <p className="font-bold text-foreground shrink-0">{formatPrice(item.totalPrice)}</p>
+                  <p className="font-extrabold text-[#2E7D32] shrink-0 font-display">{formatPrice(item.totalPrice)}</p>
                 </div>
               ))}
             </div>
             
-            <div className="border-t border-stroke my-6" />
+            <div className="border-t border-stone-200 my-6" />
             
             <div className="space-y-2.5 text-xs text-stone-600">
               <div className="flex justify-between">
-                <span className="font-medium">Subtotal</span>
-                <span className="font-bold text-foreground">{formatPrice(parseFloat(String(order.total)) + parseFloat(String(order.discount)) - parseFloat(String(order.shippingCost)))}</span>
+                <span className="font-semibold">মোট মূল্য (Subtotal)</span>
+                <span className="font-extrabold text-stone-800">{formatPrice(parseFloat(String(order.total)) + parseFloat(String(order.discount)) - parseFloat(String(order.shippingCost)))}</span>
               </div>
               {parseFloat(String(order.discount)) > 0 && (
-                <div className="flex justify-between text-primary">
-                  <span className="font-medium">Discount</span>
-                  <span className="font-bold">-{formatPrice(order.discount)}</span>
+                <div className="flex justify-between text-[#2E7D32]">
+                  <span className="font-semibold">ছাড় (Discount)</span>
+                  <span className="font-extrabold">-{formatPrice(order.discount)}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="font-medium">Shipping</span>
-                <span className="font-bold text-foreground">{formatPrice(order.shippingCost)}</span>
+                <span className="font-semibold">ডেলিভারি চার্জ (Shipping)</span>
+                <span className="font-extrabold text-stone-850">{formatPrice(order.shippingCost)}</span>
               </div>
               
-              <div className="border-t border-stroke pt-4 mt-2" />
+              <div className="border-t border-stone-200 pt-4 mt-2" />
               
-              <div className="flex justify-between text-sm font-extrabold text-foreground">
-                <span>Total</span>
-                <span className="text-primary">{formatPrice(order.total)}</span>
+              <div className="flex justify-between text-sm font-extrabold text-stone-850">
+                <span>সর্বমোট (Total)</span>
+                <span className="text-[#2E7D32] font-black text-base font-display">{formatPrice(order.total)}</span>
               </div>
             </div>
           </div>
@@ -349,9 +349,9 @@ function OrderDetailContent() {
             <button
               onClick={handleCancel}
               disabled={cancelling}
-              className="w-full border border-red-200 bg-white py-3 text-xs font-bold uppercase tracking-widest text-red-655 hover:bg-red-50 transition cursor-pointer disabled:opacity-50"
+              className="w-full border border-red-200 bg-white py-3.5 text-xs font-bold uppercase tracking-widest text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer disabled:opacity-50 hover:border-rose-350"
             >
-              {cancelling ? "Cancelling..." : "Cancel Order"}
+              {cancelling ? "বাতিল করা হচ্ছে..." : "অর্ডার বাতিল করুন (Cancel Order)"}
             </button>
           )}
         </div>
@@ -360,28 +360,28 @@ function OrderDetailContent() {
         <div className="space-y-4">
           {/* Delivery address */}
           {order.address && (
-            <div className="bg-white p-6 border border-stroke shadow-none">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-foreground mb-4">[ Delivery Address ]</h3>
+            <div className="bg-white p-6 border border-stone-200/60 shadow-xs rounded-3xl">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-[#2E7D32] mb-4 font-display">ডেলিভারি ঠিকানা (Delivery Address)</h3>
               <div className="text-xs space-y-1.5 text-stone-600 leading-relaxed font-semibold">
-                <p className="font-bold text-foreground">{order.address.fullName}</p>
+                <p className="font-bold text-stone-850">{order.address.fullName}</p>
                 <p>{order.address.addressLine1}</p>
                 {order.address.addressLine2 && <p>{order.address.addressLine2}</p>}
                 <p>{order.address.city}, {order.address.state} {order.address.postalCode}</p>
-                <p className="uppercase tracking-widest text-[9px] text-stone-400">{order.address.country}</p>
-                <p className="font-bold text-primary mt-2">{order.address.phone}</p>
+                <p className="uppercase tracking-widest text-[9px] text-stone-400 font-extrabold">{order.address.country}</p>
+                <p className="font-bold text-[#2E7D32] mt-2 font-display">{order.address.phone}</p>
               </div>
             </div>
           )}
 
           {/* Payment */}
           {order.payments && order.payments.length > 0 && (
-            <div className="bg-white p-6 border border-stroke shadow-none">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-foreground mb-4">[ Payment ]</h3>
+            <div className="bg-white p-6 border border-stone-200/60 shadow-xs rounded-3xl">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-[#2E7D32] mb-4 font-display">পেমেন্ট বিবরণ (Payment)</h3>
               {order.payments.map((p) => (
                 <div key={p.id} className="text-xs space-y-1.5 font-semibold text-stone-600">
-                  <p className="font-bold text-foreground capitalize">{p.method?.replace(/_/g, " ")}</p>
-                  <p className={`font-bold uppercase tracking-widest text-[10px] ${p.status === "success" ? "text-primary" : p.status === "failed" ? "text-red-600" : "text-stone-500"}`}>[{p.status}]</p>
-                  <p className="font-extrabold text-foreground">{formatPrice(p.amount)}</p>
+                  <p className="font-bold text-stone-850 capitalize">{p.method?.replace(/_/g, " ")}</p>
+                  <p className={`font-black uppercase tracking-widest text-[10px] ${p.status === "success" ? "text-[#2E7D32]" : p.status === "failed" ? "text-rose-600" : "text-stone-500"}`}>[{p.status}]</p>
+                  <p className="font-black text-stone-850 font-display">{formatPrice(p.amount)}</p>
                 </div>
               ))}
             </div>

@@ -43,9 +43,9 @@ export function RecentlyViewed() {
   if (loading || products.length === 0) return null;
 
   return (
-    <section className="mt-16 border-t border-stroke pt-12 font-sans">
-      <h2 className="text-xs font-bold uppercase tracking-widest text-foreground mb-8">
-        [ Recently Viewed / সম্প্রতি দেখা পণ্যসমূহ ]
+    <section className="mt-16 border-t border-[var(--store-border)] pt-12 font-sans">
+      <h2 className="text-xs font-bold uppercase tracking-widest text-[#2E7D32] mb-8 font-display">
+        সম্প্রতি দেখা আমসমূহ (Recently Viewed)
       </h2>
       <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
         {products.map((product) => {
@@ -54,19 +54,19 @@ export function RecentlyViewed() {
             <Link
               key={product.id}
               href={`/store/products/${product.slug}`}
-              className="group block rounded-none border border-stroke bg-white p-4 transition-all hover:border-foreground shadow-none"
+              className="group block rounded-2xl border border-[var(--store-border)] bg-white p-4 transition-all duration-300 hover:border-[#2E7D32]/50 hover:shadow-md shadow-xs"
             >
-              <div className="aspect-[4/5] overflow-hidden bg-stone-50 border-b border-stroke mb-4">
+              <div className="aspect-[4/3] rounded-xl overflow-hidden bg-[#FFF8E7]/50 border border-stone-200/40 mb-4 flex items-center justify-center">
                 <img
                   src={getProductImage(product)}
                   alt={product.name}
-                  className="h-full w-full object-contain p-4 transition-transform duration-550 group-hover:scale-[1.02]"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
                 />
               </div>
               <div className="space-y-1">
-                <p className="text-xs font-semibold text-foreground line-clamp-2 leading-relaxed min-h-[36px]">{product.name}</p>
-                <p className="text-xs font-bold text-foreground mt-1">
+                <p className="text-xs font-bold text-stone-800 line-clamp-2 leading-relaxed min-h-[36px] group-hover:text-[#2E7D32] transition-colors">{product.name}</p>
+                <p className="text-sm font-extrabold text-[#2E7D32] mt-1 font-display">
                   {variant ? formatPrice(variant.price) : "—"}
                 </p>
               </div>

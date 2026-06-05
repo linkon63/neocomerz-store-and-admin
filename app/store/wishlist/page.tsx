@@ -46,14 +46,14 @@ export default function WishlistPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-[1800px] w-full px-6 py-12 sm:px-12 lg:px-16">
+      <div className="mx-auto max-w-[1800px] w-full px-6 py-12 sm:px-12 lg:px-16 font-sans">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2].map((i) => (
-            <div key={i} className="rounded-none bg-white border border-stroke animate-pulse">
-              <div className="aspect-[4/5] bg-stone-100 rounded-none border-b border-stroke" />
+            <div key={i} className="rounded-2xl bg-white border border-stone-200 animate-pulse">
+              <div className="aspect-[4/3] bg-stone-100 rounded-t-2xl border-b border-stone-200" />
               <div className="p-5 space-y-3">
-                <div className="h-4 bg-stone-100 rounded-none w-3/4" />
-                <div className="h-3.5 bg-stone-100 rounded-none w-1/2" />
+                <div className="h-4 bg-stone-100 rounded-lg w-3/4" />
+                <div className="h-3.5 bg-stone-100 rounded-lg w-1/2" />
               </div>
             </div>
           ))}
@@ -63,30 +63,30 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1800px] w-full px-6 py-10 sm:px-12 lg:px-16">
-      <div className="mb-8 flex flex-col gap-1 border-b pb-5 border-stroke">
-        <h1 className="text-2xl font-bold font-serif uppercase text-foreground">
-          উইশলিস্ট
+    <div className="mx-auto max-w-[1800px] w-full px-6 py-10 sm:px-12 lg:px-16 font-sans">
+      <div className="mb-8 flex flex-col gap-1 border-b pb-5 border-stone-200">
+        <h1 className="text-2xl font-bold font-serif uppercase text-stone-850">
+          পছন্দের তালিকা
         </h1>
-        <p className="text-xs text-stone-500 font-medium tracking-wide">
-          [ আপনার পছন্দের পণ্যগুলো এখানে থাকবে ]
+        <p className="text-xs text-stone-500 font-semibold tracking-wide">
+          আপনার বুকমার্ক করা আমসমূহ (Wishlist)
         </p>
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-none bg-white border border-stroke p-12 text-center shadow-none">
-          <p className="text-2xl mb-3">💖</p>
-          <p className="text-xs font-bold uppercase tracking-wider text-stone-700">
-            এখনো কোনো পণ্য নেই
+        <div className="rounded-3xl bg-white border border-stone-200/60 p-16 text-center shadow-xs">
+          <p className="text-3xl mb-4">💖</p>
+          <p className="text-sm font-bold uppercase tracking-wider text-stone-800">
+            পছন্দের তালিকায় কিছু নেই
           </p>
-          <p className="mt-2 text-xs text-stone-500 font-medium">
-            প্রোডাক্ট ব্রাউজ করে পছন্দেরটি যোগ করুন।
+          <p className="mt-2 text-xs text-stone-500 font-semibold">
+            আমাদের কালেকশন ব্রাউজ করে আপনার পছন্দের আমটি যোগ করুন।
           </p>
           <Link
             href="/store/products"
-            className="mt-6 inline-flex rounded-none btn-premium px-6 py-3 text-xs font-bold tracking-widest uppercase text-white hover:opacity-95 transition"
+            className="mt-6 inline-flex rounded-xl btn-premium px-6 py-3 text-xs font-bold tracking-widest uppercase text-white hover:opacity-95 transition cursor-pointer"
           >
-            পণ্য দেখুন
+            আমসমূহ দেখুন
           </Link>
         </div>
       ) : (
@@ -97,14 +97,14 @@ export default function WishlistPage() {
             return (
               <div
                 key={item.id}
-                className="rounded-none bg-white border-[0.5px] border-stroke overflow-hidden shadow-none hover:border-foreground transition-colors duration-200 flex flex-col"
+                className="rounded-2xl bg-white border border-stone-200/60 overflow-hidden shadow-xs hover:border-[#2E7D32]/50 hover:shadow-md transition-all duration-300 flex flex-col"
               >
                 <Link href={`/store/products/${item.product.slug}`} className="block">
-                  <div className="aspect-[4/5] overflow-hidden bg-stone-50 border-b border-stroke">
+                  <div className="aspect-[4/3] overflow-hidden bg-[#FFF8E7]/50 border-b border-stone-100">
                     <img
                       src={image}
                       alt={item.product.name}
-                      className="h-full w-full object-cover transition duration-500 hover:scale-[1.02]"
+                      className="h-full w-full object-cover transition duration-500 hover:scale-102"
                     />
                   </div>
                 </Link>
@@ -112,35 +112,35 @@ export default function WishlistPage() {
                   <div className="min-h-[40px]">
                     <Link
                       href={`/store/products/${item.product.slug}`}
-                      className="text-xs font-semibold leading-relaxed line-clamp-2 text-foreground"
+                      className="text-sm font-bold leading-relaxed line-clamp-2 text-stone-800 hover:text-[#2E7D32] transition-colors"
                     >
                       {item.product.name}
                     </Link>
                     {item.product.category && (
-                      <p className="text-[9px] font-medium tracking-wider text-stone-400 mt-1 uppercase">
-                        [{item.product.category.name}]
+                      <p className="text-[9px] font-extrabold tracking-wider text-[#2E7D32] mt-1.5 uppercase font-display">
+                        {item.product.category.name.replace(/Clothing|Fashion|Shoes|Accessories/gi, "নাওগাঁর আম")}
                       </p>
                     )}
                   </div>
-                  <div className="flex items-center justify-between pt-3 mt-auto border-t border-stroke">
-                    <span className="text-xs font-bold text-foreground">
+                  <div className="flex items-center justify-between pt-3 mt-auto border-t border-stone-100">
+                    <span className="text-sm font-black text-[#2E7D32] font-display">
                       {variant ? formatPrice(variant.price) : "—"}
                     </span>
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleAddToCart(item)}
                         disabled={adding === item.product.id || !variant}
-                        className="rounded-none border border-primary px-3 py-1.5 text-[10px] font-bold bg-transparent text-primary hover:bg-primary hover:text-white transition-colors duration-200 disabled:opacity-50"
+                        className="rounded-xl border border-[#2E7D32] px-4 py-2 text-[10px] font-bold bg-transparent text-[#2E7D32] hover:bg-[#2E7D32] hover:text-white transition-all duration-250 disabled:opacity-50 cursor-pointer"
                       >
-                        {adding === item.product.id ? "Adding..." : "কার্টে যোগ"}
+                        {adding === item.product.id ? "যোগ হচ্ছে..." : "কার্টে যোগ করুন"}
                       </button>
                       <button
                         onClick={() => handleRemove(item.product.id)}
                         disabled={removing === item.product.id}
-                        className="rounded-none border border-red-200 hover:border-red-500 px-3 py-1.5 text-[10px] font-bold text-red-650 hover:bg-red-50 transition-colors duration-200 disabled:opacity-50"
+                        className="rounded-xl border border-rose-200 hover:border-rose-500 px-4 py-2 text-[10px] font-bold text-rose-600 hover:bg-rose-50 transition-all duration-200 disabled:opacity-50 cursor-pointer"
                         aria-label="Remove from wishlist"
                       >
-                        মুছুন
+                        বাদ দিন
                       </button>
                     </div>
                   </div>

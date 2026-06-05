@@ -25,7 +25,7 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
             href="/store"
             className="text-[var(--store-text-muted)] hover:text-[var(--store-primary)] transition font-medium"
           >
-            Home
+            হোম (Home)
           </Link>
         </li>
         {breadcrumbs.map((item, index) => (

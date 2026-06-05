@@ -5,6 +5,37 @@ import { usePathname, useRouter } from "next/navigation";
 import { type ReactNode, useEffect, useState, useRef } from "react";
 import { clearStoreSession, getStoredUser, type StoreUser } from "@/lib/store-api";
 
+// Premium Inline SVG Mango Express Logo
+export function MangoLogo({ className = "", light = false }: { className?: string; light?: boolean }) {
+  return (
+    <div className={`flex items-center gap-2.5 ${className}`}>
+      <svg className="w-8.5 h-8.5 animate-leaf-sway shrink-0" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Leaf */}
+        <path d="M48 32C48 32 56 16 72 13C72 13 74 26 67 36C60 46 48 32 48 32Z" fill="#2E7D32" />
+        {/* Mango body */}
+        <path d="M35 78C22 68 18 48 25 33C32 18 52 23 65 38C78 53 75 73 60 83C48 91 42 84 35 78Z" fill="url(#mangoGradHeader)" />
+        {/* Leaf stem */}
+        <path d="M48 32C50 37 55 42 60 37" stroke="#1B5E20" strokeWidth="3" strokeLinecap="round" />
+        <defs>
+          <linearGradient id="mangoGradHeader" x1="20" y1="20" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#FFA000" />
+            <stop offset="50%" stopColor="#FFC72C" />
+            <stop offset="100%" stopColor="#FFE082" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div className="flex flex-col">
+        <span className={`text-[15px] font-black uppercase tracking-wider ${light ? 'text-white' : 'text-stone-900'} leading-tight font-display`}>
+          Mango<span className="text-[#FFC72C]">Express</span>
+        </span>
+        <span className={`text-[8px] font-extrabold tracking-[0.25em] uppercase ${light ? 'text-amber-300' : 'text-[#2E7D32]'} leading-none`}>
+          Naogaon
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export function StoreShell({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<StoreUser | null>(null);
   const [cartCount, setCartCount] = useState(0);
@@ -54,34 +85,33 @@ export function StoreShell({ children }: { children: ReactNode }) {
   }
 
   const navLinks = [
-    { href: "/store/products", label: "All Products", match: (p: string) => p === "/store/products" },
-    { href: "/store/products?status=active", label: "New Arrivals", match: (p: string) => p.includes("status=active") },
-    { href: "/store/cart", label: "Cart", match: (p: string) => p === "/store/cart" },
+    { href: "/store/products", label: "সকল আম (All Mangoes)", match: (p: string) => p === "/store/products" },
+    { href: "/store/products?status=active", label: "সেরা অফার (Premium Harvest)", match: (p: string) => p.includes("status=active") },
+    { href: "/store/cart", label: "শপিং কার্ট (Cart)", match: (p: string) => p === "/store/cart" },
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
+    <div className="min-h-screen bg-stone-50 text-stone-900 flex flex-col font-sans">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-[#e8edf4] bg-white/90 backdrop-blur-xl shadow-sm">
-        <div className="mx-auto flex max-w-[1800px] w-full items-center justify-between px-6 py-4 sm:px-12 lg:px-16">
+      <header className="sticky top-0 z-50 border-b border-[#E8E0D4] bg-white/95 backdrop-blur-xl shadow-xs">
+        <div className="mx-auto flex max-w-[1800px] w-full items-center justify-between px-6 py-4.5 sm:px-12 lg:px-16">
           {/* Logo */}
-          <Link href="/store" className="text-lg font-bold tracking-[0.12em] shrink-0 text-slate-800 hover:text-teal-600 transition-colors flex items-center gap-2">
-            <span className="bg-teal-600 text-white w-7 h-7 rounded-xl flex items-center justify-center text-xs font-black shadow-xs">N</span>
-            <span className="font-serif font-extrabold text-slate-900">NeoComerz</span>
+          <Link href="/store" className="shrink-0 transition-opacity hover:opacity-90">
+            <MangoLogo />
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8 text-[11px] font-bold tracking-wider uppercase text-slate-500">
+          <nav className="hidden md:flex items-center gap-8 text-[11px] font-bold tracking-wider uppercase text-stone-600">
             {navLinks.map((l) => {
               const active = l.match(pathname);
               return (
                 <Link
                   key={l.href}
                   href={l.href}
-                  className={`transition-all duration-200 hover:text-teal-600 relative py-1 group ${active ? "text-teal-600" : ""}`}
+                  className={`transition-all duration-200 hover:text-[#2E7D32] relative py-1 group ${active ? "text-[#2E7D32]" : ""}`}
                 >
                   {l.label}
-                  <span className={`absolute bottom-0 left-0 h-[2px] bg-teal-600 transition-all duration-300 ${active ? "w-full" : "w-0 group-hover:w-full"}`} />
+                  <span className={`absolute bottom-0 left-0 h-[2px] bg-[#2E7D32] transition-all duration-300 ${active ? "w-full" : "w-0 group-hover:w-full"}`} />
                 </Link>
               );
             })}
@@ -92,7 +122,7 @@ export function StoreShell({ children }: { children: ReactNode }) {
             {/* Search */}
             <Link
               href="/store/search"
-              className="p-2 rounded-xl text-slate-600 hover:bg-slate-100/70 hover:text-teal-600 transition-all duration-200"
+              className="p-2 rounded-xl text-stone-600 hover:bg-[#FFF8E7] hover:text-[#2E7D32] transition-all duration-200"
               aria-label="Search"
             >
               <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" strokeWidth={2.2} viewBox="0 0 24 24">
@@ -105,7 +135,7 @@ export function StoreShell({ children }: { children: ReactNode }) {
             {user && (
               <Link
                 href="/store/wishlist"
-                className="p-2 rounded-xl text-slate-600 hover:bg-slate-100/70 hover:text-teal-600 transition-all duration-200"
+                className="p-2 rounded-xl text-stone-600 hover:bg-[#FFF8E7] hover:text-[#2E7D32] transition-all duration-200"
                 aria-label="Wishlist"
               >
                 <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" strokeWidth={2.2} viewBox="0 0 24 24">
@@ -117,7 +147,7 @@ export function StoreShell({ children }: { children: ReactNode }) {
             {/* Cart */}
             <Link
               href="/store/cart"
-              className="relative p-2 rounded-xl text-slate-600 hover:bg-slate-100/70 hover:text-teal-600 transition-all duration-200"
+              className="relative p-2 rounded-xl text-stone-600 hover:bg-[#FFF8E7] hover:text-[#2E7D32] transition-all duration-200"
               aria-label="Cart"
             >
               <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" strokeWidth={2.2} viewBox="0 0 24 24">
@@ -126,7 +156,7 @@ export function StoreShell({ children }: { children: ReactNode }) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 10a4 4 0 0 1-8 0" />
               </svg>
               {cartCount > 0 && (
-                <span className="absolute top-0.5 right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-rose-500 text-[8px] font-extrabold text-white shadow-xs">
+                <span className="absolute top-0.5 right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-rose-500 text-[8px] font-extrabold text-white shadow-xs animate-pulse">
                   {cartCount}
                 </span>
               )}
@@ -137,45 +167,45 @@ export function StoreShell({ children }: { children: ReactNode }) {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setUserMenuOpen((o) => !o)}
-                  className="flex items-center gap-2 rounded-full border border-slate-200 hover:border-teal-400 hover:text-teal-600 px-3.5 py-1.5 text-xs font-semibold tracking-wider text-slate-700 transition-all duration-250 cursor-pointer shadow-xs"
+                  className="flex items-center gap-2 rounded-full border border-stone-250 hover:border-[#FFC72C] hover:text-[#2E7D32] px-3.5 py-1.5 text-xs font-semibold tracking-wider text-stone-700 transition-all duration-250 cursor-pointer shadow-xs bg-white"
                 >
                   <span className="hidden sm:inline">{user.name.split(" ")[0]}</span>
-                  <div className="w-5 h-5 rounded-full bg-teal-50 flex items-center justify-center">
-                    <svg className="w-3 h-3 text-teal-600" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                  <div className="w-5 h-5 rounded-full bg-[#E8F5E9] flex items-center justify-center">
+                    <svg className="w-3 h-3 text-[#2E7D32]" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                       <circle cx="12" cy="7" r="4" />
                     </svg>
                   </div>
                 </button>
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-white shadow-lg p-2 z-50 border border-slate-100/60 animate-scale-in">
+                  <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-white shadow-lg p-2 z-50 border border-stone-100 animate-scale-in">
                     <Link
                       href="/store/account"
-                      className="block px-4 py-2.5 text-xs font-semibold rounded-xl text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition"
+                      className="block px-4 py-2.5 text-xs font-semibold rounded-xl text-stone-700 hover:bg-[#E8F5E9] hover:text-[#2E7D32] transition"
                       onClick={() => setUserMenuOpen(false)}
                     >
-                      My Account
+                      My Profile (আমার প্রোফাইল)
                     </Link>
                     <Link
                       href="/store/orders"
-                      className="block px-4 py-2.5 text-xs font-semibold rounded-xl text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition"
+                      className="block px-4 py-2.5 text-xs font-semibold rounded-xl text-stone-700 hover:bg-[#E8F5E9] hover:text-[#2E7D32] transition"
                       onClick={() => setUserMenuOpen(false)}
                     >
-                      My Orders
+                      My Orders (আমার অর্ডার)
                     </Link>
                     <Link
                       href="/store/wishlist"
-                      className="block px-4 py-2.5 text-xs font-semibold rounded-xl text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition"
+                      className="block px-4 py-2.5 text-xs font-semibold rounded-xl text-stone-700 hover:bg-[#E8F5E9] hover:text-[#2E7D32] transition"
                       onClick={() => setUserMenuOpen(false)}
                     >
-                      Wishlist
+                      Wishlist (পছন্দের তালিকা)
                     </Link>
-                    <hr className="my-1.5 border-slate-100" />
+                    <hr className="my-1.5 border-stone-100" />
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2.5 text-xs font-semibold text-rose-600 rounded-xl hover:bg-rose-50 transition cursor-pointer"
                     >
-                      Sign Out
+                      Sign Out (লগ আউট)
                     </button>
                   </div>
                 )}
@@ -183,7 +213,7 @@ export function StoreShell({ children }: { children: ReactNode }) {
             ) : (
               <Link
                 href="/store/login"
-                className="rounded-xl bg-teal-600 hover:bg-teal-750 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-all duration-200 shadow-sm hover:shadow-md"
+                className="rounded-xl bg-[#2E7D32] hover:bg-[#1B5E20] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all duration-200 shadow-sm hover:shadow-md"
               >
                 Sign In
               </Link>
@@ -191,7 +221,7 @@ export function StoreShell({ children }: { children: ReactNode }) {
 
             {/* Mobile menu toggle */}
             <button
-              className="md:hidden p-2 rounded-xl hover:bg-slate-100 text-slate-650 hover:text-teal-650 transition cursor-pointer"
+              className="md:hidden p-2 rounded-xl hover:bg-stone-100 text-stone-600 hover:text-[#2E7D32] transition cursor-pointer"
               onClick={() => setMenuOpen((o) => !o)}
               aria-label="Menu"
             >
@@ -210,12 +240,12 @@ export function StoreShell({ children }: { children: ReactNode }) {
 
         {/* Mobile Nav */}
         {menuOpen && (
-          <div className="md:hidden border-t border-slate-100 bg-white px-6 py-4 flex flex-col gap-2 shadow-xs animate-slide-up">
+          <div className="md:hidden border-t border-stone-100 bg-white px-6 py-4 flex flex-col gap-2 shadow-xs animate-slide-up">
             {navLinks.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
-                className="block py-2.5 px-4 rounded-xl text-xs font-semibold tracking-wider text-slate-600 hover:bg-slate-50 hover:text-teal-600 transition"
+                className="block py-2.5 px-4 rounded-xl text-xs font-semibold tracking-wider text-stone-600 hover:bg-[#E8F5E9] hover:text-[#2E7D32] transition"
                 onClick={() => setMenuOpen(false)}
               >
                 {l.label}
@@ -223,18 +253,18 @@ export function StoreShell({ children }: { children: ReactNode }) {
             ))}
             <Link
               href="/store/search"
-              className="block py-2.5 px-4 rounded-xl text-xs font-semibold tracking-wider text-slate-600 hover:bg-slate-50 hover:text-teal-600 transition"
+              className="block py-2.5 px-4 rounded-xl text-xs font-semibold tracking-wider text-stone-600 hover:bg-[#E8F5E9] hover:text-[#2E7D32] transition"
               onClick={() => setMenuOpen(false)}
             >
-              Search
+              Search (অনুসন্ধান)
             </Link>
             {!user && (
               <Link
                 href="/store/login"
-                className="mt-3 block text-center rounded-xl bg-teal-600 py-3 text-xs font-semibold uppercase tracking-wider text-white hover:bg-teal-700 transition"
+                className="mt-3 block text-center rounded-xl bg-[#2E7D32] py-3 text-xs font-bold uppercase tracking-wider text-white hover:bg-[#1B5E20] transition"
                 onClick={() => setMenuOpen(false)}
               >
-                Sign In
+                Sign In (লগ ইন)
               </Link>
             )}
           </div>
@@ -245,60 +275,59 @@ export function StoreShell({ children }: { children: ReactNode }) {
       <main className="flex-1">{children}</main>
 
       {/* Footer */}
-      <footer className="bg-[#060d1a] text-slate-400 mt-auto border-t border-slate-800/60">
+      <footer className="bg-[#0F291E] text-stone-300 mt-auto border-t border-[#1B5E20]/35">
         <div className="mx-auto max-w-[1800px] w-full px-6 py-16 sm:px-12 lg:px-16 grid gap-10 md:grid-cols-4">
           
           {/* Column 1: Brand Info + Payment Options */}
           <div className="md:col-span-2 space-y-6">
-            <Link href="/store" className="text-lg font-bold tracking-[0.12em] text-white flex items-center gap-2">
-              <span className="bg-teal-600 text-white w-7 h-7 rounded-xl flex items-center justify-center text-xs font-black shadow-xs">N</span>
-              <span className="font-serif font-extrabold text-white">NeoComerz</span>
+            <Link href="/store" className="inline-block transition-opacity hover:opacity-90">
+              <MangoLogo light />
             </Link>
-            <p className="text-xs leading-relaxed text-slate-400 max-w-md font-semibold">
-              দেশীয় ই-কমার্স মার্কেটপ্লেস ও প্রফেশনাল এডমিন প্যানেল টেস্টিং প্রজেক্ট। এখানে ক্যাশ অন ডেলিভারি, শপিং কার্ট, ইউজার একাউন্ট ও লাইভ অর্ডার প্রসেস স্মুথলি পরীক্ষা করা যাবে।
+            <p className="text-xs leading-relaxed text-stone-300 max-w-md font-medium">
+              নওগাঁর সুমিষ্ট ও বিষমুক্ত ল্যাংড়া, ফজলি, আম্রপালি ও ক্ষীরশাপাত আম সরাসরি বাগান থেকে আপনার ঘরে পৌঁছে দিচ্ছে আম এক্সপ্রেস। কোনো ক্ষতিকর কেমিক্যাল বা ফরমালিন ছাড়া সম্পূর্ণ প্রাকৃতিকভাবে পাকানো আম পেতে আমাদের অর্ডার করুন।
             </p>
             
             {/* Payment Badges (Vibrant Bangladeshi colors) */}
             <div className="pt-2">
-              <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block mb-3">আমাদের পেমেন্ট পার্টনারস</span>
+              <span className="text-[10px] font-extrabold text-amber-400/90 uppercase tracking-widest block mb-3 font-display">আমাদের পেমেন্ট পার্টনারস</span>
               <div className="flex flex-wrap gap-2.5">
-                <span className="bg-[#e2127a] text-[10px] font-extrabold text-white px-3 py-1 rounded-lg border border-[#e2127a]/20 shadow-xs cursor-default">bKash</span>
-                <span className="bg-[#f05a24] text-[10px] font-extrabold text-white px-3 py-1 rounded-lg border border-[#f05a24]/20 shadow-xs cursor-default">Nagad</span>
-                <span className="bg-[#8c3494] text-[10px] font-extrabold text-white px-3 py-1 rounded-lg border border-[#8c3494]/20 shadow-xs cursor-default">Rocket</span>
-                <span className="bg-[#1a1f71] text-[10px] font-extrabold text-white px-3 py-1 rounded-lg border border-[#1a1f71]/20 shadow-xs cursor-default">Visa</span>
-                <span className="bg-teal-750 text-[10px] font-extrabold text-white px-3 py-1 rounded-lg border border-teal-650/20 shadow-xs cursor-default">Cash On Delivery</span>
+                <span className="bg-[#e2127a] text-[10px] font-bold text-white px-3 py-1 rounded-lg shadow-xs cursor-default">bKash (বিকাশ)</span>
+                <span className="bg-[#f05a24] text-[10px] font-bold text-white px-3 py-1 rounded-lg shadow-xs cursor-default">Nagad (নগদ)</span>
+                <span className="bg-[#8c3494] text-[10px] font-bold text-white px-3 py-1 rounded-lg shadow-xs cursor-default">Rocket (রকেট)</span>
+                <span className="bg-[#1a1f71] text-[10px] font-bold text-white px-3 py-1 rounded-lg shadow-xs cursor-default">Visa</span>
+                <span className="bg-[#2E7D32] text-[10px] font-bold text-white px-3 py-1 rounded-lg border border-emerald-600/30 shadow-xs cursor-default">Cash On Delivery</span>
               </div>
             </div>
           </div>
           
           {/* Column 2: Quick Shop Link Categories */}
           <div>
-            <h3 className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-teal-400 mb-6">কুইক শপ</h3>
-            <div className="grid gap-3.5 text-xs font-semibold text-slate-350">
-              <Link href="/store/products" className="hover:text-white hover:underline transition-all">সব প্রোডাক্ট কালেকশন</Link>
-              <Link href="/store/products?status=active" className="hover:text-white hover:underline transition-all">নতুন কালেকশন</Link>
+            <h3 className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-[#FFC72C] mb-6 font-display">কুইক মেনু</h3>
+            <div className="grid gap-3.5 text-xs font-semibold text-stone-350">
+              <Link href="/store/products" className="hover:text-white hover:underline transition-all">সকল আম কালেকশন</Link>
+              <Link href="/store/products?status=active" className="hover:text-white hover:underline transition-all">নতুন সংগ্রহের আম</Link>
               <Link href="/store/cart" className="hover:text-white hover:underline transition-all">শপিং কার্ট</Link>
-              <Link href="/store/wishlist" className="hover:text-white hover:underline transition-all">আমার উইশলিস্ট</Link>
+              <Link href="/store/wishlist" className="hover:text-white hover:underline transition-all">আমার পছন্দের তালিকা</Link>
             </div>
           </div>
           
           {/* Column 3: Contact & Info */}
           <div>
-            <h3 className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-teal-400 mb-6">যোগাযোগ ও ঠিকানা</h3>
-            <div className="grid gap-3.5 text-xs font-semibold text-slate-350">
+            <h3 className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-[#FFC72C] mb-6 font-display">যোগাযোগ ও ঠিকানা</h3>
+            <div className="grid gap-3.5 text-xs font-semibold text-stone-350">
               <div className="flex items-center gap-2">
-                <span className="text-teal-400">📞</span>
-                <span>+৮৮০ ১৭০০-০০০০০০</span>
+                <span className="text-[#FFC72C]">📞</span>
+                <span>+৮৮০ ১৭০৭৮১৯৬৭৬</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-teal-400">✉️</span>
-                <span>support@neocomerz.com</span>
+                <span className="text-[#FFC72C]">✉️</span>
+                <span className="break-all">muhammadabdulla442467@gmail.com</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-teal-400">📍</span>
-                <span>গুলশান, ঢাকা, বাংলাদেশ</span>
+                <span className="text-[#FFC72C]">📍</span>
+                <span>নওগাঁ, রাজশাহী বিভাগ, বাংলাদেশ</span>
               </div>
-              <hr className="border-slate-800 my-1" />
+              <hr className="border-[#1B5E20]/30 my-1" />
               <Link href="/admin" className="text-amber-400 font-extrabold hover:text-amber-300 transition-colors flex items-center gap-1.5">
                 <span>এডমিন ড্যাশবোর্ড</span>
                 <span className="text-[10px]">↗</span>
@@ -309,8 +338,8 @@ export function StoreShell({ children }: { children: ReactNode }) {
         </div>
         
         {/* Bottom copyright bar */}
-        <div className="border-t border-slate-800/50 px-6 py-7 text-center text-[10px] text-slate-600 font-semibold tracking-wider">
-          © {new Date().getFullYear()} NeoComerz. All Rights Reserved. Designed with absolute precision.
+        <div className="border-t border-[#1B5E20]/20 px-6 py-7 text-center text-[10px] text-stone-400/80 font-semibold tracking-wider bg-[#0A1D15]">
+          © {new Date().getFullYear()} Mango Express Naogaon. All Rights Reserved. Freshness and trust delivered directly to your doorstep.
         </div>
       </footer>
     </div>

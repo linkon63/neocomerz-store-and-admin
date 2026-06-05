@@ -71,7 +71,7 @@ export function SearchAutocomplete() {
             setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
-          placeholder="Search products..."
+          placeholder="আম খুঁজুন (Search mangoes)..."
           className="w-48 md:w-64 rounded-full border border-[var(--store-border)] bg-[var(--store-surface-2)] px-4 py-2 pl-10 text-sm focus:border-[var(--store-primary)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--store-primary-mid)] transition-all"
         />
         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--store-text-muted)]">
@@ -81,21 +81,21 @@ export function SearchAutocomplete() {
           </svg>
         </div>
       </form>
-
+ 
       {isOpen && query.trim().length >= 2 && (
-        <div className="absolute right-0 top-full mt-2 w-[320px] md:w-[400px] rounded-2xl bg-white shadow-lg ring-1 ring-black/5 overflow-hidden z-50">
+        <div className="absolute right-0 top-full mt-2 w-[320px] md:w-[400px] rounded-2xl bg-white shadow-lg ring-1 ring-black/5 overflow-hidden z-50 border border-stone-200/60">
           {loading ? (
-            <div className="p-4 text-center text-sm text-[var(--store-text-muted)]">Searching...</div>
+            <div className="p-4 text-center text-sm text-[var(--store-text-muted)] font-semibold">অনুসন্ধান করা হচ্ছে...</div>
           ) : (
             <>
               {suggestions.length > 0 && (
                 <div className="border-b border-[var(--store-border)] p-2">
-                  <p className="px-3 py-1 text-xs font-black uppercase tracking-wider text-[var(--store-text-light)]">Suggestions</p>
+                  <p className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[var(--store-text-light)]">পরামর্শ (Suggestions)</p>
                   {suggestions.map((s, i) => (
                     <Link
                       key={i}
                       href={`/store/products?search=${encodeURIComponent(s)}`}
-                      className="block rounded-lg px-3 py-2 text-sm font-semibold hover:bg-[var(--store-surface-2)] transition"
+                      className="block rounded-lg px-3 py-2 text-sm font-semibold hover:bg-[var(--store-surface-2)] text-[#2E7D32] hover:text-[#1B5E20] transition"
                       onClick={() => setIsOpen(false)}
                     >
                       {s}
@@ -103,10 +103,10 @@ export function SearchAutocomplete() {
                   ))}
                 </div>
               )}
-
+ 
               {products.length > 0 ? (
                 <div className="p-2">
-                  <p className="px-3 py-1 text-xs font-black uppercase tracking-wider text-[var(--store-text-light)]">Products</p>
+                  <p className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[var(--store-text-light)]">আমসমূহ (Products)</p>
                   {products.map((p) => {
                     const variant = getDefaultVariant(p);
                     return (
@@ -121,7 +121,7 @@ export function SearchAutocomplete() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-bold text-[var(--store-text)]">{p.name}</p>
-                          <p className="text-xs font-black text-[var(--store-text-muted)]">
+                          <p className="text-xs font-black text-[#2E7D32]">
                             {variant ? formatPrice(variant.price) : "—"}
                           </p>
                         </div>
@@ -130,15 +130,15 @@ export function SearchAutocomplete() {
                   })}
                   <Link
                     href={`/store/products?search=${encodeURIComponent(query)}`}
-                    className="mt-2 block rounded-lg bg-[var(--store-surface-3)] px-3 py-2 text-center text-xs font-black uppercase tracking-wider text-[var(--store-text)] hover:bg-[var(--store-border)] transition"
+                    className="mt-2 block rounded-lg bg-[#FFF8E7] px-3 py-2.5 text-center text-[10px] font-black uppercase tracking-wider text-[#2E7D32] hover:bg-[#FFC72C] hover:text-stone-900 transition-all duration-200"
                     onClick={() => setIsOpen(false)}
                   >
-                    View all results
+                    সকল ফলাফল দেখুন (All Results)
                   </Link>
                 </div>
               ) : (
-                <div className="p-4 text-center text-sm text-[var(--store-text-muted)]">
-                  No products found for "{query}"
+                <div className="p-4 text-center text-sm text-[var(--store-text-muted)] font-semibold">
+                  "{query}" এর জন্য কোনো আম পাওয়া যায়নি
                 </div>
               )}
             </>

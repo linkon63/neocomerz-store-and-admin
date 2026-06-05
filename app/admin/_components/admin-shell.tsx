@@ -8,6 +8,7 @@ import { useState, useMemo } from "react";
 import { AdminIcon } from "./admin-icons";
 import { menuGroups } from "./admin-nav-data";
 import { useAdminAuth } from "../_hooks/use-admin-auth";
+import { MangoLogo } from "../../store/_components/store-shell";
 
 export { AdminIcon } from "./admin-icons";
 export type { AdminIconName } from "./admin-icons";
@@ -54,9 +55,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-[#fbfbfc] text-[#111827] neocomerz-admin">
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-[312px] border-r border-slate-200 bg-white lg:block">
         <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between px-5 py-5">
-            <Link href="/admin/dashboard">
-              <Image src="/logo.png" alt="NeoComerz" width={140} height={40} className="h-10 w-auto object-contain" priority />
+          <div className="flex items-center justify-between px-5 py-5 border-b border-stone-100">
+            <Link href="/admin/dashboard" className="transition-opacity hover:opacity-90">
+              <MangoLogo />
             </Link>
           </div>
 
@@ -81,7 +82,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                         <div key={`${group.title}-${item.label}`}>
                           {hasChildren && !item.child ? (
                             <button
-                              onClick={() => toggleGroup(group.title)}
+                               onClick={() => toggleGroup(group.title)}
                               className={`flex w-full h-10 items-center gap-3 px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors ${
                                 isCurrent ? "bg-slate-100 text-slate-950" : ""
                               }`}
@@ -129,7 +130,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
           <div className="border-t border-slate-100 p-4">
             <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-md bg-blue-600 font-semibold text-white">
+              <div className="grid h-10 w-10 place-items-center rounded-md bg-[#2E7D32] font-semibold text-white shadow-xs">
                 {user?.name?.charAt(0).toUpperCase() ?? "A"}
               </div>
               <div className="min-w-0 flex-1">

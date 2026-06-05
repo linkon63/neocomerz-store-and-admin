@@ -102,11 +102,11 @@ export default function CartPage() {
       <div className="mx-auto max-w-[1800px] w-full px-6 py-12 sm:px-12 lg:px-16">
         <div className="animate-pulse space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-none bg-white p-5 border border-stroke shadow-none flex gap-4">
-              <div className="w-20 h-20 rounded-none bg-stone-100 border border-stroke" />
+            <div key={i} className="rounded-2xl bg-white p-5 border border-stone-200/50 shadow-xs flex gap-4">
+              <div className="w-20 h-20 rounded-xl bg-stone-100 border border-stone-200/50" />
               <div className="flex-1 space-y-2">
-                <div className="h-4 bg-stone-100 rounded-none w-1/2" />
-                <div className="h-3 bg-stone-100 rounded-none w-1/4" />
+                <div className="h-4 bg-stone-100 rounded-xl w-1/2" />
+                <div className="h-3 bg-stone-100 rounded-xl w-1/4" />
               </div>
             </div>
           ))}
@@ -121,28 +121,28 @@ export default function CartPage() {
 
   return (
     <div className="mx-auto max-w-[1800px] w-full px-6 py-10 sm:px-12 lg:px-16 font-sans">
-      <div className="mb-8 flex items-center justify-between border-b border-stroke pb-6">
-        <h1 className="text-2xl font-bold tracking-wider font-serif uppercase">Your Cart</h1>
+      <div className="mb-8 flex items-center justify-between border-b border-stone-200 pb-6">
+        <h1 className="text-2xl font-black text-stone-900 font-display">আপনার শপিং কার্ট</h1>
         {items.length > 0 && (
           <button
             onClick={handleClear}
-            className="text-xs font-semibold tracking-wider uppercase text-red-650 hover:underline cursor-pointer"
+            className="text-xs font-bold tracking-wider uppercase text-rose-600 hover:underline cursor-pointer"
           >
-            [ Clear all ]
+            [ কার্ট খালি করুন ]
           </button>
         )}
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-none bg-white border border-stroke p-16 text-center shadow-none">
+        <div className="rounded-2xl bg-white border border-stone-200 p-16 text-center shadow-xs">
           <p className="text-4xl mb-4">🛒</p>
-          <p className="text-sm font-bold uppercase tracking-wider text-stone-700">Your cart is empty</p>
-          <p className="mt-2 text-xs text-stone-400 font-medium">Add products to get started.</p>
+          <p className="text-sm font-extrabold uppercase tracking-wider text-stone-750 font-display">আপনার শপিং কার্ট খালি</p>
+          <p className="mt-2 text-xs text-stone-400 font-medium">আম কিনতে আমাদের কালেকশন ব্রাউজ করুন।</p>
           <Link
             href="/store/products"
-            className="mt-6 inline-flex rounded-none btn-premium px-6 py-3 text-xs font-bold tracking-widest uppercase text-white hover:opacity-95 transition"
+            className="mt-6 inline-flex rounded-xl bg-[#2E7D32] hover:bg-[#1B5E20] px-6 py-3.5 text-xs font-bold tracking-widest uppercase text-white shadow-xs transition"
           >
-            Browse Products
+            আম কালেকশন দেখুন
           </Link>
         </div>
       ) : (
@@ -153,34 +153,34 @@ export default function CartPage() {
               const imgUrl = item.variant.product.media?.[0]?.media.url;
               const resolvedImg = imgUrl
                 ? imgUrl
-                : "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=200&q=80";
+                : "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=200&q=80";
 
               return (
-                <div key={item.id} className={`rounded-none bg-white p-4 border border-stroke flex flex-col sm:flex-row gap-4 transition-all duration-200 shadow-none ${updating === item.id ? "opacity-50" : ""}`}>
+                <div key={item.id} className={`rounded-2xl bg-white p-4 border border-stone-200 flex flex-col sm:flex-row gap-4 transition-all duration-200 shadow-xs ${updating === item.id ? "opacity-50" : ""}`}>
                   {/* Product Image & Details Row */}
                   <div className="flex gap-4 flex-1">
                     <Link href={`/store/products/${product.slug}`} className="shrink-0">
                       <img
                         src={resolvedImg}
                         alt={product.name}
-                        className="w-20 h-20 rounded-none object-cover bg-stone-50 border border-stroke"
+                        className="w-20 h-20 rounded-xl object-cover bg-stone-50 border border-stone-200"
                       />
                     </Link>
                     <div className="flex-1 min-w-0">
-                      <Link href={`/store/products/${product.slug}`} className="font-bold text-xs text-foreground hover:text-primary transition hover:underline line-clamp-2">
+                      <Link href={`/store/products/${product.slug}`} className="font-bold text-xs text-stone-900 hover:text-[#2E7D32] transition hover:underline line-clamp-2">
                         {product.name}
                       </Link>
-                      <p className="text-[10px] text-stone-400 mt-1 font-semibold uppercase tracking-wider">SKU: {item.variant.sku}</p>
-                      <p className="text-xs font-bold text-stone-700 mt-1.5">{formatPrice(item.variant.price)}</p>
+                      <p className="text-[10px] text-stone-400 mt-1 font-bold uppercase tracking-wider">জাত/ওজন: {item.variant.sku}</p>
+                      <p className="text-xs font-extrabold text-stone-700 mt-1.5">{formatPrice(item.variant.price)}</p>
                     </div>
                   </div>
 
                   {/* Actions Column/Row */}
-                  <div className="flex sm:flex-col justify-between sm:items-end items-center gap-3 pt-3 sm:pt-0 border-t sm:border-0 border-stroke">
+                  <div className="flex sm:flex-col justify-between sm:items-end items-center gap-3 pt-3 sm:pt-0 border-t sm:border-0 border-stone-200">
                     {/* Remove Button */}
                     <button
                       onClick={() => handleRemove(item.id)}
-                      className="text-stone-400 hover:text-red-500 transition-colors cursor-pointer p-1 rounded-none hover:bg-stone-50 order-2 sm:order-none"
+                      className="text-stone-400 hover:text-rose-600 transition-colors cursor-pointer p-1.5 rounded-lg hover:bg-stone-50 order-2 sm:order-none"
                       aria-label="Remove"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.2} viewBox="0 0 24 24">
@@ -190,18 +190,18 @@ export default function CartPage() {
 
                     {/* Quantity Selector & Total Price */}
                     <div className="flex items-center gap-4 w-full justify-between sm:justify-end order-1 sm:order-none">
-                      <div className="flex items-center rounded-none border border-stroke overflow-hidden bg-white">
+                      <div className="flex items-center rounded-xl border border-stone-200 overflow-hidden bg-white h-9">
                         <button
                           onClick={() => handleQuantity(item.id, item.quantity - 1)}
                           className="px-2.5 py-1 text-sm font-bold hover:bg-stone-50 transition cursor-pointer text-stone-500"
                         >−</button>
-                        <span className="px-3 py-1 text-xs font-bold min-w-[2rem] text-center text-foreground">{item.quantity}</span>
+                        <span className="px-3 py-1 text-xs font-extrabold min-w-[2rem] text-center text-stone-900">{item.quantity}</span>
                         <button
                           onClick={() => handleQuantity(item.id, item.quantity + 1)}
                           className="px-2.5 py-1 text-sm font-bold hover:bg-stone-50 transition cursor-pointer text-stone-500"
                         >+</button>
                       </div>
-                      <p className="text-xs font-bold text-foreground">{formatPrice(parseFloat(String(item.variant.price)) * item.quantity)}</p>
+                      <p className="text-xs font-extrabold text-stone-950">{formatPrice(parseFloat(String(item.variant.price)) * item.quantity)}</p>
                     </div>
                   </div>
                 </div>
@@ -211,65 +211,65 @@ export default function CartPage() {
 
           {/* Summary */}
           <div className="space-y-4">
-            <div className="rounded-none bg-[#fdfcfb] p-6 border border-stroke shadow-none">
-              <h2 className="text-sm font-bold uppercase tracking-widest text-foreground mb-4">[ Order Summary ]</h2>
+            <div className="rounded-2xl bg-[#FFF8E7]/30 p-6 border border-stone-200 shadow-xs">
+              <h2 className="text-sm font-black uppercase tracking-widest text-stone-900 mb-4 font-display">[ অর্ডারের বিবরণ ]</h2>
 
               <div className="space-y-3 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-stone-450 font-medium">Subtotal ({items.length} items)</span>
-                  <span className="font-bold text-foreground">{formatPrice(subtotal)}</span>
+                  <span className="text-stone-500 font-bold">মোট মূল্য ({items.length} টি আইটেম)</span>
+                  <span className="font-extrabold text-stone-900">{formatPrice(subtotal)}</span>
                 </div>
                 {couponDiscount > 0 && (
-                  <div className="flex justify-between text-emerald-700">
-                    <span className="font-medium">Coupon discount</span>
-                    <span className="font-bold">-{formatPrice(couponDiscount)}</span>
+                  <div className="flex justify-between text-[#2E7D32]">
+                    <span className="font-bold">কুপন ছাড় (Coupon discount)</span>
+                    <span className="font-black">-{formatPrice(couponDiscount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-stone-450 font-medium">Shipping</span>
-                  <span className="font-bold text-emerald-700">Calculated at checkout</span>
+                  <span className="text-stone-500 font-bold">ডেলিভারি চার্জ (Shipping)</span>
+                  <span className="font-extrabold text-[#2E7D32]">চেকআউটে হিসাব করা হবে</span>
                 </div>
-                <hr className="border-stroke my-2" />
-                <div className="flex justify-between text-sm font-bold text-foreground">
-                  <span>Total</span>
-                  <span className="text-primary">{formatPrice(total)}</span>
+                <hr className="border-stone-200 my-2" />
+                <div className="flex justify-between text-sm font-black text-stone-900">
+                  <span>সর্বমোট</span>
+                  <span className="text-[#2E7D32]">{formatPrice(total)}</span>
                 </div>
               </div>
 
               {/* Coupon */}
               <div className="mt-6">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-stone-400 mb-2.5">Coupon Code</p>
+                <p className="text-[9px] font-extrabold uppercase tracking-widest text-stone-400 mb-2.5 font-display">ডিসকাউন্ট কুপন</p>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
-                    placeholder="Enter code"
-                    className="flex-1 rounded-none border border-stroke px-3.5 py-2 text-xs focus:border-primary focus:outline-none bg-white text-foreground placeholder-stone-400"
+                    placeholder="কুপন কোড লিখুন"
+                    className="flex-1 rounded-xl border border-stone-200 px-3.5 py-2 text-xs focus:border-[#2E7D32] focus:outline-none focus:ring-1 focus:ring-[#2E7D32] bg-white text-stone-900 placeholder-stone-400 font-medium"
                   />
                   <button
                     onClick={handleApplyCoupon}
                     disabled={applyingCoupon}
-                    className="rounded-none px-4 py-2 text-xs font-bold btn-premium text-white disabled:opacity-50 cursor-pointer"
+                    className="rounded-xl px-4 py-2.5 text-xs font-bold bg-[#2E7D32] hover:bg-[#1B5E20] text-white disabled:opacity-50 cursor-pointer"
                   >
-                    {applyingCoupon ? "..." : "Apply"}
+                    {applyingCoupon ? "..." : "প্রয়োগ"}
                   </button>
                 </div>
-                {couponMsg && <p className="mt-2 text-[10px] text-green-600 font-semibold">{couponMsg}</p>}
-                {couponError && <p className="mt-2 text-[10px] text-red-655 font-semibold">{couponError}</p>}
+                {couponMsg && <p className="mt-2 text-[10px] text-[#2E7D32] font-bold">{couponMsg}</p>}
+                {couponError && <p className="mt-2 text-[10px] text-rose-650 font-bold">{couponError}</p>}
               </div>
 
               <Link
                 href="/store/checkout"
-                className="mt-6 block w-full rounded-none bg-primary py-3 text-center text-xs font-bold uppercase tracking-widest text-white hover:bg-primary-hover shadow-none transition duration-200 cursor-pointer"
+                className="mt-6 block w-full rounded-xl bg-[#2E7D32] hover:bg-[#1B5E20] py-3.5 text-center text-xs font-black uppercase tracking-widest text-white shadow-xs transition duration-200 cursor-pointer font-display"
               >
-                Proceed to Checkout
+                অর্ডার সম্পূর্ণ করতে এগিয়ে যান
               </Link>
               <Link
                 href="/store/products"
-                className="mt-3 block w-full rounded-none border border-stroke py-3 text-center text-xs font-bold uppercase tracking-widest text-stone-600 hover:border-primary hover:text-primary transition bg-white cursor-pointer"
+                className="mt-3 block w-full rounded-xl border border-stone-200 py-3.5 text-center text-xs font-black uppercase tracking-widest text-stone-600 hover:border-[#2E7D32] hover:text-[#2E7D32] transition bg-white cursor-pointer font-display"
               >
-                Continue Shopping
+                কেনাকাটা চালিয়ে যান
               </Link>
             </div>
           </div>

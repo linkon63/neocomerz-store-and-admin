@@ -63,14 +63,14 @@ export function ProductCard({ product, onCartUpdate }: ProductCardProps) {
     }
   }
 
-  const originalPrice = variant ? parseFloat(variant.price.toString()) * 1.2 : null;
+  const originalPrice = variant ? parseFloat(variant.price.toString()) * 1.25 : null;
   const isOutOfStock = variant ? variant.stockQuantity === 0 : false;
 
   return (
     <Link href={`/store/products/${product.slug}`} className="group block outline-none h-full">
-      <article className="store-card relative overflow-hidden h-full flex flex-col bg-white rounded-2xl border border-slate-100 hover:border-teal-200 transition-all duration-300 shadow-sm hover:shadow-md">
+      <article className="store-card relative overflow-hidden h-full flex flex-col bg-white rounded-2xl border border-stone-100 hover:border-[#FFC72C]/70 hover:ring-1 hover:ring-[#FFC72C]/40 transition-all duration-300 shadow-xs hover:shadow-sm">
         {/* Image */}
-        <div className="relative overflow-hidden bg-slate-50/50 aspect-square rounded-t-2xl border-b border-slate-100/80">
+        <div className="relative overflow-hidden bg-stone-50 aspect-square rounded-t-2xl border-b border-stone-100">
           <img
             src={image}
             alt={product.name}
@@ -80,11 +80,11 @@ export function ProductCard({ product, onCartUpdate }: ProductCardProps) {
 
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-            <span className="rounded-lg bg-rose-500 text-white px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase shadow-sm">
-              -20%
+            <span className="rounded-lg bg-[#2E7D32] text-white px-2.5 py-1 text-[9px] font-bold tracking-wider uppercase shadow-xs">
+              তাজা আম
             </span>
             {isOutOfStock && (
-              <span className="rounded-lg bg-slate-500 text-white px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase shadow-sm">
+              <span className="rounded-lg bg-stone-500 text-white px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase shadow-sm">
                 স্টক নেই
               </span>
             )}
@@ -94,7 +94,7 @@ export function ProductCard({ product, onCartUpdate }: ProductCardProps) {
           <button
             onClick={handleWishlist}
             disabled={wishlisting}
-            className="absolute top-3 right-3 p-1.5 rounded-full bg-white border border-slate-100 text-slate-400 hover:text-rose-500 hover:border-rose-100 transition-all duration-200 cursor-pointer shadow-sm"
+            className="absolute top-3 right-3 p-1.5 rounded-full bg-white border border-stone-100 text-stone-400 hover:text-rose-500 hover:border-rose-100 transition-all duration-200 cursor-pointer shadow-xs"
             aria-label="Add to wishlist"
           >
             <svg className="w-3.5 h-3.5 fill-none hover:fill-rose-500 transition-colors" stroke="currentColor" strokeWidth={2.2} viewBox="0 0 24 24">
@@ -106,45 +106,45 @@ export function ProductCard({ product, onCartUpdate }: ProductCardProps) {
         {/* Info */}
         <div className="p-4 flex flex-col flex-1 gap-2.5">
           {/* Category & Brand */}
-          <div className="flex items-center gap-2 flex-wrap text-[9px] font-semibold tracking-wider uppercase text-teal-600">
+          <div className="flex items-center gap-2 flex-wrap text-[9px] font-bold tracking-wider uppercase text-[#2E7D32]">
             {product.category && (
-              <span className="bg-teal-50 px-2 py-0.5 rounded">
+              <span className="bg-[#E8F5E9] px-2 py-0.5 rounded">
                 {product.category.name}
               </span>
             )}
             {product.brand && (
-              <span className="text-slate-400 font-medium">
+              <span className="text-stone-450 font-medium">
                 • {product.brand.name}
               </span>
             )}
           </div>
 
           {/* Name */}
-          <h3 className="text-xs font-bold leading-relaxed text-slate-800 line-clamp-2 transition-colors duration-150 group-hover:text-teal-700">
+          <h3 className="text-xs font-bold leading-relaxed text-stone-800 line-clamp-2 transition-colors duration-150 group-hover:text-[#2E7D32]">
             {product.name}
           </h3>
 
           {/* Stars */}
           <div className="flex items-center gap-1.5">
-            <div className="flex text-amber-400">
+            <div className="flex text-[#FFC72C]">
               {[1, 2, 3, 4, 5].map((s) => (
                 <svg key={s} className="w-2.5 h-2.5 fill-current" viewBox="0 0 20 20">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
               ))}
             </div>
-            <span className="text-[10px] font-semibold text-slate-400">(4.8)</span>
+            <span className="text-[10px] font-bold text-stone-400">(৫.০)</span>
           </div>
 
           {/* Price + Cart button */}
-          <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+          <div className="mt-auto pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
             <div className="flex flex-col">
               {originalPrice && (
-                <span className="text-[9px] font-medium text-slate-400 line-through">
+                <span className="text-[9px] font-medium text-stone-450 line-through">
                   {variant ? formatPrice(originalPrice) : ""}
                 </span>
               )}
-              <span className="text-sm font-extrabold text-slate-900">
+              <span className="text-sm font-extrabold text-stone-900">
                 {variant ? formatPrice(variant.price) : "—"}
               </span>
             </div>
@@ -154,8 +154,8 @@ export function ProductCard({ product, onCartUpdate }: ProductCardProps) {
               disabled={adding || !variant || isOutOfStock}
               className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[9px] font-bold transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border ${
                 added 
-                  ? "bg-teal-600 border-teal-600 text-white shadow-sm" 
-                  : "bg-teal-50 border-teal-100 text-teal-700 hover:bg-teal-600 hover:border-teal-600 hover:text-white hover:shadow-sm"
+                  ? "bg-[#2E7D32] border-[#2E7D32] text-white shadow-xs" 
+                  : "bg-amber-50 border-amber-100 text-[#2E7D32] hover:bg-[#2E7D32] hover:border-[#2E7D32] hover:text-white hover:shadow-xs"
               }`}
             >
               {adding ? (
@@ -168,7 +168,7 @@ export function ProductCard({ product, onCartUpdate }: ProductCardProps) {
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
-                  যোগ হয়েছে
+                  যোগ হয়েছে
                 </>
               ) : (
                 <>

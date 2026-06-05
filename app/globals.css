@@ -1,50 +1,58 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 /* ============================================================
-   STORE DESIGN TOKENS — Luxury, Premium E-commerce Design System
+   MANGO EXPRESS NAOGAON — Premium Farm-to-Home Design System
    ============================================================ */
 :root {
   /* Base */
-  --store-bg: #f8fafc; /* Crisp, clean slate-50 background */
+  --store-bg: #FAFAFA;
   --store-white: #ffffff;
-  --store-text: #0f172a; /* Slate 900 Charcoal */
-  --store-text-muted: #475569; /* Slate 600 */
-  --store-text-light: #64748b; /* Slate 500 */
+  --store-text: #1A1A1A;
+  --store-text-muted: #666666;
+  --store-text-light: #888888;
 
-  /* Brand — Vibrant premium emerald/teal green */
-  --store-primary: #0d9488; /* Teal 600 */
-  --store-primary-hover: #0f766e; /* Teal 700 */
-  --store-primary-light: #f0fdfa; /* Teal 50 */
-  --store-primary-mid: #ccfbf1; /* Teal 100 */
+  /* Brand — Fresh Green (Primary) */
+  --store-primary: #2E7D32;
+  --store-primary-hover: #1B5E20;
+  --store-primary-light: #E8F5E9;
+  --store-primary-mid: #C8E6C9;
 
-  /* Secondary — Deep slate/navy for contrast */
-  --store-secondary: #0f172a;
-  --store-secondary-hover: #1e293b;
+  /* Secondary — Dark Charcoal */
+  --store-secondary: #1A1A1A;
+  --store-secondary-hover: #2d2d2d;
 
-  /* Accent — Vibrant rose/red for badges and discounts */
-  --store-accent: #e11d48;
-  --store-accent-light: #fff1f2;
+  /* Accent — Mango Yellow */
+  --store-accent: #FFC72C;
+  --store-accent-light: #FFF8E7;
+  --store-accent-hover: #F5A623;
+
+  /* Mango-specific tokens */
+  --mango-gold: #F5A623;
+  --mango-cream: #FFF8E7;
+  --mango-orange: #E8820C;
+  --mango-green-dark: #1B5E20;
+  --mango-green-light: #4CAF50;
 
   /* Success / Error */
-  --store-success: #10b981;
-  --store-error: #ef4444;
+  --store-success: #2E7D32;
+  --store-error: #D32F2F;
 
-  /* Borders & Surfaces — ultra clean */
-  --store-border: #e8edf4;
-  --store-border-dark: #cbd5e1;
+  /* Borders & Surfaces */
+  --store-border: #E8E0D4;
+  --store-border-dark: #C9BFB0;
   --store-surface: #ffffff;
-  --store-surface-2: #f8fafc;
-  --store-surface-3: #f1f5f9;
+  --store-surface-2: #FAFAF7;
+  --store-surface-3: #F5F0EB;
 
-  /* Hero gradient colors */
-  --hero-from: #042f2e;
-  --hero-via: #134e4a;
-  --hero-to: #0f4c3a;
+  /* Hero gradient colors — Deep agricultural green */
+  --hero-from: #0a1f0a;
+  --hero-via: #1a3a1a;
+  --hero-to: #0f2d0f;
 
   /* Premium card glow */
-  --glow-teal: rgba(13, 148, 136, 0.12);
-  --glow-amber: rgba(245, 158, 11, 0.08);
+  --glow-green: rgba(46, 125, 50, 0.12);
+  --glow-gold: rgba(245, 166, 35, 0.10);
 }
 
 @theme {
@@ -60,9 +68,12 @@
   --color-brand: var(--store-secondary);
   --color-success: var(--store-success);
   --color-gold: var(--store-accent);
+  --color-mango-cream: var(--mango-cream);
+  --color-mango-gold: var(--mango-gold);
 
   --font-sans: "Plus Jakarta Sans", "Hind Siliguri", -apple-system, sans-serif;
-  --font-serif: "Playfair Display", "Hind Siliguri", Georgia, serif;
+  --font-serif: "Manrope", "Hind Siliguri", -apple-system, sans-serif;
+  --font-display: "Manrope", "Plus Jakarta Sans", "Hind Siliguri", sans-serif;
 
   /* Modern rounded corners */
   --radius-xs: 4px;
@@ -104,22 +115,32 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* Luxury serif heading */
+/* Premium display heading */
 .heading-premium {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
-/* Buttons (Modern, Soft rounded) */
+/* Mango gradient text */
+.mango-gradient-text {
+  background: linear-gradient(135deg, #FFC72C 0%, #F5A623 50%, #E8820C 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Buttons ── */
+
+/* Primary Green Button */
 .btn-premium {
-  background: linear-gradient(135deg, var(--store-primary) 0%, #0f766e 100%);
+  background: linear-gradient(135deg, var(--store-primary) 0%, #1B5E20 100%);
   color: #ffffff;
   font-weight: 700;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   padding: 0.75rem 1.5rem;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px -2px rgba(13, 148, 136, 0.3), 0 2px 4px -1px rgba(13, 148, 136, 0.12);
+  box-shadow: 0 4px 12px -2px rgba(46, 125, 50, 0.3), 0 2px 4px -1px rgba(46, 125, 50, 0.12);
   border: none;
   display: inline-flex;
   align-items: center;
@@ -128,17 +149,40 @@ body {
   letter-spacing: 0.02em;
 }
 .btn-premium:hover {
-  background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+  background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);
   transform: translateY(-2px);
-  box-shadow: 0 12px 20px -6px rgba(13, 148, 136, 0.35), 0 4px 8px -2px rgba(13, 148, 136, 0.15);
+  box-shadow: 0 12px 20px -6px rgba(46, 125, 50, 0.35), 0 4px 8px -2px rgba(46, 125, 50, 0.15);
 }
 
+/* Mango Gold Button */
+.btn-mango {
+  background: linear-gradient(135deg, #FFC72C 0%, #F5A623 100%);
+  color: #1A1A1A;
+  font-weight: 700;
+  border-radius: var(--radius-xl);
+  padding: 0.75rem 1.5rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px -2px rgba(255, 199, 44, 0.35), 0 2px 4px -1px rgba(255, 199, 44, 0.15);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+.btn-mango:hover {
+  background: linear-gradient(135deg, #F5A623 0%, #FFC72C 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px -6px rgba(255, 199, 44, 0.4), 0 4px 8px -2px rgba(255, 199, 44, 0.2);
+}
+
+/* Outline Button */
 .btn-outline {
   background-color: transparent;
   border: 1.5px solid var(--store-border);
   color: var(--store-text);
   font-weight: 600;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   padding: 0.75rem 1.5rem;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
@@ -152,19 +196,36 @@ body {
   background-color: var(--store-primary-light);
 }
 
-/* Card layout - Soft rounded corners and subtle shadows */
+/* ── Cards ── */
+
+/* Standard product card */
 .store-card {
   background: var(--store-white);
   border: 1px solid var(--store-border);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-2xl);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
   overflow: hidden;
 }
 .store-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 16px 32px -8px rgba(13, 148, 136, 0.10), 0 4px 8px -2px rgba(0, 0, 0, 0.05);
-  border-color: rgba(13, 148, 136, 0.25);
+  box-shadow: 0 16px 32px -8px rgba(46, 125, 50, 0.10), 0 4px 8px -2px rgba(0, 0, 0, 0.05);
+  border-color: rgba(46, 125, 50, 0.25);
+}
+
+/* Mango warm card */
+.card-mango {
+  background: var(--store-white);
+  border: 1px solid var(--store-border);
+  border-radius: var(--radius-2xl);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+.card-mango:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px -8px rgba(245, 166, 35, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.04);
+  border-color: rgba(255, 199, 44, 0.35);
 }
 
 .premium-shadow-hover {
@@ -174,12 +235,37 @@ body {
   box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.08), 0 8px 12px -6px rgba(0, 0, 0, 0.04);
 }
 
-/* Glass panel — clean off-white overlay */
+/* ── Badges ── */
+.badge-fresh {
+  background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+  color: #2E7D32;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(46, 125, 50, 0.2);
+}
+
+.badge-organic {
+  background: linear-gradient(135deg, #FFF8E7, #FFE9B0);
+  color: #E8820C;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(232, 130, 12, 0.2);
+}
+
+/* Glass panel — warm tinted overlay */
 .glass-panel {
   background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(226, 237, 244, 0.8);
+  border-bottom: 1px solid rgba(232, 224, 212, 0.8);
 }
 
 /* Section container */
@@ -206,7 +292,7 @@ body {
   pointer-events: none;
 }
 
-/* Animations */
+/* ── Animations ── */
 @keyframes slide-up-fade {
   0% { opacity: 0; transform: translateY(16px); }
   100% { opacity: 1; transform: translateY(0); }
@@ -235,6 +321,14 @@ body {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+@keyframes ripple {
+  0% { transform: scale(0); opacity: 0.5; }
+  100% { transform: scale(4); opacity: 0; }
+}
+@keyframes leaf-sway {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
 
 .animate-slide-up { animation: slide-up-fade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .animate-fade-in  { animation: fade-in-soft 0.5s ease forwards; }
@@ -242,25 +336,26 @@ body {
 .animate-float    { animation: float-gentle 4s ease-in-out infinite; }
 .animate-slide-in-right { animation: slide-in-right 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+.animate-leaf-sway { animation: leaf-sway 3s ease-in-out infinite; }
 
 /* Loading skeleton shimmer */
 .skeleton-shimmer {
-  background: linear-gradient(90deg, #f1f5f9 25%, #e8edf4 50%, #f1f5f9 75%);
+  background: linear-gradient(90deg, #f5f0eb 25%, #e8e0d4 50%, #f5f0eb 75%);
   background-size: 200% 100%;
   animation: shimmer 1.6s ease-in-out infinite;
 }
 
-/* Scrollbar */
+/* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--store-bg); }
-::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 6px; }
-::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+::-webkit-scrollbar-thumb { background: #C9BFB0; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #A89B8C; }
 
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* ============================================================
-   ADMIN THEME OVERRIDES — Professional Rounded Corners
+   ADMIN THEME OVERRIDES — Professional Dashboard
    ============================================================ */
 .neocomerz-admin {
   --radius-xs: 4px;

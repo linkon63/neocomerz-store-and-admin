@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authApi, setStoreSession } from "@/lib/store-api";
+import { MangoLogo } from "../_components/store-shell";
 
 export default function StoreLoginPage() {
   const router = useRouter();
@@ -28,32 +29,32 @@ export default function StoreLoginPage() {
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12 font-sans">
+    <div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12 font-sans bg-stone-50/50">
       <div className="w-full max-w-md">
 
         {/* Card */}
-        <div className="bg-white rounded-3xl overflow-hidden shadow-md border border-slate-100">
+        <div className="bg-white rounded-3xl overflow-hidden shadow-md border border-stone-200/60">
           {/* Top accent bar */}
-          <div className="h-1.5 w-full bg-linear-to-r from-primary to-gold" />
+          <div className="h-1.5 w-full bg-linear-to-r from-[#2E7D32] to-[#FFC72C]" />
 
           <div className="p-8">
             {/* Logo */}
             <div className="flex flex-col items-center mb-8">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 bg-primary shadow-xs shadow-primary/30 text-white font-black text-xl">
-                <span>N</span>
-              </div>
-              <h1 className="text-[24px] font-extrabold text-slate-800">স্বাগতম!</h1>
-              <p className="text-[14px] mt-1 text-slate-400 font-semibold">আপনার অ্যাকাউন্টে লগইন করুন</p>
+              <Link href="/store" className="mb-4 transition-opacity hover:opacity-90">
+                <MangoLogo className="scale-110" />
+              </Link>
+              <h1 className="text-[24px] font-extrabold text-stone-800">স্বাগতম!</h1>
+              <p className="text-[14px] mt-1 text-stone-500 font-semibold">আপনার অ্যাকাউন্টে লগইন করুন</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email */}
               <div>
-                <label className="block text-[13px] font-bold mb-1.5 text-slate-700">
+                <label className="block text-[13px] font-bold mb-1.5 text-stone-700">
                   ইমেইল ঠিকানা
                 </label>
                 <div className="relative">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
@@ -64,7 +65,7 @@ export default function StoreLoginPage() {
                     value={form.email}
                     onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                     placeholder="you@example.com"
-                    className="w-full rounded-xl pl-10 pr-4 py-3 text-[14px] outline-none border border-slate-200 bg-slate-50 focus:border-primary text-slate-800 placeholder-slate-400 font-semibold transition"
+                    className="w-full rounded-xl pl-10 pr-4 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#2E7D32] text-stone-800 placeholder-stone-400 font-semibold transition"
                   />
                 </div>
               </div>
@@ -72,13 +73,13 @@ export default function StoreLoginPage() {
               {/* Password */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-[13px] font-bold text-slate-700">পাসওয়ার্ড</label>
-                  <Link href="#" className="text-[12px] font-bold text-primary hover:text-primary-hover hover:underline">
+                  <label className="text-[13px] font-bold text-stone-700">পাসওয়ার্ড</label>
+                  <Link href="#" className="text-[12px] font-bold text-[#2E7D32] hover:text-[#1B5E20] hover:underline">
                     পাসওয়ার্ড ভুলে গেছেন?
                   </Link>
                 </div>
                 <div className="relative">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
@@ -89,12 +90,12 @@ export default function StoreLoginPage() {
                     value={form.password}
                     onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                     placeholder="••••••••"
-                    className="w-full rounded-xl pl-10 pr-10 py-3 text-[14px] outline-none border border-slate-200 bg-slate-50 focus:border-primary text-slate-800 placeholder-slate-400 font-semibold transition"
+                    className="w-full rounded-xl pl-10 pr-10 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#2E7D32] text-stone-800 placeholder-stone-400 font-semibold transition"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPass((s) => !s)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-slate-400 hover:text-slate-600 transition"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-stone-400 hover:text-stone-655 transition"
                   >
                     {showPass ? (
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -112,7 +113,7 @@ export default function StoreLoginPage() {
 
               {/* Error */}
               {error && (
-                <div className="flex items-center gap-2.5 rounded-xl px-4 py-3 text-[13px] font-bold bg-red-50 border border-red-100 text-red-650">
+                <div className="flex items-center gap-2.5 rounded-xl px-4 py-3 text-[13px] font-bold bg-red-50 border border-red-100 text-red-600">
                   <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -142,14 +143,14 @@ export default function StoreLoginPage() {
 
             {/* Divider */}
             <div className="flex items-center gap-3 my-6">
-              <div className="flex-1 h-px bg-slate-100" />
-              <span className="text-[12px] font-bold text-slate-400">অথবা</span>
-              <div className="flex-1 h-px bg-slate-100" />
+              <div className="flex-1 h-px bg-stone-150" />
+              <span className="text-[12px] font-bold text-stone-400">অথবা</span>
+              <div className="flex-1 h-px bg-stone-150" />
             </div>
 
-            <p className="text-center text-[14px] text-slate-500 font-medium">
+            <p className="text-center text-[14px] text-stone-550 font-medium">
               অ্যাকাউন্ট নেই?{" "}
-              <Link href="/store/register" className="font-bold text-primary hover:text-primary-hover hover:underline">
+              <Link href="/store/register" className="font-bold text-[#2E7D32] hover:text-[#1B5E20] hover:underline">
                 এখনই রেজিস্ট্রেশন করুন
               </Link>
             </p>
@@ -157,8 +158,8 @@ export default function StoreLoginPage() {
         </div>
 
         {/* Trust badges */}
-        <div className="mt-6 flex items-center justify-center gap-6 text-[12px] text-slate-400">
-          {["🔒 নিরাপদ লগইন", "🛡️ তথ্য সুরক্ষিত", "✅ বিশ্বস্ত প্ল্যাটফর্ম"].map((item, i) => (
+        <div className="mt-6 flex items-center justify-center gap-6 text-[12px] text-stone-400">
+          {["🔒 নিরাপদ লগইন", "🛡️ তথ্য সুরক্ষিত", "✅ ১০০% ফরমালিন মুক্ত"].map((item, i) => (
             <span key={i} className="font-semibold">{item}</span>
           ))}
         </div>

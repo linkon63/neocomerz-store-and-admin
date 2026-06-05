@@ -5,12 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 export type SortOption = "newest" | "price-asc" | "price-desc" | "name-asc" | "name-desc" | "popular";
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
-  { value: "newest", label: "Newest First" },
-  { value: "popular", label: "Most Popular" },
-  { value: "price-asc", label: "Price: Low to High" },
-  { value: "price-desc", label: "Price: High to Low" },
-  { value: "name-asc", label: "Name: A to Z" },
-  { value: "name-desc", label: "Name: Z to A" },
+  { value: "newest", label: "নতুন আম আগে (Newest)" },
+  { value: "popular", label: "জনপ্রিয় আম (Popular)" },
+  { value: "price-asc", label: "দাম: কম থেকে বেশি" },
+  { value: "price-desc", label: "দাম: বেশি থেকে কম" },
+  { value: "name-asc", label: "নাম অনুসারে (ক - হ)" },
+  { value: "name-desc", label: "নাম অনুসারে (হ - ক)" },
 ];
 
 export function ProductSort() {
@@ -27,14 +27,14 @@ export function ProductSort() {
 
   return (
     <div className="flex items-center gap-3">
-      <label htmlFor="sort" className="text-sm font-semibold text-[var(--store-text-muted)]">
-        Sort by:
+      <label htmlFor="sort" className="text-xs font-bold text-[var(--store-text-muted)]">
+        সাজান (Sort by):
       </label>
       <select
         id="sort"
         value={currentSort}
         onChange={(e) => handleSort(e.target.value as SortOption)}
-        className="rounded-lg border border-[var(--store-border)] bg-white px-3 py-2 text-sm font-medium text-[var(--store-text)] focus:outline-none focus:ring-2 focus:ring-[var(--store-primary-mid)] transition"
+        className="rounded-xl border border-[var(--store-border)] bg-white px-3 py-2 text-xs font-semibold text-[var(--store-text)] focus:outline-none focus:ring-2 focus:ring-[#2E7D32]/10 focus:border-[#2E7D32] transition cursor-pointer"
       >
         {SORT_OPTIONS.map((option) => (
           <option key={option.value} value={option.value}>
