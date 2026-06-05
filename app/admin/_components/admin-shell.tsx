@@ -316,7 +316,7 @@ const menuGroups: {
   {
     title: "Stock & inventory",
     items: [
-      { label: "Stock Management", href: "/admin/stock", icon: "stock", child: true },
+      { label: "Stock Management", href: "/admin/stock", icon: "stock", active: true },
     ],
   },
   {
@@ -388,6 +388,8 @@ export function AdminShell({ children }: { children: ReactNode }) {
     };
   }, [router]);
 
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
+
   function handleLogout() {
     clearAdminSession();
     router.replace("/admin/login");
@@ -414,40 +416,121 @@ export function AdminShell({ children }: { children: ReactNode }) {
             </Link>
           </div>
           <nav className="flex-1 overflow-y-auto px-3 pb-6 pt-5">
-            {menuGroups.map((group) => (
-              <div className="mb-7" key={group.title}>
-                <p className="px-3 text-xs font-black uppercase tracking-[0.16em] text-slate-500">
-                  {group.title}
-                </p>
-                <div className="mt-2 space-y-1">
-                  {group.items.map((item) => {
-                    const isCurrent = pathname === item.href;
-                    return (
-                      <Link
-                        className={`flex h-10 items-center gap-3 rounded-md px-3 text-sm font-bold text-slate-700 hover:bg-slate-50 ${
-                          item.child ? "ml-5 font-medium" : ""
-                        } ${
-                          isCurrent ? "bg-slate-100 text-slate-950" : ""
-                        }`}
-                        href={item.href}
-                        key={`${group.title}-${item.label}`}
-                      >
-                        <span className={item.child ? "text-slate-400" : "text-slate-500"}>
-                          <AdminIcon name={item.icon} />
-                        </span>
-                        <span className="flex-1">{item.label}</span>
-                        {!item.child && (
-                          <AdminIcon
-                            className="h-4 w-4 text-slate-400"
-                            name="chevronRight"
-                          />
-                        )}
-                      </Link>
-                    );
-                  })}
+            {menuGroups.map((group) => {
+              const items = group.items;
+              const sections: { parent: typeof items[0]; children: typeof items }[] = [];
+              let i = 0;
+              while (i < items.length) {
+                const item = items[i];
+                if (item.child) {
+                  sections.push({ parent: item, children: [] });
+                  i++;
+                  continue;
+                }
+                const parent = item;
+                i++;
+                const children: typeof items = [];
+                while (i < items.length && items[i].child) {
+                  children.push(items[i]);
+                  i++;
+                }
+                sections.push({ parent, children });
+              }
+
+              return (
+                <div className="mb-7" key={group.title}>
+                  {group.title !== "" && (
+                    <p className="px-3 text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+                      {group.title}
+                    </p>
+                  )}
+                  <div className="mt-2 space-y-1">
+                    {sections.map(({ parent, children }) => {
+                      const isParentCurrent = pathname === parent.href;
+                      const hasChildren = children.length > 0;
+                      const isExpanded = expandedGroup === `${group.title}-${parent.label}`;
+
+                      if (!hasChildren) {
+                        return (
+                          <Link
+                            className={`flex h-10 items-center gap-3 rounded-md px-3 text-sm font-bold text-slate-700 hover:bg-slate-50 ${
+                              parent.child ? "ml-5 font-medium" : ""
+                            } ${
+                              isParentCurrent ? "bg-slate-100 text-slate-950" : ""
+                            }`}
+                            href={parent.href}
+                            key={`${group.title}-${parent.label}`}
+                          >
+                            <span className={parent.child ? "text-slate-400" : "text-slate-500"}>
+                              <AdminIcon name={parent.icon} />
+                            </span>
+                            <span className="flex-1">{parent.label}</span>
+                          </Link>
+                        );
+                      }
+
+                      return (
+                        <div key={`${group.title}-${parent.label}`}>
+                          <button
+                            className={`flex h-10 w-full items-center gap-3 rounded-md px-3 text-sm font-bold text-slate-700 hover:bg-slate-50 ${
+                              isParentCurrent ? "bg-slate-100 text-slate-950" : ""
+                            }`}
+                            onClick={() =>
+                              setExpandedGroup(
+                                isExpanded ? null : `${group.title}-${parent.label}`,
+                              )
+                            }
+                            type="button"
+                          >
+                            <span className="text-slate-500">
+                              <AdminIcon name={parent.icon} />
+                            </span>
+                            <span className="flex-1 text-left">{parent.label}</span>
+                            <svg
+                              className={`h-4 w-4 text-slate-400 transition-transform ${
+                                isExpanded ? "rotate-90" : ""
+                              }`}
+                              fill="none"
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              viewBox="0 0 24 24"
+                              aria-hidden
+                            >
+                              <path d="M9 18l6-6-6-6" />
+                            </svg>
+                          </button>
+                          {isExpanded && (
+                            <div className="mt-1 space-y-1">
+                              {children.map((child) => {
+                                const isChildCurrent = pathname === child.href;
+                                return (
+                                  <Link
+                                    className={`flex h-10 items-center gap-3 rounded-md px-3 text-sm font-bold hover:bg-slate-50 ${
+                                      isChildCurrent
+                                        ? "bg-slate-100 text-slate-950"
+                                        : "ml-5 font-medium text-slate-700"
+                                    }`}
+                                    href={child.href}
+                                    key={`${group.title}-${child.label}`}
+                                  >
+                                    <span className="text-slate-400">
+                                      <AdminIcon name={child.icon} />
+                                    </span>
+                                    <span className="flex-1">{child.label}</span>
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </nav>
           <div className="border-t border-slate-100 p-4">
             <div className="flex items-center gap-3">
