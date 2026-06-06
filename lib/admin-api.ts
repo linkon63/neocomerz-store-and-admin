@@ -245,24 +245,27 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/v1";
 export function getAdminToken() {
   if (typeof document === "undefined") return null;
 
-  return (
-    document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("admin_access_token="))
-      ?.split("=")[1] ?? null
-  );
+  const match = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("admin_access_token="));
+
+  if (!match) return null;
+  // Use slice to preserve any '=' characters in the token value (base64 padding)
+  return match.slice("admin_access_token=".length) || null;
 }
 
 export function setAdminSession(accessToken: string, user: AdminUser) {
   const maxAge = 60 * 60 * 24 * 7;
-
-  document.cookie = `admin_access_token=${accessToken}; path=/admin; max-age=${maxAge}; SameSite=Lax`;
+  // Use path=/ so the token is readable on all paths (required for middleware & getAdminToken)
+  document.cookie = `admin_access_token=${accessToken}; path=/; max-age=${maxAge}; SameSite=Lax`;
   document.cookie = `admin_user=${encodeURIComponent(
     JSON.stringify(user),
-  )}; path=/admin; max-age=${maxAge}; SameSite=Lax`;
+  )}; path=/; max-age=${maxAge}; SameSite=Lax`;
 }
 
 export function clearAdminSession() {
+  document.cookie = "admin_access_token=; path=/; max-age=0; SameSite=Lax";
+  document.cookie = "admin_user=; path=/; max-age=0; SameSite=Lax";
   document.cookie = "admin_access_token=; path=/admin; max-age=0; SameSite=Lax";
   document.cookie = "admin_user=; path=/admin; max-age=0; SameSite=Lax";
 }

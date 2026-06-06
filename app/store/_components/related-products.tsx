@@ -33,14 +33,14 @@ export function RelatedProducts({ productId, categoryId }: RelatedProductsProps)
   if (loading) {
     return (
       <section className="mt-16">
-        <h2 className="text-xl font-bold tracking-tight text-[#2E7D32] mb-6 font-display">সম্পর্কিত আমসমূহ (Related Products)</h2>
+        <h2 className="text-xl font-bold tracking-tight text-[#15803d] mb-6 font-display">সম্পর্কিত আমসমূহ (Related Products)</h2>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 animate-pulse">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-2xl bg-white border border-stone-200/50 shadow-xs">
-              <div className="aspect-[4/3] bg-[var(--store-border)] rounded-t-2xl" />
+            <div key={i} className="bg-white border border-stone-200/50 shadow-xs">
+              <div className="aspect-[4/3] bg-[var(--store-border)]" />
               <div className="p-4 space-y-2">
-                <div className="h-3 bg-[var(--store-border)] rounded w-1/3" />
-                <div className="h-4 bg-[var(--store-border)] rounded w-3/4" />
+                <div className="h-3 bg-[var(--store-border)] w-1/3" />
+                <div className="h-4 bg-[var(--store-border)] w-3/4" />
               </div>
             </div>
           ))}
@@ -55,7 +55,7 @@ export function RelatedProducts({ productId, categoryId }: RelatedProductsProps)
 
   return (
     <section className="mt-16">
-      <h2 className="text-xl font-bold tracking-tight text-[#2E7D32] mb-6 font-display">আপনার পছন্দ হতে পারে (You May Also Like)</h2>
+      <h2 className="text-xl font-bold tracking-tight text-[#15803d] mb-6 font-display">আপনার পছন্দ হতে পারে (You May Also Like)</h2>
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />

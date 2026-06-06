@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AdminIcon, PageHeader } from "../../_components/admin-shell";
+import { ConfirmModal } from "../../_components/confirm-modal";
 import { apiRequest, formatDate } from "../../../../lib/admin-api";
 
 type Supplier = {
@@ -65,6 +66,11 @@ export default function SuppliersPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<SupplierForm>(emptyForm);
 
+  // Delete confirm
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   async function loadSuppliers() {
     setLoading(true);
     setError("");
@@ -125,12 +131,22 @@ export default function SuppliersPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Delete this supplier?")) return;
+    setDeletingId(id);
+    setDeleteModalOpen(true);
+  }
+
+  async function confirmDelete() {
+    if (!deletingId) return;
+    setIsDeleting(true);
     try {
-      await apiRequest(`/suppliers/${id}`, { method: "DELETE" });
+      await apiRequest(`/suppliers/${deletingId}`, { method: "DELETE" });
+      setDeleteModalOpen(false);
+      setDeletingId(null);
       await loadSuppliers();
     } catch {
-      alert("Failed to delete supplier.");
+      setError("Failed to delete supplier.");
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -399,6 +415,21 @@ export default function SuppliersPage() {
           </form>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setDeletingId(null);
+          setError("");
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Supplier"
+        message="Are you sure you want to delete this supplier? This action cannot be undone."
+        confirmText={isDeleting ? "Deleting…" : "Delete Supplier"}
+        isDestructive
+        error={error}
+      />
     </>
   );
 }

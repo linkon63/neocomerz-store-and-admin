@@ -128,6 +128,19 @@ export default function TagsPage() {
     }
   }
 
+  async function toggleTagStatus(tag: Tag) {
+    try {
+      await apiRequest<Tag>(`/tags/${tag.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: !tag.isActive }),
+      });
+      setTags((prev) => prev.map((t) => t.id === tag.id ? { ...t, isActive: !t.isActive } : t));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update tag status");
+    }
+  }
+
   async function deleteTag(tag: Tag) {
     setTagToDelete(tag);
     setDeleteModalOpen(true);
@@ -150,6 +163,7 @@ export default function TagsPage() {
   function cancelDelete() {
     setDeleteModalOpen(false);
     setTagToDelete(null);
+    setError("");
   }
 
   return (
@@ -249,13 +263,10 @@ export default function TagsPage() {
                         {formatDate(tag.createdAt)}
                       </td>
                       <td className="px-5 py-4">
-                        {tag.isActive ? (
-                          <StatusToggle />
-                        ) : (
-                          <span className="rounded-md border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-normal text-amber-700">
-                            Draft
-                          </span>
-                        )}
+                        <StatusToggle
+                          checked={tag.isActive}
+                          onChange={() => toggleTagStatus(tag)}
+                        />
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex gap-2">
@@ -412,6 +423,7 @@ export default function TagsPage() {
         confirmText="Yes"
         cancelText="No"
         isDestructive={true}
+        error={error}
       />
     </>
   );

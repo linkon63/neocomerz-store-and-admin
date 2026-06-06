@@ -5,8 +5,11 @@ import { AdminIcon, type AdminIconName } from "../admin-shell";
 export type SettingsSection =
   | "general"
   | "contacts"
+  | "navigation-menu"
+  | "homepage"
   | "manage-policy"
   | "campaigns"
+  | "testimonials"
   | "branches"
   | "users"
   | "roles"
@@ -21,8 +24,11 @@ export const settingsNavGroups: {
     items: [
       { id: "general", label: "General & Branding", icon: "settings" },
       { id: "contacts", label: "Contact & Socials", icon: "reviews" },
+      { id: "navigation-menu", label: "Navigation Links", icon: "link" },
+      { id: "homepage", label: "Homepage Sections", icon: "store" },
       { id: "manage-policy", label: "Policy Pages", icon: "orders" },
       { id: "campaigns", label: "Banners & Campaigns", icon: "discount" },
+      { id: "testimonials", label: "Testimonials", icon: "reviews" },
       { id: "branches", label: "Store Branches", icon: "store" },
     ],
   },
@@ -42,8 +48,11 @@ export const settingsSectionMeta: Record<
 > = {
   general: { title: "General & Branding", description: "Store metadata, shipping rates, and branding copyrights." },
   contacts: { title: "Contact & Socials", description: "Manage customer helpline, support emails, and social links." },
+  "navigation-menu": { title: "Navigation Links", description: "Customize storefront navigation bar menu items." },
+  homepage: { title: "Homepage Sections", description: "Control which sections show on the store homepage and manage tab labels." },
   "manage-policy": { title: "Policy Pages", description: "Customize delivery, return, cancellation, and privacy terms." },
   campaigns: { title: "Banners & Campaigns", description: "Configure landing page promotional banners and active campaigns." },
+  testimonials: { title: "Testimonials", description: "Manage customer testimonials and reviews displayed on the storefront." },
   branches: { title: "Store Branches", description: "Manage physical store locations and contact details." },
   users: { title: "Users Management", description: "Create and manage system user accounts and credentials." },
   roles: { title: "Roles & Permissions", description: "Configure custom security roles and restrict API permission access." },

@@ -105,14 +105,14 @@ export default function CheckoutPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-[1800px] w-full px-6 py-12 sm:px-12 lg:px-16 animate-pulse">
-        <div className="h-6 bg-stone-200 rounded-xl w-1/4 mb-8" />
+      <div className="w-full px-6 py-12 sm:px-12 lg:px-16 animate-pulse">
+        <div className="h-6 bg-stone-200 w-1/4 mb-8" />
         <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
           <div className="space-y-4">
-            <div className="h-40 bg-white border border-stone-200 rounded-2xl shadow-xs" />
-            <div className="h-32 bg-white border border-stone-200 rounded-2xl shadow-xs" />
+            <div className="h-40 bg-white border border-stone-200 shadow-xs" />
+            <div className="h-32 bg-white border border-stone-200 shadow-xs" />
           </div>
-          <div className="h-64 bg-white border border-stone-200 rounded-2xl shadow-xs" />
+          <div className="h-64 bg-white border border-stone-200 shadow-xs" />
         </div>
       </div>
     );
@@ -124,23 +124,23 @@ export default function CheckoutPage() {
   const total = Math.max(subtotal - discount, 0);
 
   return (
-    <div className="mx-auto max-w-[1800px] w-full px-6 py-10 sm:px-12 lg:px-16 font-sans">
+    <div className="w-full px-6 py-10 sm:px-12 lg:px-16 font-sans">
       
       {/* Premium Progress Indicator */}
       <div className="max-w-md mx-auto mb-10">
         <div className="flex items-center justify-between text-xs font-bold text-stone-400">
-          <div className="flex flex-col items-center gap-1.5 text-[#2E7D32]">
-            <span className="w-7 h-7 rounded-full bg-[#2E7D32] text-white flex items-center justify-center font-black">১</span>
+          <div className="flex flex-col items-center gap-1.5 text-[#15803d]">
+            <span className="w-7 h-7 bg-[#15803d] text-white flex items-center justify-center font-black">১</span>
             <span>শপিং কার্ট</span>
           </div>
-          <div className="flex-1 h-[2px] bg-[#2E7D32]" />
-          <div className="flex flex-col items-center gap-1.5 text-[#2E7D32]">
-            <span className="w-7 h-7 rounded-full bg-[#2E7D32] text-white flex items-center justify-center font-black">২</span>
+          <div className="flex-1 h-[2px] bg-[#15803d]" />
+          <div className="flex flex-col items-center gap-1.5 text-[#15803d]">
+            <span className="w-7 h-7 bg-[#15803d] text-white flex items-center justify-center font-black">২</span>
             <span>অর্ডার করুন</span>
           </div>
-          <div className="flex-1 h-[2px] bg-stone-200" />
+          <div className="flex-1 h-[2px] bg-stone-250" />
           <div className="flex flex-col items-center gap-1.5">
-            <span className="w-7 h-7 rounded-full bg-stone-200 text-stone-500 flex items-center justify-center font-black">৩</span>
+            <span className="w-7 h-7 bg-stone-200 text-stone-500 flex items-center justify-center font-black">৩</span>
             <span>ধন্যবাদ!</span>
           </div>
         </div>
@@ -148,13 +148,13 @@ export default function CheckoutPage() {
 
       <div className="mb-8 border-b border-stone-200 pb-6">
         <h1 className="text-2xl font-black text-stone-900 font-display">অর্ডার সম্পন্ন করুন (Checkout)</h1>
-        <p className="mt-1 text-xs text-stone-500 font-bold tracking-wide">[ কার্টে {items.length} টি আমের আইটেম রয়েছে ]</p>
+        <p className="mt-1 text-xs text-stone-500 font-bold tracking-wide">কার্টে {items.length} টি আমের আইটেম রয়েছে</p>
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-2xl bg-white p-12 text-center shadow-xs border border-stone-200">
-          <p className="text-sm font-extrabold uppercase tracking-wider text-stone-700 font-display">আপনার শপিং কার্ট খালি</p>
-          <Link href="/store/products" className="mt-6 inline-flex rounded-xl bg-[#2E7D32] px-6 py-3.5 text-xs font-bold tracking-widest uppercase text-white hover:opacity-95 transition">
+        <div className="bg-white p-12 text-center shadow-xs border border-stone-200">
+          <p className="text-sm font-extrabold uppercase tracking-wider text-stone-775 font-display">আপনার শপিং কার্ট খালি</p>
+          <Link href="/store/products" className="mt-6 inline-flex bg-[#15803d] px-6 py-3.5 text-xs font-bold tracking-widest uppercase text-white hover:opacity-95 transition">
             আম কালেকশন দেখুন
           </Link>
         </div>
@@ -163,19 +163,19 @@ export default function CheckoutPage() {
           {/* Left: Address + Payment */}
           <div className="space-y-6">
             {/* Delivery Address */}
-            <div className="rounded-2xl bg-white p-6 shadow-xs border border-stone-200">
+            <div className="bg-white p-6 shadow-xs border border-stone-200">
               <div className="flex items-center justify-between mb-4 pb-2 border-b border-stone-200">
-                <h2 className="text-xs font-extrabold uppercase tracking-widest text-[#2E7D32] font-display">[ ডেলিভারি ঠিকানা ]</h2>
+                <h2 className="text-xs font-black uppercase tracking-wider text-stone-900 border-l-2 border-[#15803d] pl-2">ডেলিভারি ঠিকানা</h2>
                 <button
                   onClick={() => setShowAddressForm((o) => !o)}
-                  className="text-xs font-bold uppercase tracking-wider text-[#2E7D32] hover:underline cursor-pointer"
+                  className="text-xs font-bold uppercase tracking-wider text-[#15803d] hover:underline cursor-pointer"
                 >
                   {showAddressForm ? "বাতিল করুন" : "+ নতুন ঠিকানা যুক্ত করুন"}
                 </button>
               </div>
 
               {showAddressForm && (
-                <form onSubmit={handleSaveAddress} className="mb-5 rounded-2xl border border-stone-200 p-5 bg-[#FFF8E7]/20 space-y-4">
+                <form onSubmit={handleSaveAddress} className="mb-5 border border-stone-200 p-5 bg-stone-50 space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">
                     {[
                       { key: "fullName", label: "পুরো নাম", placeholder: "যেমন: আব্দুল্লাহ" },
@@ -195,7 +195,7 @@ export default function CheckoutPage() {
                           value={addressForm[key as keyof typeof addressForm]}
                           onChange={(e) => setAddressForm((f) => ({ ...f, [key]: e.target.value }))}
                           placeholder={placeholder}
-                          className="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs focus:border-[#2E7D32] focus:outline-none focus:ring-1 focus:ring-[#2E7D32] bg-white text-stone-900 placeholder-stone-400 font-bold"
+                          className="w-full border border-stone-200 px-3.5 py-2 text-xs focus:border-[#15803d] focus:outline-none focus:ring-1 focus:ring-[#15803d] bg-white text-stone-900 placeholder-stone-400 font-bold"
                         />
                       </div>
                     ))}
@@ -203,7 +203,7 @@ export default function CheckoutPage() {
                   <button
                     type="submit"
                     disabled={savingAddress}
-                    className="rounded-xl bg-[#2E7D32] hover:bg-[#1B5E20] text-white font-bold text-xs tracking-wider uppercase px-5 py-2.5 disabled:opacity-50 cursor-pointer shadow-xs transition"
+                    className="bg-[#15803d] hover:bg-[#166534] text-white font-bold text-xs tracking-wider uppercase px-5 py-2.5 disabled:opacity-50 cursor-pointer shadow-xs transition"
                   >
                     {savingAddress ? "সংরক্ষণ হচ্ছে..." : "ঠিকানা সংরক্ষণ করুন"}
                   </button>
@@ -217,7 +217,7 @@ export default function CheckoutPage() {
                   {addresses.map((addr) => (
                     <label
                       key={addr.id}
-                      className={`flex gap-3 rounded-2xl border p-4 cursor-pointer transition duration-150 ${selectedAddress === addr.id ? "border-[#2E7D32] bg-[#FFF8E7]/30 shadow-xs" : "border-stone-200 hover:border-stone-400 bg-white"}`}
+                      className={`flex gap-3 border p-4 cursor-pointer transition duration-150 ${selectedAddress === addr.id ? "border-[#15803d] bg-stone-50 shadow-xs" : "border-stone-200 hover:border-stone-400 bg-white"}`}
                     >
                       <input
                         type="radio"
@@ -225,14 +225,14 @@ export default function CheckoutPage() {
                         value={addr.id}
                         checked={selectedAddress === addr.id}
                         onChange={() => setSelectedAddress(addr.id)}
-                        className="mt-0.5 accent-[#2E7D32]"
+                        className="mt-0.5 accent-[#15803d]"
                       />
                       <div className="text-xs">
                         <p className="font-extrabold text-stone-900">{addr.fullName}</p>
-                        <p className="text-stone-500 font-semibold mt-0.5">{addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ""}</p>
-                        <p className="text-stone-500 font-semibold">{addr.city}, {addr.state} {addr.postalCode}, {addr.country}</p>
-                        <p className="text-stone-500 font-bold mt-1">{addr.phone}</p>
-                        {addr.isDefault && <span className="text-[9px] font-bold text-[#2E7D32] bg-[#E8F5E9] px-2 py-0.5 border border-[#2E7D32]/25 mt-2 inline-block rounded-md">ডিফল্ট ঠিকানা</span>}
+                        <p className="text-stone-550 font-semibold mt-0.5">{addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ""}</p>
+                        <p className="text-stone-555 font-semibold">{addr.city}, {addr.state} {addr.postalCode}, {addr.country}</p>
+                        <p className="text-stone-555 font-bold mt-1">{addr.phone}</p>
+                        {addr.isDefault && <span className="text-[9px] font-bold text-[#15803d] bg-emerald-50 px-2 py-0.5 border border-[#15803d]/25 mt-2 inline-block">ডিফল্ট ঠিকানা</span>}
                       </div>
                     </label>
                   ))}
@@ -240,9 +240,8 @@ export default function CheckoutPage() {
               )}
             </div>
 
-            {/* Payment Method */}
-            <div className="rounded-2xl bg-white p-6 shadow-xs border border-stone-200">
-              <h2 className="text-xs font-extrabold uppercase tracking-widest text-[#2E7D32] mb-4 pb-2 border-b border-stone-200 font-display">[ পেমেন্ট পদ্ধতি ]</h2>
+            <div className="bg-white p-6 shadow-xs border border-stone-200">
+              <h2 className="text-xs font-black uppercase tracking-wider text-stone-900 border-l-2 border-[#15803d] pl-2 mb-4">পেমেন্ট পদ্ধতি</h2>
               <div className="space-y-2">
                 {PAYMENT_METHODS.map((method) => {
                   let label = method.replace(/_/g, " ");
@@ -253,7 +252,7 @@ export default function CheckoutPage() {
                   return (
                     <label
                       key={method}
-                      className={`flex items-center gap-3 rounded-xl border p-4 cursor-pointer transition duration-150 ${paymentMethod === method ? "border-[#2E7D32] bg-[#FFF8E7]/30 shadow-xs" : "border-stone-200 hover:border-stone-400 bg-white"}`}
+                      className={`flex items-center gap-3 border p-4 cursor-pointer transition duration-150 ${paymentMethod === method ? "border-[#15803d] bg-stone-50 shadow-xs" : "border-stone-200 hover:border-stone-400 bg-white"}`}
                     >
                       <input
                         type="radio"
@@ -261,7 +260,7 @@ export default function CheckoutPage() {
                         value={method}
                         checked={paymentMethod === method}
                         onChange={() => setPaymentMethod(method)}
-                        className="accent-[#2E7D32]"
+                        className="accent-[#15803d]"
                       />
                       <span className="text-xs font-bold text-stone-700 capitalize">{label}</span>
                     </label>
@@ -273,8 +272,8 @@ export default function CheckoutPage() {
 
           {/* Right: Order summary */}
           <div>
-            <div className="rounded-2xl bg-[#FFF8E7]/30 p-6 border border-stone-200 shadow-xs sticky top-24">
-              <h2 className="text-xs font-extrabold uppercase tracking-widest text-stone-900 mb-4 pb-2 border-b border-stone-200 font-display">[ অর্ডারের বিবরণ ]</h2>
+            <div className="bg-stone-50 p-6 border border-stone-200 shadow-xs sticky top-24">
+              <h2 className="text-xs font-black uppercase tracking-wider text-stone-900 border-l-2 border-[#15803d] pl-2 mb-4">অর্ডারের বিবরণ</h2>
               <div className="space-y-3 mb-4">
                 {items.map((item) => (
                   <div key={item.id} className="flex justify-between text-xs">
@@ -290,23 +289,23 @@ export default function CheckoutPage() {
               <hr className="border-stone-200 mb-4" />
               <div className="space-y-2.5 mb-6 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-stone-500 font-bold">মোট আমের মূল্য</span>
+                  <span className="text-stone-505 font-bold">মোট আমের মূল্য</span>
                   <span className="font-extrabold text-stone-900">{formatPrice(subtotal)}</span>
                 </div>
                 {discount > 0 && (
-                  <div className="flex justify-between text-[#2E7D32]">
+                  <div className="flex justify-between text-[#15803d]">
                     <span className="font-bold font-display">কুপন ছাড়{couponCode ? ` (${couponCode})` : ""}</span>
                     <span className="font-black">-{formatPrice(discount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-xs font-bold pt-3 border-t border-stone-200">
                   <span className="text-stone-900 font-display">সর্বমোট মূল্য</span>
-                  <span className="text-[#2E7D32] font-black">{formatPrice(total)}</span>
+                  <span className="text-[#15803d] font-black">{formatPrice(total)}</span>
                 </div>
               </div>
 
               {error && (
-                <div className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-xs text-rose-650 font-bold border border-red-200">
+                <div className="mb-4 bg-red-50 px-4 py-3 text-xs text-rose-650 font-bold border border-red-200">
                   {error}
                 </div>
               )}
@@ -314,13 +313,13 @@ export default function CheckoutPage() {
               <button
                 onClick={handlePlaceOrder}
                 disabled={placing || !selectedAddress}
-                className="w-full rounded-xl bg-[#2E7D32] hover:bg-[#1B5E20] py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-xs transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed font-display"
+                className="w-full bg-[#15803d] hover:bg-[#166534] py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-xs transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed font-display"
               >
                 {placing ? "অর্ডার সাবমিট হচ্ছে..." : "অর্ডার নিশ্চিত করুন"}
               </button>
               <Link
                 href="/store/cart"
-                className="mt-3 block w-full rounded-xl border border-stone-200 py-3.5 text-center text-xs font-black uppercase tracking-widest text-stone-650 hover:border-[#2E7D32] hover:text-[#2E7D32] transition bg-white cursor-pointer font-display"
+                className="mt-3 block w-full border border-stone-200 py-3.5 text-center text-xs font-black uppercase tracking-widest text-stone-600 hover:border-[#15803d] hover:text-[#15803d] transition bg-white cursor-pointer font-display"
               >
                 ← কার্টে ফিরে যান
               </Link>

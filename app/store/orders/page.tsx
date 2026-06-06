@@ -47,12 +47,12 @@ export default function OrdersPage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-[1800px] w-full px-6 py-10 sm:px-12 lg:px-16 min-h-[calc(100vh-280px)] animate-pulse font-sans">
-        <div className="h-6 w-40 rounded-lg bg-stone-200 mb-8" />
+        <div className="h-6 w-40 bg-stone-200 mb-8" />
         <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
-          <div className="h-56 rounded-3xl border border-stone-200 bg-white" />
+          <div className="h-56 border border-stone-200 bg-white" />
           <div className="space-y-4">
             {[1, 2].map((i) => (
-              <div key={i} className="h-28 rounded-2xl border border-stone-200 bg-white" />
+              <div key={i} className="h-28 border border-stone-200 bg-white" />
             ))}
           </div>
         </div>
@@ -75,9 +75,9 @@ export default function OrdersPage() {
         
         {/* Navigation Sidebar */}
         <div className="space-y-4">
-          <div className="rounded-3xl bg-white p-5 shadow-xs border border-stone-200/60">
+          <div className="bg-white p-5 shadow-xs border border-stone-200/60">
             <div className="flex items-center gap-3 mb-5 pb-4 border-b border-stone-100">
-              <div className="w-10 h-10 rounded-xl text-white flex items-center justify-center font-bold text-sm bg-[#2E7D32] shadow-xs shadow-[#2E7D32]/25">
+              <div className="w-10 h-10 text-white flex items-center justify-center font-bold text-sm bg-[#15803d]">
                 {user?.name?.[0]?.toUpperCase() ?? "?"}
               </div>
               <div className="min-w-0">
@@ -100,14 +100,13 @@ export default function OrdersPage() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex items-center gap-3 rounded-xl px-4 py-3 font-semibold transition-all border duration-200"
+                  className="flex items-center gap-3 px-4 py-3 font-semibold transition-all border duration-200"
                   style={
                     item.active
                       ? {
-                          backgroundColor: "#2E7D32",
+                          backgroundColor: "#15803d",
                           color: "#ffffff",
-                          borderColor: "#2E7D32",
-                          boxShadow: "0 4px 10px -2px rgba(46, 125, 50, 0.2)"
+                          borderColor: "#15803d",
                         }
                       : {
                           color: "var(--store-text-muted)",
@@ -122,7 +121,7 @@ export default function OrdersPage() {
 
               <button
                 onClick={handleLogout}
-                className="flex w-full items-center gap-3 rounded-xl px-4 py-3 font-semibold text-rose-600 hover:bg-rose-50 transition border border-transparent text-left cursor-pointer"
+                className="flex w-full items-center gap-3 px-4 py-3 font-semibold text-rose-600 hover:bg-rose-50 transition border border-transparent text-left cursor-pointer"
               >
                 <span className="text-xs">🚪</span>
                 <span>লগআউট (Logout)</span>
@@ -134,7 +133,7 @@ export default function OrdersPage() {
         {/* Main Content Area */}
         <div className="space-y-4">
           {orders.length === 0 ? (
-            <div className="rounded-3xl bg-white border border-stone-200/60 p-16 text-center shadow-xs">
+            <div className="bg-white border border-stone-200/60 p-16 text-center shadow-xs">
               <p className="text-3xl mb-4">📦</p>
               <p className="text-sm font-bold uppercase tracking-wider text-stone-800">
                 এখনো কোনো অর্ডার নেই
@@ -144,7 +143,7 @@ export default function OrdersPage() {
               </p>
               <Link
                 href="/store/products"
-                className="mt-6 inline-flex rounded-xl px-6 py-3 text-xs font-bold uppercase tracking-widest text-white transition-colors bg-[#2E7D32] hover:bg-[#1B5E20] shadow-xs cursor-pointer btn-premium"
+                className="mt-6 inline-flex px-6 py-3 text-xs font-bold uppercase tracking-widest text-white transition-colors bg-[#15803d] hover:bg-[#166534] shadow-xs cursor-pointer btn-premium"
               >
                 আমসমূহ দেখুন
               </Link>
@@ -155,7 +154,7 @@ export default function OrdersPage() {
                 <Link
                   key={order.id}
                   href={`/store/orders/${order.id}`}
-                  className="block rounded-2xl bg-white p-6 border border-stone-200/60 transition-all duration-300 hover:border-[#2E7D32]/50 hover:shadow-md shadow-xs"
+                  className="block bg-white p-6 border border-stone-200/60 transition-all duration-300 hover:border-[#15803d]/50 shadow-xs"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="space-y-2 text-xs">
@@ -163,7 +162,7 @@ export default function OrdersPage() {
                         <span className="font-bold text-xs text-stone-850">
                           #{order.orderNumber}
                         </span>
-                        <span className={`inline-block rounded-lg px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider ${STATUS_COLORS[order.status] ?? "bg-stone-100 text-stone-700 border border-stone-200"}`}>
+                        <span className={`inline-block px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider ${STATUS_COLORS[order.status] ?? "bg-stone-100 text-stone-700 border border-stone-200"}`}>
                           {order.status}
                         </span>
                       </div>
@@ -175,11 +174,11 @@ export default function OrdersPage() {
                       </p>
                     </div>
                     <div className="text-left sm:text-right shrink-0 border-t sm:border-t-0 pt-4 sm:pt-0 border-stone-200/60">
-                      <p className="font-black text-sm text-[#2E7D32] font-display">
+                      <p className="font-black text-sm text-[#15803d] font-display">
                         {formatPrice(order.total)}
                       </p>
                       <p className="text-[10px] mt-1 font-semibold text-stone-500">
-                        পেমেন্ট: <span className="text-[#2E7D32] font-extrabold">{order.paymentStatus}</span>
+                        পেমেন্ট: <span className="text-[#15803d] font-extrabold">{order.paymentStatus}</span>
                       </p>
                     </div>
                   </div>

@@ -72,7 +72,7 @@ export function SearchAutocomplete() {
           }}
           onFocus={() => setIsOpen(true)}
           placeholder="আম খুঁজুন (Search mangoes)..."
-          className="w-48 md:w-64 rounded-full border border-[var(--store-border)] bg-[var(--store-surface-2)] px-4 py-2 pl-10 text-sm focus:border-[var(--store-primary)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--store-primary-mid)] transition-all"
+          className="w-48 md:w-64 border border-[var(--store-border)] bg-[var(--store-surface-2)] px-4 py-2 pl-10 text-sm focus:border-[var(--store-primary)] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[var(--store-primary-mid)] transition-all"
         />
         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--store-text-muted)]">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -83,7 +83,7 @@ export function SearchAutocomplete() {
       </form>
  
       {isOpen && query.trim().length >= 2 && (
-        <div className="absolute right-0 top-full mt-2 w-[320px] md:w-[400px] rounded-2xl bg-white shadow-lg ring-1 ring-black/5 overflow-hidden z-50 border border-stone-200/60">
+        <div className="absolute right-0 top-full mt-2 w-[320px] md:w-[400px] bg-white shadow-lg ring-1 ring-black/5 overflow-hidden z-50 border border-stone-200">
           {loading ? (
             <div className="p-4 text-center text-sm text-[var(--store-text-muted)] font-semibold">অনুসন্ধান করা হচ্ছে...</div>
           ) : (
@@ -95,7 +95,7 @@ export function SearchAutocomplete() {
                     <Link
                       key={i}
                       href={`/store/products?search=${encodeURIComponent(s)}`}
-                      className="block rounded-lg px-3 py-2 text-sm font-semibold hover:bg-[var(--store-surface-2)] text-[#2E7D32] hover:text-[#1B5E20] transition"
+                      className="block px-3 py-2 text-sm font-semibold hover:bg-[var(--store-surface-2)] text-[#15803d] hover:text-[#166534] transition"
                       onClick={() => setIsOpen(false)}
                     >
                       {s}
@@ -113,15 +113,15 @@ export function SearchAutocomplete() {
                       <Link
                         key={p.id}
                         href={`/store/products/${p.slug}`}
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-[var(--store-surface-2)] transition"
+                        className="flex items-center gap-3 px-3 py-2 hover:bg-[var(--store-surface-2)] transition"
                         onClick={() => setIsOpen(false)}
                       >
-                        <div className="h-10 w-10 shrink-0 overflow-hidden rounded bg-[var(--store-border)]">
+                        <div className="h-10 w-10 shrink-0 overflow-hidden bg-[var(--store-border)]">
                           <img src={getProductImage(p)} alt={p.name} className="h-full w-full object-cover" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-bold text-[var(--store-text)]">{p.name}</p>
-                          <p className="text-xs font-black text-[#2E7D32]">
+                          <p className="text-xs font-black text-[#15803d]">
                             {variant ? formatPrice(variant.price) : "—"}
                           </p>
                         </div>
@@ -130,7 +130,7 @@ export function SearchAutocomplete() {
                   })}
                   <Link
                     href={`/store/products?search=${encodeURIComponent(query)}`}
-                    className="mt-2 block rounded-lg bg-[#FFF8E7] px-3 py-2.5 text-center text-[10px] font-black uppercase tracking-wider text-[#2E7D32] hover:bg-[#FFC72C] hover:text-stone-900 transition-all duration-200"
+                    className="mt-2 block bg-stone-50 border border-stone-200 px-3 py-2.5 text-center text-[10px] font-black uppercase tracking-wider text-[#15803d] hover:bg-[#15803d] hover:text-white transition-all duration-200"
                     onClick={() => setIsOpen(false)}
                   >
                     সকল ফলাফল দেখুন (All Results)

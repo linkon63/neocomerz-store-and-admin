@@ -48,7 +48,7 @@ export function PriceFilter() {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#2E7D32]">
+      <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#15803d]">
         মূল্যসীমা (Price Range)
       </h3>
       <div className="flex items-center gap-2">
@@ -57,7 +57,7 @@ export function PriceFilter() {
           placeholder="সর্বনিম্ন (Min)"
           value={minPrice}
           onChange={(e) => setMinPrice(e.target.value)}
-          className="w-full rounded-xl border border-stroke bg-background px-4 py-2.5 text-xs font-semibold placeholder-stone-400 focus:border-[#2E7D32] focus:outline-none focus:ring-1 focus:ring-[#2E7D32] transition-all text-foreground"
+          className="w-full border border-stroke bg-background px-4 py-2.5 text-xs font-semibold placeholder-stone-400 focus:border-[#15803d] focus:outline-none focus:ring-1 focus:ring-[#15803d] transition-all text-foreground"
         />
         <span className="text-stone-400 font-light">—</span>
         <input
@@ -65,20 +65,20 @@ export function PriceFilter() {
           placeholder="সর্বোচ্চ (Max)"
           value={maxPrice}
           onChange={(e) => setMaxPrice(e.target.value)}
-          className="w-full rounded-xl border border-stroke bg-background px-4 py-2.5 text-xs font-semibold placeholder-stone-400 focus:border-[#2E7D32] focus:outline-none focus:ring-1 focus:ring-[#2E7D32] transition-all text-foreground"
+          className="w-full border border-stroke bg-background px-4 py-2.5 text-xs font-semibold placeholder-stone-400 focus:border-[#15803d] focus:outline-none focus:ring-1 focus:ring-[#15803d] transition-all text-foreground"
         />
       </div>
       <div className="flex gap-2">
         <button
           onClick={handleApply}
-          className="flex-1 rounded-xl bg-[#2E7D32] px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-white hover:bg-[#1B5E20] transition-colors shadow-xs cursor-pointer"
+          className="flex-1 bg-[#15803d] px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-white hover:bg-[#166534] transition-colors shadow-xs cursor-pointer"
         >
           ফিল্টার করুন (Apply)
         </button>
         {hasFilter && (
           <button
             onClick={handleClear}
-            className="rounded-xl border border-stroke bg-surface px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-foreground/75 hover:bg-stone-100 transition-colors cursor-pointer"
+            className="border border-stroke bg-surface px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-foreground/75 hover:bg-stone-100 transition-colors cursor-pointer"
           >
             মুছুন
           </button>

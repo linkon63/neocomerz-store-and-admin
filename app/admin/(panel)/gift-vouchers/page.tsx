@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AdminIcon, PageHeader } from "../../_components/admin-shell";
+import { ConfirmModal } from "../../_components/confirm-modal";
 import { apiRequest } from "../../../../lib/admin-api";
 
 type Coupon = {
@@ -23,6 +24,11 @@ export default function GiftVouchersPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Delete confirm
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Form Fields
   const [code, setCode] = useState("");
@@ -73,12 +79,22 @@ export default function GiftVouchersPage() {
   };
 
   async function handleDelete(id: string) {
-    if (!confirm("Are you sure you want to delete this coupon?")) return;
+    setDeletingId(id);
+    setDeleteModalOpen(true);
+  }
+
+  async function confirmDelete() {
+    if (!deletingId) return;
+    setIsDeleting(true);
     try {
-      await apiRequest(`/coupons/${id}`, { method: "DELETE" });
+      await apiRequest(`/coupons/${deletingId}`, { method: "DELETE" });
+      setDeleteModalOpen(false);
+      setDeletingId(null);
       await loadCoupons();
     } catch (err) {
-      alert("Failed to delete coupon.");
+      alert(err instanceof Error ? err.message : "Failed to delete coupon.");
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -308,6 +324,21 @@ export default function GiftVouchersPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setDeletingId(null);
+          setError("");
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Coupon"
+        message="Are you sure you want to delete this coupon? This action cannot be undone."
+        confirmText={isDeleting ? "Deleting…" : "Delete Coupon"}
+        isDestructive
+        error={error}
+      />
     </>
   );
 }

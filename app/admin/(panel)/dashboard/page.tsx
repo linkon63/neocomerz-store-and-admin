@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AdminIcon, ProductThumb } from "../../_components/admin-shell";
 import { apiRequest } from "../../../../lib/admin-api";
+import { PremiumSalesChart } from "../../_components/premium-chart";
 
 type DashboardSummary = {
   totalSales: number;
@@ -112,90 +113,6 @@ function MetricCard({ icon, label, value, trend }: { icon: string; label: string
   );
 }
 
-function TrendBadge({ value, isPositive }: { value: string; isPositive: boolean }) {
-  return (
-    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${isPositive ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}>
-      {value}
-    </span>
-  );
-}
-
-function SalesTrendChart({ data }: { data: number[] }) {
-  const [activeTab, setActiveTab] = useState<"daily" | "monthly">("daily");
-  const maxVal = Math.max(...data, 1400);
-  const minVal = 0;
-  const range = maxVal - minVal;
-  
-  const points = data.map((val, i) => {
-    const x = (i / (data.length - 1)) * 100;
-    const y = 100 - ((val - minVal) / range) * 100;
-    return `${x},${y}`;
-  }).join(" ");
-
-  const pathD = data.length > 1 ? `M ${points.split(" ").map((p, i) => {
-    const [x, y] = p.split(",");
-    if (i === 0) return `${x} ${y}`;
-    const [prevX, prevY] = points.split(" ")[i - 1].split(",");
-    const cpX1 = parseFloat(prevX) + (parseFloat(x) - parseFloat(prevX)) / 3;
-    const cpX2 = parseFloat(x) - (parseFloat(x) - parseFloat(prevX)) / 3;
-    return `C ${cpX1} ${prevY}, ${cpX2} ${y}, ${x} ${y}`;
-  }).join(" ")}` : "";
-
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">Sales Trend</h2>
-        <div className="flex items-center gap-3">
-          <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-1">
-            <button
-              onClick={() => setActiveTab("daily")}
-              className={`rounded px-3 py-1 text-sm font-medium transition-colors ${activeTab === "daily" ? "bg-white text-blue-600 shadow-sm" : "text-slate-600"}`}
-            >
-              Daily
-            </button>
-            <button
-              onClick={() => setActiveTab("monthly")}
-              className={`rounded px-3 py-1 text-sm font-medium transition-colors ${activeTab === "monthly" ? "bg-white text-blue-600 shadow-sm" : "text-slate-600"}`}
-            >
-              Monthly
-            </button>
-          </div>
-          <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5">
-            <AdminIcon className="h-4 w-4 text-slate-400" name="calendar" />
-            <input type="text" placeholder="Select date range" className="w-32 text-sm text-slate-600 outline-none" readOnly />
-          </div>
-        </div>
-      </div>
-      <div className="relative h-64">
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
-          <defs>
-            <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#93c5fd" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#93c5fd" stopOpacity="0.05" />
-            </linearGradient>
-          </defs>
-          {[0, 200, 400, 600, 800, 1000, 1200, 1400].map((val) => {
-            const y = 100 - ((val - minVal) / range) * 100;
-            return <line key={val} x1="0" y1={y} x2="100" y2={y} stroke="#e2e8f0" strokeWidth="0.2" />;
-          })}
-          {pathD && (
-            <>
-              <path d={`${pathD} L 100 100 L 0 100 Z`} fill="url(#areaGradient)" />
-              <path d={pathD} fill="none" stroke="#3b82f6" strokeWidth="0.5" />
-            </>
-          )}
-        </svg>
-        <div className="absolute left-0 top-0 flex h-full flex-col justify-between py-1 text-xs text-slate-500">
-          {[1400, 1200, 1000, 800, 600, 400, 200, 0].map((val) => (
-            <span key={val}>{val >= 1000 ? `${val / 1000}K` : val}</span>
-          ))}
-        </div>
-        <div className="absolute bottom-0 left-12 text-xs text-slate-500">Week 1</div>
-      </div>
-    </div>
-  );
-}
-
 const PRESETS: Preset[] = ["Today", "Yesterday", "This Week", "This Month"];
 
 export default function DashboardPage() {
@@ -269,11 +186,6 @@ export default function DashboardPage() {
     setShowDatePicker(false);
     loadData();
   }
-
-  const salesByDay = Array(7).fill(0) as number[];
-  sales.forEach((s) => {
-    salesByDay[new Date(s.placedAt).getDay()] += Number(s.total);
-  });
 
   const isCustomActive = !activePreset && (customFrom || customTo);
 
@@ -375,15 +287,15 @@ export default function DashboardPage() {
 
       <div className="rounded-xl border border-slate-200 bg-white">
         <div className="grid divide-x divide-slate-100 md:grid-cols-2 xl:grid-cols-4">
-          <MetricCard icon="report" label="Total Transactions" value={summary.totalOrders.toString()} trend={{ value: "+12.5%", isPositive: true }} />
-          <MetricCard icon="discount" label="Average Sale" value={formatCurrency(summary.totalOrders > 0 ? summary.totalSales / summary.totalOrders : 0)} trend={{ value: "+8.2%", isPositive: true }} />
-          <MetricCard icon="orders" label="Daily Average Sale" value={formatCurrency(summary.totalSales / 30)} trend={{ value: "-3.1%", isPositive: false }} />
-          <MetricCard icon="package" label="Net Sales" value={formatCurrency(summary.totalSales)} trend={{ value: "+15.3%", isPositive: true }} />
+          <MetricCard icon="report" label="Total Transactions" value={summary.totalOrders.toString()} />
+          <MetricCard icon="discount" label="Average Sale" value={formatCurrency(summary.totalOrders > 0 ? summary.totalSales / summary.totalOrders : 0)} />
+          <MetricCard icon="orders" label="Total Customers" value={summary.totalCustomers.toString()} />
+          <MetricCard icon="package" label="Net Sales" value={formatCurrency(summary.totalSales)} />
         </div>
         <div className="grid divide-x divide-slate-100 border-t border-slate-100 md:grid-cols-3">
-          <MetricCard icon="report" label="Profit" value={formatCurrency(summary.totalSales * 0.2)} />
-          <MetricCard icon="discount" label="Cash Sales" value={formatCurrency(summary.totalSales * 0.6)} />
-          <MetricCard icon="refresh" label="Refund" value={formatCurrency(summary.totalSales * 0.02)} />
+          <MetricCard icon="package" label="Total Products" value={summary.totalProducts.toString()} />
+          <MetricCard icon="refresh" label="Low Stock Alerts" value={summary.lowStockProducts.toString()} />
+          <MetricCard icon="report" label="Pending Orders" value={summary.pendingOrders.toString()} />
         </div>
       </div>
 
@@ -398,7 +310,12 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <SalesTrendChart data={salesByDay} />
+      <PremiumSalesChart
+        sales={sales}
+        preset={activePreset}
+        customFrom={customFrom}
+        customTo={customTo}
+      />
 
       <div className="rounded-xl border border-slate-200 bg-white p-6">
         <h2 className="mb-5 text-lg font-semibold text-slate-900">Top Selling Products</h2>

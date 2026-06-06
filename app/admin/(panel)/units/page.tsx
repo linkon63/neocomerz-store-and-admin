@@ -152,6 +152,7 @@ export default function UnitsPage() {
   function cancelDelete() {
     setDeleteModalOpen(false);
     setUnitToDelete(null);
+    setError("");
   }
 
   return (
@@ -410,6 +411,7 @@ export default function UnitsPage() {
         onClose={cancelDelete}
         onConfirm={confirmDelete}
         title="Delete Unit"
+        error={error}
       />
     </>
   );

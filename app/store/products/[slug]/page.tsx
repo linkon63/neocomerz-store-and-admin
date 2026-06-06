@@ -13,6 +13,7 @@ import {
   type Review,
   formatPrice,
   getStoreToken,
+  syncCartCount,
 } from "@/lib/store-api";
 import { ImageGallery } from "../../_components/image-gallery";
 import { RelatedProducts } from "../../_components/related-products";
@@ -80,10 +81,10 @@ export default function ProductDetailPage() {
     setAdding(true);
     try {
       await cartApi.addItem(selectedVariant.id, quantity);
-      const current = parseInt(localStorage.getItem("store_cart_count") ?? "0", 10);
-      localStorage.setItem("store_cart_count", String(current + quantity));
-      window.dispatchEvent(new Event("cart-updated"));
+      await syncCartCount();
       showToast(`কার্টে ${quantity} টি যোগ হয়েছে!`, "success");
+      window.dispatchEvent(new Event("open-mini-cart"));
+      window.dispatchEvent(new Event("cart-updated"));
     } catch (err) {
       showToast(err instanceof Error ? err.message : "ব্যর্থ হয়েছে", "error");
     } finally {
@@ -123,13 +124,13 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-[1800px] w-full px-6 py-12 sm:px-12 lg:px-16 animate-pulse">
+      <div className="w-full px-6 py-12 sm:px-12 lg:px-16 animate-pulse">
         <div className="grid gap-10 lg:grid-cols-2">
-          <div className="aspect-square bg-stone-100 rounded-2xl border border-stone-200/50" />
+          <div className="aspect-square bg-stone-100 border border-stone-200/50" />
           <div className="space-y-6">
-            <div className="h-8 bg-stone-100 rounded-xl w-3/4" />
-            <div className="h-6 bg-stone-100 rounded-xl w-1/4" />
-            <div className="h-24 bg-stone-100 rounded-xl" />
+            <div className="h-8 bg-stone-100 w-3/4" />
+            <div className="h-6 bg-stone-100 w-1/4" />
+            <div className="h-24 bg-stone-100" />
           </div>
         </div>
       </div>
@@ -143,7 +144,7 @@ export default function ProductDetailPage() {
   const isOutOfStock = selectedVariant?.stockQuantity === 0;
 
   return (
-    <div className="mx-auto max-w-[1800px] w-full px-6 py-10 sm:px-12 lg:px-16 font-sans">
+    <div className="w-full px-6 py-10 sm:px-12 lg:px-16 font-sans">
       <Breadcrumb items={[
         { label: "হোম", href: "/store" },
         { label: "আমের কালেকশন", href: "/store/products" },
@@ -162,7 +163,7 @@ export default function ProductDetailPage() {
           <div className="mb-6 border-b border-stone-200 pb-6">
             <div className="flex items-center gap-2 mb-3">
               {product.category && (
-                <span className="text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 border border-stone-200 text-stone-500 rounded-lg bg-stone-50">
+                <span className="text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 border border-stone-200 text-stone-500 bg-stone-50">
                   {product.category.name}
                 </span>
               )}
@@ -179,13 +180,13 @@ export default function ProductDetailPage() {
 
             <div className="flex items-center gap-4 text-xs font-semibold text-stone-500">
               <div className="flex items-center gap-1">
-                <span className="text-[#FFC72C] text-sm">★</span>
+                <span className="text-[#eab308] text-sm">★</span>
                 <span className="font-extrabold text-stone-900">{avgRating}</span>
                 <span className="text-stone-400 font-medium">({reviews.length} রিভিউ)</span>
               </div>
               <span className="text-stone-200">|</span>
-              <span className={`font-bold ${isOutOfStock ? "text-rose-600" : "text-[#2E7D32]"}`}>
-                {isOutOfStock ? "স্টক শেষ" : "[ স্টকে আছে ]"}
+              <span className={`font-bold ${isOutOfStock ? "text-rose-600" : "text-[#15803d]"}`}>
+                {isOutOfStock ? "স্টক শেষ" : "স্টকে আছে"}
               </span>
             </div>
           </div>
@@ -201,7 +202,7 @@ export default function ProductDetailPage() {
                   {formatPrice(discount)}
                 </span>
               )}
-              <span className="ml-2 rounded-lg px-2.5 py-1 text-[9px] font-black text-stone-950 mb-1.5 bg-[#FFC72C] tracking-wider uppercase shadow-xs">
+              <span className="ml-2 px-2.5 py-1 text-[9px] font-black text-stone-950 mb-1.5 bg-[#eab308] tracking-wider uppercase shadow-xs">
                 আজকের স্পেশাল অফার
               </span>
             </div>
@@ -216,16 +217,16 @@ export default function ProductDetailPage() {
           {/* Variants */}
           {product.variants && product.variants.length > 1 && (
             <div className="mb-6">
-              <p className="text-xs font-extrabold mb-3 uppercase tracking-widest text-stone-600 font-display">[ ক্যারেট সাইজ / ওজন নির্বাচন করুন ]</p>
+              <p className="text-[11px] font-black uppercase tracking-wider text-stone-900 border-l-2 border-[#15803d] pl-2 mb-3">ক্যারেট সাইজ / ওজন নির্বাচন করুন</p>
               <div className="flex flex-wrap gap-2">
                 {product.variants.map((v) => (
                   <button
                     key={v.id}
                     onClick={() => setSelectedVariant(v)}
                     disabled={v.stockQuantity === 0}
-                    className={`px-4 py-2.5 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
+                    className={`px-4 py-2.5 text-xs font-bold border transition-all cursor-pointer ${
                       selectedVariant?.id === v.id
-                        ? "border-[#2E7D32] text-white bg-[#2E7D32]"
+                        ? "border-[#15803d] text-white bg-[#15803d]"
                         : "border-stone-200 hover:border-stone-400 bg-white text-stone-700"
                     } ${v.stockQuantity === 0 ? "opacity-30 cursor-not-allowed" : ""}`}
                   >
@@ -237,9 +238,9 @@ export default function ProductDetailPage() {
           )}
 
           {/* Quantity & Actions */}
-          <div className="mb-8 p-6 rounded-2xl bg-[#FFF8E7]/30 border border-stone-200/60">
+          <div className="mb-8 p-6 bg-stone-50 border border-stone-200">
             <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex items-center justify-between bg-white border border-stone-200 rounded-xl overflow-hidden w-[130px] shrink-0 h-11">
+              <div className="flex items-center justify-between bg-white border border-stone-200 overflow-hidden w-[130px] shrink-0 h-11">
                 <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="w-10 h-full flex items-center justify-center text-lg font-bold text-stone-500 hover:bg-stone-50 cursor-pointer">−</button>
                 <span className="font-extrabold text-sm text-stone-900">{quantity}</span>
                 <button onClick={() => setQuantity(q => Math.min(selectedVariant?.stockQuantity ?? 99, q + 1))} className="w-10 h-full flex items-center justify-center text-lg font-bold text-stone-500 hover:bg-stone-50 cursor-pointer">+</button>
@@ -248,23 +249,36 @@ export default function ProductDetailPage() {
               <button
                 onClick={handleAddToCart}
                 disabled={adding || isOutOfStock}
-                className="flex-1 flex items-center justify-center gap-2 rounded-xl text-white font-bold text-xs tracking-wider uppercase h-11 transition-all duration-200 bg-[#2E7D32] hover:bg-[#1B5E20] cursor-pointer disabled:opacity-50 shadow-xs"
+                className="flex-1 flex items-center justify-center gap-2 text-white font-bold text-xs tracking-wider uppercase h-11 transition-all duration-200 bg-[#15803d] hover:bg-[#ff9f00] hover:text-stone-900 cursor-pointer disabled:opacity-50 shadow-xs"
               >
                 {adding ? "অপেক্ষা করুন..." : isOutOfStock ? "স্টক শেষ" : "কার্টে যোগ করুন"}
               </button>
 
               <button
                 onClick={handleWishlist}
-                className="w-11 h-11 rounded-xl bg-white border border-stone-200 text-stone-500 flex items-center justify-center hover:bg-stone-50 hover:text-rose-500 hover:border-rose-200 transition-colors cursor-pointer shadow-xs"
+                className="w-11 h-11 bg-white border border-stone-200 text-stone-500 flex items-center justify-center hover:bg-stone-50 hover:text-rose-500 hover:border-rose-200 transition-colors cursor-pointer shadow-xs"
               >
                 <svg className="w-5 h-5 fill-none hover:fill-rose-500 transition-colors" stroke="currentColor" strokeWidth={2.2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
               </button>
             </div>
+
+            {/* Direct Phone Order Action */}
+            <div className="mt-4 pt-4 border-t border-stone-200">
+              <a
+                href="tel:+8801707819676"
+                className="w-full flex items-center justify-center gap-2.5 bg-[#f59e0b] hover:bg-[#d97706] text-stone-950 font-black text-xs tracking-widest uppercase h-11 transition-all duration-200 cursor-pointer shadow-sm border border-[#d97706]/20 font-display"
+              >
+                <svg className="w-4.5 h-4.5 fill-current shrink-0" viewBox="0 0 24 24">
+                  <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-2.2 2.2a15.045 15.045 0 01-6.59-6.59l2.2-2.2c.28-.28.36-.67.25-1.02A11.36 11.36 0 018.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1z" />
+                </svg>
+                সরাসরি ফোনে অর্ডার করুন: ০১৭০৭৮১৯৬৭৬
+              </a>
+            </div>
             
             {/* Delivery Features */}
-            <div className="grid grid-cols-2 gap-3 mt-5 pt-5 border-t border-stone-200/60">
+            <div className="grid grid-cols-2 gap-3 mt-5 pt-5 border-t border-stone-200">
               <div className="flex items-center gap-2 text-[10px] font-extrabold tracking-wider uppercase text-stone-600 font-display">
                 <span className="text-base">🚚</span> ফাস্ট হোম ডেলিভারি
               </div>
@@ -277,7 +291,7 @@ export default function ProductDetailPage() {
       </div>
 
       {/* ── TABS SECTION ── */}
-      <div className="mt-16 rounded-2xl border border-stone-200 bg-white overflow-hidden shadow-xs">
+      <div className="mt-16 border border-stone-200 bg-white overflow-hidden shadow-xs">
         <div className="flex border-b border-stone-200 overflow-x-auto scrollbar-hide">
           {[
             { id: "description", label: "বিবরণ" },
@@ -289,7 +303,7 @@ export default function ProductDetailPage() {
               onClick={() => setActiveTab(tab.id as ActiveTab)}
               className={`px-8 py-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap border-b transition-all duration-150 cursor-pointer ${
                 activeTab === tab.id 
-                  ? "text-[#2E7D32] border-[#2E7D32] bg-[#FFF8E7]/30" 
+                  ? "text-[#15803d] border-[#15803d] bg-stone-50" 
                   : "text-stone-500 border-transparent hover:text-stone-850 hover:bg-stone-50/20"
               }`}
             >
@@ -310,16 +324,16 @@ export default function ProductDetailPage() {
           {activeTab === "specifications" && (
             <div className="space-y-1">
               <div className="grid grid-cols-3 py-3 border-b border-stone-100 text-xs">
-                <span className="font-extrabold text-stone-400 uppercase tracking-widest font-display">[ বাগান / ব্র্যান্ড ]</span>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-stone-500">বাগান / ব্র্যান্ড</span>
                 <span className="col-span-2 font-bold text-stone-700">{product.brand?.name || "জানা নেই"}</span>
               </div>
               <div className="grid grid-cols-3 py-3 border-b border-stone-100 text-xs">
-                <span className="font-extrabold text-stone-400 uppercase tracking-widest font-display">[ ক্যাটাগরি ]</span>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-stone-500">ক্যাটাগরি</span>
                 <span className="col-span-2 font-bold text-stone-700">{product.category?.name || "জানা নেই"}</span>
               </div>
               {selectedVariant && (
                 <div className="grid grid-cols-3 py-3 border-b border-stone-100 text-xs">
-                  <span className="font-extrabold text-stone-400 uppercase tracking-widest font-display">[ প্রোডাক্ট কোড ]</span>
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-stone-500">প্রোডাক্ট কোড</span>
                   <span className="col-span-2 font-bold text-stone-700">{selectedVariant.sku}</span>
                 </div>
               )}
@@ -330,10 +344,10 @@ export default function ProductDetailPage() {
           {activeTab === "reviews" && (
             <div className="grid gap-10 md:grid-cols-[1fr_2fr]">
               {/* Write Review */}
-              <div className="bg-[#FFF8E7]/30 rounded-2xl p-6 h-fit border border-stone-200/50">
-                <h3 className="font-extrabold text-xs uppercase tracking-wider text-stone-800 mb-4 font-display">[ রিভিউ লিখুন ]</h3>
+              <div className="bg-stone-50 p-6 h-fit border border-stone-200">
+                <h3 className="text-xs font-black uppercase tracking-wider text-stone-900 border-l-2 border-[#15803d] pl-2 mb-4">রিভিউ লিখুন</h3>
                 {!isLoggedIn ? (
-                  <p className="text-xs text-stone-500 font-medium">রিভিউ দিতে অনুগ্রহ করে <Link href="/store/login" className="text-[#2E7D32] font-bold hover:underline">লগইন</Link> করুন।</p>
+                  <p className="text-xs text-stone-500 font-medium">রিভিউ দিতে অনুগ্রহ করে <Link href="/store/login" className="text-[#15803d] font-bold hover:underline">লগইন</Link> করুন।</p>
                 ) : (
                   <form onSubmit={handleReviewSubmit} className="space-y-4">
                     <div>
@@ -348,12 +362,12 @@ export default function ProductDetailPage() {
                     <textarea
                       value={reviewForm.comment}
                       onChange={e => setReviewForm(f => ({...f, comment: e.target.value}))}
-                      className="w-full border border-stone-200 rounded-xl p-3 text-xs focus:border-[#2E7D32] focus:outline-none focus:ring-1 focus:ring-[#2E7D32] bg-white placeholder-stone-400 font-medium"
+                      className="w-full border border-stone-200 p-3 text-xs focus:border-[#15803d] focus:outline-none focus:ring-1 focus:ring-[#15803d] bg-white placeholder-stone-400 font-medium"
                       rows={4}
                       placeholder="আপনার মতামত লিখুন..."
                       required
                     />
-                    <button disabled={submittingReview} type="submit" className="w-full bg-[#2E7D32] hover:bg-[#1B5E20] font-bold text-xs tracking-wider uppercase py-3 rounded-xl disabled:opacity-50 cursor-pointer text-white shadow-xs">
+                    <button disabled={submittingReview} type="submit" className="w-full bg-[#15803d] hover:bg-[#166534] font-bold text-xs tracking-wider uppercase py-3 disabled:opacity-50 cursor-pointer text-white shadow-xs">
                       সাবমিট করুন
                     </button>
                   </form>
@@ -363,7 +377,7 @@ export default function ProductDetailPage() {
               {/* Review List */}
               <div className="space-y-4">
                 {reviewLoading ? <p className="text-xs text-stone-500 font-semibold animate-pulse">লোড হচ্ছে...</p> : reviews.length === 0 ? (
-                  <div className="text-center py-12 bg-stone-50 border border-dashed border-stone-200 rounded-2xl">
+                  <div className="text-center py-12 bg-stone-50 border border-dashed border-stone-200">
                     <p className="text-stone-400 text-xs font-bold">এখনও কোনো রিভিউ দেওয়া হয়নি।</p>
                   </div>
                 ) : (

@@ -220,6 +220,7 @@ export default function VariantOptionsPage() {
   function cancelDelete() {
     setDeleteModalOpen(false);
     setOptionToDelete(null);
+    setError("");
   }
 
   return (
@@ -489,6 +490,7 @@ export default function VariantOptionsPage() {
         onClose={cancelDelete}
         onConfirm={confirmDelete}
         title="Delete Variant Option"
+        error={error}
       />
     </>
   );

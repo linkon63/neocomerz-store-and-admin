@@ -198,6 +198,28 @@ export default function OrdersPage() {
     }
   }, [selected, dueAmount, loadOrders]);
 
+  function handleExportCSV() {
+    const rows = filtered.map(o => [
+      o.orderNumber,
+      o.user?.name ?? "",
+      o.user?.phone ?? "",
+      o.status,
+      o.paymentStatus,
+      o.payments?.[0]?.method ?? "COD",
+      Number(o.total).toFixed(2),
+      new Date(o.placedAt).toLocaleDateString(),
+    ]);
+    const header = ["Order #", "Customer", "Phone", "Status", "Payment Status", "Method", "Total (BDT)", "Date"];
+    const csv = [header, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `orders-${TABS[activeTab].label.replace(/\s+/g, "-").toLowerCase()}-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   function clearFilters() {
     setFilters(emptyFilter);
     setPage(1);
@@ -214,42 +236,35 @@ export default function OrdersPage() {
               variant="neutral"
               size="md"
               icon={<AdminIcon className="h-5 w-5" name="download" />}
-              onClick={() => {
-                // Future: Implement export logic
-                alert("Exporting current view...");
-              }}
+              onClick={handleExportCSV}
             >
-              Export List
+              Export CSV
             </Button>
           </div>
         }
       />
 
-      {/* Enterprise Stats Dashboard */}
+      {/* Real Stats Dashboard */}
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           label="Total Orders"
           value={orders.length}
           icon={<AdminIcon className="h-6 w-6" name="orders" />}
-          trend={{ value: "+12.5%", isPositive: true }}
         />
         <StatsCard
           label="Processing"
           value={orders.filter(o => o.status === 'processing').length}
           icon={<AdminIcon className="h-6 w-6" name="package" />}
-          trend={{ value: "+8.2%", isPositive: true }}
         />
         <StatsCard
           label="Delivered"
           value={orders.filter(o => o.status === 'delivered').length}
           icon={<AdminIcon className="h-6 w-6" name="check" />}
-          trend={{ value: "+15.3%", isPositive: true }}
         />
         <StatsCard
           label="Revenue"
           value={`BDT ${orders.reduce((sum, o) => sum + Number(o.total || 0), 0).toLocaleString()}`}
           icon={<AdminIcon className="h-6 w-6" name="report" />}
-          trend={{ value: "+22.1%", isPositive: true }}
         />
       </div>
 
@@ -576,8 +591,12 @@ export default function OrdersPage() {
                       </Button>
                     )}
 
-                    <button className="h-10 w-10 border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-md">
-                      <AdminIcon name="actions" />
+                    <button
+                      onClick={loadOrders}
+                      title="Refresh order"
+                      className="h-10 w-10 border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-md transition-colors"
+                    >
+                      <AdminIcon name="refresh" />
                     </button>
                   </div>
                 </div>
@@ -595,9 +614,6 @@ export default function OrdersPage() {
                         <div className="mt-6">
                           <div className="flex items-center gap-2 mb-2">
                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Shipping & Billing Address</p>
-                             <button className="text-blue-500">
-                               <AdminIcon className="h-3.5 w-3.5" name="edit" />
-                             </button>
                           </div>
                           <p className="text-[14px] font-bold text-slate-700">
                             {selected.address?.addressLine1}, {selected.address?.city}, {selected.address?.state}, {selected.address?.postalCode}

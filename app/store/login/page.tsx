@@ -33,9 +33,9 @@ export default function StoreLoginPage() {
       <div className="w-full max-w-md">
 
         {/* Card */}
-        <div className="bg-white rounded-3xl overflow-hidden shadow-md border border-stone-200/60">
+        <div className="bg-white overflow-hidden shadow-md border border-stone-200/60">
           {/* Top accent bar */}
-          <div className="h-1.5 w-full bg-linear-to-r from-[#2E7D32] to-[#FFC72C]" />
+          <div className="h-1.5 w-full bg-linear-to-r from-[#15803d] to-emerald-600" />
 
           <div className="p-8">
             {/* Logo */}
@@ -65,7 +65,7 @@ export default function StoreLoginPage() {
                     value={form.email}
                     onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                     placeholder="you@example.com"
-                    className="w-full rounded-xl pl-10 pr-4 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#2E7D32] text-stone-800 placeholder-stone-400 font-semibold transition"
+                    className="w-full pl-10 pr-4 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#15803d] text-stone-800 placeholder-stone-400 font-semibold transition"
                   />
                 </div>
               </div>
@@ -74,7 +74,7 @@ export default function StoreLoginPage() {
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-[13px] font-bold text-stone-700">পাসওয়ার্ড</label>
-                  <Link href="#" className="text-[12px] font-bold text-[#2E7D32] hover:text-[#1B5E20] hover:underline">
+                  <Link href="#" className="text-[12px] font-bold text-[#15803d] hover:text-[#166534] hover:underline">
                     পাসওয়ার্ড ভুলে গেছেন?
                   </Link>
                 </div>
@@ -90,7 +90,7 @@ export default function StoreLoginPage() {
                     value={form.password}
                     onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                     placeholder="••••••••"
-                    className="w-full rounded-xl pl-10 pr-10 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#2E7D32] text-stone-800 placeholder-stone-400 font-semibold transition"
+                    className="w-full pl-10 pr-10 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#15803d] text-stone-800 placeholder-stone-400 font-semibold transition"
                   />
                   <button
                     type="button"
@@ -113,7 +113,7 @@ export default function StoreLoginPage() {
 
               {/* Error */}
               {error && (
-                <div className="flex items-center gap-2.5 rounded-xl px-4 py-3 text-[13px] font-bold bg-red-50 border border-red-100 text-red-600">
+                <div className="flex items-center gap-2.5 px-4 py-3 text-[13px] font-bold bg-red-50 border border-red-100 text-red-600">
                   <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -125,12 +125,12 @@ export default function StoreLoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-xl py-3.5 text-[15px] font-bold text-white transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-2 flex items-center justify-center gap-2 btn-premium cursor-pointer"
+                className="w-full py-3.5 text-[15px] font-bold text-white transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-2 flex items-center justify-center gap-2 btn-premium cursor-pointer"
               >
                 {loading ? (
                   <>
                     <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4} />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
                     লগইন হচ্ছে...
@@ -150,7 +150,7 @@ export default function StoreLoginPage() {
 
             <p className="text-center text-[14px] text-stone-550 font-medium">
               অ্যাকাউন্ট নেই?{" "}
-              <Link href="/store/register" className="font-bold text-[#2E7D32] hover:text-[#1B5E20] hover:underline">
+              <Link href="/store/register" className="font-bold text-[#15803d] hover:text-[#166534] hover:underline">
                 এখনই রেজিস্ট্রেশন করুন
               </Link>
             </p>

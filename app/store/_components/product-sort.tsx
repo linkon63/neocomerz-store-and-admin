@@ -34,7 +34,7 @@ export function ProductSort() {
         id="sort"
         value={currentSort}
         onChange={(e) => handleSort(e.target.value as SortOption)}
-        className="rounded-xl border border-[var(--store-border)] bg-white px-3 py-2 text-xs font-semibold text-[var(--store-text)] focus:outline-none focus:ring-2 focus:ring-[#2E7D32]/10 focus:border-[#2E7D32] transition cursor-pointer"
+        className="border border-[var(--store-border)] bg-white px-3 py-2 text-xs font-semibold text-[var(--store-text)] focus:outline-none focus:ring-2 focus:ring-[#15803d]/10 focus:border-[#15803d] transition cursor-pointer"
       >
         {SORT_OPTIONS.map((option) => (
           <option key={option.value} value={option.value}>

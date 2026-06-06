@@ -15,12 +15,11 @@ export const STORE_CHECKOUT_COUPON_KEY = "store_checkout_coupon";
 
 export function getStoreToken(): string | null {
   if (typeof document === "undefined") return null;
-  return (
-    document.cookie
-      .split("; ")
-      .find((r) => r.startsWith("store_access_token="))
-      ?.split("=")[1] ?? null
-  );
+  const match = document.cookie
+    .split("; ")
+    .find((r) => r.startsWith("store_access_token="));
+  if (!match) return null;
+  return match.slice("store_access_token=".length) || null;
 }
 
 export function setStoreSession(token: string, user: StoreUser) {
@@ -32,6 +31,8 @@ export function setStoreSession(token: string, user: StoreUser) {
 export function clearStoreSession() {
   document.cookie = "store_access_token=; path=/store; max-age=0; SameSite=Lax";
   document.cookie = "store_user=; path=/store; max-age=0; SameSite=Lax";
+  document.cookie = "store_access_token=; path=/; max-age=0; SameSite=Lax";
+  document.cookie = "store_user=; path=/; max-age=0; SameSite=Lax";
 }
 
 export function getStoredUser(): StoreUser | null {
@@ -311,6 +312,19 @@ export const cartApi = {
   clear: () => req<void>("/cart/clear", { method: "DELETE", auth: true }),
 };
 
+/** Sync the cart badge count from the backend – call after every cart mutation */
+export async function syncCartCount(): Promise<number> {
+  try {
+    const cart = await cartApi.get();
+    const count = cart.items.length;
+    localStorage.setItem("store_cart_count", String(count));
+    window.dispatchEvent(new Event("cart-updated"));
+    return count;
+  } catch {
+    return 0;
+  }
+}
+
 // ─── Wishlist ─────────────────────────────────────────────────────────────────
 
 export const wishlistApi = {
@@ -394,6 +408,28 @@ export const campaignsApi = {
   getHero: () => req<Campaign[]>("/campaigns/public/hero"),
 };
 
+// ─── Settings ─────────────────────────────────────────────────────────────────
+
+export type StoreSettings = {
+  id?: string;
+  shopName?: string;
+  logo?: string;
+  icon?: string;
+  copyrightYear?: string;
+  parentCompany?: string;
+  parentCompanyLink?: string;
+  slogan?: string;
+  currency?: string;
+  language?: string;
+  deliveryChargeInside?: number;
+  deliveryChargeOutside?: number;
+  menuConfig?: any;
+};
+
+export const settingsApi = {
+  get: () => req<StoreSettings>("/settings"),
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function formatPrice(value: number | string): string {
@@ -405,15 +441,28 @@ export function formatPrice(value: number | string): string {
   }).format(n);
 }
 
+export function getProxyImageUrl(url?: string | null): string {
+  if (!url) return "";
+  if (url.startsWith("http")) {
+    try {
+      const urlObj = new URL(url);
+      const paths = ["/categories/", "/products/", "/brands/", "/campaigns/", "/variants/", "/avatars/"];
+      if (paths.some((p) => urlObj.pathname.startsWith(p))) {
+        return urlObj.pathname;
+      }
+    } catch {
+      return url;
+    }
+  }
+  return url;
+}
+
 export function getProductImage(product: Product): string {
   const featured = product.media?.find((m) => m.isFeatured);
   const first = product.media?.[0];
   const url = featured?.media.url ?? first?.media.url;
   if (!url) return "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80";
-  // Handle relative URLs from local storage — proxy through Next.js rewrite
-  if (url.startsWith("http")) return url;
-  // Relative path (e.g. /brands/xxx.webp) — served via the Next.js rewrite
-  return url;
+  return getProxyImageUrl(url);
 }
 
 export function getDefaultVariant(product: Product): ProductVariant | undefined {

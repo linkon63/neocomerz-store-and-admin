@@ -279,13 +279,17 @@ export default function BrandsPage() {
 
       <ConfirmModal
         isOpen={!!brandToDelete}
-        onClose={() => setBrandToDelete(null)}
+        onClose={() => {
+          setBrandToDelete(null);
+          setError("");
+        }}
         onConfirm={confirmDelete}
         title="Delete Brand"
         message={`Delete "${brandToDelete?.name}"? This cannot be undone.`}
         confirmText="Yes"
         cancelText="No"
         isDestructive
+        error={error}
       />
     </>
   );

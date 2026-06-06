@@ -719,6 +719,7 @@ export default function ProductsPage() {
   function cancelDelete() {
     setDeleteModalOpen(false);
     setProductToDelete(null);
+    setError("");
   }
 
   async function duplicateProduct(product: Product) {
@@ -2140,6 +2141,7 @@ export default function ProductsPage() {
         onClose={cancelDelete}
         onConfirm={confirmDelete}
         title="Delete Product"
+        error={error}
       />
     </>
   );

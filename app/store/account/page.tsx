@@ -21,10 +21,11 @@ export default function AccountPage() {
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
   const [addressForm, setAddressForm] = useState({
     fullName: "", phone: "", addressLine1: "", addressLine2: "",
-    city: "", state: "", postalCode: "", country: "US",
+    city: "", state: "", postalCode: "", country: "BD",
   });
   const [savingAddress, setSavingAddress] = useState(false);
   const [deletingAddress, setDeletingAddress] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const isLoggedIn = typeof window !== "undefined" && !!getStoreToken();
 
@@ -54,7 +55,7 @@ export default function AccountPage() {
 
   function resetForm() {
     setEditingAddress(null);
-    setAddressForm({ fullName: "", phone: "", addressLine1: "", addressLine2: "", city: "", state: "", postalCode: "", country: "US" });
+    setAddressForm({ fullName: "", phone: "", addressLine1: "", addressLine2: "", city: "", state: "", postalCode: "", country: "BD" });
     setShowAddressForm(false);
   }
 
@@ -75,11 +76,16 @@ export default function AccountPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Delete this address?")) return;
-    setDeletingAddress(id);
+    setConfirmDeleteId(id);
+  }
+
+  async function confirmDelete() {
+    if (!confirmDeleteId) return;
+    setDeletingAddress(confirmDeleteId);
+    setConfirmDeleteId(null);
     try {
-      await addressApi.delete(id);
-      setAddresses((prev) => prev.filter((a) => a.id !== id));
+      await addressApi.delete(confirmDeleteId);
+      setAddresses((prev) => prev.filter((a) => a.id !== confirmDeleteId));
     } catch { /* ignore */ }
     finally { setDeletingAddress(null); }
   }
@@ -108,7 +114,7 @@ export default function AccountPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-[1800px] w-full px-6 py-10 sm:px-12 lg:px-16 min-h-[calc(100vh-280px)] font-sans">
+    <div className="w-full px-6 py-10 sm:px-12 lg:px-16 min-h-[calc(100vh-280px)] font-sans">
       <div className="mb-8 flex flex-col gap-1 border-b pb-5 border-stone-200">
         <h1 className="text-2xl font-bold font-serif uppercase text-stone-850">
           আমার অ্যাকাউন্ট
@@ -122,9 +128,9 @@ export default function AccountPage() {
         
         {/* Navigation Sidebar */}
         <div className="space-y-4">
-          <div className="rounded-3xl bg-white p-5 shadow-xs border border-stone-200/60">
+          <div className="bg-white p-5 shadow-xs border border-stone-200">
             <div className="flex items-center gap-3 mb-5 pb-4 border-b border-stone-100">
-              <div className="w-10 h-10 rounded-xl text-white flex items-center justify-center font-bold text-sm bg-[#2E7D32] shadow-xs shadow-[#2E7D32]/25">
+              <div className="w-10 h-10 text-white flex items-center justify-center font-bold text-sm bg-[#15803d] shadow-xs">
                 {user?.name?.[0]?.toUpperCase() ?? "?"}
               </div>
               <div className="min-w-0">
@@ -147,14 +153,13 @@ export default function AccountPage() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex items-center gap-3 rounded-xl px-4 py-3 font-semibold transition-all border duration-200"
+                  className="flex items-center gap-3 px-4 py-3 font-semibold transition-all border duration-200"
                   style={
                     item.active
                       ? {
-                          backgroundColor: "#2E7D32",
+                          backgroundColor: "#15803d",
                           color: "#ffffff",
-                          borderColor: "#2E7D32",
-                          boxShadow: "0 4px 10px -2px rgba(46, 125, 50, 0.2)"
+                          borderColor: "#15803d",
                         }
                       : {
                           color: "var(--store-text-muted)",
@@ -169,7 +174,7 @@ export default function AccountPage() {
 
               <button
                 onClick={handleLogout}
-                className="flex w-full items-center gap-3 rounded-xl px-4 py-3 font-semibold text-rose-600 hover:bg-rose-50 transition border border-transparent cursor-pointer"
+                className="flex w-full items-center gap-3 px-4 py-3 font-semibold text-rose-600 hover:bg-rose-50 transition border border-transparent cursor-pointer"
               >
                 <span className="text-xs">🚪</span>
                 <span>লগআউট (Logout)</span>
@@ -182,10 +187,10 @@ export default function AccountPage() {
         <div className="space-y-6">
           
           {/* Profile Card */}
-          <div className="rounded-3xl bg-white p-6 shadow-xs border border-stone-200/60">
+          <div className="bg-white p-6 shadow-xs border border-stone-200">
             <div className="flex items-center gap-3 mb-6 pb-4 border-b border-stone-100">
-              <span className="text-[#2E7D32]">👤</span>
-              <h2 className="text-xs font-bold uppercase tracking-widest text-[#2E7D32] font-display">
+              <span className="text-[#15803d]">👤</span>
+              <h2 className="text-xs font-bold uppercase tracking-widest text-[#15803d] font-display">
                 ব্যক্তিগত তথ্য (Personal Info)
               </h2>
             </div>
@@ -195,7 +200,7 @@ export default function AccountPage() {
                 <p className="text-[9px] font-extrabold uppercase tracking-widest text-stone-500 mb-1.5 font-display">
                   নাম
                 </p>
-                <p className="font-bold text-xs px-4 py-3 rounded-xl border border-stone-200 text-stone-800 bg-stone-50/50">
+                <p className="font-bold text-xs px-4 py-3 border border-stone-200 text-stone-800 bg-stone-50/50">
                   {user?.name ?? "—"}
                 </p>
               </div>
@@ -203,7 +208,7 @@ export default function AccountPage() {
                 <p className="text-[9px] font-extrabold uppercase tracking-widest text-stone-500 mb-1.5 font-display">
                   ইমেইল
                 </p>
-                <p className="font-bold text-xs px-4 py-3 rounded-xl border border-stone-200 text-stone-800 bg-stone-50/50">
+                <p className="font-bold text-xs px-4 py-3 border border-stone-200 text-stone-800 bg-stone-50/50">
                   {user?.email ?? "—"}
                 </p>
               </div>
@@ -212,7 +217,7 @@ export default function AccountPage() {
                   <p className="text-[9px] font-extrabold uppercase tracking-widest text-stone-500 mb-1.5 font-display">
                     ফোন
                   </p>
-                  <p className="font-bold text-xs px-4 py-3 rounded-xl border border-stone-200 text-stone-800 bg-stone-50/50">
+                  <p className="font-bold text-xs px-4 py-3 border border-stone-200 text-stone-800 bg-stone-50/50">
                     {user.phone}
                   </p>
                 </div>
@@ -221,17 +226,17 @@ export default function AccountPage() {
           </div>
 
           {/* Addresses Card */}
-          <div className="rounded-3xl bg-white p-6 sm:p-8 shadow-xs border border-stone-200/60">
+          <div className="bg-white p-6 sm:p-8 shadow-xs border border-stone-200">
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-stone-100">
               <div className="flex items-center gap-3">
-                <span className="text-[#2E7D32]">📍</span>
-                <h2 className="text-xs font-bold uppercase tracking-widest text-[#2E7D32] font-display">
+                <span className="text-[#15803d]">📍</span>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-[#15803d] font-display">
                   ঠিকানা তালিকা (Addresses)
                 </h2>
               </div>
               <button
                 onClick={() => { resetForm(); setShowAddressForm((o) => !o); }}
-                className="text-xs font-bold uppercase tracking-wider text-[#2E7D32] hover:text-[#1B5E20] hover:underline cursor-pointer transition"
+                className="text-xs font-bold uppercase tracking-wider text-[#15803d] hover:text-[#166534] hover:underline cursor-pointer transition"
               >
                 {showAddressForm && !editingAddress ? "বাতিল" : "+ নতুন ঠিকানা যোগ করুন"}
               </button>
@@ -241,7 +246,7 @@ export default function AccountPage() {
             {showAddressForm && (
               <form
                 onSubmit={handleSaveAddress}
-                className="mb-6 rounded-2xl border p-6 space-y-4 border-stone-200 bg-[#FFF8E7]/35 shadow-xs"
+                className="mb-6 border p-6 space-y-4 border-stone-200 bg-stone-50 shadow-xs"
               >
                 <p className="text-xs font-black uppercase tracking-widest border-b pb-2 border-stone-200 text-stone-800 font-display">
                   {editingAddress ? "ঠিকানা পরিবর্তন করুন" : "নতুন ঠিকানা যোগ করুন"}
@@ -259,7 +264,7 @@ export default function AccountPage() {
                         value={addressForm[key as keyof typeof addressForm]}
                         onChange={(e) => setAddressForm((f) => ({ ...f, [key]: e.target.value }))}
                         placeholder={placeholder}
-                        className="w-full rounded-xl border bg-white px-4 py-2.5 text-xs font-semibold outline-none transition-all border-stone-250 text-stone-850 focus:border-[#2E7D32] focus:ring-1 focus:ring-[#2E7D32]"
+                        className="w-full border bg-white px-4 py-2.5 text-xs font-semibold outline-none transition-all border-stone-250 text-stone-850 focus:border-[#15803d] focus:ring-1 focus:ring-[#15803d]"
                       />
                     </div>
                   ))}
@@ -269,14 +274,14 @@ export default function AccountPage() {
                   <button
                     type="submit"
                     disabled={savingAddress}
-                    className="rounded-xl px-6 py-3 text-xs font-bold uppercase tracking-widest text-white transition-all disabled:opacity-50 btn-premium cursor-pointer"
+                    className="px-6 py-3 text-xs font-bold uppercase tracking-widest text-white transition-all disabled:opacity-50 btn-premium cursor-pointer"
                   >
                     {savingAddress ? "সেভ হচ্ছে..." : editingAddress ? "আপডেট করুন" : "সেভ করুন"}
                   </button>
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="rounded-xl border bg-white px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors border-stone-250 text-stone-500 hover:border-stone-400 hover:bg-stone-50 cursor-pointer"
+                    className="border bg-white px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors border-stone-250 text-stone-500 hover:border-stone-400 hover:bg-stone-50 cursor-pointer"
                   >
                     বাতিল
                   </button>
@@ -288,11 +293,11 @@ export default function AccountPage() {
             {loadingAddresses ? (
               <div className="space-y-4 animate-pulse">
                 {[1, 2].map((i) => (
-                  <div key={i} className="h-24 bg-stone-100 rounded-2xl border border-stone-200" />
+                  <div key={i} className="h-24 bg-stone-100 border border-stone-200" />
                 ))}
               </div>
             ) : addresses.length === 0 ? (
-              <div className="text-center py-10 rounded-2xl border border-dashed border-stone-300 bg-stone-50/20">
+              <div className="text-center py-10 border border-dashed border-stone-300 bg-stone-50/20">
                 <p className="text-xs font-bold text-stone-500">
                   এখনো কোনো ঠিকানা যোগ করা হয়নি। উপরে থেকে নতুন ঠিকানা যোগ করুন।
                 </p>
@@ -302,17 +307,17 @@ export default function AccountPage() {
                 {addresses.map((addr) => (
                   <div
                     key={addr.id}
-                    className="rounded-2xl border p-5 flex flex-col justify-between transition-all duration-300 shadow-xs hover:shadow-sm"
+                    className="border p-5 flex flex-col justify-between transition-all duration-300 shadow-xs hover:shadow-sm"
                     style={{
-                      borderColor: addr.isDefault ? "#2E7D32" : "var(--store-border)",
-                      backgroundColor: addr.isDefault ? "#E8F5E9" : "#fff",
+                      borderColor: addr.isDefault ? "#15803d" : "var(--store-border)",
+                      backgroundColor: addr.isDefault ? "#f0fdf4" : "#fff",
                     }}
                   >
-                    <div className="text-xs text-stone-850">
+                    <div className="text-xs text-stone-855">
                       <div className="flex items-center justify-between mb-2.5 pb-2.5 border-b border-stone-200/60">
-                        <p className="font-bold tracking-wide text-stone-850">{addr.fullName}</p>
+                        <p className="font-bold tracking-wide text-stone-855">{addr.fullName}</p>
                         {addr.isDefault && (
-                          <span className="px-2.5 py-0.5 text-[8px] font-extrabold uppercase tracking-widest text-white bg-[#2E7D32] rounded-md shadow-xs">
+                          <span className="px-2.5 py-0.5 text-[8px] font-extrabold uppercase tracking-widest text-white bg-[#15803d] shadow-xs">
                             ডিফল্ট (Default)
                           </span>
                         )}
@@ -321,7 +326,7 @@ export default function AccountPage() {
                         <p>{addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ""}</p>
                         <p>{addr.city}, {addr.state} {addr.postalCode}</p>
                         <p className="uppercase tracking-widest text-[9px] text-stone-400 font-extrabold">{addr.country}</p>
-                        <p className="font-bold mt-1.5 text-[#2E7D32]">{addr.phone}</p>
+                        <p className="font-bold mt-1.5 text-[#15803d]">{addr.phone}</p>
                       </div>
                     </div>
                     
@@ -329,14 +334,14 @@ export default function AccountPage() {
                       {!addr.isDefault && (
                         <button
                           onClick={() => handleSetDefault(addr.id)}
-                          className="transition cursor-pointer hover:text-[#2E7D32]"
+                          className="transition cursor-pointer hover:text-[#15803d]"
                         >
                           ডিফল্ট করুন
                         </button>
                       )}
                       <button
                         onClick={() => startEdit(addr)}
-                        className="transition cursor-pointer hover:text-[#2E7D32] text-[#2E7D32]"
+                        className="transition cursor-pointer hover:text-[#15803d] text-[#15803d]"
                       >
                         এডিট
                       </button>
@@ -345,7 +350,7 @@ export default function AccountPage() {
                         disabled={deletingAddress === addr.id}
                         className="transition text-rose-600 cursor-pointer disabled:opacity-50 hover:text-rose-800"
                       >
-                        ডিলিট
+                        {deletingAddress === addr.id ? "মুছছে..." : "ডিলিট"}
                       </button>
                     </div>
                   </div>
@@ -355,6 +360,33 @@ export default function AccountPage() {
           </div>
         </div>
       </div>
+
+      {/* Inline delete confirmation */}
+      {confirmDeleteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setConfirmDeleteId(null)} />
+          <div className="relative bg-white border border-stone-200 p-6 shadow-lg max-w-sm w-full" style={{ borderRadius: "6px" }}>
+            <h3 className="font-bold text-sm text-stone-900 mb-2">ঠিকানা মুছবেন?</h3>
+            <p className="text-xs text-stone-500 font-semibold mb-5">এই ঠিকানাটি স্থায়ীভাবে মুছে ফেলা হবে।</p>
+            <div className="flex gap-3">
+              <button
+                onClick={confirmDelete}
+                className="flex-1 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wide py-2.5 cursor-pointer transition"
+                style={{ borderRadius: "4px" }}
+              >
+                হ্যাঁ, মুছুন
+              </button>
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                className="flex-1 border border-stone-200 hover:border-stone-400 text-stone-600 text-xs font-bold uppercase tracking-wide py-2.5 cursor-pointer transition"
+                style={{ borderRadius: "4px" }}
+              >
+                বাতিল
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

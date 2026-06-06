@@ -10,7 +10,7 @@ export default function SearchPage() {
     <Suspense
       fallback={
         <div className="mx-auto max-w-[1800px] w-full px-6 py-12 sm:px-12 lg:px-16 animate-pulse">
-          <div className="h-6 w-40 rounded-lg bg-stone-200" />
+          <div className="h-6 w-40 bg-stone-200" />
         </div>
       }
     >
@@ -86,7 +86,7 @@ function SearchContent() {
               onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
               placeholder="আমের নাম বা ধরণ লিখুন (যেমন: ল্যাংড়া, ফজলি, আম্রপালি)..."
-              className="w-full rounded-xl border border-stone-250 bg-white px-4 py-3 text-xs font-semibold outline-none transition-all pr-12 focus:border-[#2E7D32] focus:ring-2 focus:ring-[#2E7D32]/10 text-stone-800 placeholder-stone-400"
+              className="w-full border border-stone-250 bg-white px-4 py-3 text-xs font-semibold outline-none transition-all pr-12 focus:border-[#15803d] focus:ring-2 focus:ring-[#15803d]/10 text-stone-800 placeholder-stone-400"
               autoFocus
             />
             {query && (
@@ -102,13 +102,13 @@ function SearchContent() {
             {/* Suggestions dropdown */}
             {showSuggestions && suggestions.length > 0 && (
               <div
-                className="absolute top-full left-0 right-0 mt-2 rounded-2xl border border-stone-200 bg-white shadow-lg py-2.5 z-50 animate-scale-in"
+                className="absolute top-full left-0 right-0 mt-2 border border-stone-200 bg-white shadow-lg py-2.5 z-50 animate-scale-in"
               >
                 {suggestions.map((s) => (
                   <button
                     key={s}
                     onMouseDown={() => handleSearch(s)}
-                    className="block w-full text-left px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-[#FFF8E7] hover:text-[#2E7D32] transition-colors cursor-pointer"
+                    className="block w-full text-left px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-slate-50 hover:text-[#15803d] transition-colors cursor-pointer"
                   >
                     <span>{s}</span>
                   </button>
@@ -118,7 +118,7 @@ function SearchContent() {
           </div>
           <button
             onClick={() => handleSearch()}
-            className="rounded-xl px-7 py-3 text-xs font-bold uppercase tracking-widest text-white transition-all bg-[#2E7D32] hover:bg-[#1B5E20] shadow-xs cursor-pointer btn-premium"
+            className="px-7 py-3 text-xs font-bold uppercase tracking-widest text-white transition-all bg-[#15803d] hover:bg-[#166534] shadow-xs cursor-pointer btn-premium"
           >
             খুঁজুন (Search)
           </button>
@@ -128,7 +128,7 @@ function SearchContent() {
       {/* Results */}
       {q && (
         <div>
-          <p className="text-xs font-black uppercase tracking-wider text-[#2E7D32] mb-6 font-display">
+          <p className="text-xs font-black uppercase tracking-wider text-[#15803d] mb-6 font-display">
             {loading
               ? "খোঁজা হচ্ছে..."
               : `"${q}" এর জন্য ${total} টি ফলাফল পাওয়া গেছে`}
@@ -137,17 +137,17 @@ function SearchContent() {
           {loading ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="rounded-2xl bg-white border border-stone-200 animate-pulse">
-                  <div className="aspect-[4/3] bg-stone-100 rounded-t-2xl border-b border-stone-200" />
+                <div key={i} className="bg-white border border-stone-200 animate-pulse">
+                  <div className="aspect-[4/3] bg-stone-100 border-b border-stone-200" />
                   <div className="p-5 space-y-3">
-                    <div className="h-4 bg-stone-100 rounded-lg w-3/4" />
-                    <div className="h-3.5 bg-stone-100 rounded-lg w-1/2" />
+                    <div className="h-4 bg-stone-100 w-3/4" />
+                    <div className="h-3.5 bg-stone-100 w-1/2" />
                   </div>
                 </div>
               ))}
             </div>
           ) : products.length === 0 ? (
-            <div className="rounded-3xl bg-white border border-stone-200/60 p-16 text-center shadow-xs">
+            <div className="bg-white border border-stone-200/60 p-16 text-center shadow-xs">
               <p className="text-3xl mb-4">🔍</p>
               <p className="text-sm font-bold uppercase tracking-wider text-stone-850">
                 কোনো আম পাওয়া যায়নি
@@ -167,7 +167,7 @@ function SearchContent() {
       )}
 
       {!q && (
-        <div className="rounded-3xl bg-white border border-stone-200/60 p-16 text-center shadow-xs">
+        <div className="bg-white border border-stone-200/60 p-16 text-center shadow-xs">
           <p className="text-3xl mb-4">✨</p>
           <p className="text-sm font-bold uppercase tracking-wider text-stone-850">
             আপনার পছন্দের আম খুঁজুন

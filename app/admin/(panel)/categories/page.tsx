@@ -251,6 +251,7 @@ export default function CategoriesPage() {
   function cancelDelete() {
     setDeleteModalOpen(false);
     setCategoryToDelete(null);
+    setError("");
   }
 
   return (
@@ -345,7 +346,7 @@ export default function CategoriesPage() {
                     >
                       <td className="px-5 py-4 text-sm text-slate-800">
                         <span
-                          style={{ paddingLeft: `${category.depth * 18}px` }}
+                           style={{ paddingLeft: `${category.depth * 18}px` }}
                         >
                           {category.depth > 0 ? "↳ " : ""}
                           {category.name}
@@ -674,6 +675,7 @@ export default function CategoriesPage() {
         confirmText="Delete"
         cancelText="Cancel"
         isDestructive={true}
+        error={error}
       />
     </>
   );

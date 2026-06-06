@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { AdminIcon } from "../../_components/admin-shell";
 import { apiRequest } from "../../../../lib/admin-api";
+import { PremiumSalesChart } from "../../_components/premium-chart";
 
 type ReportType = "sales" | "inventory" | "purchase" | "discount" | "ai-conversation";
 
@@ -128,6 +129,8 @@ function SalesReport() {
         <MetricCard label="Average Order Value" value={masked ? "৳***" : formatCurrency(avgOrder)} />
         <MetricCard label="Refunds" value={formatCurrency(0)} sub="No refunds recorded" />
       </div>
+
+      <PremiumSalesChart sales={sales} preset={null} />
 
       <div className="rounded-xl border border-slate-200 bg-white">
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">

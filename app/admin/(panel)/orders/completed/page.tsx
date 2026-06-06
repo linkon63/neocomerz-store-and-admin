@@ -131,8 +131,15 @@ export default function CompletedOrdersPage() {
               variant="neutral"
               size="md"
               icon={<AdminIcon className="h-5 w-5" name="download" />}
+              onClick={() => {
+                const rows = orders.map(o => [o.orderNumber, o.user?.name ?? "", o.user?.phone ?? "", o.status, o.paymentStatus, o.payments?.[0]?.method ?? "COD", Number(o.total).toFixed(2), new Date(o.placedAt).toLocaleDateString()]);
+                const header = ["Order #","Customer","Phone","Status","Payment Status","Method","Total (BDT)","Date"];
+                const csv = [header,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+                const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([csv],{type:"text/csv"})), download: `completed-orders-${new Date().toISOString().slice(0,10)}.csv` });
+                a.click();
+              }}
             >
-              Export List
+              Export CSV
             </Button>
           </div>
         }
@@ -317,8 +324,12 @@ export default function CompletedOrdersPage() {
                         Make Payment
                       </Button>
                     )}
-                    <button className="h-10 w-10 border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-md">
-                      <AdminIcon name="actions" />
+                    <button
+                      onClick={loadOrders}
+                      title="Refresh"
+                      className="h-10 w-10 border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-md transition-colors"
+                    >
+                      <AdminIcon name="refresh" />
                     </button>
                   </div>
                 </div>
@@ -338,9 +349,6 @@ export default function CompletedOrdersPage() {
                         <div className="mt-6">
                           <div className="flex items-center gap-2 mb-2">
                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Shipping & Billing Address</p>
-                             <button className="text-blue-500">
-                               <AdminIcon className="h-3.5 w-3.5" name="edit" />
-                             </button>
                           </div>
                           <p className="text-[14px] font-bold text-slate-700">
                             {selected.address?.addressLine1}, {selected.address?.city}, {selected.address?.state}, {selected.address?.postalCode}

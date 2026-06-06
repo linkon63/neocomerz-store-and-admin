@@ -32,9 +32,9 @@ export default function StoreRegisterPage() {
   return (
     <div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12 font-sans bg-stone-50/50">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-3xl overflow-hidden shadow-md border border-stone-200/60">
+        <div className="bg-white overflow-hidden shadow-md border border-stone-200/60">
           {/* Top accent */}
-          <div className="h-1.5 w-full bg-linear-to-r from-[#2E7D32] to-[#FFC72C]" />
+          <div className="h-1.5 w-full bg-linear-to-r from-[#15803d] to-emerald-600" />
 
           <div className="p-8">
             {/* Logo */}
@@ -56,7 +56,7 @@ export default function StoreRegisterPage() {
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                   placeholder="আপনার নাম লিখুন"
-                  className="w-full rounded-xl px-4 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#2E7D32] text-stone-800 placeholder-stone-400 font-semibold transition"
+                  className="w-full px-4 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#15803d] text-stone-800 placeholder-stone-400 font-semibold transition"
                 />
               </div>
 
@@ -69,7 +69,7 @@ export default function StoreRegisterPage() {
                   value={form.email}
                   onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                   placeholder="you@example.com"
-                  className="w-full rounded-xl px-4 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#2E7D32] text-stone-800 placeholder-stone-400 font-semibold transition"
+                  className="w-full px-4 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#15803d] text-stone-800 placeholder-stone-400 font-semibold transition"
                 />
               </div>
 
@@ -82,7 +82,7 @@ export default function StoreRegisterPage() {
                   value={form.password}
                   onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                   placeholder="কমপক্ষে ৬ অক্ষর"
-                  className="w-full rounded-xl px-4 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#2E7D32] text-stone-800 placeholder-stone-400 font-semibold transition"
+                  className="w-full px-4 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#15803d] text-stone-800 placeholder-stone-400 font-semibold transition"
                 />
               </div>
 
@@ -95,13 +95,13 @@ export default function StoreRegisterPage() {
                   value={form.confirm}
                   onChange={(e) => setForm((f) => ({ ...f, confirm: e.target.value }))}
                   placeholder="পাসওয়ার্ড আবার লিখুন"
-                  className="w-full rounded-xl px-4 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#2E7D32] text-stone-800 placeholder-stone-400 font-semibold transition"
+                  className="w-full px-4 py-3 text-[14px] outline-none border border-stone-200 bg-stone-50 focus:border-[#15803d] text-stone-800 placeholder-stone-400 font-semibold transition"
                 />
               </div>
 
               {/* Error */}
               {error && (
-                <div className="flex items-center gap-2.5 rounded-xl px-4 py-3 text-[13px] font-bold bg-red-50 border border-red-100 text-red-650">
+                <div className="flex items-center gap-2.5 px-4 py-3 text-[13px] font-bold bg-red-50 border border-red-100 text-red-650">
                   <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -113,7 +113,7 @@ export default function StoreRegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-xl py-3.5 text-[15px] font-bold text-white transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-1 flex items-center justify-center gap-2 btn-premium cursor-pointer"
+                className="w-full py-3.5 text-[15px] font-bold text-white transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-1 flex items-center justify-center gap-2 btn-premium cursor-pointer"
               >
                 {loading ? (
                   <>
@@ -135,7 +135,7 @@ export default function StoreRegisterPage() {
 
             <p className="text-center text-[14px] text-stone-550 font-medium">
               ইতিমধ্যে অ্যাকাউন্ট আছে?{" "}
-              <Link href="/store/login" className="font-bold text-[#2E7D32] hover:text-[#1B5E20] hover:underline">
+              <Link href="/store/login" className="font-bold text-[#15803d] hover:text-[#166534] hover:underline">
                 লগইন করুন
               </Link>
             </p>

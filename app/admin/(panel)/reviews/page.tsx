@@ -434,12 +434,17 @@ export default function ReviewsPage() {
 
       <ConfirmModal
         isOpen={deleteModalOpen}
-        onClose={() => { setDeleteModalOpen(false); setReviewToDelete(null); }}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setReviewToDelete(null);
+          setActionError("");
+        }}
         onConfirm={handleDelete}
         title="Delete Review"
         message="Are you sure you want to delete this review? This action cannot be undone."
         confirmText={isActioning ? "Deleting…" : "Delete Review"}
         isDestructive
+        error={actionError}
       />
     </>
   );

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 /* ============================================================
@@ -6,53 +6,73 @@
    ============================================================ */
 :root {
   /* Base */
-  --store-bg: #FAFAFA;
+  --store-bg: #ffffff; /* Pure white background */
   --store-white: #ffffff;
-  --store-text: #1A1A1A;
-  --store-text-muted: #666666;
-  --store-text-light: #888888;
+  --store-text: #1e293b; /* Slate dark text */
+  --store-text-muted: #475569;
+  --store-text-light: #64748b;
 
-  /* Brand — Fresh Green (Primary) */
-  --store-primary: #2E7D32;
-  --store-primary-hover: #1B5E20;
-  --store-primary-light: #E8F5E9;
-  --store-primary-mid: #C8E6C9;
+  /* Brand — Fresh Lime Green (Primary) */
+  --store-primary: #16a34a;
+  --store-primary-hover: #15803d;
+  --store-primary-light: #f0fdf4; /* Soft green hero background */
+  --store-primary-mid: #bbf7d0;
 
   /* Secondary — Dark Charcoal */
-  --store-secondary: #1A1A1A;
-  --store-secondary-hover: #2d2d2d;
+  --store-secondary: #0f172a;
+  --store-secondary-hover: #1e293b;
 
-  /* Accent — Mango Yellow */
-  --store-accent: #FFC72C;
-  --store-accent-light: #FFF8E7;
-  --store-accent-hover: #F5A623;
+  /* Accent — Mango Orange */
+  --store-accent: #ff9f00;
+  --store-accent-light: #fffbeb;
+  --store-accent-hover: #e08b00;
 
   /* Mango-specific tokens */
-  --mango-gold: #F5A623;
-  --mango-cream: #FFF8E7;
-  --mango-orange: #E8820C;
-  --mango-green-dark: #1B5E20;
-  --mango-green-light: #4CAF50;
+  --mango-gold: #ff9f00;
+  --mango-cream: #fffbeb;
+  --mango-orange: #e08b00;
+  --mango-green-dark: #15803d;
+  --mango-green-light: #22c55e;
 
   /* Success / Error */
-  --store-success: #2E7D32;
-  --store-error: #D32F2F;
+  --store-success: #16a34a;
+  --store-error: #ef4444;
 
   /* Borders & Surfaces */
-  --store-border: #E8E0D4;
-  --store-border-dark: #C9BFB0;
+  --store-border: #e2e8f0;
+  --store-border-dark: #cbd5e1;
   --store-surface: #ffffff;
-  --store-surface-2: #FAFAF7;
-  --store-surface-3: #F5F0EB;
+  --store-surface-2: #f8fafc;
+  --store-surface-3: #f1f5f9;
 
-  /* Hero gradient colors — Deep agricultural green */
-  --hero-from: #0a1f0a;
-  --hero-via: #1a3a1a;
-  --hero-to: #0f2d0f;
+  /* Hero gradient colors — Rich lime green sunset */
+  --hero-from: #16a34a;
+  --hero-via: #15803d;
+  --hero-to: #14532d;
 
   /* Premium card glow */
-  --glow-green: rgba(46, 125, 50, 0.12);
-  --glow-gold: rgba(245, 166, 35, 0.10);
+  --glow-green: rgba(22, 163, 74, 0.04);
+  --glow-gold: rgba(255, 159, 0, 0.04);
+
+  /* Default Font sizes (primarily for admin panel or global defaults) */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 2rem;
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 2.25rem;
+  --text-4xl: 2.25rem;
+  --text-4xl--line-height: 2.5rem;
+  --text-5xl: 3rem;
+  --text-5xl--line-height: 1;
 }
 
 @theme {
@@ -71,20 +91,42 @@
   --color-mango-cream: var(--mango-cream);
   --color-mango-gold: var(--mango-gold);
 
-  --font-sans: "Plus Jakarta Sans", "Hind Siliguri", -apple-system, sans-serif;
-  --font-serif: "Manrope", "Hind Siliguri", -apple-system, sans-serif;
-  --font-display: "Manrope", "Plus Jakarta Sans", "Hind Siliguri", sans-serif;
+  /* Bengali-first font stacks — Noto Sans Bengali renders Bangla script beautifully */
+  --font-sans: "Plus Jakarta Sans", "Noto Sans Bengali", "Hind Siliguri", -apple-system, sans-serif;
+  --font-serif: "Manrope", "Noto Sans Bengali", "Hind Siliguri", -apple-system, sans-serif;
+  --font-display: "Manrope", "Plus Jakarta Sans", "Noto Sans Bengali", "Hind Siliguri", sans-serif;
+  --font-bangla: "Noto Sans Bengali", "Hind Siliguri", sans-serif;
 
-  /* Modern rounded corners */
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-2xl: 20px;
-  --radius-3xl: 24px;
-  --radius-4xl: 32px;
+  /* Rounded corners — 4px base */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 20px;
+  --radius-4xl: 28px;
   --radius-full: 9999px;
+
+  /* Font size definitions mapped to CSS variables */
+  --text-xs: var(--text-xs);
+  --text-xs--line-height: var(--text-xs--line-height);
+  --text-sm: var(--text-sm);
+  --text-sm--line-height: var(--text-sm--line-height);
+  --text-base: var(--text-base);
+  --text-base--line-height: var(--text-base--line-height);
+  --text-lg: var(--text-lg);
+  --text-lg--line-height: var(--text-lg--line-height);
+  --text-xl: var(--text-xl);
+  --text-xl--line-height: var(--text-xl--line-height);
+  --text-2xl: var(--text-2xl);
+  --text-2xl--line-height: var(--text-2xl--line-height);
+  --text-3xl: var(--text-3xl);
+  --text-3xl--line-height: var(--text-3xl--line-height);
+  --text-4xl: var(--text-4xl);
+  --text-4xl--line-height: var(--text-4xl--line-height);
+  --text-5xl: var(--text-5xl);
+  --text-5xl--line-height: var(--text-5xl--line-height);
 }
 
 * {
@@ -101,11 +143,34 @@ body {
   margin: 0;
   background-color: var(--store-bg);
   color: var(--store-text);
-  font-family: var(--font-sans);
+  font-family: "Plus Jakarta Sans", "Noto Sans Bengali", "Hind Siliguri", -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  line-height: 1.7;
+  line-height: 1.8;
+  font-size: 15.5px;
+}
+
+/* ── Bengali language-specific font rendering ──
+   When characters are Bangla (U+0980–U+09FF), the browser uses
+   the first font in the stack that covers those code points.
+   Noto Sans Bengali is the most legible modern Bengali font. */
+:lang(bn), [lang="bn"] {
+  font-family: "Noto Sans Bengali", "Hind Siliguri", sans-serif;
+  line-height: 1.9;
+}
+
+/* Global: remove browser pink/blue focus rings from buttons and interactive elements.
+   We replace with our own subtle focus state. */
+button:focus { outline: none; }
+button:focus-visible {
+  outline: 2px solid var(--store-primary);
+  outline-offset: 2px;
+}
+a:focus { outline: none; }
+a:focus-visible {
+  outline: 2px solid var(--store-primary);
+  outline-offset: 2px;
 }
 
 /* ── Store-specific utility classes ── */
@@ -124,23 +189,86 @@ body {
 
 /* Mango gradient text */
 .mango-gradient-text {
-  background: linear-gradient(135deg, #FFC72C 0%, #F5A623 50%, #E8820C 100%);
+  background: linear-gradient(135deg, #eab308 0%, #ca8a04 50%, #d97706 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SECTION BADGE — replaces the [ text ] bracket style
+   Clean pill badge with a left-border accent
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-family: "Noto Sans Bengali", "Hind Siliguri", "Plus Jakarta Sans", sans-serif;
+  font-size: 0.7rem;           /* 11.2px */
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--store-primary);
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-left: 3px solid var(--store-primary);
+  padding: 0.25rem 0.625rem 0.25rem 0.5rem;
+  border-radius: 3px;
+  line-height: 1.4;
+}
+
+.section-badge::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--store-primary);
+  flex-shrink: 0;
+}
+
+/* Muted/secondary variant */
+.section-badge-muted {
+  color: #64748b;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #94a3b8;
+}
+.section-badge-muted::before {
+  background-color: #94a3b8;
+}
+
+/* Gold/accent variant */
+.section-badge-gold {
+  color: #92400e;
+  background-color: #fffbeb;
+  border: 1px solid #fde68a;
+  border-left: 3px solid var(--store-accent);
+}
+.section-badge-gold::before {
+  background-color: var(--store-accent);
+}
+
+/* Filter accordion label style — inline inside button, no box */
+.filter-group-label {
+  font-family: "Noto Sans Bengali", "Hind Siliguri", "Plus Jakarta Sans", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #374151;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
 /* ── Buttons ── */
 
-/* Primary Green Button */
+/* Primary Yellow/Gold Button */
 .btn-premium {
-  background: linear-gradient(135deg, var(--store-primary) 0%, #1B5E20 100%);
-  color: #ffffff;
+  background: var(--store-primary);
+  color: #ffffff !important;
   font-weight: 700;
-  border-radius: var(--radius-xl);
+  border-radius: 4px;
   padding: 0.75rem 1.5rem;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px -2px rgba(46, 125, 50, 0.3), 0 2px 4px -1px rgba(46, 125, 50, 0.12);
+  transition: all 0.2s ease;
   border: none;
   display: inline-flex;
   align-items: center;
@@ -149,20 +277,17 @@ body {
   letter-spacing: 0.02em;
 }
 .btn-premium:hover {
-  background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 20px -6px rgba(46, 125, 50, 0.35), 0 4px 8px -2px rgba(46, 125, 50, 0.15);
+  background: var(--store-primary-hover);
 }
 
-/* Mango Gold Button */
+/* Mango Accent Green Button */
 .btn-mango {
-  background: linear-gradient(135deg, #FFC72C 0%, #F5A623 100%);
-  color: #1A1A1A;
+  background: var(--store-accent);
+  color: #0f172a !important;
   font-weight: 700;
-  border-radius: var(--radius-xl);
+  border-radius: 4px;
   padding: 0.75rem 1.5rem;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px -2px rgba(255, 199, 44, 0.35), 0 2px 4px -1px rgba(255, 199, 44, 0.15);
+  transition: all 0.2s ease;
   border: none;
   display: inline-flex;
   align-items: center;
@@ -171,20 +296,18 @@ body {
   letter-spacing: 0.02em;
 }
 .btn-mango:hover {
-  background: linear-gradient(135deg, #F5A623 0%, #FFC72C 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 20px -6px rgba(255, 199, 44, 0.4), 0 4px 8px -2px rgba(255, 199, 44, 0.2);
+  background: var(--store-accent-hover);
 }
 
 /* Outline Button */
 .btn-outline {
   background-color: transparent;
-  border: 1.5px solid var(--store-border);
+  border: 1px solid var(--store-border);
   color: var(--store-text);
   font-weight: 600;
-  border-radius: var(--radius-xl);
+  border-radius: 4px;
   padding: 0.75rem 1.5rem;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -202,78 +325,68 @@ body {
 .store-card {
   background: var(--store-white);
   border: 1px solid var(--store-border);
-  border-radius: var(--radius-2xl);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  border-radius: 4px;
+  transition: all 0.2s ease;
   overflow: hidden;
 }
 .store-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 16px 32px -8px rgba(46, 125, 50, 0.10), 0 4px 8px -2px rgba(0, 0, 0, 0.05);
-  border-color: rgba(46, 125, 50, 0.25);
+  border-color: var(--store-primary);
 }
 
 /* Mango warm card */
 .card-mango {
   background: var(--store-white);
   border: 1px solid var(--store-border);
-  border-radius: var(--radius-2xl);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+  transition: all 0.2s ease;
   overflow: hidden;
 }
 .card-mango:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 32px -8px rgba(245, 166, 35, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.04);
-  border-color: rgba(255, 199, 44, 0.35);
+  border-color: var(--store-accent-hover);
 }
 
 .premium-shadow-hover {
-  transition: all 0.3s ease;
-}
-.premium-shadow-hover:hover {
-  box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.08), 0 8px 12px -6px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
 }
 
 /* ── Badges ── */
 .badge-fresh {
-  background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
-  color: #2E7D32;
+  background: var(--store-primary-light);
+  color: var(--store-primary);
   font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   padding: 3px 8px;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(46, 125, 50, 0.2);
+  border-radius: 4px;
+  border: 1px solid var(--store-primary-mid);
 }
 
 .badge-organic {
-  background: linear-gradient(135deg, #FFF8E7, #FFE9B0);
-  color: #E8820C;
+  background: var(--store-accent-light);
+  color: var(--mango-orange);
   font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   padding: 3px 8px;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(232, 130, 12, 0.2);
+  border-radius: 4px;
+  border: 1px solid var(--store-accent);
 }
 
 /* Glass panel — warm tinted overlay */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(232, 224, 212, 0.8);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--store-border);
 }
 
 /* Section container */
 .section-clean {
   background: #ffffff;
   border: 1px solid var(--store-border);
-  border-radius: 24px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  border-radius: 4px;
 }
 
 /* Category ring animation */
@@ -368,3 +481,208 @@ body {
   --radius-4xl: 32px;
   --radius-full: 9999px;
 }
+
+/* ============================================================
+   STORE GLOBAL OVERRIDES — 4px Rounded Corners, Full Width, & Font Scale
+   ============================================================ */
+.neocomerz-store,
+.neocomerz-store * {
+  border-radius: 4px;
+}
+
+/* Circular exceptions: category icons, avatar initials */
+.neocomerz-store .store-category-circle,
+.neocomerz-store .store-category-circle img,
+.neocomerz-store .store-avatar-circle,
+.neocomerz-store .store-badge-pill {
+  border-radius: 50% !important;
+}
+
+/* Pill exceptions */
+.neocomerz-store .store-pill {
+  border-radius: 999px !important;
+}
+
+/* Explicit utility overrides — keep tailwind rounded-* working in store */
+.neocomerz-store .rounded-none { border-radius: 0 !important; }
+.neocomerz-store .rounded-sm   { border-radius: 2px !important; }
+.neocomerz-store .rounded      { border-radius: 4px !important; }
+.neocomerz-store .rounded-md   { border-radius: 6px !important; }
+.neocomerz-store .rounded-lg   { border-radius: 8px !important; }
+.neocomerz-store .rounded-xl   { border-radius: 12px !important; }
+.neocomerz-store .rounded-2xl  { border-radius: 16px !important; }
+.neocomerz-store .rounded-full { border-radius: 9999px !important; }
+
+/* ── Storefront font: Bengali text gets Noto Sans Bengali for crisp rendering ── */
+.neocomerz-store {
+  font-family: "Plus Jakarta Sans", "Noto Sans Bengali", "Hind Siliguri", -apple-system, sans-serif;
+}
+
+.neocomerz-store {
+  /* Remove width limits globally in the store for 100% full width */
+  --max-w-\[1800px\]: 100% !important;
+  
+  /* Font size scale-up for premium readability (+1px to +2px boost) */
+  --text-xs: 0.875rem; /* 14px */
+  --text-xs--line-height: 1.4;
+  --text-sm: 1.05rem; /* 16.8px */
+  --text-sm--line-height: 1.55;
+  --text-base: 1.15rem; /* 18.4px */
+  --text-base--line-height: 1.65;
+  --text-lg: 1.3rem; /* 20.8px */
+  --text-lg--line-height: 1.65;
+  --text-xl: 1.55rem; /* 24.8px */
+  --text-xl--line-height: 1.55;
+  --text-2xl: 1.95rem; /* 31.2px */
+  --text-2xl--line-height: 1.45;
+  --text-3xl: 2.35rem; /* 37.6px */
+  --text-3xl--line-height: 1.35;
+  --text-4xl: 2.85rem; /* 45.6px */
+  --text-4xl--line-height: 1.25;
+  --text-5xl: 3.75rem; /* 60px */
+  --text-5xl--line-height: 1.18;
+}
+
+/* Force max-width 100% on the main page/wrapper classes in store */
+.neocomerz-store .max-w-\[1800px\] {
+  max-width: 100% !important;
+}
+
+/* Custom storefront overrides to map inline/arbitrary colors back to CSS variables */
+.neocomerz-store .text-\[\#15803d\] {
+  color: var(--store-primary) !important;
+}
+.neocomerz-store .bg-\[\#15803d\] {
+  background-color: var(--store-primary) !important;
+}
+.neocomerz-store .border-\[\#15803d\] {
+  border-color: var(--store-primary) !important;
+}
+.neocomerz-store .hover\:text-\[\#15803d\]:hover {
+  color: var(--store-primary-hover) !important;
+}
+.neocomerz-store .hover\:bg-\[\#15803d\]:hover {
+  background-color: var(--store-primary-hover) !important;
+}
+.neocomerz-store .hover\:border-\[\#15803d\]:hover {
+  border-color: var(--store-primary-hover) !important;
+}
+.neocomerz-store .focus\:border-\[\#15803d\]:focus {
+  border-color: var(--store-primary) !important;
+}
+.neocomerz-store .focus\:ring-\[\#15803d\]:focus {
+  --tw-ring-color: var(--store-primary) !important;
+}
+
+.neocomerz-store .bg-\[\#166534\] {
+  background-color: var(--store-primary-hover) !important;
+}
+.neocomerz-store .hover\:bg-\[\#166534\]:hover {
+  background-color: var(--store-primary-hover) !important;
+}
+.neocomerz-store .text-\[\#166534\] {
+  color: var(--store-primary-hover) !important;
+}
+.neocomerz-store .hover\:text-\[\#166534\]:hover {
+  color: var(--store-primary-hover) !important;
+}
+.neocomerz-store .border-\[\#166534\] {
+  border-color: var(--store-primary-hover) !important;
+}
+
+.neocomerz-store .bg-\[\#0A3C26\] {
+  background-color: var(--store-primary) !important;
+}
+.neocomerz-store .text-\[\#0A3C26\] {
+  color: var(--store-primary) !important;
+}
+.neocomerz-store .border-\[\#0A3C26\] {
+  border-color: var(--store-primary) !important;
+}
+.neocomerz-store .bg-\[\#0D623B\] {
+  background-color: var(--store-primary-hover) !important;
+}
+.neocomerz-store .text-\[\#0D623B\] {
+  color: var(--store-primary-hover) !important;
+}
+.neocomerz-store .border-\[\#0D623B\] {
+  border-color: var(--store-primary-hover) !important;
+}
+.neocomerz-store .hover\:bg-\[\#0D623B\]:hover {
+  background-color: var(--store-primary-hover) !important;
+}
+.neocomerz-store .hover\:text-\[\#0D623B\]:hover {
+  color: var(--store-primary-hover) !important;
+}
+.neocomerz-store .hover\:border-\[\#0D623B\]:hover {
+  border-color: var(--store-primary-hover) !important;
+}
+
+.neocomerz-store .text-\[\#eab308\] {
+  color: var(--store-accent) !important;
+}
+.neocomerz-store .bg-\[\#eab308\] {
+  background-color: var(--store-accent) !important;
+}
+.neocomerz-store .border-\[\#eab308\] {
+  border-color: var(--store-accent) !important;
+}
+.neocomerz-store .hover\:text-\[\#eab308\]:hover {
+  color: var(--store-accent-hover) !important;
+}
+.neocomerz-store .hover\:bg-\[\#eab308\]:hover {
+  background-color: var(--store-accent-hover) !important;
+}
+.neocomerz-store .hover\:border-\[\#eab308\]:hover {
+  border-color: var(--store-accent-hover) !important;
+}
+.neocomerz-store .text-\[\#eab308\/75\] {
+  color: color-mix(in srgb, var(--store-accent) 75%, transparent) !important;
+}
+.neocomerz-store .fill-\[\#eab308\] {
+  fill: var(--store-accent) !important;
+}
+
+.neocomerz-store .bg-\[\#022c22\] {
+  background-color: var(--store-primary) !important;
+}
+.neocomerz-store .bg-linear-to-r.from-\[\#15803d\].to-emerald-650,
+.neocomerz-store .bg-linear-to-r.from-\[\#15803d\].to-emerald-600 {
+  background-image: linear-gradient(to right, var(--store-primary), var(--store-primary-hover)) !important;
+}
+
+/* Sliding Drawer Animation */
+.drawer-slide-in {
+  animation: drawer-slide 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes drawer-slide {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+/* Dark footer variant for section badges on dark backgrounds */
+.section-badge-dark {
+  color: #86efac;
+  background-color: rgba(22, 163, 74, 0.12);
+  border: 1px solid rgba(22, 163, 74, 0.25);
+  border-left: 3px solid #16a34a;
+}
+.section-badge-dark::before {
+  background-color: #22c55e;
+}
+
+/* Global focus reset to eliminate pink outlines on interactive storefront elements */
+.neocomerz-store a:focus,
+.neocomerz-store a:focus-visible,
+.neocomerz-store button:focus,
+.neocomerz-store button:focus-visible,
+.neocomerz-store [role="button"]:focus,
+.neocomerz-store [role="button"]:focus-visible,
+.neocomerz-store input:focus,
+.neocomerz-store textarea:focus,
+.neocomerz-store select:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+

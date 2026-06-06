@@ -44,13 +44,13 @@ export function ToastContainer() {
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className={`pointer-events-auto min-w-[300px] rounded-xl px-4 py-3 shadow-lg border backdrop-blur-md animate-slide-in-right ${
+          className={`pointer-events-auto min-w-[300px] px-4 py-3 shadow-lg border backdrop-blur-md animate-slide-in-right ${
             toast.type === "success"
-              ? "bg-[#2E7D32]/95 border-emerald-800/10 text-white"
+              ? "bg-[#15803d]/95 border-emerald-800/10 text-white"
               : toast.type === "error"
               ? "bg-rose-600/95 border-rose-800/10 text-white"
               : toast.type === "warning"
-              ? "bg-[#FFC72C]/95 border-amber-500/15 text-stone-900"
+              ? "bg-[#eab308]/95 border-amber-600/15 text-stone-900"
               : "bg-stone-900/95 border-stone-850/15 text-white"
           }`}
         >

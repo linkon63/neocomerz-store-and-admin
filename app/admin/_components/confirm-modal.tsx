@@ -11,6 +11,7 @@ interface ConfirmModalProps {
   confirmText?: string;
   cancelText?: string;
   isDestructive?: boolean;
+  error?: string | null;
 }
 
 export function ConfirmModal({
@@ -22,6 +23,7 @@ export function ConfirmModal({
   confirmText = "Confirm",
   cancelText = "Cancel",
   isDestructive = true,
+  error,
 }: ConfirmModalProps) {
   if (!isOpen) return null;
 
@@ -50,6 +52,12 @@ export function ConfirmModal({
             <AdminIcon className="h-5 w-5" name="x" />
           </button>
         </div>
+
+        {error && (
+          <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700">
+            {error}
+          </div>
+        )}
 
         <div className="flex justify-end gap-3 pt-2">
           <button

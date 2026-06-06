@@ -36,8 +36,8 @@ const DeliveredIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
 const STATUS_COLORS: Record<string, string> = {
   pending: "bg-stone-50 text-stone-750 border border-stone-200",
   processing: "bg-stone-50 text-stone-750 border border-stone-200",
-  shipped: "bg-emerald-50 text-[#2E7D32] border border-[#2E7D32]/20",
-  delivered: "bg-emerald-50 text-[#2E7D32] border border-[#2E7D32]/20",
+  shipped: "bg-emerald-50 text-[#15803d] border border-[#15803d]/20",
+  delivered: "bg-emerald-50 text-[#15803d] border border-[#15803d]/20",
   cancelled: "bg-red-50 text-red-700 border border-red-200/50",
   returned: "bg-stone-50 text-stone-600 border border-stone-200",
 };
@@ -47,9 +47,9 @@ export default function OrderDetailPage() {
     <Suspense
       fallback={
         <div className="mx-auto max-w-[1800px] w-full px-6 py-10 sm:px-12 lg:px-16 min-h-[calc(100vh-280px)] animate-pulse space-y-4 font-sans">
-          <div className="h-8 bg-stone-100 rounded-xl w-1/3 mb-8" />
-          <div className="h-48 bg-white rounded-3xl border border-stone-200" />
-          <div className="h-32 bg-white rounded-3xl border border-stone-200" />
+          <div className="h-8 bg-stone-100 w-1/3 mb-8" />
+          <div className="h-48 bg-white border border-stone-200" />
+          <div className="h-32 bg-white border border-stone-200" />
         </div>
       }
     >
@@ -67,6 +67,7 @@ function OrderDetailContent() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   const isLoggedIn = typeof window !== "undefined" && !!getStoreToken();
 
@@ -80,8 +81,8 @@ function OrderDetailContent() {
 
   async function handleCancel() {
     if (!order) return;
-    if (!confirm("Cancel this order?")) return;
     setCancelling(true);
+    setShowCancelConfirm(false);
     try {
       await ordersApi.cancel(order.id);
       const updated = await ordersApi.byId(order.id);
@@ -93,9 +94,9 @@ function OrderDetailContent() {
   if (loading) {
     return (
       <div className="mx-auto max-w-[1800px] w-full px-6 py-10 sm:px-12 lg:px-16 min-h-[calc(100vh-280px)] animate-pulse space-y-4 font-sans">
-        <div className="h-8 bg-stone-100 rounded-xl w-1/3" />
-        <div className="h-48 bg-white rounded-3xl border border-stone-200" />
-        <div className="h-32 bg-white rounded-3xl border border-stone-200" />
+        <div className="h-8 bg-stone-100 w-1/3" />
+        <div className="h-48 bg-white border border-stone-200" />
+        <div className="h-32 bg-white border border-stone-200" />
       </div>
     );
   }
@@ -109,7 +110,7 @@ function OrderDetailContent() {
     <div className="mx-auto max-w-[1800px] w-full px-6 py-10 sm:px-12 lg:px-16 min-h-[calc(100vh-280px)] font-sans">
       {/* Success banner */}
       {isSuccess && (
-        <div className="mb-8 border-l-4 border-l-[#2E7D32] border border-stone-200/60 bg-[#E8F5E9]/50 rounded-2xl p-6 flex items-start gap-4 shadow-xs">
+        <div className="mb-8 border-l-4 border-l-[#15803d] border border-stone-200/60 bg-[#f0fdf4] p-6 flex items-start gap-4 shadow-xs">
           <span className="text-xl">🎉</span>
           <div>
             <p className="font-extrabold text-stone-850 text-xs uppercase tracking-wider">অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে! (Order Placed Successfully!)</p>
@@ -121,7 +122,7 @@ function OrderDetailContent() {
       {/* Header */}
       <div className="mb-8 flex items-start justify-between gap-4 border-b pb-6 border-stone-200">
         <div className="space-y-1">
-          <Link href="/store/orders" className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-[#2E7D32] transition">
+          <Link href="/store/orders" className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-[#15803d] transition">
             ← অর্ডারসমূহ (My Orders)
           </Link>
           <h1 className="mt-3 text-2xl font-bold font-serif uppercase text-stone-850">অর্ডার #{order.orderNumber}</h1>
@@ -130,20 +131,20 @@ function OrderDetailContent() {
           </p>
         </div>
         <div className="text-right space-y-2">
-          <span className={`inline-block rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${STATUS_COLORS[order.status] ?? "bg-stone-100 text-stone-700 border border-stone-200"}`}>
+          <span className={`inline-block px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${STATUS_COLORS[order.status] ?? "bg-stone-100 text-stone-700 border border-stone-200"}`}>
             {order.status}
           </span>
-          <p className={`text-[10px] font-bold uppercase tracking-widest ${order.paymentStatus === "paid" ? "text-[#2E7D32]" : "text-stone-500"}`}>
-            পেমেন্ট: <span className="font-black text-[#2E7D32]">[{order.paymentStatus}]</span>
+          <p className={`text-[10px] font-bold uppercase tracking-widest ${order.paymentStatus === "paid" ? "text-[#15803d]" : "text-stone-500"}`}>
+            পেমেন্ট: <span className="font-black text-[#15803d]">[{order.paymentStatus}]</span>
           </p>
         </div>
       </div>
 
       {/* Progress tracker */}
       {!isCancelled && (
-        <div className="bg-white border border-stone-200/60 p-6 mb-8 relative shadow-xs rounded-3xl">
+        <div className="bg-white border border-stone-200/60 p-6 mb-8 relative shadow-xs">
           <h2 className="text-[10px] font-extrabold uppercase tracking-widest text-stone-500 mb-6 flex items-center gap-2 font-display">
-            <span className="text-[#2E7D32] font-black">■</span> অর্ডারের বর্তমান অবস্থা (Order Status)
+            <span className="text-[#15803d] font-black">■</span> অর্ডারের বর্তমান অবস্থা (Order Status)
           </h2>
           
           {/* Desktop Stepper */}
@@ -153,7 +154,7 @@ function OrderDetailContent() {
             
             {/* Active Progress Line */}
             <div 
-              className="absolute top-[20px] left-[12.5%] h-[1px] bg-[#2E7D32] transition-all duration-700 ease-out"
+              className="absolute top-[20px] left-[12.5%] h-[1px] bg-[#15803d] transition-all duration-700 ease-out"
               style={{ width: `${stepIndex === 0 ? 0 : stepIndex === 1 ? 25 : stepIndex === 2 ? 50 : 75}%` }} 
             />
 
@@ -184,11 +185,11 @@ function OrderDetailContent() {
                   <div key={step} className="flex flex-col items-center flex-1 text-center px-2">
                     {/* Node */}
                     <div 
-                      className={`w-10 h-10 flex items-center justify-center transition-all duration-300 border rounded-xl ${
+                      className={`w-10 h-10 flex items-center justify-center transition-all duration-300 border ${
                         isCurrent 
-                          ? "bg-[#2E7D32] text-white border-[#2E7D32] shadow-xs shadow-[#2E7D32]/20" 
+                          ? "bg-[#15803d] text-white border-[#15803d]" 
                           : isActive 
-                            ? "bg-[#2E7D32] text-white border-[#2E7D32]" 
+                            ? "bg-[#15803d] text-white border-[#15803d]" 
                             : "bg-white text-stone-400 border-stone-200"
                       }`}
                     >
@@ -197,7 +198,7 @@ function OrderDetailContent() {
 
                     {/* Content */}
                     <div className="mt-4">
-                      <span className={`text-[8px] font-extrabold tracking-widest uppercase ${isActive ? "text-[#2E7D32]" : "text-stone-400"}`}>
+                      <span className={`text-[8px] font-extrabold tracking-widest uppercase ${isActive ? "text-[#15803d]" : "text-stone-400"}`}>
                         ধাপ ০{i + 1}
                       </span>
                       <h3 className={`text-xs font-bold uppercase tracking-widest mt-1 ${isActive ? "text-stone-850" : "text-stone-400"}`}>
@@ -209,7 +210,7 @@ function OrderDetailContent() {
                     </div>
 
                     {isCurrent && (
-                      <span className="mt-2.5 inline-block bg-[#E8F5E9] text-[#2E7D32] text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md shadow-xs">
+                      <span className="mt-2.5 inline-block bg-[#f0fdf4] text-[#15803d] text-[8px] font-black uppercase tracking-widest px-2.5 py-1">
                         চলমান (Active)
                       </span>
                     )}
@@ -250,11 +251,11 @@ function OrderDetailContent() {
                   <div className="flex flex-col items-center shrink-0 w-8">
                     {/* Node */}
                     <div 
-                      className={`w-8 h-8 flex items-center justify-center relative z-10 transition-all duration-300 border rounded-xl ${
+                      className={`w-8 h-8 flex items-center justify-center relative z-10 transition-all duration-300 border ${
                         isCurrent 
-                          ? "bg-[#2E7D32] text-white border-[#2E7D32] shadow-xs shadow-[#2E7D32]/25" 
+                          ? "bg-[#15803d] text-white border-[#15803d]" 
                           : isActive 
-                            ? "bg-[#2E7D32] text-white border-[#2E7D32]" 
+                            ? "bg-[#15803d] text-white border-[#15803d]" 
                             : "bg-white text-stone-400 border-stone-200"
                       }`}
                     >
@@ -264,7 +265,7 @@ function OrderDetailContent() {
                     {!isLast && (
                       <div 
                         className={`w-[1px] absolute top-8 bottom-[-24px] left-[15px] ${
-                          i < stepIndex ? "bg-[#2E7D32]" : "bg-stone-200"
+                          i < stepIndex ? "bg-[#15803d]" : "bg-stone-200"
                         }`} 
                       />
                     )}
@@ -273,11 +274,11 @@ function OrderDetailContent() {
                   {/* Right Content Column */}
                   <div className="flex-1 pt-0.5">
                     <div className="flex items-center gap-2">
-                      <span className={`text-[8px] font-extrabold tracking-widest uppercase ${isActive ? "text-[#2E7D32]" : "text-stone-400"}`}>
+                      <span className={`text-[8px] font-extrabold tracking-widest uppercase ${isActive ? "text-[#15803d]" : "text-stone-400"}`}>
                         ধাপ ০{i + 1}
                       </span>
                       {isCurrent && (
-                        <span className="bg-[#E8F5E9] text-[#2E7D32] text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md">
+                        <span className="bg-[#f0fdf4] text-[#15803d] text-[8px] font-black uppercase tracking-widest px-2 py-0.5">
                           চলমান (Active)
                         </span>
                       )}
@@ -299,20 +300,20 @@ function OrderDetailContent() {
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         {/* Items */}
         <div className="space-y-4">
-          <div className="rounded-3xl bg-white p-6 border border-stone-200/60 shadow-xs">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-[#2E7D32] mb-6 font-display">
+          <div className="bg-white p-6 border border-stone-200/60 shadow-xs">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-[#15803d] mb-6 font-display">
               অর্ডারকৃত আমসমূহ (Ordered Items)
             </h2>
             <div className="space-y-6">
               {order.items.map((item) => (
                 <div key={item.id} className="flex justify-between gap-4 text-xs font-semibold">
                   <div>
-                    <Link href={`/store/products/${item.product.slug}`} className="font-bold text-stone-850 hover:text-[#2E7D32] transition hover:underline">
+                    <Link href={`/store/products/${item.product.slug}`} className="font-bold text-stone-850 hover:text-[#15803d] transition hover:underline">
                       {item.product.name}
                     </Link>
                     <p className="text-stone-500 text-[10px] font-semibold mt-1">SKU: {item.variant.sku} × {item.quantity}</p>
                   </div>
-                  <p className="font-extrabold text-[#2E7D32] shrink-0 font-display">{formatPrice(item.totalPrice)}</p>
+                  <p className="font-extrabold text-[#15803d] shrink-0 font-display">{formatPrice(item.totalPrice)}</p>
                 </div>
               ))}
             </div>
@@ -325,7 +326,7 @@ function OrderDetailContent() {
                 <span className="font-extrabold text-stone-800">{formatPrice(parseFloat(String(order.total)) + parseFloat(String(order.discount)) - parseFloat(String(order.shippingCost)))}</span>
               </div>
               {parseFloat(String(order.discount)) > 0 && (
-                <div className="flex justify-between text-[#2E7D32]">
+                <div className="flex justify-between text-[#15803d]">
                   <span className="font-semibold">ছাড় (Discount)</span>
                   <span className="font-extrabold">-{formatPrice(order.discount)}</span>
                 </div>
@@ -339,20 +340,49 @@ function OrderDetailContent() {
               
               <div className="flex justify-between text-sm font-extrabold text-stone-850">
                 <span>সর্বমোট (Total)</span>
-                <span className="text-[#2E7D32] font-black text-base font-display">{formatPrice(order.total)}</span>
+                <span className="text-[#15803d] font-black text-base font-display">{formatPrice(order.total)}</span>
               </div>
             </div>
           </div>
 
           {/* Cancel */}
           {(order.status === "pending" || order.status === "processing") && (
-            <button
-              onClick={handleCancel}
-              disabled={cancelling}
-              className="w-full border border-red-200 bg-white py-3.5 text-xs font-bold uppercase tracking-widest text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer disabled:opacity-50 hover:border-rose-350"
-            >
-              {cancelling ? "বাতিল করা হচ্ছে..." : "অর্ডার বাতিল করুন (Cancel Order)"}
-            </button>
+            <>
+              <button
+                onClick={() => setShowCancelConfirm(true)}
+                disabled={cancelling}
+                className="w-full border border-red-200 bg-white py-3.5 text-xs font-bold uppercase tracking-widest text-rose-600 hover:bg-rose-50 transition cursor-pointer disabled:opacity-50 hover:border-rose-350"
+              >
+                {cancelling ? "বাতিল করা হচ্ছে..." : "অর্ডার বাতিল করুন (Cancel Order)"}
+              </button>
+
+              {showCancelConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                  <div className="absolute inset-0 bg-black/40" onClick={() => setShowCancelConfirm(false)} />
+                  <div className="relative bg-white border border-stone-200 p-6 shadow-lg max-w-sm w-full" style={{ borderRadius: "6px" }}>
+                    <h3 className="font-bold text-sm text-stone-900 mb-2">অর্ডার বাতিল করবেন?</h3>
+                    <p className="text-xs text-stone-500 font-semibold mb-5">অর্ডার নম্বর #{order.orderNumber} স্থায়ীভাবে বাতিল হয়ে যাবে।</p>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={handleCancel}
+                        disabled={cancelling}
+                        className="flex-1 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wide py-2.5 cursor-pointer transition disabled:opacity-50"
+                        style={{ borderRadius: "4px" }}
+                      >
+                        হ্যাঁ, বাতিল করুন
+                      </button>
+                      <button
+                        onClick={() => setShowCancelConfirm(false)}
+                        className="flex-1 border border-stone-200 hover:border-stone-400 text-stone-600 text-xs font-bold uppercase tracking-wide py-2.5 cursor-pointer transition"
+                        style={{ borderRadius: "4px" }}
+                      >
+                        না, রাখুন
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
 
@@ -360,27 +390,27 @@ function OrderDetailContent() {
         <div className="space-y-4">
           {/* Delivery address */}
           {order.address && (
-            <div className="bg-white p-6 border border-stone-200/60 shadow-xs rounded-3xl">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-[#2E7D32] mb-4 font-display">ডেলিভারি ঠিকানা (Delivery Address)</h3>
+            <div className="bg-white p-6 border border-stone-200/60 shadow-xs">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-[#15803d] mb-4 font-display">ডেলিভারি ঠিকানা (Delivery Address)</h3>
               <div className="text-xs space-y-1.5 text-stone-600 leading-relaxed font-semibold">
                 <p className="font-bold text-stone-850">{order.address.fullName}</p>
                 <p>{order.address.addressLine1}</p>
                 {order.address.addressLine2 && <p>{order.address.addressLine2}</p>}
                 <p>{order.address.city}, {order.address.state} {order.address.postalCode}</p>
                 <p className="uppercase tracking-widest text-[9px] text-stone-400 font-extrabold">{order.address.country}</p>
-                <p className="font-bold text-[#2E7D32] mt-2 font-display">{order.address.phone}</p>
+                <p className="font-bold text-[#15803d] mt-2 font-display">{order.address.phone}</p>
               </div>
             </div>
           )}
 
           {/* Payment */}
           {order.payments && order.payments.length > 0 && (
-            <div className="bg-white p-6 border border-stone-200/60 shadow-xs rounded-3xl">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-[#2E7D32] mb-4 font-display">পেমেন্ট বিবরণ (Payment)</h3>
+            <div className="bg-white p-6 border border-stone-200/60 shadow-xs">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-[#15803d] mb-4 font-display">পেমেন্ট বিবরণ (Payment)</h3>
               {order.payments.map((p) => (
                 <div key={p.id} className="text-xs space-y-1.5 font-semibold text-stone-600">
                   <p className="font-bold text-stone-850 capitalize">{p.method?.replace(/_/g, " ")}</p>
-                  <p className={`font-black uppercase tracking-widest text-[10px] ${p.status === "success" ? "text-[#2E7D32]" : p.status === "failed" ? "text-rose-600" : "text-stone-500"}`}>[{p.status}]</p>
+                  <p className={`font-black uppercase tracking-widest text-[10px] ${p.status === "success" ? "text-[#15803d]" : p.status === "failed" ? "text-rose-600" : "text-stone-500"}`}>[{p.status}]</p>
                   <p className="font-black text-stone-850 font-display">{formatPrice(p.amount)}</p>
                 </div>
               ))}
