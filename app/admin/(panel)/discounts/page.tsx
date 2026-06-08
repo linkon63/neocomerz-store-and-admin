@@ -1,24 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AdminIcon, PageHeader } from "../../_components/admin-shell";
 import { ConfirmModal } from "../../_components/confirm-modal";
-import {
-  apiRequest,
-} from "../../../../lib/admin-api";
-import {ProductDiscount} from "../../../../lib/type";
+import { type ProductDiscount } from "../../../../lib/type";
+import { useDiscounts } from "../../_hooks/use-discounts";
 import { DiscountModal } from "./discount-modal";
 import { DiscountRow } from "./discount-row";
 
 export default function DiscountsPage() {
-  const [discounts, setDiscounts] = useState<ProductDiscount[]>([]);
   const [search, setSearch] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDiscountId, setEditingDiscountId] = useState<string | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [discountToDelete, setDiscountToDelete] = useState<ProductDiscount | null>(null);
   const [error, setError] = useState("");
+  const { discounts, isLoading, loadDiscounts, deleteDiscount, toggleStatus } = useDiscounts();
 
   const filteredDiscounts = useMemo(() => {
     return discounts.filter((d) =>
@@ -27,21 +24,6 @@ export default function DiscountsPage() {
         .includes(search.toLowerCase()),
     );
   }, [discounts, search]);
-
-  async function loadDiscounts() {
-    setIsLoading(true);
-    try {
-      setDiscounts(await apiRequest<ProductDiscount[]>("/product-discounts"));
-    } catch {
-      // silently fail
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    loadDiscounts();
-  }, []);
 
   function openAddModal() {
     setEditingDiscountId(null);
@@ -58,7 +40,7 @@ export default function DiscountsPage() {
     setIsModalOpen(false);
   }
 
-  async function deleteDiscount(discount: ProductDiscount) {
+  function requestDelete(discount: ProductDiscount) {
     setDiscountToDelete(discount);
     setDeleteModalOpen(true);
   }
@@ -66,7 +48,7 @@ export default function DiscountsPage() {
   async function confirmDelete() {
     if (!discountToDelete) return;
     try {
-      await apiRequest(`/product-discounts/${discountToDelete.id}`, { method: "DELETE" });
+      await deleteDiscount(discountToDelete.id);
       setDeleteModalOpen(false);
       setDiscountToDelete(null);
       await loadDiscounts();
@@ -81,18 +63,11 @@ export default function DiscountsPage() {
     setError("");
   }
 
-  async function toggleStatus(discount: ProductDiscount) {
+  async function handleToggleStatus(discount: ProductDiscount) {
     try {
-      await apiRequest(`/product-discounts/${discount.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          status: discount.status === "active" ? "inactive" : "active",
-        }),
-      });
+      await toggleStatus(discount.id, discount.status);
       await loadDiscounts();
     } catch {
-      // silently fail
     }
   }
 
@@ -172,9 +147,9 @@ export default function DiscountsPage() {
                     <DiscountRow
                       key={discount.id}
                       discount={discount}
-                      onToggleStatus={toggleStatus}
+                      onToggleStatus={handleToggleStatus}
                       onEdit={openEditModal}
-                      onDelete={deleteDiscount}
+                      onDelete={requestDelete}
                     />
                   ))
                 )}
