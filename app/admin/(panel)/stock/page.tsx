@@ -1,12 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { AdminIcon, PageHeader, ProductThumb } from "../../_components/admin-shell";
-import {
-  apiRequest,
-  type InventoryLogResponse,
-  type InventoryVariant,
-} from "../../../../lib/admin-api";
+import { useStockData } from "../../_hooks/use-stock-data";
 import { AdjustmentLogsModal } from "./_components/adjustment-logs-modal";
 import { AdjustStockModal } from "./_components/adjust-stock-modal";
 
@@ -22,46 +18,11 @@ const THUMB_COLORS = [
 ];
 
 export default function StockPage() {
-  const [variants, setVariants] = useState<InventoryVariant[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { variants, isLoading, error, totalStock, lowStockCount, adjustmentsToday, todayLogs, refetch } = useStockData();
   const [showModal, setShowModal] = useState(false);
   const [preselectedId, setPreselectedId] = useState<string | undefined>(undefined);
   const [preselectedProduct, setPreselectedProduct] = useState<{ id: string; name: string } | undefined>(undefined);
-  const [adjustmentsToday, setAdjustmentsToday] = useState(0);
-  const [todayLogs, setTodayLogs] = useState<InventoryLogResponse[]>([]);
   const [showLogsModal, setShowLogsModal] = useState(false);
-
-  const fetchData = useCallback(async () => {
-    setIsLoading(true);
-    setError("");
-    try {
-      const [inv, logs] = await Promise.all([
-        apiRequest<InventoryVariant[]>("/inventory?sort=lowStock"),
-        apiRequest<InventoryLogResponse[]>("/inventory/logs"),
-      ]);
-      setVariants(inv);
-
-      const todayStart = new Date();
-      todayStart.setHours(0, 0, 0, 0);
-      const today = logs.filter((l) => new Date(l.createdAt) >= todayStart);
-      setTodayLogs(today);
-      setAdjustmentsToday(today.length);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load stock data");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const totalStock = variants.reduce((sum, v) => sum + v.stockQuantity, 0);
-  const lowStockCount = variants.filter(
-    (v) => v.stockQuantity <= v.stockAlertThreshold,
-  ).length;
 
   function openVariantAdjust(variantId: string) {
     setPreselectedId(variantId);
@@ -228,7 +189,7 @@ export default function StockPage() {
           onClose={() => setShowModal(false)}
           onSuccess={() => {
             setShowModal(false);
-            fetchData();
+            refetch();
           }}
         />
       )}
