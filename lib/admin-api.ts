@@ -486,6 +486,41 @@ export function formatDate(value?: string) {
   }).format(new Date(value));
 }
 
+export type InventoryRow = {
+  id: string;
+  sku: string;
+  price: string;
+  cost: string | null;
+  stockQuantity: number;
+  stockAlertThreshold: number;
+  isDefault: boolean;
+  product: { id: string; name: string; slug: string; status: string };
+};
+
+export function toInventoryRows(
+  variants: Array<{
+    id: string;
+    sku: string;
+    price: { toString(): string };
+    cost?: { toString(): string } | null;
+    stockQuantity: number;
+    stockAlertThreshold: number;
+    isDefault: boolean;
+    product: { id: string; name: string; slug: string; status: string };
+  }>,
+): InventoryRow[] {
+  return variants.map((v) => ({
+    id: v.id,
+    sku: v.sku,
+    price: v.price.toString(),
+    cost: v.cost?.toString() ?? null,
+    stockQuantity: v.stockQuantity,
+    stockAlertThreshold: v.stockAlertThreshold,
+    isDefault: v.isDefault,
+    product: v.product,
+  }));
+}
+
 export function formatMoney(value?: string | number | null) {
   if (value === undefined || value === null || value === "") return "-";
 
