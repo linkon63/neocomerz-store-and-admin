@@ -2,8 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FaFacebookF, FaGooglePlusG, FaLinkedinIn, FaXTwitter } from "react-icons/fa6";
-import { FiChevronLeft, FiChevronRight, FiHeart, FiMail, FiShoppingBag } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiHeart, FiMail } from "react-icons/fi";
 import { productSlug, shopProducts } from "../products";
+import ProductPurchasePanel from "./product-purchase-panel";
 
 function formatPrice(price: number) {
   return `€${price.toFixed(2)}`;
@@ -120,23 +121,18 @@ export default async function ProductDetailsPage({
               </p>
             </div>
 
-            <div className="mt-6 border-t border-neutral-200 pt-6">
-              <button className="inline-flex items-center gap-3 bg-neutral-900 px-6 py-4 text-sm font-black uppercase text-white" type="button">
-                <FiShoppingBag className="text-lg" />
-                Add to cart
-              </button>
+            <ProductPurchasePanel
+              product={{
+                slug,
+                name: product.name,
+                price: salePrice,
+                image: product.image,
+                color: product.color,
+                size: product.size,
+              }}
+            />
 
-              <button className="mt-6 block w-full bg-black px-6 py-4 text-center text-base font-bold text-white" type="button">
-                Buy with Apple Pay
-              </button>
-              <button className="mt-4 block w-full bg-black px-6 py-3 text-center text-sm font-bold text-white" type="button">
-                Google Pay &nbsp; | &nbsp; Card
-              </button>
-
-              <p className="mt-5 text-xs text-neutral-500">
-                Pay in 3 interest-free installments. Powered by PayPal.
-              </p>
-
+            <div>
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 {[FaFacebookF, FaXTwitter, FaLinkedinIn, FaGooglePlusG, FiMail].map((Icon, index) => (
                   <button
