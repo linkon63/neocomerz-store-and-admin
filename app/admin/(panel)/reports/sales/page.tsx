@@ -1,70 +1,17 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
-import Datepicker, { type DateValueType } from "react-tailwindcss-datepicker";
-import { AdminIcon, PageHeader } from "../../../_components/admin-shell";
+import { Fragment } from "react";
+import Datepicker from "react-tailwindcss-datepicker";
+import { AdminIcon } from "../../../_components/admin-shell";
+import { PageHeader } from "../../../_components/page-header";
 import {
-  apiRequest,
   formatDate,
   formatMoney,
-  type SalesReport,
 } from "../../../../../lib/admin-api";
-
-function toISODate(date: Date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
+import { useSalesReport } from "../../../_hooks/use-sales-report";
 
 export default function SalesReportPage() {
-  const currentYear = new Date().getFullYear();
-  const [report, setReport] = useState<SalesReport | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [dateValue, setDateValue] = useState<DateValueType>({
-    startDate: new Date(currentYear, 0, 1),
-    endDate: new Date(currentYear, 11, 31),
-  });
-  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    let active = true;
-
-    async function load() {
-      setIsLoading(true);
-      setError("");
-
-      try {
-        const params = new URLSearchParams();
-        if (dateValue?.startDate) {
-          params.set("startDate", toISODate(new Date(dateValue.startDate)));
-        }
-        if (dateValue?.endDate) {
-          params.set("endDate", toISODate(new Date(dateValue.endDate)));
-        }
-
-        const data = await apiRequest<SalesReport>(
-          `/reports/sales?${params.toString()}`,
-        );
-        if (!active) return;
-        setReport(data);
-        setExpandedOrders(new Set());
-      } catch (err) {
-        if (active)
-          setError(
-            err instanceof Error ? err.message : "Failed to load sales report",
-          );
-      } finally {
-        if (active) setIsLoading(false);
-      }
-    }
-
-    load();
-    return () => {
-      active = false;
-    };
-  }, [dateValue]);
+  const { report, isLoading, error, dateValue, setDateValue, expandedOrders, setExpandedOrders } = useSalesReport();
 
   function toggleOrder(orderId: string) {
     setExpandedOrders((prev) => {
