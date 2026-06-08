@@ -311,7 +311,13 @@ const menuGroups: {
       { label: "Variant Options", href: "/admin/variant-options", icon: "variants", child: true },
       { label: "Units of Measurement", href: "/admin/units", icon: "units", child: true },
       { label: "Products", href: "/admin/products", icon: "package", child: true },
-      { label: "Stock Management", href: "/admin/stock", icon: "stock" },
+      
+    ],
+  },
+  {
+    title: "Stock & inventory",
+    items: [
+      { label: "Stock Management", href: "/admin/stock", icon: "stock", child: true },
     ],
   },
   {
