@@ -307,42 +307,30 @@ export default function NewProductPage() {
     );
   }
 
-  async function createVariants(productId: string) {
-    if (!form.sku.trim() || !form.retailPrice) return;
+  function buildVariants() {
+    if (form.productType === "simple") {
+      const sku = form.sku.trim() || `${slugify(form.name || "product")}-default`;
+      return [{
+        sku,
+        price: form.retailPrice ? Number(form.retailPrice) : 0,
+        cost: form.unitPrice ? Number(form.unitPrice) : undefined,
+        stockQuantity: 0,
+        isDefault: true,
+      }];
+    }
 
     const basePayload = {
-      price: Number(form.retailPrice),
+      price: form.retailPrice ? Number(form.retailPrice) : 0,
       cost: form.unitPrice ? Number(form.unitPrice) : undefined,
       stockQuantity: 0,
     };
 
-    if (form.productType === "simple") {
-      await apiRequest(`/products/${productId}/variants`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...basePayload,
-          sku: form.sku.trim(),
-          isDefault: true,
-        }),
-      });
-      return;
-    }
-
-    await Promise.all(
-      variantPreview.map((variant, index) =>
-        apiRequest(`/products/${productId}/variants`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...basePayload,
-            sku: variant.sku,
-            isDefault: index === 0,
-            attributeValueIds: variant.valueIds,
-          }),
-        }),
-      ),
-    );
+    return variantPreview.map((variant, index) => ({
+      ...basePayload,
+      sku: variant.sku,
+      isDefault: index === 0,
+      attributeValueIds: variant.valueIds,
+    }));
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -369,10 +357,10 @@ export default function NewProductPage() {
           categoryId: form.categoryId,
           unitId: form.unitId || undefined,
           tagIds: form.tagIds,
+          variants: buildVariants(),
         }),
       });
 
-      await createVariants(product.id);
       await uploadImages(product.id);
 
       router.push("/admin/products");
