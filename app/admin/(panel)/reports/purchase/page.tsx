@@ -1,4 +1,4 @@
-import { PageHeader } from "../../../_components/admin-shell";
+import { PageHeader } from "../../../_components/page-header";
 
 export default function PurchaseReportPage() {
   return (
