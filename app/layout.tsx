@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
+import { getActiveStorefront } from "@/storefronts";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "London Tea Exchange",
-  description: "A heritage of rare tea, refined through craftsmanship, purity, and timeless elegance.",
-};
+export const metadata: Metadata = getActiveStorefront().metadata;
 
 export default function RootLayout({
   children,

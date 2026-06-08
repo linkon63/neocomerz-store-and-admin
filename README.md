@@ -35,3 +35,22 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 # neocomerz-store-and-admin
+
+## Client storefronts
+
+Admin routes stay shared under `app/admin`. The public storefront at `/` is selected from the modular client folders in `storefronts/`.
+
+To choose the storefront for development or production builds, set:
+
+```bash
+STOREFRONT=humana-vintage
+```
+
+The build output stays in the normal Next.js `.next` directory. The env value only decides which storefront code is included in that build.
+
+To add a client UI:
+
+1. Add a new folder under `storefronts/<client-id>/`.
+2. Export its `StorefrontConfig` from `storefronts/<client-id>/index.ts`.
+3. Register it in `storefronts/index.ts`.
+4. Build with `STOREFRONT=<client-id> pnpm build`.
