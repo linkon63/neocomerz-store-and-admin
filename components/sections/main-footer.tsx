@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import CollectionBanner from "./ui/collection-banner";
+import { HiPhone, HiMail, HiLocationMarker } from "react-icons/hi";
+import { MdOutlineArrowOutward } from "react-icons/md";
 
 export default function Mainfooter() {
   const supportLinks = [
@@ -11,55 +12,101 @@ export default function Mainfooter() {
     { label: "Report abuse", href: "/report" },
   ];
 
-  const paymentLinks = [
-    { label: "Sales tax and VAT", href: "/tax" },
-    { label: "Safe and easy payments", href: "/payments" },
-    { label: "Money-back policy", href: "/money-back" },
-    { label: "On-time shipment", href: "/shipment" },
-    { label: "After-sales protections", href: "/protections" },
-    { label: "Product monitoring services", href: "/monitoring" },
+  const exploreLinks = [
+    { label: "New Arrivals", href: "/new-arrivals" },
+    { label: "Best Sellers", href: "/best-sellers" },
+    { label: "Assorted Collections", href: "/collections" },
+    { label: "Tea Blends Collections", href: "/tea-blends" },
+    { label: "Loose Leaf Tea", href: "/loose-leaf" },
+    { label: "Elegant Gifts", href: "/gifts" },
+    { label: "Sale Collections", href: "/sale" },
   ];
-  const knowUsLinks = [
-    { label: "About Us", href: "/about" },
-    { label: "Corporate Responsibility", href: "/responsibility" },
-    { label: "Citizenship Program", href: "/citizenship" },
-    { label: "News Center", href: "/news" },
-    { label: "Careers", href: "/careers" },
+
+  const experienceLinks = [
+    { label: "Our Story", href: "/story" },
+    { label: "Product Philosophy", href: "/philosophy" },
+    { label: "Global Presence", href: "/presence" },
+    { label: "The Journal", href: "/journal" },
+    { label: "Tea Rituals", href: "/rituals" },
+    { label: "Private Gifting", href: "/private-gifting" },
   ];
+
+  const philosophyIcons = [
+    { src: "/images/footer/icon-1.svg", label: "Sovereign Seal" },
+    { src: "/images/footer/icon-2.svg", label: "Grand Passage" },
+    { src: "/images/footer/icon-3.png", label: "Noble Balance" },
+    { src: "/images/footer/icon-4.png", label: "World Assembly" },
+  ];
+
   return (
-    <section className="w-full bg-gray-50 border-t border-gray-200">
+    <section className="w-full bg-white">
       <div className="mainfooter-wrapper"> 
-        <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
-          {/* Top Section - Contact Info & Logo */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-6 border-b border-gray-200">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-sm text-text-primary">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                </svg>
-                <span className="font-gotham">close@londonteaexchange.com</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-text-primary">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                </svg>
-                <span className="font-gotham">Pan Pacific Sonargaon, Dhaka- 107 Kazi Nazrul Islam Ave, Dhaka 1215, Bangladesh</span>
-              </div>
-            </div>
-            <div className="shrink-0">
-              <Image 
-                src="/images/logo/Logo.png" 
-                alt="London Tea Exchange Logo" 
-                width={200} 
-                height={50}
-                className="h-10 sm:h-12 w-auto"
-              />
-            </div>
+        <div className="container mx-auto px-6 md:px-12 py-12 md:py-16">
+          
+          {/* Logo */}
+          <div className="mb-8">
+            <Image 
+              src="/images/logo/Logo.png" 
+              alt="London Tea Exchange Logo" 
+              width={300} 
+              height={80}
+              className="h-12 w-auto"
+            />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4 lg:gap-6">
-            <div className="xl:col-span-2">
-              <h3 className="font-bembo font-medium text-text-primary text-sm mb-4 uppercase">
+
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
+            
+            {/* About Us Section - 40% (2 cols out of 5) */}
+            <div className="lg:col-span-2">
+              <h3 className="font-['Bembo_Std'] font-medium text-gray-900 text-xl mb-4 uppercase tracking-wide flex items-center gap-1">
+                ABOUT US
+                <MdOutlineArrowOutward />
+              </h3>
+
+              <p className="font-['Bembo_Std'] text-lg leading-relaxed text-stone-800 mb-6">
+                Rooted in the fertile landscapes of Sylhet, our teas travel beyond origin—carrying with them the character of place, time, and craft. Inspired by the legacy of global trade excellence shaped by the London Tea Exchange, we position every selection not as a commodity, but as a refined expression of origin.
+              </p>
+
+              {/* Philosophy Icons */}
+              <div className="flex gap-10 mb-6">
+                {philosophyIcons.map((item, index) => (
+                  <div key={index} className="flex flex-col items-center text-center">
+                    <Image 
+                      src={item.src} 
+                      alt={item.label} 
+                      width={32} 
+                      height={32} 
+                      className="w-8 h-8 object-contain mb-1" 
+                    />
+                    <p className="font-['Bembo_Std'] text-lg text-stone-800 leading-6">{item.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Contact Info */}
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2 text-lg text-stone-800">
+                  <HiPhone className="w-4 h-4 mt-0.5 shrink-0" />
+                  <span className="font-['Gotham'] font-normal">+8801339-879491</span>
+                </div>
+                <div className="flex items-center gap-2 text-lg text-stone-800">
+                  <HiMail className="w-4 h-4 mt-0.5 shrink-0" />
+                  <span className="font-['Gotham']">store@londonteaexchange.com</span>
+                </div>
+                <div className="flex items-center gap-2 text-lg font-normal text-stone-800">
+                  <HiLocationMarker className="w-4 h-4 mt-0.5 shrink-0" />
+                  <span className="font-['Gotham']">Pan Pacific Sonargaon, Dhaka- 107 Kazi Nazrul Islam Ave, Dhaka 1215, Bangladesh</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Side - 3 Columns - 60% (3 cols out of 5) */}
+            <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-8">
+              
+              {/* Get Support Column */}
+              <div>
+              <h3 className="font-['Bembo_Std'] font-medium text-gray-900 text-lg mb-4 uppercase tracking-wide">
                 GET SUPPORT
               </h3>
               <ul className="space-y-2">
@@ -67,7 +114,7 @@ export default function Mainfooter() {
                   <li key={link.label}>
                     <Link 
                       href={link.href}
-                      className="font-bembo text-sm text-text-primary hover:text-brand-3 transition-colors"
+                      className="font-['Bembo_Std'] text-lg text-stone-800 hover:text-brand-3 transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -75,16 +122,18 @@ export default function Mainfooter() {
                 ))}
               </ul>
             </div>
-            <div className="xl:col-span-2">
-              <h3 className="font-bembo font-medium text-text-primary text-sm mb-4 uppercase">
-                PAYMENTS AND PROTECTION
+
+            {/* Explore Column */}
+            <div>
+              <h3 className="font-['Bembo_Std'] font-medium text-gray-900 text-lg mb-4 uppercase tracking-wide">
+                EXPLORE
               </h3>
               <ul className="space-y-2">
-                {paymentLinks.map((link) => (
+                {exploreLinks.map((link) => (
                   <li key={link.label}>
                     <Link 
                       href={link.href}
-                      className="font-bembo text-sm text-text-primary hover:text-brand-3 transition-colors"
+                      className="font-['Bembo_Std'] text-lg text-stone-800 hover:text-brand-3 transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -92,16 +141,18 @@ export default function Mainfooter() {
                 ))}
               </ul>
             </div>
-            <div className="xl:col-span-2">
-              <h3 className="font-bembo font-medium text-text-primary text-sm mb-4 uppercase">
-                GET TO KNOW US
+
+            {/* The Experience Column */}
+            <div>
+              <h3 className="font-['Bembo_Std'] font-medium text-stone-800 text-lg mb-4 uppercase tracking-wide">
+                THE EXPERIENCE
               </h3>
               <ul className="space-y-2">
-                {knowUsLinks.map((link) => (
+                {experienceLinks.map((link) => (
                   <li key={link.label}>
                     <Link 
                       href={link.href}
-                      className="font-bembo text-sm text-text-primary hover:text-brand-3 transition-colors"
+                      className="font-['Bembo_Std'] text-lg font-normal text-stone-800 hover:text-brand-3 transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -109,11 +160,11 @@ export default function Mainfooter() {
                 ))}
               </ul>
             </div>
-            {/* Decorative Image Section */}
-            <div className="xl:col-span-6">
-              <CollectionBanner />
+
             </div>
+
           </div>
+
         </div>
       </div>
     </section>
