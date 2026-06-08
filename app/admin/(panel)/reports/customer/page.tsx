@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Datepicker, { type DateValueType } from "react-tailwindcss-datepicker";
-import { AdminIcon, PageHeader } from "../../../_components/admin-shell";
+import { AdminIcon } from "../../../_components/admin-shell";
+import { PageHeader } from "../../../_components/page-header";
 import {
   apiRequest,
   formatDate,

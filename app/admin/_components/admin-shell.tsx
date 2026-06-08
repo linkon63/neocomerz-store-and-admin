@@ -8,6 +8,7 @@ import {
   clearAdminSession,
   type AdminUser,
 } from "../../../lib/admin-api";
+export { PageHeader } from "./page-header";
 
 export type AdminIconName =
   | "actions"
@@ -337,7 +338,7 @@ const menuGroups: {
     items: [
       { label: "Report", href: "/admin/reports", icon: "report", active: true },
       { label: "Sales Report", href: "/admin/reports/sales", icon: "report", child: true },
-      { label: "Purchase Report", href: "/admin/reports/purchase", icon: "stock", child: true },
+      // { label: "Purchase Report", href: "/admin/reports/purchase", icon: "stock", child: true },
       { label: "Discount Report", href: "/admin/reports/discount", icon: "discount", child: true },
       { label: "Customer Report", href: "/admin/reports/customer", icon: "reviews", child: true },
     ],
@@ -472,26 +473,6 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </main>
       </div>
     </div>
-  );
-}
-
-export function PageHeader({
-  title,
-  description,
-  action,
-}: {
-  title: string;
-  description: string;
-  action?: ReactNode;
-}) {
-  return (
-    <header className="mb-8 flex flex-col justify-between gap-5 border-b border-slate-200 pb-9 sm:flex-row sm:items-start">
-      <div>
-        <h1 className="text-4xl font-black tracking-normal">{title}</h1>
-        <p className="mt-1 text-lg font-medium text-slate-600">{description}</p>
-      </div>
-      {action}
-    </header>
   );
 }
 
