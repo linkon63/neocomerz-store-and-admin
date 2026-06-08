@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "London Tea Exchange",
-  description: "A heritage of rare tea, refined through craftsmanship, purity, and timeless elegance.",
+  title: "Humana Vintage",
+  description: "A vintage fashion storefront with curated archive pieces and everyday streetwear.",
 };
 
 export default function RootLayout({
