@@ -2,10 +2,8 @@
 
 import { useRef, useState } from "react";
 import { AdminIcon } from "../../../_components/admin-shell";
-import {
-  apiRequest,
-  type InventoryVariant,
-} from "../../../../../lib/admin-api";
+import { type InventoryVariant } from "../../../../../lib/admin-api";
+import { useAdjustStockSubmit } from "../../../_hooks/use-adjust-stock-submit";
 
 type Action = "add" | "remove";
 type Reason = "restock" | "correction" | "return" | "manual";
@@ -47,8 +45,6 @@ export function AdjustStockModal({
   const [note, setNote] = useState("");
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
 
   const isProductMode = selectedVariantId === PRODUCT_OPTION_ID;
@@ -67,53 +63,17 @@ export function AdjustStockModal({
       )
     : realVariants;
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-
-    if (!selectedVariantId) {
-      setError("Select a variant or product");
-      return;
-    }
-
-    const qty = Number(quantity);
-    if (!Number.isInteger(qty) || qty < 1) {
-      setError("Quantity must be a positive whole number");
-      return;
-    }
-
-    const change = action === "add" ? qty : -qty;
-
-    if (selectedVariant && action === "remove" && selectedVariant.stockQuantity - qty < 0) {
-      setError(`Stock cannot go negative. Current stock: ${selectedVariant.stockQuantity}`);
-      return;
-    }
-
-    setSaving(true);
-
-    try {
-      const payload: Record<string, unknown> = {
-        change,
-        reason,
-        note: note || undefined,
-      };
-      if (isProductMode) {
-        payload.productId = productId;
-      } else {
-        payload.variantId = selectedVariantId;
-      }
-      await apiRequest("/inventory/adjust", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      onSuccess();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to adjust stock");
-    } finally {
-      setSaving(false);
-    }
-  }
+  const { handleSubmit, saving, error } = useAdjustStockSubmit({
+    selectedVariantId,
+    selectedVariant,
+    isProductMode,
+    productId,
+    quantity,
+    action,
+    reason,
+    note,
+    onSuccess,
+  });
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
