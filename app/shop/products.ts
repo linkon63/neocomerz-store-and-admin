@@ -8,6 +8,13 @@ export type ShopProduct = {
   image: string;
 };
 
+export function productSlug(product: Pick<ShopProduct, "name">) {
+  return product.name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 export const shopProducts: ShopProduct[] = [
   {
     name: "Juventus 2002/03 training top",

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { FiChevronDown, FiGrid, FiHeart, FiList, FiSearch } from "react-icons/fi";
-import { shopProducts } from "./products";
+import { productSlug, shopProducts } from "./products";
 
 const colorOptions = [
   { label: "Orange", value: "#f58a4b" },
@@ -113,16 +113,7 @@ export default function ShopCatalog() {
 
       <div className="mt-9 grid gap-10 lg:grid-cols-[260px_1fr]">
         <aside className="hidden lg:block">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-black uppercase">Categories</h3>
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="text-xs font-bold uppercase text-neutral-400 hover:text-black"
-            >
-              Clear
-            </button>
-          </div>
+          <h3 className="text-base font-black uppercase">Categories</h3>
 
           <div className="mt-7 grid gap-3">
             <button
@@ -208,6 +199,13 @@ export default function ShopCatalog() {
                 <option value="price-high">Price: high to low</option>
                 <option value="name">Name</option>
               </select>
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="bg-[#ffd02f] px-4 py-2 text-xs font-black uppercase tracking-[0.08em] text-black transition hover:bg-black hover:text-white"
+              >
+                Clear Filters
+              </button>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 text-sm font-bold text-neutral-500">
@@ -269,7 +267,7 @@ export default function ShopCatalog() {
                   key={product.name}
                   className={viewMode === "grid" ? "group" : "group grid gap-5 sm:grid-cols-[220px_1fr]"}
                 >
-                  <Link href="#" className="block border border-neutral-100 bg-white">
+                  <Link href={`/shop/${productSlug(product)}`} className="block border border-neutral-100 bg-white">
                     <div className={viewMode === "grid" ? "relative aspect-square" : "relative aspect-square sm:h-full"}>
                       <Image
                         src={product.image}
