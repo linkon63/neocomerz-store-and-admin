@@ -1,0 +1,172 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { FiHeart, FiShoppingBag } from "react-icons/fi";
+import { useCart } from "./cart-context";
+
+interface ProductMedia {
+  isFeatured: boolean;
+  media?: { url: string };
+}
+
+interface ProductVariant {
+  price: number;
+  isDefault: boolean;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  media?: ProductMedia[];
+  variants?: ProductVariant[];
+}
+
+export default function ProductGrid() {
+  const { items, addItem } = useCart();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    (async () => {
+      try {
+        const res = await fetch("/api/v1/products?limit=20&page=1", {
+          signal: controller.signal,
+        });
+        if (!res.ok) throw new Error("Failed to fetch products");
+        const json = await res.json();
+        setProducts(json.data ?? []);
+      } catch {
+        if (!controller.signal.aborted) setError(true);
+      } finally {
+        if (!controller.signal.aborted) setIsLoading(false);
+      }
+    })();
+
+    return () => controller.abort();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <section className="w-full py-12">
+        <h1 className="font-bembo text-2xl font-bold sm:text-3xl">
+          Thousands of different stories
+        </h1>
+        <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-5">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <article key={i} className="group animate-pulse">
+              <div className="relative aspect-[4/5] bg-neutral-100" />
+              <div className="mt-4 space-y-2">
+                <div className="h-3 w-3/4 rounded bg-neutral-100" />
+                <div className="h-3 w-1/2 rounded bg-neutral-100" />
+                <div className="h-4 w-1/3 rounded bg-neutral-100" />
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (error || products.length === 0) {
+    return (
+      <section className="w-full py-12">
+        <h1 className="font-bembo text-2xl font-bold sm:text-3xl">
+          Thousands of different stories
+        </h1>
+        <p className="mt-10 text-sm text-neutral-500">
+          {error ? "Failed to load products. Please try again later." : "No products available."}
+        </p>
+      </section>
+    );
+  }
+
+  return (
+    <section className="w-full py-12">
+      <h1 className="font-bembo text-2xl font-bold sm:text-3xl">
+        Thousands of different stories
+      </h1>
+
+      <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-5">
+        {products.map((product) => {
+          const featured = product.media?.find((m) => m.isFeatured);
+          const imageUrl = featured?.media?.url ?? product.media?.[0]?.media?.url;
+          const defaultVariant = product.variants?.find((v) => v.isDefault);
+          const price = defaultVariant?.price ?? product.variants?.[0]?.price;
+
+          const inCart = items.some((i) => i.slug === product.slug);
+
+          return (
+            <article key={product.id} className="group">
+              <div className="relative aspect-[4/5] overflow-hidden bg-neutral-50">
+                <Link href={`/shop/${product.slug}`}>
+                  {imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={imageUrl}
+                      alt={product.name}
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center bg-neutral-100">
+                      <svg
+                        className="h-12 w-12 text-neutral-300"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                      >
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <path d="M21 15l-5-5L5 21" />
+                      </svg>
+                    </div>
+                  )}
+                </Link>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addItem({
+                      slug: product.slug,
+                      name: product.name,
+                      price: Number(price ?? 0),
+                      image: imageUrl ?? "",
+                      color: "",
+                      size: "",
+                      quantity: 1,
+                    });
+                  }}
+                  className={`absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 ${
+                    inCart
+                      ? "translate-y-0 bg-amber-400 text-white opacity-100"
+                      : "translate-y-2 bg-white text-black opacity-0"
+                  }`}
+                  aria-label={inCart ? "Added to cart" : "Add to cart"}
+                >
+                  <FiShoppingBag className="text-sm" />
+                </button>
+              </div>
+              <div className="mt-4 flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase leading-4 tracking-[0.08em]">
+                    {product.name}
+                  </p>
+                  <p className="mt-2 text-xs font-semibold">
+                    {price != null ? `€${Number(price).toFixed(2)}` : ""}
+                  </p>
+                </div>
+                <FiHeart className="mt-0.5 shrink-0 text-sm" aria-label="Add to wishlist" />
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
