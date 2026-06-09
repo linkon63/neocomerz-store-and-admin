@@ -1,33 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { FiHeart, FiShoppingBag } from "react-icons/fi";
-import { useCart } from "./cart-context";
-import { resolveImageUrl } from "../shop/products";
-
-interface ProductMedia {
-  isFeatured: boolean;
-  media?: { url: string };
-}
-
-interface ProductVariant {
-  id: string;
-  price: number;
-  isDefault: boolean;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  slug: string;
-  media?: ProductMedia[];
-  variants?: ProductVariant[];
-}
+import { resolveImageUrl, type ShopProduct, type DBProduct, type ProductVariant, type ProductMedia } from "../shop/products";
+import ProductCard from "./product-card";
 
 export default function ProductGrid() {
-  const { items, addItem } = useCart();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ShopProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -41,7 +19,66 @@ export default function ProductGrid() {
         });
         if (!res.ok) throw new Error("Failed to fetch products");
         const json = await res.json();
-        setProducts(json.data ?? []);
+        const dbProducts: DBProduct[] = json.data ?? [];
+        const mapped = dbProducts.map((p: DBProduct) => {
+          const defaultVariant = p.variants?.find((v: ProductVariant) => v.isDefault) || p.variants?.[0];
+          const price = defaultVariant ? Number(defaultVariant.price) : 0;
+
+          let color = "Black";
+          let size = "M";
+
+          if (defaultVariant?.attributes) {
+            for (const attr of defaultVariant.attributes) {
+              const val = attr.attributeValue?.value;
+              if (!val) continue;
+              const attrName = attr.attributeValue?.attribute?.name?.toLowerCase();
+              if (attrName === "size" || ["S", "M", "L", "XL", "XXL"].includes(val)) {
+                size = val;
+              } else {
+                color = val;
+              }
+            }
+          }
+
+          const featuredMedia = p.media?.find((m: ProductMedia) => m.isFeatured) || p.media?.[0];
+          const image = resolveImageUrl(featuredMedia?.media?.url);
+
+          const allColors = new Set<string>();
+          const allSizes = new Set<string>();
+          if (p.variants) {
+            for (const v of p.variants) {
+              if (v.attributes) {
+                for (const attr of v.attributes) {
+                  const val = attr.attributeValue?.value;
+                  const name = attr.attributeValue?.attribute?.name?.toLowerCase();
+                  if (val) {
+                    if (name === "size" || ["S", "M", "L", "XL", "XXL"].includes(val)) {
+                      allSizes.add(val);
+                    } else {
+                      allColors.add(val);
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          return {
+            id: p.id,
+            slug: p.slug,
+            name: p.name,
+            category: p.category?.name || "Football Corner",
+            team: p.brand?.name || "Juventus",
+            price,
+            color,
+            size,
+            image,
+            variantId: defaultVariant?.id,
+            colors: Array.from(allColors),
+            sizes: Array.from(allSizes),
+          };
+        });
+        setProducts(mapped);
       } catch {
         if (!controller.signal.aborted) setError(true);
       } finally {
@@ -94,83 +131,9 @@ export default function ProductGrid() {
       </h1>
 
       <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-5">
-        {products.map((product) => {
-          const featured = product.media?.find((m) => m.isFeatured);
-          const rawUrl = featured?.media?.url ?? product.media?.[0]?.media?.url;
-          const imageUrl = resolveImageUrl(rawUrl);
-          const defaultVariant = product.variants?.find((v) => v.isDefault);
-          const price = defaultVariant?.price ?? product.variants?.[0]?.price;
-          const variantId = defaultVariant?.id ?? product.variants?.[0]?.id;
-
-          const inCart = items.some((i) => i.slug === product.slug);
-
-          return (
-            <article key={product.id} className="group">
-              <div className="relative aspect-[4/5] overflow-hidden bg-neutral-50">
-                <Link href={`/shop/${product.slug}`}>
-                  {imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={imageUrl}
-                      alt={product.name}
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center bg-neutral-100">
-                      <svg
-                        className="h-12 w-12 text-neutral-300"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                      >
-                        <rect x="3" y="3" width="18" height="18" rx="2" />
-                        <circle cx="8.5" cy="8.5" r="1.5" />
-                        <path d="M21 15l-5-5L5 21" />
-                      </svg>
-                    </div>
-                  )}
-                </Link>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    addItem({
-                      slug: product.slug,
-                      name: product.name,
-                      price: Number(price ?? 0),
-                      image: imageUrl ?? "",
-                      color: "",
-                      size: "",
-                      variantId,
-                      quantity: 1,
-                    });
-                  }}
-                  className={`absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 ${
-                    inCart
-                      ? "translate-y-0 bg-amber-400 text-white opacity-100"
-                      : "translate-y-2 bg-white text-black opacity-0"
-                  }`}
-                  aria-label={inCart ? "Added to cart" : "Add to cart"}
-                >
-                  <FiShoppingBag className="text-sm" />
-                </button>
-              </div>
-              <div className="mt-4 flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase leading-4 tracking-[0.08em]">
-                    {product.name}
-                  </p>
-                  <p className="mt-2 text-xs font-semibold">
-                    {price != null ? `€${Number(price).toFixed(2)}` : ""}
-                  </p>
-                </div>
-                <FiHeart className="mt-0.5 shrink-0 text-sm" aria-label="Add to wishlist" />
-              </div>
-            </article>
-          );
-        })}
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
       </div>
     </section>
   );
