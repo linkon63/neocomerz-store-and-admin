@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FiHeart } from "react-icons/fi";
 import HeroSlider from "./_components/hero-slider";
+import Newsletter from "@/components/Newsletter";
 
 const editorialImages = [
   {
@@ -157,42 +158,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-[#ffd02f] px-4 py-16 sm:px-8">
-        <div className="mx-auto grid max-w-[1400px] gap-8 lg:grid-cols-[1fr_460px] lg:items-center">
-          <div>
-            <h2 className="font-bembo text-3xl font-bold leading-tight text-black sm:text-5xl">
-              Subscribe to our newsletter
-            </h2>
-            <p className="mt-4 text-sm font-medium text-black sm:text-base">
-              Stay updated and receive 10% off your first order.
-            </p>
-          </div>
-          <div>
-            <form className="flex w-full">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="min-w-0 flex-1 bg-white px-4 py-3 text-sm font-medium text-neutral-900 outline-none placeholder:text-neutral-500"
-              />
-              <button
-                type="submit"
-                className="bg-[#120b16] px-5 py-3 text-xs font-bold uppercase tracking-[0.08em] text-white"
-              >
-                Subscribe
-              </button>
-            </form>
-
-            <label className="mt-5 flex items-center gap-3 text-sm font-bold text-black">
-              <input
-                type="checkbox"
-                className="h-4 w-4 rounded border border-neutral-400 bg-white"
-              />
-              <span>I have read and accept the terms and conditions</span>
-            </label>
-          </div>
-        </div>
-      </section>
-
+      <Newsletter />
     </main>
   );
 }
