@@ -190,12 +190,12 @@ export default function StorefrontHeader() {
             <Link href="#">Archive</Link>
             {isAuthenticated ? (
               <span className="flex items-center gap-4">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.08em]">
-                  Hi, {user?.name?.split(" ")[0]}
-                </span>
-                <button type="button" onClick={logout} className="text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-500">
-                  Log Out
-                </button>
+                <Link href="/profile" className="text-[11px] font-semibold uppercase tracking-[0.08em] underline underline-offset-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-600">
+                    Hi, {user?.name?.split(" ")[0]}
+                  </span>
+                </Link>
+                
               </span>
             ) : (
               <button type="button" onClick={() => switchAuthMode("login")}>
