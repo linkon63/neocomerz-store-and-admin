@@ -15,7 +15,7 @@ export default function ContactPage() {
                 <Image src="/images/contacts/banner.webp" alt="Contact Banner" fill className="object-cover" />
             </div>
 
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-20 px-6">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-20 px-6 bg-white">
                 {/* Left Form */}
                 <div>
                     <h1 className="text-3xl font-bold mb-2">Let's talk</h1>

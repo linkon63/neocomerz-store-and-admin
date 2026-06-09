@@ -19,9 +19,14 @@ export default function StorefrontChrome({ children }: { children: React.ReactNo
     <AuthProvider>
       <WishlistProvider>
         <CartProvider>
-          <StorefrontHeader />
-          {children}
-          <StorefrontFooter />
+          <div
+            className="relative z-10 bg-white shadow-2xl" 
+            style={{ marginBottom: `450px` }}
+          >
+            <StorefrontHeader />
+            {children}
+            <StorefrontFooter />
+          </div>
         </CartProvider>
       </WishlistProvider>
     </AuthProvider>
