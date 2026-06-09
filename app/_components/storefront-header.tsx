@@ -203,7 +203,6 @@ export default function StorefrontHeader() {
               className="h-9 w-auto sm:h-11"
             />
           </Link>
-          
           <div className="hidden items-center gap-5 text-lg text-black lg:flex">
             <div ref={desktopSearchRef} className="relative hidden min-w-[220px] xl:block">
             {searchOpen ? (
