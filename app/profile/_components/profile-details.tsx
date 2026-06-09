@@ -1,21 +1,117 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
+import { useAuth } from "../../_components/auth-context";
+
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5010/api/v1";
 
 export default function ProfileDetails() {
-  const [name, setName] = useState("Alex Johnson");
-  const [email, setEmail] = useState("alex@example.com");
-  const [phone, setPhone] = useState("+39 123 456 7890");
+  const { token, refreshUser } = useAuth();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [profileMessage, setProfileMessage] = useState("");
+  const [profileError, setProfileError] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
-  const handleSubmit = (e: FormEvent) => {
+  useEffect(() => {
+    if (token) fetchProfile();
+  }, [token]);
+
+  async function fetchProfile() {
+    setLoading(true);
+    const res = await fetch(`${BASE_URL}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setName(data.name || "");
+      setEmail(data.email || "");
+      setPhone(data.phone || "");
+    }
+    setLoading(false);
+  }
+
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
+    setSaving(true);
+    setProfileMessage("");
+    setProfileError("");
+    setPasswordMessage("");
+    setPasswordError("");
+
+    const profilePromise = fetch(`${BASE_URL}/auth/me`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name, email, phone: phone || undefined }),
+    });
+
+    const hasPasswordChange = currentPassword && newPassword;
+    let passwordPromise: Promise<Response> | null = null;
+
+    if (hasPasswordChange) {
+      if (newPassword !== confirmPassword) {
+        setPasswordError("Passwords do not match");
+        setSaving(false);
+        return;
+      }
+      passwordPromise = fetch(`${BASE_URL}/auth/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+    }
+
+    const [profileRes, passwordRes] = await Promise.all([
+      profilePromise,
+      passwordPromise,
+    ]);
+
+    if (profileRes.ok) {
+      setProfileMessage("Profile updated successfully");
+      refreshUser();
+    } else {
+      const err = await profileRes.json().catch(() => ({ message: "Failed to update profile" }));
+      setProfileError((err as { message?: string }).message || "Failed to update profile");
+    }
+
+    if (hasPasswordChange && passwordRes) {
+      if (passwordRes.ok) {
+        setPasswordMessage("Password changed successfully");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        const err = await passwordRes.json().catch(() => ({ message: "Failed to change password" }));
+        setPasswordError((err as { message?: string }).message || "Failed to change password");
+      }
+    }
+
+    setSaving(false);
+  }
+
+  if (!token) return null;
+
+  if (loading) {
+    return (
+      <div>
+        <h2 className="font-bembo text-3xl font-bold">Account Details</h2>
+        <p className="mt-2 text-sm text-neutral-500">Loading profile...</p>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -29,6 +125,7 @@ export default function ProfileDetails() {
           </label>
           <input
             type="text"
+            required
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="mt-1 w-full border border-neutral-200 px-4 py-3 text-sm outline-none focus:border-black"
@@ -41,6 +138,7 @@ export default function ProfileDetails() {
           </label>
           <input
             type="email"
+            required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="mt-1 w-full border border-neutral-200 px-4 py-3 text-sm outline-none focus:border-black"
@@ -58,6 +156,13 @@ export default function ProfileDetails() {
             className="mt-1 w-full border border-neutral-200 px-4 py-3 text-sm outline-none focus:border-black"
           />
         </div>
+
+        {profileMessage && (
+          <p className="text-xs font-semibold text-green-600">{profileMessage}</p>
+        )}
+        {profileError && (
+          <p className="text-xs font-semibold text-red-500">{profileError}</p>
+        )}
 
         <hr className="border-neutral-200" />
 
@@ -101,18 +206,21 @@ export default function ProfileDetails() {
           />
         </div>
 
+        {passwordMessage && (
+          <p className="text-xs font-semibold text-green-600">{passwordMessage}</p>
+        )}
+        {passwordError && (
+          <p className="text-xs font-semibold text-red-500">{passwordError}</p>
+        )}
+
         <div className="flex items-center gap-4">
           <button
             type="submit"
-            className="bg-black px-6 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-white"
+            disabled={saving}
+            className="bg-black px-6 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-white disabled:opacity-50"
           >
-            Save changes
+            {saving ? "Saving..." : "Save changes"}
           </button>
-          {saved && (
-            <span className="text-xs font-semibold text-green-600">
-              Changes saved successfully
-            </span>
-          )}
         </div>
       </form>
     </div>

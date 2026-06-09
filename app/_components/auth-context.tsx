@@ -15,6 +15,7 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -27,6 +28,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const fetchUserFromToken = async (savedToken: string) => {
+    setToken(savedToken);
+    try {
+      const res = await fetch(`${BASE_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${savedToken}` },
+      });
+
+      if (res.ok) {
+        const userData = await res.json();
+        setUser(userData);
+      } else {
+        sessionStorage.removeItem(TOKEN_KEY);
+        setToken(null);
+      }
+    } catch (err) {
+      console.error("Failed to restore session:", err);
+    }
+  };
+
+  const refreshUser = async () => {
+    const current = sessionStorage.getItem(TOKEN_KEY);
+    if (!current) return;
+    await fetchUserFromToken(current);
+  };
+
   useEffect(() => {
     async function loadUser() {
       const savedToken = sessionStorage.getItem(TOKEN_KEY);
@@ -35,25 +61,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      setToken(savedToken);
-      try {
-        const res = await fetch(`${BASE_URL}/auth/me`, {
-          headers: { Authorization: `Bearer ${savedToken}` },
-        });
-
-        if (res.ok) {
-          const userData = await res.json();
-          setUser(userData);
-        } else {
-          // Token is stale — clear it
-          sessionStorage.removeItem(TOKEN_KEY);
-          setToken(null);
-        }
-      } catch (err) {
-        console.error("Failed to restore session:", err);
-      } finally {
-        setIsLoading(false);
-      }
+      await fetchUserFromToken(savedToken);
+      setIsLoading(false);
     }
 
     loadUser();
@@ -102,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
