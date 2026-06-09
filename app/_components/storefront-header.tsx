@@ -79,6 +79,50 @@ export default function StorefrontHeader() {
     }
   }
 
+  const handleForgotPasswordSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    setAuthSubmitting(true);
+    try {
+      const form = e.currentTarget as HTMLFormElement;
+      const email = (form.elements.namedItem("forgotEmail") as HTMLInputElement).value;
+      await forgotPassword(email);
+      setForgotSent(true);
+    } catch (err) {
+      setAuthError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setAuthSubmitting(false);
+    }
+  };
+
+  const handleAuthSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    setAuthSubmitting(true);
+    try {
+      const form = e.currentTarget as HTMLFormElement;
+      if (authModal === "login") {
+        const email = (form.elements.namedItem("loginEmail") as HTMLInputElement).value;
+        const password = (form.elements.namedItem("loginPassword") as HTMLInputElement).value;
+        await login(email, password, rememberMe);
+      } else {
+        const name = (form.elements.namedItem("regName") as HTMLInputElement).value;
+        const email = (form.elements.namedItem("regEmail") as HTMLInputElement).value;
+        const password = (form.elements.namedItem("regPassword") as HTMLInputElement).value;
+        const confirm = (form.elements.namedItem("regConfirm") as HTMLInputElement).value;
+        if (password !== confirm) {
+          throw new Error("Passwords do not match");
+        }
+        await register(name, email, password);
+      }
+      closeAuthModal();
+    } catch (err) {
+      setAuthError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setAuthSubmitting(false);
+    }
+  };
+
   return (
     <div className="sticky top-0 z-50 bg-white">
       {/* Announcement bar */}
@@ -315,15 +359,40 @@ export default function StorefrontHeader() {
               />
               {authMode === "register" && (
                 <input
+                  name={authModal === "login" ? "loginEmail" : "regEmail"}
+                  type="email"
+                  placeholder="Email address"
+                  required
+                  className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none"
+                />
+                <input
+                  name={authModal === "login" ? "loginPassword" : "regPassword"}
                   type="password"
+<<<<<<< HEAD
                   placeholder="Confirm password *"
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none focus:border-black"
+=======
+                  placeholder="Password"
+                  required
+                  minLength={6}
+                  className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none"
+>>>>>>> 10bb4698810f8a0d455338c95f607ed23a0f0471
                 />
-              )}
+                {authModal === "register" && (
+                  <input
+                    name="regConfirm"
+                    type="password"
+                    placeholder="Confirm password"
+                    required
+                    minLength={6}
+                    className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none"
+                  />
+                )}
 
+<<<<<<< HEAD
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -351,6 +420,44 @@ export default function StorefrontHeader() {
                 </button>
               </p>
             )}
+=======
+                {authModal === "login" && (
+                  <label className="flex items-center gap-2 text-xs font-semibold text-neutral-600">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="h-4 w-4 rounded border-neutral-300"
+                    />
+                    Remember me
+                  </label>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={authSubmitting}
+                  className="w-full bg-black px-4 py-3 text-sm font-black uppercase tracking-[0.12em] text-white disabled:opacity-50"
+                >
+                  {authSubmitting
+                    ? "Please wait…"
+                    : authModal === "login"
+                      ? "Log in"
+                      : "Register"}
+                </button>
+
+                {authModal === "login" && (
+                  <button
+                    type="button"
+                    onClick={() => switchAuthMode("forgot-password")}
+                    className="mt-2 block w-full text-center text-xs font-bold uppercase tracking-[0.08em] text-neutral-500 underline underline-offset-2"
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </form>
+            )}
+
+>>>>>>> 10bb4698810f8a0d455338c95f607ed23a0f0471
           </div>
         </div>
       )}
