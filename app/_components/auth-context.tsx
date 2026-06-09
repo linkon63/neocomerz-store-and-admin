@@ -53,35 +53,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const controller = new AbortController();
+  (async () => {
+    const token = getStoredToken();
+    if (!token) {
+      setTimeout(() => setIsLoading(false), 0);
+      return;
+    }
 
-    (async () => {
-      const token = getStoredToken();
-      if (!token) {
-        setTimeout(() => setIsLoading(false), 0);
-        return;
-      }
-
-      try {
-        const res = await fetch("/api/v1/auth/me", {
-          headers: { Authorization: `Bearer ${token}` },
-          signal: controller.signal,
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data);
-        } else {
-          clearStoredToken();
-        }
-      } catch {
+    try {
+      const res = await fetch("/api/v1/auth/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data);
+      } else {
         clearStoredToken();
-      } finally {
-        if (!controller.signal.aborted) setIsLoading(false);
       }
-    })();
-
-    return () => controller.abort();
-  }, []);
+    } catch {
+      clearStoredToken();
+    } finally {
+      setIsLoading(false);
+    }
+  })();
+}, []);
 
   const login = useCallback(async (email: string, password: string, rememberMe: boolean) => {
     const res = await fetch("/api/v1/auth/login", {
