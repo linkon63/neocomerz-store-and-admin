@@ -17,7 +17,7 @@ export default function StorefrontHeader() {
   const [authMode, setAuthMode] = useState<"login" | "register" | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  // Form state
+  // Auth form state
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,7 +31,7 @@ export default function StorefrontHeader() {
     setMounted(true);
   }, []);
 
-  // Reset form when modal opens/switches mode
+  // Reset form fields whenever the modal mode changes
   useEffect(() => {
     setName("");
     setEmail("");
@@ -41,14 +41,14 @@ export default function StorefrontHeader() {
     setIsSubmitting(false);
   }, [authMode]);
 
-  // Close modal on backdrop click
+  // Close modal on Escape key
   useEffect(() => {
     if (!authMode) return;
-    function handleKeyDown(e: KeyboardEvent) {
+    function onKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") setAuthMode(null);
     }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
   }, [authMode]);
 
   async function handleAuthSubmit(e: React.FormEvent) {
@@ -79,18 +79,16 @@ export default function StorefrontHeader() {
     }
   }
 
-  function handleLogout() {
-    logout();
-  }
-
   return (
     <div className="sticky top-0 z-50 bg-white">
+      {/* Announcement bar */}
       <section className="bg-black px-4 py-2 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
         Join our community and get 10% off every piece
       </section>
 
       <header className="border-b border-neutral-200 bg-white">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-4 py-3 sm:px-8">
+          {/* Desktop nav */}
           <nav className="hidden items-center gap-7 text-[11px] font-semibold uppercase tracking-[0.08em] lg:flex">
             <Link href="/">Home</Link>
             <Link href="/shop">Shop</Link>
@@ -104,6 +102,7 @@ export default function StorefrontHeader() {
             )}
           </nav>
 
+          {/* Logo */}
           <Link href="/" className="mx-auto lg:mx-0" aria-label="Humana Vintage home">
             <Image
               src={humanaLogo}
@@ -113,6 +112,7 @@ export default function StorefrontHeader() {
             />
           </Link>
 
+          {/* Desktop search bar */}
           <Link
             href="/shop"
             className="hidden min-w-[220px] items-center gap-2 border-b border-black pb-1 text-[11px] font-semibold uppercase tracking-[0.08em] xl:flex"
@@ -121,7 +121,9 @@ export default function StorefrontHeader() {
             <span>Football jerseys</span>
           </Link>
 
+          {/* Desktop icons */}
           <div className="hidden items-center gap-5 text-lg text-black lg:flex">
+            {/* User / account */}
             {user ? (
               <div className="group relative">
                 <button
@@ -130,11 +132,11 @@ export default function StorefrontHeader() {
                   className="flex items-center gap-1.5 text-sm font-bold"
                 >
                   <FiUser />
-                  <span className="text-[11px] uppercase tracking-[0.06em] max-w-[90px] truncate">
+                  <span className="max-w-[90px] truncate text-[11px] uppercase tracking-[0.06em]">
                     {user.name.split(" ")[0]}
                   </span>
                 </button>
-                <div className="invisible absolute right-0 top-full w-44 translate-y-3 border border-neutral-200 bg-white shadow-xl opacity-0 transition group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                <div className="invisible absolute right-0 top-full w-44 translate-y-3 border border-neutral-200 bg-white opacity-0 shadow-xl transition group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
                   <Link
                     href="/profile"
                     className="block px-4 py-3 text-xs font-bold uppercase tracking-[0.08em] hover:bg-neutral-50"
@@ -143,7 +145,7 @@ export default function StorefrontHeader() {
                   </Link>
                   <button
                     type="button"
-                    onClick={handleLogout}
+                    onClick={logout}
                     className="flex w-full items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-[0.08em] text-red-600 hover:bg-red-50"
                   >
                     <FiLogOut className="text-sm" />
@@ -161,6 +163,7 @@ export default function StorefrontHeader() {
               </button>
             )}
 
+            {/* Wishlist */}
             <Link href="/wishlist" aria-label="Wishlist" className="relative block">
               <FiHeart />
               {mounted && wishlistItemCount > 0 && (
@@ -170,6 +173,7 @@ export default function StorefrontHeader() {
               )}
             </Link>
 
+            {/* Cart with hover preview */}
             <div className="group relative">
               <Link href="/cart" aria-label="Cart" className="relative block">
                 <FiShoppingBag />
@@ -208,7 +212,6 @@ export default function StorefrontHeader() {
                     </div>
                   </div>
                 )}
-
                 <Link
                   href="/cart"
                   className="mt-4 block bg-black px-4 py-3 text-center text-xs font-black uppercase tracking-[0.12em] text-white"
@@ -220,6 +223,7 @@ export default function StorefrontHeader() {
           </div>
         </div>
 
+        {/* Mobile search bar */}
         <div className="border-t border-neutral-200 px-4 py-2 xl:hidden">
           <Link
             href="/shop"
@@ -241,7 +245,7 @@ export default function StorefrontHeader() {
         >
           <div ref={modalRef} className="w-full max-w-md bg-white p-6 shadow-2xl">
             <div className="flex items-center justify-between">
-              <h2 className="font-bembo text-3xl font-bold">
+              <h2 className="text-3xl font-bold">
                 {authMode === "login" ? "Log in" : "Create account"}
               </h2>
               <button
@@ -254,18 +258,23 @@ export default function StorefrontHeader() {
               </button>
             </div>
 
+            {/* Login / Register tab toggle */}
             <div className="mt-5 grid grid-cols-2 border border-neutral-200 text-sm font-black uppercase">
               <button
                 type="button"
                 onClick={() => setAuthMode("login")}
-                className={`px-4 py-3 transition ${authMode === "login" ? "bg-black text-white" : "bg-white text-black hover:bg-neutral-50"}`}
+                className={`px-4 py-3 transition ${
+                  authMode === "login" ? "bg-black text-white" : "bg-white text-black hover:bg-neutral-50"
+                }`}
               >
                 Login
               </button>
               <button
                 type="button"
                 onClick={() => setAuthMode("register")}
-                className={`px-4 py-3 transition ${authMode === "register" ? "bg-black text-white" : "bg-white text-black hover:bg-neutral-50"}`}
+                className={`px-4 py-3 transition ${
+                  authMode === "register" ? "bg-black text-white" : "bg-white text-black hover:bg-neutral-50"
+                }`}
               >
                 Register
               </button>
@@ -318,7 +327,7 @@ export default function StorefrontHeader() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-black px-4 py-3 text-sm font-black uppercase tracking-[0.12em] text-white disabled:bg-neutral-400 transition hover:bg-neutral-800"
+                className="w-full bg-black px-4 py-3 text-sm font-black uppercase tracking-[0.12em] text-white transition hover:bg-neutral-800 disabled:bg-neutral-400"
               >
                 {isSubmitting
                   ? authMode === "login"

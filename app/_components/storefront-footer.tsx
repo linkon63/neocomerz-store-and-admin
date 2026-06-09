@@ -16,8 +16,8 @@ const footerGroups = [
   {
     title: "Who We Are",
     links: [
-      { label: "Who We Are", href: "#" },
-      { label: "Contacts", href: "#" },
+      { label: "About Us", href: "/about" },
+      { label: "Contacts", href: "/contact" },
       { label: "Our Stores", href: "#" },
       { label: "Institutional Blog", href: "#" },
     ],
