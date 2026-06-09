@@ -65,7 +65,7 @@ export default function StorefrontFooter() {
 
   return (
     <footer className="bg-white px-4 py-14 sm:px-8 lg:py-20">
-      <div className="mx-auto max-w-[1180px]">
+      <div className="mx-auto max-w-[1400px]">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.2fr_1.2fr_1.2fr_1fr]">
           {footerGroups.map((group) => (
             <div key={group.title}>

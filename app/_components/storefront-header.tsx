@@ -2,132 +2,81 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
-import { FiHeart, FiSearch, FiShoppingBag, FiUser } from "react-icons/fi";
+import { useEffect, useRef, useState } from "react";
+import { FiHeart, FiLogOut, FiSearch, FiShoppingBag, FiUser } from "react-icons/fi";
 import humanaLogo from "../../references/logo.png";
 import { useAuth } from "./auth-context";
 import { useCart } from "./cart-context";
-import { useProductSearch } from "./use-product-search";
+import { useWishlist } from "./wishlist-context";
 
 export default function StorefrontHeader() {
   const { itemCount, items, subtotal } = useCart();
-  const { user, isAuthenticated, login, register, forgotPassword, logout, authModal, openAuthModal, closeAuthModal: closeAuthCtx } = useAuth();
+  const { itemCount: wishlistItemCount } = useWishlist();
+  const { user, login, register, logout } = useAuth();
 
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [authSubmitting, setAuthSubmitting] = useState(false);
-  const [forgotSent, setForgotSent] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "register" | null>(null);
+  const [mounted, setMounted] = useState(false);
 
-  const closeAuthModal = useCallback(() => {
-    closeAuthCtx();
-    setAuthError(null);
-    setAuthSubmitting(false);
-    setForgotSent(false);
-  }, [closeAuthCtx]);
+  // Auth form state
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [formError, setFormError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const switchAuthMode = useCallback((mode: "login" | "register" | "forgot-password") => {
-    openAuthModal(mode);
-    setAuthError(null);
-    setForgotSent(false);
-  }, [openAuthModal]);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const desktopSearchRef = useRef<HTMLDivElement>(null);
-  const mobileSearchRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
-  const { results: searchResults, isSearching } = useProductSearch(searchQuery);
-
-  const closeSearch = useCallback(() => {
-    setSearchOpen(false);
-    setSearchQuery("");
+  useEffect(() => {
+    setMounted(true);
   }, []);
 
+  // Reset form fields whenever the modal mode changes
   useEffect(() => {
-    if (!searchOpen) return;
-    const timer = setTimeout(() => searchInputRef.current?.focus(), 50);
-    return () => clearTimeout(timer);
-  }, [searchOpen]);
+    setName("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setFormError("");
+    setIsSubmitting(false);
+  }, [authMode]);
 
+  // Close modal on Escape key
   useEffect(() => {
-    if (!searchOpen) return;
-    const handleClick = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (
-        !desktopSearchRef.current?.contains(target) &&
-        !mobileSearchRef.current?.contains(target)
-      ) {
-        closeSearch();
+    if (!authMode) return;
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setAuthMode(null);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [authMode]);
+
+  async function handleAuthSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setFormError("");
+
+    if (authMode === "register" && password !== confirmPassword) {
+      setFormError("Passwords do not match.");
+      return;
+    }
+    if (password.length < 6) {
+      setFormError("Password must be at least 6 characters.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      if (authMode === "login") {
+        await login(email, password);
+      } else {
+        await register(name, email, password);
       }
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [searchOpen, closeSearch]);
-
-  function renderSearchResults(position: string) {
-    if (searchQuery.length < 2) return null;
-
-    return (
-      <div
-        className={`absolute top-full z-50 mt-3 border border-neutral-200 bg-white shadow-xl ${position}`}
-      >
-        {isSearching ? (
-          <p className="px-4 py-3 text-[11px] text-neutral-500">Searching…</p>
-        ) : searchResults.length === 0 ? (
-          <p className="px-4 py-3 text-[11px] text-neutral-500">No products found</p>
-        ) : (
-          <ul className="py-2">
-            {searchResults.slice(0, 5).map((product) => {
-              const featured = product.media?.find((m) => m.isFeatured);
-              const imageUrl = featured?.media?.url ?? product.media?.[0]?.media?.url;
-              const defaultVariant = product.variants?.find((v) => v.isDefault);
-              const price = defaultVariant?.price ?? product.variants?.[0]?.price ?? 0;
-
-              return (
-                <li key={product.id}>
-                  <Link
-                    href={`/shop/${product.slug}`}
-                    onClick={closeSearch}
-                    className="flex items-center gap-3 px-4 py-2 transition hover:bg-neutral-50"
-                  >
-                    <div className="relative h-10 w-10 shrink-0 overflow-hidden bg-neutral-100">
-                      {imageUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={imageUrl}
-                          alt={product.name}
-                          className="h-full w-full object-contain p-1"
-                        />
-                      ) : (
-                        <svg
-                          className="h-full w-full p-2 text-neutral-300"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                        >
-                          <rect x="3" y="3" width="18" height="18" rx="2" />
-                          <circle cx="8.5" cy="8.5" r="1.5" />
-                          <path d="M21 15l-5-5L5 21" />
-                        </svg>
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em]">
-                        {product.name}
-                      </p>
-                      <p className="mt-0.5 text-[11px] text-neutral-500">
-                        €{Number(price).toFixed(2)}
-                      </p>
-                    </div>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
-    );
+      setAuthMode(null);
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "Something went wrong. Try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const handleForgotPasswordSubmit = async (e: FormEvent) => {
@@ -176,34 +125,28 @@ export default function StorefrontHeader() {
 
   return (
     <div className="sticky top-0 z-50 bg-white">
+      {/* Announcement bar */}
       <section className="bg-black px-4 py-2 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
         Join our community and get 10% off every piece
       </section>
 
       <header className="border-b border-neutral-200 bg-white">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-4 py-3 sm:px-8">
+          {/* Desktop nav */}
           <nav className="hidden items-center gap-7 text-[11px] font-semibold uppercase tracking-[0.08em] lg:flex">
             <Link href="/">Home</Link>
             <Link href="/shop">Shop</Link>
             <Link href="#">New In</Link>
             <Link href="#">Brands</Link>
             <Link href="#">Archive</Link>
-            {isAuthenticated ? (
-              <span className="flex items-center gap-4">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.08em]">
-                  Hi, {user?.name?.split(" ")[0]}
-                </span>
-                <button type="button" onClick={logout} className="text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-500">
-                  Log Out
-                </button>
-              </span>
-            ) : (
-              <button type="button" onClick={() => switchAuthMode("login")}>
+            {!user && (
+              <button type="button" onClick={() => setAuthMode("login")}>
                 Log In
               </button>
             )}
           </nav>
 
+          {/* Logo */}
           <Link href="/" className="mx-auto lg:mx-0" aria-label="Humana Vintage home">
             <Image
               src={humanaLogo}
@@ -213,51 +156,73 @@ export default function StorefrontHeader() {
             />
           </Link>
 
+          {/* Desktop search bar */}
+          <Link
+            href="/shop"
+            className="hidden min-w-[220px] items-center gap-2 border-b border-black pb-1 text-[11px] font-semibold uppercase tracking-[0.08em] xl:flex"
+          >
+            <FiSearch className="text-sm" />
+            <span>Football jerseys</span>
+          </Link>
+
+          {/* Desktop icons */}
           <div className="hidden items-center gap-5 text-lg text-black lg:flex">
-            <div ref={desktopSearchRef} className="relative hidden w-[220px] xl:block">
-              {searchOpen ? (
-                <div className="flex w-full items-center gap-2 border-b border-black pb-1">
-                  <FiSearch className="shrink-0 text-sm" />
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    placeholder="Football jerseys"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === "Escape" && closeSearch()}
-                    className="w-full bg-transparent text-[11px] font-semibold uppercase tracking-[0.08em] outline-none placeholder:text-neutral-400"
-                  />
-                </div>
-              ) : (
+            {/* User / account */}
+            {user ? (
+              <div className="group relative">
                 <button
                   type="button"
-                  onClick={() => setSearchOpen(true)}
-                  className="flex w-full items-center justify-end text-lg text-black"
-                  aria-label="Open search"
+                  aria-label="Account menu"
+                  className="flex items-center gap-1.5 text-sm font-bold"
                 >
-                  <FiSearch />
+                  <FiUser />
+                  <span className="max-w-[90px] truncate text-[11px] uppercase tracking-[0.06em]">
+                    {user.name.split(" ")[0]}
+                  </span>
                 </button>
-              )}
-              {renderSearchResults("right-0 w-80")}
-            </div>
-
-            {isAuthenticated ? (
-              <Link href="/profile" aria-label="My Profile">
-                <FiUser />
-              </Link>
+                <div className="invisible absolute right-0 top-full w-44 translate-y-3 border border-neutral-200 bg-white opacity-0 shadow-xl transition group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                  <Link
+                    href="/profile"
+                    className="block px-4 py-3 text-xs font-bold uppercase tracking-[0.08em] hover:bg-neutral-50"
+                  >
+                    My Orders
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={logout}
+                    className="flex w-full items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-[0.08em] text-red-600 hover:bg-red-50"
+                  >
+                    <FiLogOut className="text-sm" />
+                    Sign Out
+                  </button>
+                </div>
+              </div>
             ) : (
-              <button type="button" onClick={() => switchAuthMode("login")} aria-label="Open login modal">
+              <button
+                type="button"
+                onClick={() => setAuthMode("login")}
+                aria-label="Open login modal"
+              >
                 <FiUser />
               </button>
             )}
-            <Link href="/wishlist" aria-label="Wishlist">
+
+            {/* Wishlist */}
+            <Link href="/wishlist" aria-label="Wishlist" className="relative block">
               <FiHeart />
+              {mounted && wishlistItemCount > 0 && (
+                <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[10px] font-bold text-white">
+                  {wishlistItemCount}
+                </span>
+              )}
             </Link>
+
+            {/* Cart with hover preview */}
             <div className="group relative">
               <Link href="/cart" aria-label="Cart" className="relative block">
                 <FiShoppingBag />
                 <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-                  {itemCount}
+                  {mounted ? itemCount : 0}
                 </span>
               </Link>
 
@@ -291,7 +256,6 @@ export default function StorefrontHeader() {
                     </div>
                   </div>
                 )}
-
                 <Link
                   href="/cart"
                   className="mt-4 block bg-black px-4 py-3 text-center text-xs font-black uppercase tracking-[0.12em] text-white"
@@ -303,125 +267,97 @@ export default function StorefrontHeader() {
           </div>
         </div>
 
+        {/* Mobile search bar */}
         <div className="border-t border-neutral-200 px-4 py-2 xl:hidden">
-          <div ref={mobileSearchRef} className="relative mx-auto max-w-[520px]">
-            {searchOpen ? (
-              <div className="flex items-center gap-2 border-b border-black pb-1">
-                <FiSearch className="shrink-0 text-sm" />
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  placeholder="Football jerseys"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === "Escape" && closeSearch()}
-                  className="w-full bg-transparent text-[11px] uppercase tracking-[0.08em] outline-none placeholder:text-neutral-400"
-                />
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setSearchOpen(true)}
-                  className="flex w-full items-center gap-2 border-b border-black pb-1 text-[11px] uppercase tracking-[0.08em]"
-                >
-                  <FiSearch className="shrink-0 text-sm" />
-                  <span>Football jerseys</span>
-                </button>
-              )}
-              {renderSearchResults("left-0 right-0")}
-          </div>
+          <Link
+            href="/shop"
+            className="mx-auto flex max-w-[520px] items-center gap-2 border-b border-black pb-1 text-[11px] uppercase tracking-[0.08em]"
+          >
+            <FiSearch className="text-sm" />
+            <span>Football jerseys</span>
+          </Link>
         </div>
       </header>
 
-      {authModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-md bg-white p-6 shadow-2xl">
+      {/* Auth Modal */}
+      {authMode && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setAuthMode(null);
+          }}
+        >
+          <div ref={modalRef} className="w-full max-w-md bg-white p-6 shadow-2xl">
             <div className="flex items-center justify-between">
-              <h2 className="font-bembo text-3xl font-bold">
-                {authModal === "login" ? "Log in" : authModal === "register" ? "Create account" : "Reset password"}
+              <h2 className="text-3xl font-bold">
+                {authMode === "login" ? "Log in" : "Create account"}
               </h2>
-              <button type="button" className="text-2xl" onClick={closeAuthModal}>
+              <button
+                type="button"
+                className="text-2xl leading-none"
+                onClick={() => setAuthMode(null)}
+                aria-label="Close"
+              >
                 ×
               </button>
             </div>
 
-            {authModal !== "forgot-password" && (
-              <div className="mt-5 grid grid-cols-2 border border-neutral-200 text-sm font-black uppercase">
-                <button
-                  type="button"
-                  onClick={() => switchAuthMode("login")}
-                  className={`px-4 py-3 ${authModal === "login" ? "bg-black text-white" : "bg-white text-black"}`}
-                >
-                  Login
-                </button>
-                <button
-                  type="button"
-                  onClick={() => switchAuthMode("register")}
-                  className={`px-4 py-3 ${authModal === "register" ? "bg-black text-white" : "bg-white text-black"}`}
-                >
-                  Register
-                </button>
-              </div>
-            )}
-
-            {authError && (
-              <p className="mt-4 text-center text-xs font-semibold text-red-500">{authError}</p>
-            )}
-
-            {authModal === "forgot-password" && forgotSent ? (
-              <div className="mt-8 text-center">
-                <p className="text-sm text-neutral-600">
-                  Check your email for reset instructions.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => switchAuthMode("login")}
-                  className="mt-6 text-xs font-bold uppercase tracking-[0.08em] underline underline-offset-2"
-                >
-                  Back to login
-                </button>
-              </div>
-            ) : authModal === "forgot-password" ? (
-              <form
-                onSubmit={handleForgotPasswordSubmit}
-                className="mt-6 space-y-4"
+            {/* Login / Register tab toggle */}
+            <div className="mt-5 grid grid-cols-2 border border-neutral-200 text-sm font-black uppercase">
+              <button
+                type="button"
+                onClick={() => setAuthMode("login")}
+                className={`px-4 py-3 transition ${
+                  authMode === "login" ? "bg-black text-white" : "bg-white text-black hover:bg-neutral-50"
+                }`}
               >
+                Login
+              </button>
+              <button
+                type="button"
+                onClick={() => setAuthMode("register")}
+                className={`px-4 py-3 transition ${
+                  authMode === "register" ? "bg-black text-white" : "bg-white text-black hover:bg-neutral-50"
+                }`}
+              >
+                Register
+              </button>
+            </div>
+
+            {formError && (
+              <div className="mt-4 border border-red-200 bg-red-50 px-4 py-3 text-xs font-bold text-red-700">
+                {formError}
+              </div>
+            )}
+
+            <form onSubmit={handleAuthSubmit} className="mt-5 space-y-4" noValidate>
+              {authMode === "register" && (
                 <input
-                  name="forgotEmail"
-                  type="email"
-                  placeholder="Email address"
+                  type="text"
+                  placeholder="Full name *"
                   required
-                  className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none focus:border-black"
                 />
-                <button
-                  type="submit"
-                  disabled={authSubmitting}
-                  className="w-full bg-black px-4 py-3 text-sm font-black uppercase tracking-[0.12em] text-white disabled:opacity-50"
-                >
-                  {authSubmitting ? "Sending…" : "Send reset link"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => switchAuthMode("login")}
-                  className="mt-2 block w-full text-center text-xs font-bold uppercase tracking-[0.08em] text-neutral-500 underline underline-offset-2"
-                >
-                  Back to login
-                </button>
-              </form>
-            ) : (
-              <form
-                onSubmit={handleAuthSubmit}
-                className="mt-6 space-y-4"
-              >
-                {authModal === "register" && (
-                  <input
-                    name="regName"
-                    type="text"
-                    placeholder="Full name"
-                    required
-                    className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none"
-                  />
-                )}
+              )}
+              <input
+                type="email"
+                placeholder="Email address *"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none focus:border-black"
+              />
+              <input
+                type="password"
+                placeholder="Password *"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none focus:border-black"
+              />
+              {authMode === "register" && (
                 <input
                   name={authModal === "login" ? "loginEmail" : "regEmail"}
                   type="email"
@@ -432,10 +368,18 @@ export default function StorefrontHeader() {
                 <input
                   name={authModal === "login" ? "loginPassword" : "regPassword"}
                   type="password"
+<<<<<<< HEAD
+                  placeholder="Confirm password *"
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none focus:border-black"
+=======
                   placeholder="Password"
                   required
                   minLength={6}
                   className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none"
+>>>>>>> 10bb4698810f8a0d455338c95f607ed23a0f0471
                 />
                 {authModal === "register" && (
                   <input
@@ -448,6 +392,35 @@ export default function StorefrontHeader() {
                   />
                 )}
 
+<<<<<<< HEAD
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-black px-4 py-3 text-sm font-black uppercase tracking-[0.12em] text-white transition hover:bg-neutral-800 disabled:bg-neutral-400"
+              >
+                {isSubmitting
+                  ? authMode === "login"
+                    ? "Logging in…"
+                    : "Creating account…"
+                  : authMode === "login"
+                    ? "Log in"
+                    : "Register"}
+              </button>
+            </form>
+
+            {authMode === "login" && (
+              <p className="mt-4 text-center text-xs text-neutral-500">
+                Don&apos;t have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => setAuthMode("register")}
+                  className="font-bold underline hover:text-black"
+                >
+                  Create one
+                </button>
+              </p>
+            )}
+=======
                 {authModal === "login" && (
                   <label className="flex items-center gap-2 text-xs font-semibold text-neutral-600">
                     <input
@@ -484,6 +457,7 @@ export default function StorefrontHeader() {
               </form>
             )}
 
+>>>>>>> 10bb4698810f8a0d455338c95f607ed23a0f0471
           </div>
         </div>
       )}
