@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
-import { useAuth } from "./auth-context";
 
 const footerGroups = [
   {
@@ -39,20 +38,7 @@ const footerGroups = [
 const paymentMethods = ["VISA", "PayPal", "stripe", "VeriSign"];
 
 export default function StorefrontFooter() {
-  const { openAuthModal } = useAuth();
-
   function renderLink(link: { label: string; href: string }) {
-    if (link.label === "Login") {
-      return (
-        <button
-          type="button"
-          onClick={() => openAuthModal("login")}
-          className="text-sm font-medium uppercase leading-5 text-neutral-400 transition hover:text-neutral-900 sm:text-base"
-        >
-          {link.label}
-        </button>
-      );
-    }
     return (
       <Link
         href={link.href}
