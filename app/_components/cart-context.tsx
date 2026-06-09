@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 export type CartItem = {
   slug: string;
@@ -46,6 +46,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     window.localStorage.setItem("humana-cart", JSON.stringify(items));
   }, [items]);
 
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = useCallback((message: string) => {
+    setToastMessage(message);
+    setTimeout(() => setToastMessage(null), 2500);
+  }, []);
+
   const value = useMemo<CartContextValue>(() => {
     const itemCount = items.reduce((total, item) => total + item.quantity, 0);
     const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -66,8 +73,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             );
           }
 
-          return [...currentItems, { ...item, quantity: item.quantity ?? 1 }];
+          return [...currentItems, { ...item, price: Number(item.price), quantity: item.quantity ?? 1 }];
         });
+        showToast("Item added to cart");
       },
       removeItem: (slug) => {
         setItems((currentItems) => currentItems.filter((item) => item.slug !== slug));
@@ -81,9 +89,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       },
       clearCart: () => setItems([]),
     };
-  }, [items]);
+  }, [items, showToast]);
 
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+  return (
+    <CartContext.Provider value={value}>
+      {children}
+      <div
+        className={`fixed bottom-6 right-6 z-[100] rounded-full bg-black px-5 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-white shadow-xl transition-all duration-300 ${
+          toastMessage ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"
+        }`}
+      >
+        {toastMessage}
+      </div>
+    </CartContext.Provider>
+  );
 }
 
 export function useCart() {
