@@ -25,64 +25,34 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const TOKEN_KEY = "humana-auth-token";
-
-function getStoredToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
-}
-
-function storeToken(token: string, rememberMe: boolean) {
-  if (rememberMe) {
-    localStorage.setItem(TOKEN_KEY, token);
-  } else {
-    sessionStorage.setItem(TOKEN_KEY, token);
-  }
-}
-
-export function clearStoredToken() {
-  localStorage.removeItem(TOKEN_KEY);
-  sessionStorage.removeItem(TOKEN_KEY);
-}
-
-export function getToken(): string | null {
-  return getStoredToken();
-}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-  (async () => {
-    const token = getStoredToken();
-    if (!token) {
-      setTimeout(() => setIsLoading(false), 0);
-      return;
-    }
-
-    try {
-      const res = await fetch("/api/v1/auth/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data);
-      } else {
-        clearStoredToken();
+    (async () => {
+      try {
+        const res = await fetch("/api/v1/auth/me", {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data);
+        }
+      } catch {
+        // Not authenticated
+      } finally {
+        setIsLoading(false);
       }
-    } catch {
-      clearStoredToken();
-    } finally {
-      setIsLoading(false);
-    }
-  })();
-}, []);
+    })();
+  }, []);
 
   const login = useCallback(async (email: string, password: string, rememberMe: boolean) => {
     const res = await fetch("/api/v1/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, rememberMe }),
+      credentials: "include",
     });
     const data = await res.json();
     if (!res.ok) {
@@ -93,7 +63,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (roleName && roleName !== "user") {
       throw new Error("Only customers can log in here");
     }
-    storeToken(data.accessToken, rememberMe);
     setUser(data.user);
   }, []);
 
@@ -102,13 +71,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password }),
+      credentials: "include",
     });
     const data = await res.json();
     if (!res.ok) {
       const message = Array.isArray(data.message) ? data.message[0] : (data.message || "Registration failed");
       throw new Error(message);
     }
-    storeToken(data.accessToken, false);
     setUser(data.user);
   }, []);
 
@@ -136,8 +105,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuthModal(null);
   }, []);
 
-  const logout = useCallback(() => {
-    clearStoredToken();
+  const logout = useCallback(async () => {
+    try {
+      await fetch("/api/v1/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch {
+      // Ignore network errors on logout
+    }
     setUser(null);
   }, []);
 
