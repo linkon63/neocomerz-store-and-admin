@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
-import { useAuth } from "./auth-context";
 
 const footerGroups = [
   {

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { resolveImageUrl } from "../shop/products";
 
 interface Category {
   id: string;
@@ -60,7 +61,7 @@ export default function CategoryBannerGrid() {
             {category.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={category.imageUrl}
+                src={resolveImageUrl(category.imageUrl)}
                 alt={category.name}
                 className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
               />
