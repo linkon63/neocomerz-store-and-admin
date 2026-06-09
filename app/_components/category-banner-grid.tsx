@@ -67,7 +67,7 @@ export default function CategoryBannerGrid() {
             ) : (
               <div className="flex h-full items-center justify-center bg-neutral-100">
                 <svg
-                  className="h-16 w-16 text-neutral-300"
+                  className="h-full w-full text-neutral-300"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"

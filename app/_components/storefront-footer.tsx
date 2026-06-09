@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
+import { useAuth } from "./auth-context";
 
 const footerGroups = [
   {
@@ -16,8 +19,8 @@ const footerGroups = [
   {
     title: "Who We Are",
     links: [
-      { label: "Who We Are", href: "#" },
-      { label: "Contacts", href: "#" },
+      { label: "About Us", href: "/about" },
+      { label: "Contacts", href: "/contact" },
       { label: "Our Stores", href: "#" },
       { label: "Institutional Blog", href: "#" },
     ],
