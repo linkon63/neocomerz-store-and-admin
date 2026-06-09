@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
+import { useAuth } from "./auth-context";
 
 const footerGroups = [
   {
@@ -36,6 +39,30 @@ const footerGroups = [
 const paymentMethods = ["VISA", "PayPal", "stripe", "VeriSign"];
 
 export default function StorefrontFooter() {
+  const { openAuthModal } = useAuth();
+
+  function renderLink(link: { label: string; href: string }) {
+    if (link.label === "Login") {
+      return (
+        <button
+          type="button"
+          onClick={() => openAuthModal("login")}
+          className="text-sm font-medium uppercase leading-5 text-neutral-400 transition hover:text-neutral-900 sm:text-base"
+        >
+          {link.label}
+        </button>
+      );
+    }
+    return (
+      <Link
+        href={link.href}
+        className="text-sm font-medium uppercase leading-5 text-neutral-400 transition hover:text-neutral-900 sm:text-base"
+      >
+        {link.label}
+      </Link>
+    );
+  }
+
   return (
     <footer className="bg-white px-4 py-14 sm:px-8 lg:py-20">
       <div className="mx-auto max-w-[1180px]">
@@ -47,14 +74,7 @@ export default function StorefrontFooter() {
               </h2>
               <ul className="mt-5 space-y-2">
                 {group.links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm font-medium uppercase leading-5 text-neutral-400 transition hover:text-neutral-900 sm:text-base"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
+                  <li key={link.label}>{renderLink(link)}</li>
                 ))}
               </ul>
             </div>

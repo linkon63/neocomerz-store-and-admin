@@ -2,16 +2,34 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { FiHeart, FiSearch, FiShoppingBag, FiUser } from "react-icons/fi";
 import humanaLogo from "../../references/logo.png";
+import { useAuth } from "./auth-context";
 import { useCart } from "./cart-context";
 import { useProductSearch } from "./use-product-search";
 
 export default function StorefrontHeader() {
   const { itemCount, items, subtotal } = useCart();
-  const [authMode, setAuthMode] = useState<"login" | "register" | null>(null);
+  const { user, isAuthenticated, login, register, forgotPassword, logout, authModal, openAuthModal, closeAuthModal: closeAuthCtx } = useAuth();
 
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authSubmitting, setAuthSubmitting] = useState(false);
+  const [forgotSent, setForgotSent] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+
+  const closeAuthModal = useCallback(() => {
+    closeAuthCtx();
+    setAuthError(null);
+    setAuthSubmitting(false);
+    setForgotSent(false);
+  }, [closeAuthCtx]);
+
+  const switchAuthMode = useCallback((mode: "login" | "register" | "forgot-password") => {
+    openAuthModal(mode);
+    setAuthError(null);
+    setForgotSent(false);
+  }, [openAuthModal]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const desktopSearchRef = useRef<HTMLDivElement>(null);
@@ -126,9 +144,20 @@ export default function StorefrontHeader() {
             <Link href="#">New In</Link>
             <Link href="#">Brands</Link>
             <Link href="#">Archive</Link>
-            <button type="button" onClick={() => setAuthMode("login")}>
-              Log In
-            </button>
+            {isAuthenticated ? (
+              <span className="flex items-center gap-4">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.08em]">
+                  Hi, {user?.name?.split(" ")[0]}
+                </span>
+                <button type="button" onClick={logout} className="text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-500">
+                  Log Out
+                </button>
+              </span>
+            ) : (
+              <button type="button" onClick={() => switchAuthMode("login")}>
+                Log In
+              </button>
+            )}
           </nav>
 
           <Link href="/" className="mx-auto lg:mx-0" aria-label="Humana Vintage home">
@@ -168,9 +197,15 @@ export default function StorefrontHeader() {
               {renderSearchResults("right-0 w-80")}
             </div>
 
-            <button type="button" onClick={() => setAuthMode("login")} aria-label="Open login modal">
-              <FiUser />
-            </button>
+            {isAuthenticated ? (
+              <Link href="/profile" aria-label="My Profile">
+                <FiUser />
+              </Link>
+            ) : (
+              <button type="button" onClick={() => switchAuthMode("login")} aria-label="Open login modal">
+                <FiUser />
+              </button>
+            )}
             <Link href="/wishlist" aria-label="Wishlist">
               <FiHeart />
             </Link>
@@ -254,76 +289,197 @@ export default function StorefrontHeader() {
         </div>
       </header>
 
-      {authMode && (
+      {authModal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
           <div className="w-full max-w-md bg-white p-6 shadow-2xl">
             <div className="flex items-center justify-between">
               <h2 className="font-bembo text-3xl font-bold">
-                {authMode === "login" ? "Log in" : "Create account"}
+                {authModal === "login" ? "Log in" : authModal === "register" ? "Create account" : "Reset password"}
               </h2>
-              <button type="button" className="text-2xl" onClick={() => setAuthMode(null)}>
+              <button type="button" className="text-2xl" onClick={closeAuthModal}>
                 ×
               </button>
             </div>
 
-            <div className="mt-5 grid grid-cols-2 border border-neutral-200 text-sm font-black uppercase">
-              <button
-                type="button"
-                onClick={() => setAuthMode("login")}
-                className={`px-4 py-3 ${authMode === "login" ? "bg-black text-white" : "bg-white text-black"}`}
-              >
-                Login
-              </button>
-              <button
-                type="button"
-                onClick={() => setAuthMode("register")}
-                className={`px-4 py-3 ${authMode === "register" ? "bg-black text-white" : "bg-white text-black"}`}
-              >
-                Register
-              </button>
-            </div>
+            {authModal !== "forgot-password" && (
+              <div className="mt-5 grid grid-cols-2 border border-neutral-200 text-sm font-black uppercase">
+                <button
+                  type="button"
+                  onClick={() => switchAuthMode("login")}
+                  className={`px-4 py-3 ${authModal === "login" ? "bg-black text-white" : "bg-white text-black"}`}
+                >
+                  Login
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchAuthMode("register")}
+                  className={`px-4 py-3 ${authModal === "register" ? "bg-black text-white" : "bg-white text-black"}`}
+                >
+                  Register
+                </button>
+              </div>
+            )}
 
-            <form className="mt-6 space-y-4">
-              {authMode === "register" && (
+            {authError && (
+              <p className="mt-4 text-center text-xs font-semibold text-red-500">{authError}</p>
+            )}
+
+            {authModal === "forgot-password" && forgotSent ? (
+              <div className="mt-8 text-center">
+                <p className="text-sm text-neutral-600">
+                  Check your email for reset instructions.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => switchAuthMode("login")}
+                  className="mt-6 text-xs font-bold uppercase tracking-[0.08em] underline underline-offset-2"
+                >
+                  Back to login
+                </button>
+              </div>
+            ) : authModal === "forgot-password" ? (
+              <form
+                onSubmit={async (e: FormEvent) => {
+                  e.preventDefault();
+                  setAuthError(null);
+                  setAuthSubmitting(true);
+                  try {
+                    const form = e.currentTarget as HTMLFormElement;
+                    const email = (form.elements.namedItem("forgotEmail") as HTMLInputElement).value;
+                    await forgotPassword(email);
+                    setForgotSent(true);
+                  } catch (err) {
+                    setAuthError(err instanceof Error ? err.message : "Something went wrong");
+                  } finally {
+                    setAuthSubmitting(false);
+                  }
+                }}
+                className="mt-6 space-y-4"
+              >
                 <input
-                  type="text"
-                  placeholder="Full name"
+                  name="forgotEmail"
+                  type="email"
+                  placeholder="Email address"
+                  required
                   className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none"
                 />
-              )}
-              <input
-                type="email"
-                placeholder="Email address"
-                className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none"
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none"
-              />
-              {authMode === "register" && (
+                <button
+                  type="submit"
+                  disabled={authSubmitting}
+                  className="w-full bg-black px-4 py-3 text-sm font-black uppercase tracking-[0.12em] text-white disabled:opacity-50"
+                >
+                  {authSubmitting ? "Sending…" : "Send reset link"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchAuthMode("login")}
+                  className="mt-2 block w-full text-center text-xs font-bold uppercase tracking-[0.08em] text-neutral-500 underline underline-offset-2"
+                >
+                  Back to login
+                </button>
+              </form>
+            ) : (
+              <form
+                onSubmit={async (e: FormEvent) => {
+                  e.preventDefault();
+                  setAuthError(null);
+                  setAuthSubmitting(true);
+                  try {
+                    const form = e.currentTarget as HTMLFormElement;
+                    if (authModal === "login") {
+                      const email = (form.elements.namedItem("loginEmail") as HTMLInputElement).value;
+                      const password = (form.elements.namedItem("loginPassword") as HTMLInputElement).value;
+                      await login(email, password, rememberMe);
+                    } else {
+                      const name = (form.elements.namedItem("regName") as HTMLInputElement).value;
+                      const email = (form.elements.namedItem("regEmail") as HTMLInputElement).value;
+                      const password = (form.elements.namedItem("regPassword") as HTMLInputElement).value;
+                      const confirm = (form.elements.namedItem("regConfirm") as HTMLInputElement).value;
+                      if (password !== confirm) {
+                        throw new Error("Passwords do not match");
+                      }
+                      await register(name, email, password);
+                    }
+                    closeAuthModal();
+                  } catch (err) {
+                    setAuthError(err instanceof Error ? err.message : "Something went wrong");
+                  } finally {
+                    setAuthSubmitting(false);
+                  }
+                }}
+                className="mt-6 space-y-4"
+              >
+                {authModal === "register" && (
+                  <input
+                    name="regName"
+                    type="text"
+                    placeholder="Full name"
+                    required
+                    className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none"
+                  />
+                )}
                 <input
+                  name={authModal === "login" ? "loginEmail" : "regEmail"}
+                  type="email"
+                  placeholder="Email address"
+                  required
+                  className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none"
+                />
+                <input
+                  name={authModal === "login" ? "loginPassword" : "regPassword"}
                   type="password"
-                  placeholder="Confirm password"
+                  placeholder="Password"
+                  required
+                  minLength={6}
                   className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none"
                 />
-              )}
+                {authModal === "register" && (
+                  <input
+                    name="regConfirm"
+                    type="password"
+                    placeholder="Confirm password"
+                    required
+                    minLength={6}
+                    className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none"
+                  />
+                )}
 
-              <button
-                type="submit"
-                className="w-full bg-black px-4 py-3 text-sm font-black uppercase tracking-[0.12em] text-white"
-              >
-                {authMode === "login" ? "Log in" : "Register"}
-              </button>
-            </form>
+                {authModal === "login" && (
+                  <label className="flex items-center gap-2 text-xs font-semibold text-neutral-600">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="h-4 w-4 rounded border-neutral-300"
+                    />
+                    Remember me
+                  </label>
+                )}
 
-            <Link
-              href="/profile"
-              className="mt-4 block text-center text-xs font-bold uppercase tracking-[0.12em] text-neutral-500"
-              onClick={() => setAuthMode(null)}
-            >
-              Go to profile page
-            </Link>
+                <button
+                  type="submit"
+                  disabled={authSubmitting}
+                  className="w-full bg-black px-4 py-3 text-sm font-black uppercase tracking-[0.12em] text-white disabled:opacity-50"
+                >
+                  {authSubmitting
+                    ? "Please wait…"
+                    : authModal === "login"
+                      ? "Log in"
+                      : "Register"}
+                </button>
+
+                {authModal === "login" && (
+                  <button
+                    type="button"
+                    onClick={() => switchAuthMode("forgot-password")}
+                    className="mt-2 block w-full text-center text-xs font-bold uppercase tracking-[0.08em] text-neutral-500 underline underline-offset-2"
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </form>
+            )}
+
           </div>
         </div>
       )}
