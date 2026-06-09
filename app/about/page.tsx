@@ -36,7 +36,7 @@ const statsData = [
 
 export default function AboutPage() {
     return (
-        <div className="space-y-20 md:space-y-32 pb-20">
+        <div className="space-y-20 md:space-y-32 pb-20 bg-white">
 
             {/* Hero Section */}
             <section className="bg-[#FFD7FC] px-6 py-20 md:py-32 flex flex-col items-center text-center">
