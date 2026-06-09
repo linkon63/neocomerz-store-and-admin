@@ -89,7 +89,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!token) {
       try {
-        const saved = window.localStorage.getItem("humana-wishlist");
+        const saved = sessionStorage.getItem("humana-wishlist");
         setWishlistItems(saved ? (JSON.parse(saved) as ShopProduct[]) : []);
       } catch {
         setWishlistItems([]);
@@ -99,7 +99,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
 
     async function syncWishlist() {
       try {
-        const local = window.localStorage.getItem("humana-wishlist");
+        const local = sessionStorage.getItem("humana-wishlist");
         const localItems: ShopProduct[] = local ? JSON.parse(local) : [];
 
         if (localItems.length > 0) {
@@ -115,7 +115,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
               });
             }
           }
-          window.localStorage.removeItem("humana-wishlist");
+          sessionStorage.removeItem("humana-wishlist");
         }
 
         const res = await fetch(`${BASE_URL}/wishlist`, {
@@ -139,7 +139,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!token) {
-      window.localStorage.setItem("humana-wishlist", JSON.stringify(wishlistItems));
+      sessionStorage.setItem("humana-wishlist", JSON.stringify(wishlistItems));
     }
   }, [wishlistItems, token]);
 

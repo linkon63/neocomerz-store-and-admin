@@ -86,7 +86,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!token) {
       try {
-        const savedCart = window.localStorage.getItem("humana-cart");
+        const savedCart = sessionStorage.getItem("humana-cart");
         setItems(savedCart ? (JSON.parse(savedCart) as CartItem[]) : []);
       } catch {
         setItems([]);
@@ -96,7 +96,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     async function syncCart() {
       try {
-        const localCart = window.localStorage.getItem("humana-cart");
+        const localCart = sessionStorage.getItem("humana-cart");
         const localItems: CartItem[] = localCart ? JSON.parse(localCart) : [];
 
         if (localItems.length > 0) {
@@ -115,7 +115,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               });
             }
           }
-          window.localStorage.removeItem("humana-cart");
+          sessionStorage.removeItem("humana-cart");
         }
 
         const res = await fetch(`${BASE_URL}/cart`, {
@@ -139,7 +139,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!token) {
-      window.localStorage.setItem("humana-cart", JSON.stringify(items));
+      sessionStorage.setItem("humana-cart", JSON.stringify(items));
     }
   }, [items, token]);
 
