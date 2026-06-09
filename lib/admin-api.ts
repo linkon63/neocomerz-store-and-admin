@@ -258,6 +258,118 @@ export type PaginatedOrders = {
   meta: { page: number; limit: number; total: number };
 };
 
+// ─── Settings ──────────────────────────────────────────────────────────────
+
+export type SettingsContactEntry = { title: string; value: string };
+
+/**
+ * The API stores contactNumber and email as a JSON object with an "entries" array.
+ * Shape on the wire: { entries: SettingsContactEntry[] }
+ * We flatten/unflatten on the frontend for array-based editing.
+ */
+export type SettingsContactJson = { entries: SettingsContactEntry[] };
+
+export type SettingsSocialContact = {
+  tiktok?: string;
+  instagram?: string;
+  twitter?: string;
+  facebook?: string;
+  linkedin?: string;
+  youtube?: string;
+};
+
+/** Shape returned by GET /settings */
+export type AppSettings = {
+  id?: string;
+  shopName?: string;
+  logo?: string | null;
+  icon?: string | null;
+  slogan?: string | null;
+  isTopBarVisible?: boolean;
+  hideOutOfStock?: boolean;
+  branchName?: string | null;
+  branchAddress?: string | null;
+  /** Raw JSON from API — { entries: [...] } */
+  contactNumber?: SettingsContactJson | null;
+  /** Raw JSON from API — { entries: [...] } */
+  email?: SettingsContactJson | null;
+  socialContact?: SettingsSocialContact | null;
+  currency?: string;
+  language?: string;
+  copyrightYear?: string | null;
+  parentCompany?: string | null;
+  parentCompanyLink?: string | null;
+  deliveryChargeInside?: number | string | null;
+  deliveryChargeOutside?: number | string | null;
+  deliveryChargeNearCity?: number | string | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+/** Helper: extract entries array from the API's JSON object format */
+export function getContactEntries(
+  field: SettingsContactJson | null | undefined,
+): SettingsContactEntry[] {
+  if (!field) return [{ title: "", value: "" }];
+  if (Array.isArray(field)) {
+    // guard against old shape
+    return field.length > 0 ? (field as unknown as SettingsContactEntry[]) : [{ title: "", value: "" }];
+  }
+  const entries = field.entries;
+  return Array.isArray(entries) && entries.length > 0
+    ? entries
+    : [{ title: "", value: "" }];
+}
+
+/** Helper: pack entries array back into the API's JSON object format */
+export function packContactEntries(entries: SettingsContactEntry[]): SettingsContactJson {
+  return { entries };
+}
+
+// ─── Policies ──────────────────────────────────────────────────────────────
+
+export type PolicyEntry = { title: string; content: string };
+
+export type AppPolicies = {
+  id?: string;
+  delivery?: PolicyEntry;
+  return?: PolicyEntry;
+  cancellation?: PolicyEntry;
+  privacy?: PolicyEntry;
+  terms?: PolicyEntry;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+// ─── Campaigns ─────────────────────────────────────────────────────────────
+
+export type CampaignSection = {
+  id: string;
+  title: string;
+  page: string;
+  position: number;
+};
+
+export type CampaignImage = {
+  id: string;
+  images: string[];
+};
+
+export type Campaign = {
+  id: string;
+  title: string;
+  description?: string;
+  status: "active" | "inactive";
+  startAt: string;
+  endAt?: string | null;
+  hasDiscount?: boolean;
+  discountId?: string | null;
+  section: CampaignSection;
+  images?: CampaignImage[];
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/v1";
 
 export function getAdminToken() {
