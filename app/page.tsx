@@ -1,9 +1,10 @@
-import Image from "next/image";
-import Link from "next/link";
 import CategoryBannerGrid from "./_components/category-banner-grid";
 import HeroSlider from "./_components/hero-slider";
 import Newsletter from "@/components/Newsletter";
 import ProductGrid from "./_components/product-grid";
+import TheBrand from "./_components/the-brand";
+import JournalParallax from "./_components/journal-parallax";
+import NewsSection from "./_components/news-section";
 
 const editorialImages = [
   {
@@ -66,47 +67,11 @@ export default function Home() {
 
       <ProductGrid />
 
-      <section className="bg-[#ffd3f3] px-4 py-14 text-center sm:px-8">
-        <p className="text-[10px] font-bold uppercase tracking-[0.15em]">The brand</p>
-        <h2 className="mt-4 font-bembo text-3xl font-bold sm:text-4xl">
-          Experience our quality firsthand
-        </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-sm leading-6">
-          Every piece is selected for character, condition, and the story it carries.
-          Discover expressive vintage staples made for everyday wear.
-        </p>
-        <Link
-          href="/shop"
-          className="mt-7 inline-flex bg-black px-6 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-white"
-        >
-          See the story
-        </Link>
-      </section>
+      <TheBrand />
 
-      <section>
-        <div className="relative h-[460px] overflow-hidden sm:h-[560px]">
-          <Image
-            src={newsImage}
-            alt="Community fashion story"
-            fill
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-6 pb-12 pt-28 text-white sm:px-12">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em]">Journal</p>
-            <h2 className="mt-3 max-w-3xl font-bembo text-3xl font-bold leading-none sm:text-5xl">
-              Small gestures that transform the world
-            </h2>
-          </div>
-        </div>
+      <JournalParallax />
 
-        <div className="mx-auto max-w-[1400px] px-4 pb-28 pt-14 sm:px-8 lg:pb-36 lg:pt-20">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em]">News</p>
-          <h2 className="mt-4 font-bembo text-3xl font-bold leading-tight text-black sm:text-5xl">
-            What is happening in the world of Humana Vintage
-          </h2>
-        </div>
-      </section>
+      <NewsSection />
 
       <Newsletter />
     </main>
