@@ -9,3 +9,9 @@ export interface FormErrors {
     email?: string;
     message?: string;
 };
+
+export interface EmailTemplateProps {
+  name?: string;
+  email: string;
+  message?: string;
+}

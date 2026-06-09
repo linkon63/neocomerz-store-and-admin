@@ -11,15 +11,42 @@ export default function ContactForm() {
     });
 
     const [errors, setErrors] = useState<FormErrors>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [statusMessage, setStatusMessage] = useState<{ text: string, type: string } | null>(null);
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
+        setStatusMessage(null);
         const validationResult = contactFormValidation(formData);
 
-        if (Object.keys(validationResult.errors).length === 0) {
-            console.log('Form Submitted successfully:', formData);
+        if (validationResult.isValid) {
             setErrors({});
+            setIsSubmitting(true);
+            try {
+                const response = await fetch('/api/resend/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                });
+
+                const data = await response.json();
+                if (data.success) {
+
+                    setFormData({ name: '', email: '', message: '' });
+                    setStatusMessage({
+                        text: "Message sent successfully! We will get back to you soon.",
+                        type: 'success'
+                    });
+                } else {
+                    console.error('Failed to send message');
+                }
+            } catch (error) {
+                setStatusMessage({ text: "Something went wrong. Please try again.", type: 'error' });
+            } finally {
+                setIsSubmitting(false);
+            }
         } else {
             setErrors(validationResult.errors);
         }
@@ -61,11 +88,17 @@ export default function ContactForm() {
                 {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
             </div>
 
+            {statusMessage && (
+                <div className={`p-4 mt-4 rounded ${statusMessage.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                    {statusMessage.text}
+                </div>
+            )}
+
             <button
-                type="submit"
-                className="bg-black text-white px-10 py-3 mt-4 hover:bg-gray-800 transition"
+                disabled={isSubmitting}
+                className={`${isSubmitting ? 'bg-gray-500' : 'bg-black'} text-white px-10 py-3 mt-4 transition`}
             >
-                Send
+                {isSubmitting ? 'Sending...' : 'Send'}
             </button>
         </form>
     );
