@@ -1,4 +1,6 @@
 export type ShopProduct = {
+  id?: string;
+  slug?: string;
   name: string;
   category: string;
   team: string;
@@ -6,14 +8,149 @@ export type ShopProduct = {
   color: string;
   size: string;
   image: string;
+  variantId?: string;
+  colors?: string[];
+  sizes?: string[];
 };
 
-export function productSlug(product: Pick<ShopProduct, "name">) {
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface Brand {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface MediaFile {
+  id: string;
+  url: string;
+}
+
+export interface ProductMedia {
+  id: string;
+  isFeatured: boolean;
+  media?: MediaFile;
+}
+
+export interface Attribute {
+  id: string;
+  name: string;
+}
+
+export interface AttributeValue {
+  id: string;
+  value: string;
+  attribute?: Attribute;
+}
+
+export interface VariantAttribute {
+  id: string;
+  attributeValue?: AttributeValue;
+}
+
+export interface ProductVariant {
+  id: string;
+  sku: string;
+  price: string | number;
+  stockQuantity: number;
+  stockAlertThreshold: number;
+  isDefault: boolean;
+  attributes: VariantAttribute[];
+}
+
+export interface DBProduct {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  status: string;
+  category?: Category;
+  brand?: Brand;
+  variants?: ProductVariant[];
+  media?: ProductMedia[];
+}
+
+export interface Address {
+  id: string;
+  fullName: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  isDefault: boolean;
+}
+
+export interface OrderItem {
+  id: string;
+  quantity: number;
+  unitPrice: number | string;
+  totalPrice: number | string;
+  product: DBProduct;
+  variant?: ProductVariant;
+}
+
+export interface Order {
+  id: string;
+  orderNumber: string;
+  placedAt?: string;
+  paymentStatus: string;
+  status: string;
+  discount: number | string;
+  total: number | string;
+  address?: Address;
+  user?: { email: string };
+  items?: OrderItem[];
+}
+
+
+
+export function productSlug(product: Pick<ShopProduct, "name" | "slug">) {
+  if (product.slug) return product.slug;
   return product.name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 }
+
+/**
+ * Resolves product image URLs from the backend API.
+ * The backend may store localhost URLs (from local development uploads).
+ * These are rewritten to the correct public API host.
+ */
+export function resolveImageUrl(url: string | undefined | null): string {
+  const fallback =
+    "https://images.unsplash.com/photo-1523398002811-999ca8dec234?auto=format&fit=crop&w=900&q=85";
+
+  if (!url) return fallback;
+
+  // Already a public HTTPS URL — pass through unchanged
+  if (url.startsWith("https://")) return url;
+
+  // Rewrite localhost file-server URLs to the public API host
+  // e.g. http://localhost:3007/products/abc.webp → https://tinyecomapi.neocomerz.com/products/abc.webp
+  if (url.startsWith("http://localhost") || url.startsWith("http://127.0.0.1")) {
+    const publicBase =
+      (typeof process !== "undefined" && process.env.NEXT_PUBLIC_MEDIA_BASE_URL) ||
+      "https://tinyecomapi.neocomerz.com";
+    try {
+      const parsed = new URL(url);
+      return `${publicBase}${parsed.pathname}`;
+    } catch {
+      return fallback;
+    }
+  }
+
+  return url;
+}
+
+
 
 export const shopProducts: ShopProduct[] = [
   {

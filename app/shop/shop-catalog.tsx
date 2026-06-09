@@ -2,29 +2,31 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { FiChevronDown, FiGrid, FiHeart, FiList, FiSearch } from "react-icons/fi";
-import { productSlug, shopProducts } from "./products";
+import { useEffect, useMemo, useState } from "react";
+import { FiChevronDown, FiGrid, FiHeart, FiList, FiSearch, FiShoppingBag } from "react-icons/fi";
+import { useCart } from "../_components/cart-context";
+import { useWishlist } from "../_components/wishlist-context";
+import { productSlug, resolveImageUrl, type ShopProduct, type DBProduct, type ProductVariant, type ProductMedia } from "./products";
 
-const colorOptions = [
-  { label: "Orange", value: "#f58a4b" },
-  { label: "Sky Blue", value: "#2ac6d4" },
-  { label: "Beige", value: "#d8bd97" },
-  { label: "White", value: "#f5f5f5" },
-  { label: "Blue", value: "#00569c" },
-  { label: "Yellow", value: "#f4dc45" },
-  { label: "Gray", value: "#c7c7c7" },
-  { label: "Lilac", value: "#a77adf" },
-  { label: "Brown", value: "#9a4c26" },
-  { label: "Black", value: "#050505" },
-  { label: "Pink", value: "#e7b1f5" },
-  { label: "Red", value: "#ed0d0d" },
-  { label: "Green", value: "#179400" },
-  { label: "Purple", value: "#5d00a5" },
-];
+const colorHexMap: Record<string, string> = {
+  Orange: "#f58a4b",
+  "Sky Blue": "#2ac6d4",
+  Beige: "#d8bd97",
+  White: "#f5f5f5",
+  Blue: "#00569c",
+  Yellow: "#f4dc45",
+  Gray: "#c7c7c7",
+  Lilac: "#a77adf",
+  Brown: "#9a4c26",
+  Black: "#050505",
+  Pink: "#e7b1f5",
+  Red: "#ed0d0d",
+  Green: "#179400",
+  Purple: "#5d00a5",
+};
 
-const sizeOptions = ["S", "M", "L", "XL", "XXL"];
-const categoryOptions = Array.from(new Set(shopProducts.map((product) => product.category)));
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5010/api/v1";
+
 const showOptions = [8, 12, 20];
 
 type SortOption = "featured" | "price-low" | "price-high" | "name";
@@ -35,7 +37,24 @@ function formatPrice(price: number) {
 }
 
 export default function ShopCatalog() {
-  const [selectedCategory, setSelectedCategory] = useState("Football Corner");
+  const [products, setProducts] = useState<ShopProduct[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const { addItem } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+
+  function handleAddToCart(product: ShopProduct) {
+    void addItem({
+      slug: productSlug(product),
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      color: product.color,
+      size: product.size,
+      variantId: product.variantId,
+    });
+  }
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("featured");
@@ -43,11 +62,122 @@ export default function ShopCatalog() {
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const response = await fetch(`${BASE_URL}/products?limit=100`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch products");
+        }
+        const result = await response.json();
+        const dbProducts: DBProduct[] = result.data || [];
+        const activeDbProducts = dbProducts.filter((p: DBProduct) => p.status === "active");
+        const mapped = activeDbProducts.map((p: DBProduct) => {
+          const defaultVariant = p.variants?.find((v: ProductVariant) => v.isDefault) || p.variants?.[0];
+          const price = defaultVariant ? Number(defaultVariant.price) : 0;
+          
+          let color = "Black";
+          let size = "M";
+          
+          if (defaultVariant?.attributes) {
+            for (const attr of defaultVariant.attributes) {
+              const val = attr.attributeValue?.value;
+              if (!val) continue;
+              const attrName = attr.attributeValue?.attribute?.name?.toLowerCase();
+              if (attrName === "size" || ["S", "M", "L", "XL", "XXL"].includes(val)) {
+                size = val;
+              } else {
+                color = val;
+              }
+            }
+          }
+          
+          const featuredMedia = p.media?.find((m: ProductMedia) => m.isFeatured) || p.media?.[0];
+          const image = resolveImageUrl(featuredMedia?.media?.url);
+          
+          const allColors = new Set<string>();
+          const allSizes = new Set<string>();
+          if (p.variants) {
+            for (const v of p.variants) {
+              if (v.attributes) {
+                for (const attr of v.attributes) {
+                  const val = attr.attributeValue?.value;
+                  const name = attr.attributeValue?.attribute?.name?.toLowerCase();
+                  if (val) {
+                    if (name === "size" || ["S", "M", "L", "XL", "XXL"].includes(val)) {
+                      allSizes.add(val);
+                    } else {
+                      allColors.add(val);
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          return {
+            id: p.id,
+            slug: p.slug,
+            name: p.name,
+            category: p.category?.name || "Football Corner",
+            team: p.brand?.name || "Juventus",
+            price,
+            color,
+            size,
+            image,
+            variantId: defaultVariant?.id,
+            colors: Array.from(allColors),
+            sizes: Array.from(allSizes),
+          };
+        });
+        setProducts(mapped);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load products");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
+
+  const categoryOptions = useMemo(() => {
+    return Array.from(new Set(products.map((product) => product.category)));
+  }, [products]);
+
+  const colorOptions = useMemo(() => {
+    const colors = new Set<string>();
+    for (const p of products) {
+      if (p.colors && p.colors.length > 0) {
+        p.colors.forEach((c) => colors.add(c));
+      } else if (p.color) {
+        colors.add(p.color);
+      }
+    }
+    return Array.from(colors).map((c) => ({
+      label: c,
+      value: colorHexMap[c] || "#cccccc",
+    }));
+  }, [products]);
+
+  const sizeOptions = useMemo(() => {
+    const sizes = new Set<string>();
+    for (const p of products) {
+      if (p.sizes && p.sizes.length > 0) {
+        p.sizes.forEach((s) => sizes.add(s));
+      } else if (p.size) {
+        sizes.add(p.size);
+      }
+    }
+    const order = ["S", "M", "L", "XL", "XXL"];
+    return Array.from(sizes).sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  }, [products]);
+
   const filteredProducts = useMemo(() => {
-    const filtered = shopProducts.filter((product) => {
+    const filtered = products.filter((product) => {
       const categoryMatches = !selectedCategory || product.category === selectedCategory;
-      const colorMatches = !selectedColor || product.color === selectedColor;
-      const sizeMatches = !selectedSize || product.size === selectedSize;
+      const colorMatches = !selectedColor || (product.colors ? product.colors.includes(selectedColor) : product.color === selectedColor);
+      const sizeMatches = !selectedSize || (product.sizes ? product.sizes.includes(selectedSize) : product.size === selectedSize);
 
       return categoryMatches && colorMatches && sizeMatches;
     });
@@ -56,9 +186,9 @@ export default function ShopCatalog() {
       if (sortBy === "price-low") return a.price - b.price;
       if (sortBy === "price-high") return b.price - a.price;
       if (sortBy === "name") return a.name.localeCompare(b.name);
-      return shopProducts.indexOf(a) - shopProducts.indexOf(b);
+      return products.indexOf(a) - products.indexOf(b);
     });
-  }, [selectedCategory, selectedColor, selectedSize, sortBy]);
+  }, [products, selectedCategory, selectedColor, selectedSize, sortBy]);
 
   const pageCount = Math.max(1, Math.ceil(filteredProducts.length / productsPerPage));
   const visibleProducts = filteredProducts.slice(
@@ -85,6 +215,30 @@ export default function ShopCatalog() {
     setSelectedSize("");
     setSortBy("featured");
     setCurrentPage(1);
+  }
+
+  if (isLoading) {
+    return (
+      <section className="mx-auto max-w-[1400px] px-4 py-32 sm:px-8 flex flex-col items-center justify-center gap-4 text-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#ffd02f] border-t-transparent" />
+        <p className="text-sm font-black uppercase tracking-[0.08em] text-neutral-500">Loading Shop Catalog...</p>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="mx-auto max-w-[1400px] px-4 py-32 sm:px-8 flex flex-col items-center justify-center gap-4 text-center">
+        <p className="text-lg font-bold text-red-500">{error}</p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="bg-[#ffd02f] px-6 py-3 text-xs font-black uppercase tracking-[0.08em] text-black hover:bg-black hover:text-white transition"
+        >
+          Retry
+        </button>
+      </section>
+    );
   }
 
   return (
@@ -143,15 +297,13 @@ export default function ShopCatalog() {
           <h3 className="mt-12 text-base font-black uppercase">Color</h3>
           <div className="mt-6 grid grid-cols-3 gap-x-7 gap-y-7">
             {colorOptions.map((color) => {
-              const isDisabled = !shopProducts.some((product) => product.color === color.label);
               const isSelected = selectedColor === color.label;
 
               return (
                 <button
                   key={color.label}
-                  className={`text-left ${isDisabled ? "opacity-30" : ""}`}
+                  className="text-left"
                   type="button"
-                  disabled={isDisabled}
                   onClick={() =>
                     updateFilter(() => setSelectedColor(isSelected ? "" : color.label))
                   }
@@ -267,17 +419,31 @@ export default function ShopCatalog() {
                   key={product.name}
                   className={viewMode === "grid" ? "group" : "group grid gap-5 sm:grid-cols-[220px_1fr]"}
                 >
-                  <Link href={`/shop/${productSlug(product)}`} className="block border border-neutral-100 bg-white">
-                    <div className={viewMode === "grid" ? "relative aspect-square" : "relative aspect-square sm:h-full"}>
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        sizes="(min-width: 1280px) 22vw, (min-width: 768px) 45vw, 50vw"
-                        className="object-cover object-center p-6 transition duration-500 group-hover:scale-[1.03]"
-                      />
-                    </div>
-                  </Link>
+                  <div className="relative group/image overflow-hidden border border-neutral-100 bg-white">
+                    <Link href={`/shop/${productSlug(product)}`} className="block">
+                      <div className={viewMode === "grid" ? "relative aspect-square" : "relative aspect-square sm:h-full"}>
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          fill
+                          sizes="(min-width: 1280px) 22vw, (min-width: 768px) 45vw, 50vw"
+                          className="object-cover object-center p-6 transition duration-500 group-hover:scale-[1.03]"
+                        />
+                      </div>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleAddToCart(product);
+                      }}
+                      className="absolute bottom-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-black shadow-lg border border-neutral-200 transition-all duration-300 opacity-0 scale-90 group-hover/image:opacity-100 group-hover/image:scale-100 hover:bg-black hover:text-white"
+                      title="Add to Cart"
+                    >
+                      <FiShoppingBag className="text-base" />
+                    </button>
+                  </div>
 
                   <div className={viewMode === "grid" ? "mt-4 flex items-start justify-between gap-3" : "flex items-start justify-between gap-4 py-2"}>
                     <div className="min-w-0">
@@ -297,7 +463,14 @@ export default function ShopCatalog() {
                         {formatPrice(product.price)}
                       </p>
                     </div>
-                    <FiHeart className="mt-1 shrink-0 text-lg text-neutral-600" aria-label="Add to wishlist" />
+                    <button
+                      type="button"
+                      onClick={() => toggleWishlist(product)}
+                      className="mt-1 shrink-0 text-lg hover:text-red-500 transition-colors"
+                      aria-label="Add to wishlist"
+                    >
+                      <FiHeart className={product.id && isInWishlist(product.id) ? "fill-red-500 text-red-500" : "text-neutral-600"} />
+                    </button>
                   </div>
                 </article>
               ))}

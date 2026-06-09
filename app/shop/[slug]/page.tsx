@@ -3,18 +3,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FaFacebookF, FaGooglePlusG, FaLinkedinIn, FaXTwitter } from "react-icons/fa6";
 import { FiChevronLeft, FiChevronRight, FiHeart, FiMail } from "react-icons/fi";
-import { productSlug, shopProducts } from "../products";
+import { productSlug, resolveImageUrl, type DBProduct, type ProductVariant, type ProductMedia } from "../products";
 import ProductPurchasePanel from "./product-purchase-panel";
+import ProductImageGallery from "./product-image-gallery";
+import WishlistButton from "./wishlist-button";
 
 function formatPrice(price: number) {
   return `€${price.toFixed(2)}`;
 }
 
-export function generateStaticParams() {
-  return shopProducts.map((product) => ({
-    slug: productSlug(product),
-  }));
-}
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5010/api/v1";
 
 export default async function ProductDetailsPage({
   params,
@@ -22,73 +20,125 @@ export default async function ProductDetailsPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = shopProducts.find((item) => productSlug(item) === slug);
+  
+  let dbProduct: DBProduct | null = null;
+  try {
+    const res = await fetch(`${BASE_URL}/products/slug/${slug}`, { cache: "no-store" });
+    if (res.ok) {
+      dbProduct = await res.json();
+    }
+  } catch (err) {
+    console.error("Error fetching product by slug:", err);
+  }
 
-  if (!product) {
+  if (!dbProduct || dbProduct.status !== "active") {
     notFound();
   }
 
-  const relatedProducts = shopProducts
-    .filter((item) => item.name !== product.name)
-    .slice(0, 5);
+  const defaultVariant = dbProduct.variants?.find((v: ProductVariant) => v.isDefault) || dbProduct.variants?.[0];
+  const price = defaultVariant ? Number(defaultVariant.price) : 0;
+  
+  let color = "Black";
+  let size = "M";
+  
+  if (defaultVariant?.attributes) {
+    for (const attr of defaultVariant.attributes) {
+      const val = attr.attributeValue?.value;
+      if (!val) continue;
+      if (["S", "M", "L", "XL", "XXL"].includes(val)) {
+        size = val;
+      } else {
+        color = val;
+      }
+    }
+  }
+  
+  const featuredMedia = dbProduct.media?.find((m: ProductMedia) => m.isFeatured) || dbProduct.media?.[0];
+  const image = resolveImageUrl(featuredMedia?.media?.url);
+
+  const product = {
+    id: dbProduct.id,
+    name: dbProduct.name,
+    category: dbProduct.category?.name || "Football Corner",
+    team: dbProduct.brand?.name || "Juventus",
+    price,
+    color,
+    size,
+    image,
+    description: dbProduct.description || "",
+    variantId: defaultVariant?.id,
+  };
+
+  let relatedProducts: {
+    name: string;
+    category: string;
+    team: string;
+    price: number;
+    image: string;
+    slug: string;
+  }[] = [];
+  try {
+    const res = await fetch(`${BASE_URL}/products?limit=6`, { cache: "no-store" });
+    if (res.ok) {
+      const result = await res.json();
+      const allProducts: DBProduct[] = result.data || [];
+      relatedProducts = allProducts
+        .filter((p: DBProduct) => p.slug !== slug && p.status === "active")
+        .slice(0, 5)
+        .map((p: DBProduct) => {
+          const v = p.variants?.find((vi: ProductVariant) => vi.isDefault) || p.variants?.[0];
+          const pr = v ? Number(v.price) : 0;
+          const fm = p.media?.find((mi: ProductMedia) => mi.isFeatured) || p.media?.[0];
+          const img = resolveImageUrl(fm?.media?.url);
+          
+          return {
+            name: p.name,
+            category: p.category?.name || "Football Corner",
+            team: p.brand?.name || "Juventus",
+            price: pr,
+            image: img,
+            slug: p.slug,
+          };
+        });
+    }
+  } catch (err) {
+    console.error("Error fetching related products:", err);
+  }
+
+  // Resolve every gallery URL through the same rewrite logic used elsewhere
+  const images = dbProduct.media?.length
+    ? dbProduct.media.map((m: ProductMedia) => resolveImageUrl(m.media?.url))
+    : [image];
+
   const salePrice = product.price * 0.8;
 
   return (
     <main className="min-h-screen bg-white text-[#151515]">
       <section className="mx-auto max-w-[1400px] px-4 py-8 sm:px-8">
-        <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.04em]">
-          <Link href="/">Home</Link>
-          <span>›</span>
-          <Link href="/shop">Shop</Link>
-          <span>›</span>
-          <Link href="/shop">{product.category}</Link>
-          <span>›</span>
-          <span>{product.name}</span>
-        </div>
+        <div className="grid gap-8 lg:grid-cols-[560px_1fr]">
+          {/* Left Column: Image Gallery */}
+          <ProductImageGallery images={images} name={product.name} />
 
-        <h1 className="mt-4 text-3xl font-medium uppercase tracking-tight">
-          {product.name}
-        </h1>
-
-        <div className="mt-5 grid gap-8 lg:grid-cols-[560px_1fr]">
-          <section>
-            <div className="relative aspect-square border border-neutral-100 bg-white">
-              <Image
-                src={product.image}
-                alt={product.name}
-                fill
-                priority
-                sizes="(min-width: 1024px) 560px, 100vw"
-                className="object-cover object-center p-12"
-              />
+          {/* Right Column: Product Details */}
+          <section className="flex flex-col">
+            {/* Breadcrumbs */}
+            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.04em] text-neutral-400">
+              <Link href="/" className="hover:text-black transition">Home</Link>
+              <span>›</span>
+              <Link href="/shop" className="hover:text-black transition">Shop</Link>
+              <span>›</span>
+              <Link href="/shop" className="hover:text-black transition">{product.category}</Link>
+              <span>›</span>
+              <span className="text-neutral-800">{product.name}</span>
             </div>
 
-            <div className="mt-2 flex gap-2">
-              {[product.image, product.image].map((image, index) => (
-                <button
-                  key={`${image}-${index}`}
-                  type="button"
-                  className={`relative h-24 w-24 border bg-white ${index === 0 ? "border-black" : "border-neutral-100"}`}
-                >
-                  <Image
-                    src={image}
-                    alt={`${product.name} view ${index + 1}`}
-                    fill
-                    sizes="96px"
-                    className={`object-cover p-3 ${index === 1 ? "scale-x-[-1]" : ""}`}
-                  />
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="pt-1">
-            <div className="flex items-start justify-between gap-4">
+            {/* Product Title, Price and Navigation */}
+            <div className="mt-3 flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-3xl font-black uppercase leading-tight">
+                <h1 className="text-3xl font-black uppercase leading-tight tracking-tight text-neutral-900">
                   {product.name}
-                </h2>
-                <div className="mt-2 flex items-center gap-3">
+                </h1>
+                <div className="mt-3 flex items-center gap-3">
                   <span className="text-lg font-black text-neutral-400 line-through">
                     {formatPrice(product.price)}
                   </span>
@@ -122,14 +172,10 @@ export default async function ProductDetailsPage({
             </div>
 
             <ProductPurchasePanel
-              product={{
-                slug,
-                name: product.name,
-                price: salePrice,
-                image: product.image,
-                color: product.color,
-                size: product.size,
-              }}
+              productName={product.name}
+              productImage={product.image}
+              productSlug={slug}
+              variants={dbProduct.variants || []}
             />
 
             <div>
@@ -144,10 +190,7 @@ export default async function ProductDetailsPage({
                     <Icon />
                   </button>
                 ))}
-                <button className="ml-1 inline-flex items-center gap-2 text-xs font-black uppercase" type="button">
-                  <FiHeart className="text-lg" />
-                  Add to wishlist
-                </button>
+                <WishlistButton product={product} />
               </div>
             </div>
           </section>
@@ -185,7 +228,7 @@ export default async function ProductDetailsPage({
           <div className="mt-6 grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-5">
             {relatedProducts.map((item) => (
               <article key={item.name} className="group">
-                <Link href={`/shop/${productSlug(item)}`} className="block border border-neutral-100 bg-white">
+                <Link href={`/shop/${item.slug}`} className="block border border-neutral-100 bg-white">
                   <div className="relative aspect-square">
                     <Image
                       src={item.image}

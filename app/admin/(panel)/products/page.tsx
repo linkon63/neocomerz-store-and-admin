@@ -63,11 +63,27 @@ function flattenCategories(categories: Category[], depth = 0): CategoryOption[] 
 }
 
 function getFeaturedMedia(product: Product) {
-  return (
+  const raw =
     product.media?.find((item) => item.isFeatured)?.media.url ??
     product.media?.[0]?.media.url ??
-    null
-  );
+    null;
+  return resolveAdminImageUrl(raw);
+}
+
+function resolveAdminImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.startsWith("https://")) return url;
+  if (url.startsWith("http://localhost") || url.startsWith("http://127.0.0.1")) {
+    const publicBase =
+      process.env.NEXT_PUBLIC_MEDIA_BASE_URL || "https://tinyecomapi.neocomerz.com";
+    try {
+      const parsed = new URL(url);
+      return `${publicBase}${parsed.pathname}`;
+    } catch {
+      return null;
+    }
+  }
+  return url;
 }
 
 function getDefaultVariant(product: Product): ProductVariant | undefined {
@@ -790,7 +806,7 @@ export default function ProductsPage() {
                           <img
                             alt=""
                             className="aspect-square w-full rounded-lg border border-slate-200 object-cover"
-                            src={item.media.url}
+                            src={resolveAdminImageUrl(item.media.url) ?? item.media.url}
                           />
                           <button
                             className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-lg bg-red-600 text-white"
