@@ -425,7 +425,21 @@ export default function DashboardPage() {
                   <img
                     alt={product.name}
                     className="h-12 w-12 flex-shrink-0 rounded-lg object-cover"
-                    src={product.imageUrl}
+                    src={
+                      product.imageUrl.startsWith("http://localhost") ||
+                      product.imageUrl.startsWith("http://127.0.0.1")
+                        ? (() => {
+                            try {
+                              const base =
+                                process.env.NEXT_PUBLIC_MEDIA_BASE_URL ||
+                                "https://tinyecomapi.neocomerz.com";
+                              return `${base}${new URL(product.imageUrl).pathname}`;
+                            } catch {
+                              return product.imageUrl;
+                            }
+                          })()
+                        : product.imageUrl
+                    }
                   />
                 ) : (
                   <ProductThumb color={THUMB_COLORS[index % THUMB_COLORS.length]} />
