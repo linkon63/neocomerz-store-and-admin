@@ -130,6 +130,50 @@ export default function StorefrontHeader() {
     );
   }
 
+  const handleForgotPasswordSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    setAuthSubmitting(true);
+    try {
+      const form = e.currentTarget as HTMLFormElement;
+      const email = (form.elements.namedItem("forgotEmail") as HTMLInputElement).value;
+      await forgotPassword(email);
+      setForgotSent(true);
+    } catch (err) {
+      setAuthError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setAuthSubmitting(false);
+    }
+  };
+
+  const handleAuthSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    setAuthSubmitting(true);
+    try {
+      const form = e.currentTarget as HTMLFormElement;
+      if (authModal === "login") {
+        const email = (form.elements.namedItem("loginEmail") as HTMLInputElement).value;
+        const password = (form.elements.namedItem("loginPassword") as HTMLInputElement).value;
+        await login(email, password, rememberMe);
+      } else {
+        const name = (form.elements.namedItem("regName") as HTMLInputElement).value;
+        const email = (form.elements.namedItem("regEmail") as HTMLInputElement).value;
+        const password = (form.elements.namedItem("regPassword") as HTMLInputElement).value;
+        const confirm = (form.elements.namedItem("regConfirm") as HTMLInputElement).value;
+        if (password !== confirm) {
+          throw new Error("Passwords do not match");
+        }
+        await register(name, email, password);
+      }
+      closeAuthModal();
+    } catch (err) {
+      setAuthError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setAuthSubmitting(false);
+    }
+  };
+
   return (
     <div className="sticky top-0 z-50 bg-white">
       <section className="bg-black px-4 py-2 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
@@ -339,21 +383,7 @@ export default function StorefrontHeader() {
               </div>
             ) : authModal === "forgot-password" ? (
               <form
-                onSubmit={async (e: FormEvent) => {
-                  e.preventDefault();
-                  setAuthError(null);
-                  setAuthSubmitting(true);
-                  try {
-                    const form = e.currentTarget as HTMLFormElement;
-                    const email = (form.elements.namedItem("forgotEmail") as HTMLInputElement).value;
-                    await forgotPassword(email);
-                    setForgotSent(true);
-                  } catch (err) {
-                    setAuthError(err instanceof Error ? err.message : "Something went wrong");
-                  } finally {
-                    setAuthSubmitting(false);
-                  }
-                }}
+                onSubmit={handleForgotPasswordSubmit}
                 className="mt-6 space-y-4"
               >
                 <input
@@ -380,33 +410,7 @@ export default function StorefrontHeader() {
               </form>
             ) : (
               <form
-                onSubmit={async (e: FormEvent) => {
-                  e.preventDefault();
-                  setAuthError(null);
-                  setAuthSubmitting(true);
-                  try {
-                    const form = e.currentTarget as HTMLFormElement;
-                    if (authModal === "login") {
-                      const email = (form.elements.namedItem("loginEmail") as HTMLInputElement).value;
-                      const password = (form.elements.namedItem("loginPassword") as HTMLInputElement).value;
-                      await login(email, password, rememberMe);
-                    } else {
-                      const name = (form.elements.namedItem("regName") as HTMLInputElement).value;
-                      const email = (form.elements.namedItem("regEmail") as HTMLInputElement).value;
-                      const password = (form.elements.namedItem("regPassword") as HTMLInputElement).value;
-                      const confirm = (form.elements.namedItem("regConfirm") as HTMLInputElement).value;
-                      if (password !== confirm) {
-                        throw new Error("Passwords do not match");
-                      }
-                      await register(name, email, password);
-                    }
-                    closeAuthModal();
-                  } catch (err) {
-                    setAuthError(err instanceof Error ? err.message : "Something went wrong");
-                  } finally {
-                    setAuthSubmitting(false);
-                  }
-                }}
+                onSubmit={handleAuthSubmit}
                 className="mt-6 space-y-4"
               >
                 {authModal === "register" && (
