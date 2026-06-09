@@ -23,13 +23,22 @@ export default function StorefrontChrome({
 		const footer = footerRef.current;
 		if (!footer) return;
 
-		const updateFooterHeight = () => setFooterHeight(footer.clientHeight);
+		// Parallax only runs on large screens (lg+); on mobile the footer is
+		// in normal flow, so the reveal margin must be 0.
+		const isDesktop = window.matchMedia("(min-width: 1024px)");
+
+		const updateFooterHeight = () =>
+			setFooterHeight(isDesktop.matches ? footer.clientHeight : 0);
 
 		// Set initial height and keep it in sync as the footer reflows.
 		updateFooterHeight();
 		const observer = new ResizeObserver(updateFooterHeight);
 		observer.observe(footer);
-		return () => observer.disconnect();
+		isDesktop.addEventListener("change", updateFooterHeight);
+		return () => {
+			observer.disconnect();
+			isDesktop.removeEventListener("change", updateFooterHeight);
+		};
 	}, [isAdminRoute]);
 
 	if (isAdminRoute) {
