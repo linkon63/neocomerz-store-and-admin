@@ -1,137 +1,108 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 type User = {
   id: string;
   name: string;
   email: string;
-  phone: string | null;
-  role: { id: string; name: string } | null;
 };
 
 type AuthContextValue = {
   user: User | null;
-  isAuthenticated: boolean;
+  token: string | null;
   isLoading: boolean;
-  login: (email: string, password: string, rememberMe: boolean) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
-  forgotPassword: (email: string) => Promise<string>;
   logout: () => void;
-  authModal: "login" | "register" | "forgot-password" | null;
-  openAuthModal: (mode: "login" | "register" | "forgot-password") => void;
-  closeAuthModal: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5010/api/v1";
+const TOKEN_KEY = "customer_access_token";
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
+    async function loadUser() {
+      const savedToken = sessionStorage.getItem(TOKEN_KEY);
+      if (!savedToken) {
+        setIsLoading(false);
+        return;
+      }
+
+      setToken(savedToken);
       try {
-        const res = await fetch("/api/v1/auth/me", {
-          credentials: "include",
+        const res = await fetch(`${BASE_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${savedToken}` },
         });
+
         if (res.ok) {
-          const data = await res.json();
-          setUser(data);
+          const userData = await res.json();
+          setUser(userData);
+        } else {
+          // Token is stale — clear it
+          sessionStorage.removeItem(TOKEN_KEY);
+          setToken(null);
         }
-      } catch {
-        // Not authenticated
+      } catch (err) {
+        console.error("Failed to restore session:", err);
       } finally {
         setIsLoading(false);
       }
-    })();
+    }
+
+    loadUser();
   }, []);
 
-  const login = useCallback(async (email: string, password: string, rememberMe: boolean) => {
-    const res = await fetch("/api/v1/auth/login", {
+  const login = async (email: string, password: string) => {
+    const res = await fetch(`${BASE_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, rememberMe }),
-      credentials: "include",
+      body: JSON.stringify({ email, password }),
     });
-    const data = await res.json();
-    if (!res.ok) {
-      const message = Array.isArray(data.message) ? data.message[0] : (data.message || "Login failed");
-      throw new Error(message);
-    }
-    const roleName = data.user?.role?.name?.toLowerCase();
-    if (roleName && roleName !== "user") {
-      throw new Error("Only customers can log in here");
-    }
-    setUser(data.user);
-  }, []);
 
-  const register = useCallback(async (name: string, email: string, password: string) => {
-    const res = await fetch("/api/v1/auth/register", {
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error((errData as { message?: string }).message || "Invalid credentials");
+    }
+
+    const data = await res.json();
+    sessionStorage.setItem(TOKEN_KEY, data.accessToken);
+    setToken(data.accessToken);
+    setUser(data.user);
+  };
+
+  const register = async (name: string, email: string, password: string) => {
+    const res = await fetch(`${BASE_URL}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password }),
-      credentials: "include",
     });
-    const data = await res.json();
+
     if (!res.ok) {
-      const message = Array.isArray(data.message) ? data.message[0] : (data.message || "Registration failed");
-      throw new Error(message);
+      const errData = await res.json().catch(() => ({}));
+      throw new Error((errData as { message?: string }).message || "Registration failed");
     }
+
+    const data = await res.json();
+    sessionStorage.setItem(TOKEN_KEY, data.accessToken);
+    setToken(data.accessToken);
     setUser(data.user);
-  }, []);
+  };
 
-  const forgotPassword = useCallback(async (email: string) => {
-    const res = await fetch("/api/v1/auth/forgot-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      const message = Array.isArray(data.message) ? data.message[0] : (data.message || "Request failed");
-      throw new Error(message);
-    }
-    return data.message || "Check your email for reset instructions";
-  }, []);
-
-  const [authModal, setAuthModal] = useState<"login" | "register" | "forgot-password" | null>(null);
-
-  const openAuthModal = useCallback((mode: "login" | "register" | "forgot-password") => {
-    setAuthModal(mode);
-  }, []);
-
-  const closeAuthModal = useCallback(() => {
-    setAuthModal(null);
-  }, []);
-
-  const logout = useCallback(async () => {
-    try {
-      await fetch("/api/v1/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-    } catch {
-      // Ignore network errors on logout
-    }
+  const logout = () => {
+    sessionStorage.removeItem(TOKEN_KEY);
+    setToken(null);
     setUser(null);
-  }, []);
+  };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        isLoading,
-        login,
-        register,
-        forgotPassword,
-        logout,
-        authModal,
-        openAuthModal,
-        closeAuthModal,
-      }}
-    >
+    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -139,6 +110,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used inside AuthProvider");
+  if (!context) {
+    throw new Error("useAuth must be used inside AuthProvider");
+  }
   return context;
 }
