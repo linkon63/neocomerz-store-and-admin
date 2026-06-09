@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FiHeart, FiShoppingBag } from "react-icons/fi";
 import { useCart } from "./cart-context";
+import { resolveImageUrl } from "../shop/products";
 
 interface ProductMedia {
   isFeatured: boolean;
@@ -11,6 +12,7 @@ interface ProductMedia {
 }
 
 interface ProductVariant {
+  id: string;
   price: number;
   isDefault: boolean;
 }
@@ -94,9 +96,11 @@ export default function ProductGrid() {
       <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-5">
         {products.map((product) => {
           const featured = product.media?.find((m) => m.isFeatured);
-          const imageUrl = featured?.media?.url ?? product.media?.[0]?.media?.url;
+          const rawUrl = featured?.media?.url ?? product.media?.[0]?.media?.url;
+          const imageUrl = resolveImageUrl(rawUrl);
           const defaultVariant = product.variants?.find((v) => v.isDefault);
           const price = defaultVariant?.price ?? product.variants?.[0]?.price;
+          const variantId = defaultVariant?.id ?? product.variants?.[0]?.id;
 
           const inCart = items.some((i) => i.slug === product.slug);
 
@@ -139,6 +143,7 @@ export default function ProductGrid() {
                       image: imageUrl ?? "",
                       color: "",
                       size: "",
+                      variantId,
                       quantity: 1,
                     });
                   }}
