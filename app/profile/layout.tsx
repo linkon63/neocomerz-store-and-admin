@@ -44,7 +44,7 @@ export default function ProfileLayout({ children }: { children: ReactNode }) {
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -53,7 +53,7 @@ export default function ProfileLayout({ children }: { children: ReactNode }) {
         {/* Sidebar Navigation - Responsive */}
         <aside 
           className={`
-            fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 
+            fixed lg:static inset-y-0 left-0 z-50 sm:z-10 w-64 bg-white border-r border-gray-200 
             transform transition-transform duration-300 ease-in-out
             ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
             lg:translate-x-0 lg:flex-shrink-0
