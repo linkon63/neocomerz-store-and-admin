@@ -242,32 +242,21 @@ export default function StorefrontHeader() {
             </div>
             {user ? (
               <div className="group relative">
-                <button
-                  type="button"
-                  aria-label="Account menu"
-                  className="flex items-center gap-1.5 text-sm font-bold"
-                >
-                  <FiUser />
-                  <span className="max-w-[90px] truncate text-[11px] uppercase tracking-[0.06em]">
-                    {user.name.split(" ")[0]}
-                  </span>
-                </button>
-                <div className="invisible absolute right-0 top-full w-44 translate-y-3 border border-neutral-200 bg-white opacity-0 shadow-xl transition group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-                  <Link
+                <Link
                     href="/profile"
                     className="block px-4 py-3 text-xs font-bold uppercase tracking-[0.08em] hover:bg-neutral-50"
                   >
-                    Profile
+                    <button
+                      type="button"
+                      aria-label="Account menu"
+                      className="flex items-center gap-1.5 text-sm font-bold"
+                    >
+                      <FiUser />
+                      <span className="max-w-[90px] truncate text-[11px] uppercase tracking-[0.06em]">
+                        {user.name.split(" ")[0]}
+                      </span>
+                    </button>
                   </Link>
-                  <button
-                    type="button"
-                    onClick={logout}
-                    className="flex w-full items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-[0.08em] text-red-600 hover:bg-red-50"
-                  >
-                    <FiLogOut className="text-sm" />
-                    Sign Out
-                  </button>
-                </div>
               </div>
             ) : (
               <button

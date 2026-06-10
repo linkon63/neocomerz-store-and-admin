@@ -184,7 +184,7 @@ export default function CampaignsPage() {
               <AdminIcon className="h-5 w-5" name="refresh" />
             </button>
             <button
-              className="inline-flex h-14 items-center gap-2 rounded-lg bg-blue-600 px-6 font-black text-white shadow-lg shadow-blue-600/15"
+              className="inline-flex h-14 items-center gap-2 rounded-md bg-slate-900 px-6 font-black text-white shadow-lg shadow-slate-900/15 hover:bg-slate-800 transition"
               onClick={openAdd}
               type="button"
             >
@@ -201,7 +201,7 @@ export default function CampaignsPage() {
           <p className="text-sm font-medium text-slate-500">
             Displaying {filtered.length} campaign{filtered.length !== 1 ? "s" : ""}
           </p>
-          <label className="flex h-10 w-full max-w-xs items-center gap-2 rounded-xl border border-slate-200 bg-white px-3">
+          <label className="flex h-10 w-full max-w-xs items-center gap-2 rounded-md border border-slate-200 bg-white px-3">
             <AdminIcon className="h-4 w-4 shrink-0 text-slate-400" name="search" />
             <input
               className="w-full bg-transparent text-sm font-medium text-slate-800 outline-none"
@@ -212,7 +212,7 @@ export default function CampaignsPage() {
           </label>
         </div>
 
-        <div className="overflow-x-auto rounded-xl border border-slate-200">
+        <div className="overflow-x-auto rounded-lg border border-slate-200">
           <table className="w-full min-w-[640px] text-left">
             <thead className="bg-slate-50">
               <tr>
@@ -287,7 +287,7 @@ export default function CampaignsPage() {
           aria-labelledby="campaign-modal-title"
         >
           <form
-            className="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl"
+            className="w-full max-w-2xl rounded-lg border border-slate-200 bg-white p-6 shadow-2xl"
             onSubmit={handleSubmit}
           >
             <div className="mb-5 flex items-start justify-between gap-4">
@@ -315,7 +315,7 @@ export default function CampaignsPage() {
                 <div>
                   <FieldLabel required>Campaign Name</FieldLabel>
                   <select
-                    className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-800 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                    className="h-12 w-full rounded-md border border-slate-200 bg-white px-4 text-sm font-medium text-slate-800 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
                     onChange={(e) => setForm((p) => ({ ...p, sectionId: e.target.value }))}
                     required
                     value={form.sectionId}
@@ -514,7 +514,7 @@ export default function CampaignsPage() {
 
               <div className="flex justify-end gap-3 pt-2">
                 <button
-                  className="h-12 rounded-xl border border-slate-300 bg-white px-5 font-black text-slate-700"
+                  className="h-12 rounded-md border border-slate-300 bg-white px-5 font-black text-slate-700 hover:bg-slate-50 transition"
                   disabled={saving}
                   onClick={() => setModalOpen(false)}
                   type="button"
@@ -522,7 +522,7 @@ export default function CampaignsPage() {
                   Cancel
                 </button>
                 <button
-                  className="inline-flex h-12 items-center gap-2 rounded-xl bg-blue-600 px-5 font-black text-white disabled:opacity-60"
+                  className="inline-flex h-12 items-center gap-2 rounded-md bg-slate-900 px-5 font-black text-white hover:bg-slate-800 transition disabled:opacity-60"
                   disabled={saving}
                   type="submit"
                 >

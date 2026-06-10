@@ -795,28 +795,30 @@ export type Profile = {
 
 // Profile API Functions (Customer - uses sessionStorage token)
 export async function getMyProfile(): Promise<Profile> {
-  return customerApiRequest<Profile>('/profile/me', { auth: true });
-}
-
-export async function updateMyProfile(data: Partial<Profile>): Promise<Profile> {
-  return customerApiRequest<Profile>('/profile/me', { 
-    auth: true,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
+  const data = await customerApiRequest<any>('/profile/me', { auth: true });
+  return {
+    id: data.id,
+    name: data.user?.name ?? '',
+    email: data.user?.email ?? '',
+    phone: data.user?.phone ?? '',
+    avatarUrl: data.avatarMedia?.url ?? null,
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+  };
 }
 
 export async function uploadAvatar(file: File): Promise<{ avatarUrl: string }> {
   const formData = new FormData();
   formData.append('avatar', file);
-  
-  return customerApiRequest<{ avatarUrl: string }>('/profile/avatar', {
+
+  const data = await customerApiRequest<any>('/profile/avatar', {
     auth: true,
     method: 'POST',
     body: formData,
-    headers: {} // Don't set Content-Type for FormData
+    headers: {},
   });
+
+  return { avatarUrl: data.avatarMedia?.url ?? null };
 }
 
 export async function deleteAvatar(): Promise<void> {
@@ -825,3 +827,38 @@ export async function deleteAvatar(): Promise<void> {
     method: 'DELETE'
   });
 }
+
+export async function changePassword(data: { currentPassword: string; newPassword: string }): Promise<void> {
+  return customerApiRequest<void>('/auth/change-password', {
+    auth: true,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}
+export function resolveImageUrl(url?: string | null): string {
+  if (!url) return "";
+
+  // Get API origin from environment variable
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "https://tinyecomapi.neocomerz.com/api/v1";
+  let apiOrigin = "https://tinyecomapi.neocomerz.com";
+  try {
+    const parsed = new URL(apiBaseUrl);
+    apiOrigin = parsed.origin;
+  } catch (e) {
+    // Fallback if parsing fails
+  }
+
+  let resolvedUrl = url;
+  if (resolvedUrl.includes("localhost:")) {
+    resolvedUrl = resolvedUrl.replace(/^https?:\/\/localhost:\d+/, apiOrigin);
+  }
+
+  if (!resolvedUrl.startsWith("http://") && !resolvedUrl.startsWith("https://") && !resolvedUrl.startsWith("data:")) {
+    const separator = resolvedUrl.startsWith("/") ? "" : "/";
+    resolvedUrl = `${apiOrigin}${separator}${resolvedUrl}`;
+  }
+
+  return resolvedUrl;
+}
+

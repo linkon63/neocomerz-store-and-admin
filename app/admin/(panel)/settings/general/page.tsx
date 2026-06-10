@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AdminIcon, PageHeader } from "../../../_components/admin-shell";
-import { apiRequest, type AppSettings } from "../../../../../lib/admin-api";
+import { apiRequest, resolveImageUrl, type AppSettings } from "../../../../../lib/admin-api";
 import {
   FieldLabel,
   Input,
@@ -48,7 +48,6 @@ function SettingsRow({
   );
 }
 
-/** Clickable logo/icon upload slot */
 function LogoSlot({
   label,
   hint,
@@ -62,23 +61,16 @@ function LogoSlot({
   onPick: () => void;
   onRemove: () => void;
 }) {
+  const containerClass = "relative flex h-[120px] w-[120px] items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-slate-200 bg-slate-50 transition";
+  
   return (
     <div className="flex flex-col items-center gap-2">
-      <button
-        className="relative flex h-[120px] w-[120px] items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 transition hover:border-blue-400 hover:bg-blue-50"
-        onClick={url ? undefined : onPick}
-        type="button"
-      >
-        {url ? (
-          /* eslint-disable-next-line @next/next/no-img-element */
+      {url ? (
+        <div className={containerClass}>
           <img alt={label} className="h-full w-full object-contain p-2" src={url} />
-        ) : (
-          <AdminIcon className="h-8 w-8 text-slate-300" name="plus" />
-        )}
-        {url && (
           <button
             aria-label={`Remove ${label}`}
-            className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-red-500 text-white shadow"
+            className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-red-500 text-white shadow hover:bg-red-650 transition cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               onRemove();
@@ -87,8 +79,16 @@ function LogoSlot({
           >
             <AdminIcon className="h-3 w-3" name="x" />
           </button>
-        )}
-      </button>
+        </div>
+      ) : (
+        <button
+          className={`${containerClass} hover:border-slate-400 hover:bg-slate-100 cursor-pointer`}
+          onClick={onPick}
+          type="button"
+        >
+          <AdminIcon className="h-8 w-8 text-slate-300" name="plus" />
+        </button>
+      )}
       <p className="flex items-center gap-1 text-xs font-black text-slate-600">
         {label}
         {hint && (
@@ -250,8 +250,8 @@ export default function GeneralSettingsPage() {
 
   // ── Derived ───────────────────────────────────────────────────────────────
 
-  const iconDisplayUrl = iconPreview ?? (settings.icon || null);
-  const logoDisplayUrl = logoPreview ?? (settings.logo || null);
+  const iconDisplayUrl = iconPreview ?? (settings.icon ? resolveImageUrl(settings.icon) : null);
+  const logoDisplayUrl = logoPreview ?? (settings.logo ? resolveImageUrl(settings.logo) : null);
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -263,7 +263,7 @@ export default function GeneralSettingsPage() {
         action={
           <div className="flex gap-3">
             <button
-              className="h-11 rounded-xl border border-slate-200 bg-white px-5 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+              className="h-11 rounded-md border border-slate-200 bg-white px-5 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
               disabled={saving}
               onClick={loadSettings}
               type="button"
@@ -271,7 +271,7 @@ export default function GeneralSettingsPage() {
               Cancel
             </button>
             <button
-              className="inline-flex h-11 items-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-black text-white transition hover:bg-blue-700 disabled:opacity-60"
+              className="inline-flex h-11 items-center gap-2 rounded-md bg-slate-900 px-6 text-sm font-black text-white transition hover:bg-slate-800 disabled:opacity-60"
               disabled={saving || loading}
               onClick={save}
               type="button"
@@ -283,11 +283,11 @@ export default function GeneralSettingsPage() {
       />
 
       {loading ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-10 shadow-sm">
+        <div className="rounded-lg border border-slate-200 bg-white p-10 shadow-sm">
           <p className="text-sm font-medium text-slate-400">Loading settings...</p>
         </div>
       ) : (
-        <div className="space-y-0 divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="space-y-0 divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white shadow-sm">
 
           {/* ── Basic Info ── */}
           <div className="px-6 py-7 sm:px-8">
@@ -309,7 +309,7 @@ export default function GeneralSettingsPage() {
                   <div>
                     <FieldLabel required>Default Currency</FieldLabel>
                     <select
-                      className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-800 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      className="h-12 w-full rounded-md border border-slate-200 bg-white px-4 text-sm font-medium text-slate-800 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
                       onChange={(e) => setSettings((p) => ({ ...p, currency: e.target.value }))}
                       value={settings.currency ?? "BDT"}
                     >
@@ -321,7 +321,7 @@ export default function GeneralSettingsPage() {
                   <div>
                     <FieldLabel required>Language</FieldLabel>
                     <select
-                      className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-800 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      className="h-12 w-full rounded-md border border-slate-200 bg-white px-4 text-sm font-medium text-slate-800 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
                       onChange={(e) => setSettings((p) => ({ ...p, language: e.target.value }))}
                       value={settings.language ?? "en"}
                     >
@@ -338,7 +338,7 @@ export default function GeneralSettingsPage() {
                   <p className="mt-0.5 text-xs font-medium text-slate-500">
                     Select a storefront template for your shop.
                   </p>
-                  <div className="mt-3 flex min-h-[80px] items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6">
+                  <div className="mt-3 flex min-h-[80px] items-center justify-center rounded-md border border-dashed border-slate-200 bg-slate-50 px-4 py-6">
                     <p className="text-xs font-medium text-slate-400">
                       No templates available. Please ask the central admin to add templates.
                     </p>
@@ -361,7 +361,7 @@ export default function GeneralSettingsPage() {
                   <button
                     className={`border-b-2 px-4 pb-3 pt-1 text-sm font-black transition ${
                       logoTab === tab
-                        ? "border-blue-600 text-blue-600"
+                        ? "border-slate-900 text-slate-900"
                         : "border-transparent text-slate-500 hover:text-slate-800"
                     }`}
                     key={tab}
@@ -428,7 +428,7 @@ export default function GeneralSettingsPage() {
               separator={false}
             >
               <div className="space-y-4">
-                <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
+                <div className="flex items-center justify-between rounded-md border border-slate-200 bg-slate-50 px-5 py-4">
                   <div>
                     <p className="text-sm font-black text-slate-800">Display Top bar</p>
                     <p className="mt-0.5 text-xs font-medium text-slate-500">
@@ -459,7 +459,7 @@ export default function GeneralSettingsPage() {
               hint="Manage your out of stock product in website."
               separator={false}
             >
-              <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
+              <div className="flex items-center justify-between rounded-md border border-slate-200 bg-slate-50 px-5 py-4">
                 <div>
                   <p className="text-sm font-black text-slate-800">Hide Out of Stock Products</p>
                   <p className="mt-0.5 text-xs font-medium text-slate-500">
@@ -519,7 +519,7 @@ export default function GeneralSettingsPage() {
             {success && <div className="mb-4"><SuccessBanner message={success} /></div>}
             <div className="flex justify-end gap-3">
               <button
-                className="h-11 rounded-xl border border-slate-200 bg-white px-5 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+                className="h-11 rounded-md border border-slate-200 bg-white px-5 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
                 disabled={saving}
                 onClick={loadSettings}
                 type="button"
@@ -527,7 +527,7 @@ export default function GeneralSettingsPage() {
                 Cancel
               </button>
               <button
-                className="inline-flex h-11 items-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-black text-white transition hover:bg-blue-700 disabled:opacity-60"
+                className="inline-flex h-11 items-center gap-2 rounded-md bg-slate-900 px-6 text-sm font-black text-white transition hover:bg-slate-800 disabled:opacity-60"
                 disabled={saving || loading}
                 onClick={save}
                 type="button"
