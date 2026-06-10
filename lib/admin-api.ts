@@ -370,6 +370,178 @@ export type Campaign = {
   updatedAt?: string;
 };
 
+export type SalesReportSummary = {
+  totalRevenue: number;
+  totalOrders: number;
+  avgOrderValue: number;
+  period: { start: string; end: string };
+};
+
+export type ProductBreakdown = {
+  productId: string;
+  productName: string;
+  sku: string;
+  quantity: number;
+  revenue: number;
+};
+
+export type SalesReportOrder = {
+  orderId: string;
+  orderNumber: string;
+  customer: string;
+  total: number;
+  discount: number;
+  placedAt: string;
+  items: {
+    product: string;
+    sku: string;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+  }[];
+};
+
+export type SalesReport = {
+  summary: SalesReportSummary;
+  productBreakdown: ProductBreakdown[];
+  orders: SalesReportOrder[];
+};
+
+export type UserReportUser = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  role: string;
+  registeredAt: string;
+};
+
+export type UserReport = {
+  summary: {
+    totalNewUsers: number;
+    totalCustomers: number;
+    newCustomersThisWeek: number;
+    period: { start: string; end: string };
+  };
+  users: UserReportUser[];
+};
+
+export type CouponBreakdown = {
+  id: string;
+  code: string;
+  type: string;
+  value: number;
+  usedCount: number;
+  maxUsage: number;
+  expiresAt: string | null;
+};
+
+export type DiscountedOrder = {
+  orderId: string;
+  orderNumber: string;
+  customer: string;
+  discountAmount: number;
+  orderTotal: number;
+  placedAt: string;
+};
+
+export type DiscountReport = {
+  summary: {
+    totalDiscountGiven: number;
+    ordersWithDiscount: number;
+    totalCoupons: number;
+    period: { start: string; end: string };
+  };
+  couponBreakdown: CouponBreakdown[];
+  discountedOrders: DiscountedOrder[];
+};
+
+export type ReportOverviewSales = {
+  totalRevenue: number;
+  totalOrders: number;
+  avgOrderValue: number;
+  period: { start: string; end: string };
+};
+
+export type ReportOverviewCustomers = {
+  totalNewUsers: number;
+  totalCustomers: number;
+  newCustomersThisWeek: number;
+  period: { start: string; end: string };
+};
+
+export type ReportOverviewDiscounts = {
+  totalDiscountGiven: number;
+  ordersWithDiscount: number;
+  totalCoupons: number;
+  period: { start: string; end: string };
+};
+
+export type ReportOverviewInventory = {
+  totalStockIn: number;
+  totalStockOut: number;
+  totalTransactions: number;
+  lowStockAlerts: number;
+  period: { start: string; end: string };
+};
+
+export type InventoryVariant = {
+  id: string | null;
+  sku: string | null;
+  price: string | null;
+  cost: string | null;
+  stockQuantity: number;
+  stockAlertThreshold: number;
+  isDefault: boolean;
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    status: string;
+  };
+};
+
+export type InventoryLog = {
+  id: string;
+  change: number;
+  reason: "sale" | "restock" | "return" | "correction" | "manual";
+  referenceId?: string | null;
+  note?: string | null;
+  createdAt: string;
+  variantId: string;
+};
+
+export type InventoryLogResponse = InventoryLog & {
+  variant: {
+    sku: string;
+    product: { id: string; name: string };
+  };
+};
+
+export type AdjustInventoryPayload = {
+  variantId: string;
+  change: number;
+  reason: "sale" | "restock" | "return" | "correction" | "manual";
+  referenceId?: string;
+  note?: string;
+};
+
+export type ReportOverviewPurchases = {
+  totalPurchases: number;
+  totalUnits: number;
+  totalCost: number;
+  period: { start: string; end: string };
+};
+
+export type ReportOverview = {
+  period: { start: string; end: string };
+  sales: ReportOverviewSales;
+  customers: ReportOverviewCustomers;
+  discounts: ReportOverviewDiscounts;
+  inventory: ReportOverviewInventory;
+  purchases: ReportOverviewPurchases;
+};
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/v1";
 
 export function getAdminToken() {
@@ -465,6 +637,41 @@ export function formatDate(value?: string) {
     month: "short",
     day: "numeric",
   }).format(new Date(value));
+}
+
+export type InventoryRow = {
+  id: string;
+  sku: string;
+  price: string;
+  cost: string | null;
+  stockQuantity: number;
+  stockAlertThreshold: number;
+  isDefault: boolean;
+  product: { id: string; name: string; slug: string; status: string };
+};
+
+export function toInventoryRows(
+  variants: Array<{
+    id: string;
+    sku: string;
+    price: { toString(): string };
+    cost?: { toString(): string } | null;
+    stockQuantity: number;
+    stockAlertThreshold: number;
+    isDefault: boolean;
+    product: { id: string; name: string; slug: string; status: string };
+  }>,
+): InventoryRow[] {
+  return variants.map((v) => ({
+    id: v.id,
+    sku: v.sku,
+    price: v.price.toString(),
+    cost: v.cost?.toString() ?? null,
+    stockQuantity: v.stockQuantity,
+    stockAlertThreshold: v.stockAlertThreshold,
+    isDefault: v.isDefault,
+    product: v.product,
+  }));
 }
 
 export function formatMoney(value?: string | number | null) {
