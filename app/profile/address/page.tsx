@@ -28,6 +28,8 @@ export default function AddressPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
   const hasFetched = useRef(false);
 
   // Form state
@@ -178,15 +180,21 @@ export default function AddressPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!token) return;
-    
-    if (!confirm('Are you sure you want to delete this address?')) {
-      return;
-    }
+  const openDeleteModal = (id: string) => {
+    setAddressToDelete(id);
+    setDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModalOpen(false);
+    setAddressToDelete(null);
+  };
+
+  const handleDelete = async () => {
+    if (!token || !addressToDelete) return;
 
     try {
-      const res = await fetch(`${BASE_URL}/addresses/${id}`, {
+      const res = await fetch(`${BASE_URL}/addresses/${addressToDelete}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -196,6 +204,7 @@ export default function AddressPage() {
       if (res.ok) {
         toast.success('Address deleted successfully');
         await fetchAddresses();
+        closeDeleteModal();
       } else {
         const error = await res.json();
         toast.error(error.message || 'Failed to delete address');
@@ -336,7 +345,7 @@ export default function AddressPage() {
                           <FiEdit2 className="text-lg" />
                         </button>
                         <button
-                          onClick={() => handleDelete(address.id)}
+                          onClick={() => openDeleteModal(address.id)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
                           aria-label="Delete address"
                           title="Delete"
@@ -353,9 +362,9 @@ export default function AddressPage() {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Add/Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
@@ -525,6 +534,41 @@ export default function AddressPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-md w-full shadow-2xl">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">Are you want to delete address?</h2>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6">
+              <p className="text-gray-600">
+                This action cannot be undone. This will permanently delete this address from your account.
+              </p>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex gap-3 p-6 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+              <button
+                onClick={closeDeleteModal}
+                className="flex-1 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-100 transition font-medium"
+              >
+                No, Keep It
+              </button>
+              <button
+                onClick={handleDelete}
+                className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium"
+              >
+                Yes, Delete
+              </button>
+            </div>
           </div>
         </div>
       )}
