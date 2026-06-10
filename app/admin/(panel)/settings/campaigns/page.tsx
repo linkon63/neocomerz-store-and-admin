@@ -3,7 +3,9 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { AdminIcon, PageHeader } from "../../../_components/admin-shell";
 import { ConfirmModal } from "../../../_components/confirm-modal";
-import { apiRequest, type Campaign, type CampaignSection } from "../../../../../lib/admin-api";
+import { useDiscounts } from "../../../_hooks/use-discounts";
+import { useSections } from "../../../_hooks/use-sections";
+import { apiRequest, type Campaign } from "../../../../../lib/admin-api";
 import {
   SettingsCard,
   FieldLabel,
@@ -21,6 +23,9 @@ type CampaignForm = {
   status: "active" | "inactive";
   startAt: string;
   endAt: string;
+  discountId: string;
+  images: File[];
+  existingImages: string[];
 };
 
 const EMPTY_FORM: CampaignForm = {
@@ -30,17 +35,22 @@ const EMPTY_FORM: CampaignForm = {
   status: "active",
   startAt: new Date().toISOString().slice(0, 16),
   endAt: "",
+  discountId: "",
+  images: [],
+  existingImages: [],
 };
 
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [sections, setSections] = useState<CampaignSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState<CampaignForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+
+  const { discounts } = useDiscounts();
+  const { sections } = useSections();
   const [formError, setFormError] = useState("");
 
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; campaign: Campaign | null }>({
@@ -51,12 +61,8 @@ export default function CampaignsPage() {
   const loadCampaigns = useCallback(async () => {
     setLoading(true);
     try {
-      const [data, sectionData] = await Promise.all([
-        apiRequest<Campaign[]>("/campaigns"),
-        apiRequest<CampaignSection[]>("/campaigns/sections"),
-      ]);
+      const data = await apiRequest<Campaign[]>("/campaigns");
       setCampaigns(data);
-      setSections(sectionData);
     } catch {
       setCampaigns([]);
     } finally {
@@ -79,11 +85,14 @@ export default function CampaignsPage() {
     setForm({
       id: c.id,
       title: c.title,
-      sectionId: c.section.id,
+      sectionId: c.sectionId,
       description: c.description ?? "",
       status: c.status,
       startAt: c.startAt ? c.startAt.slice(0, 16) : new Date().toISOString().slice(0, 16),
       endAt: c.endAt ? c.endAt.slice(0, 16) : "",
+      discountId: c.discountId ?? "",
+      images: [],
+      existingImages: (c.images ?? []).flatMap((img) => img.images ?? []),
     });
     setModalOpen(true);
   }
@@ -92,6 +101,11 @@ export default function CampaignsPage() {
     e.preventDefault();
     setSaving(true);
     setFormError("");
+    if (form.images.length === 0 && form.existingImages.length === 0) {
+      setFormError("At least one campaign image is required.");
+      setSaving(false);
+      return;
+    }
     try {
       const body = new FormData();
       body.append("title", form.title);
@@ -100,8 +114,13 @@ export default function CampaignsPage() {
       if (form.description) body.append("description", form.description);
       if (form.startAt) body.append("startAt", new Date(form.startAt).toISOString());
       if (form.endAt) body.append("endAt", new Date(form.endAt).toISOString());
+      if (form.discountId) body.append("discountId", form.discountId);
+      for (const file of form.images) {
+        body.append("images", file);
+      }
 
       if (form.id) {
+        body.append("keepImages", JSON.stringify(form.existingImages));
         await apiRequest(`/campaigns/${form.id}`, { method: "PATCH", body });
       } else {
         await apiRequest("/campaigns", { method: "POST", body });
@@ -141,6 +160,10 @@ export default function CampaignsPage() {
       setDeleteModal({ open: false, campaign: null });
     }
   }
+
+  const selectedDiscount = form.discountId
+    ? discounts.find((d) => d.id === form.discountId)
+    : null;
 
   const filtered = campaigns.filter((c) =>
     `${c.title} ${c.section?.title ?? ""}`.toLowerCase().includes(search.toLowerCase()),
@@ -345,6 +368,72 @@ export default function CampaignsPage() {
                 />
               </div>
 
+              {/* Images */}
+              <div>
+                <FieldLabel>Campaign Images</FieldLabel>
+                <input
+                  accept="image/*"
+                  className="block w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium"
+                  multiple
+                  onChange={(e) => {
+                    const files = e.target.files ? Array.from(e.target.files) : [];
+                    setForm((p) => ({ ...p, images: [...p.images, ...files] }));
+                  }}
+                  type="file"
+                />
+                <div className="mt-3 grid grid-cols-4 gap-3">
+                  {form.existingImages.map((url, i) => (
+                    <div className="relative" key={`e-${i}`}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        alt=""
+                        className="h-20 w-full rounded-lg border border-slate-200 object-cover"
+                        src={url}
+                      />
+                      <button
+                        className="absolute -right-2 -top-2 grid h-6 w-6 place-items-center rounded-full bg-red-500 text-xs text-white"
+                        onClick={() =>
+                          setForm((p) => ({
+                            ...p,
+                            existingImages: p.existingImages.filter((_, j) => j !== i),
+                          }))
+                        }
+                        type="button"
+                      >
+                        <AdminIcon className="h-3 w-3" name="x" />
+                      </button>
+                    </div>
+                  ))}
+                  {form.images.map((file, i) => (
+                    <div className="relative" key={`n-${i}`}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        alt=""
+                        className="h-20 w-full rounded-lg border border-slate-200 object-cover"
+                        src={URL.createObjectURL(file)}
+                      />
+                      <button
+                        className="absolute -right-2 -top-2 grid h-6 w-6 place-items-center rounded-full bg-red-500 text-xs text-white"
+                        onClick={() =>
+                          setForm((p) => ({
+                            ...p,
+                            images: p.images.filter((_, j) => j !== i),
+                          }))
+                        }
+                        type="button"
+                      >
+                        <AdminIcon className="h-3 w-3" name="x" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                {form.images.length === 0 && form.existingImages.length === 0 && (
+                  <p className="mt-2 text-xs font-medium text-slate-400">
+                    At least one image is required.
+                  </p>
+                )}
+              </div>
+
               {/* Dates */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
@@ -367,39 +456,59 @@ export default function CampaignsPage() {
 
               {/* Select Offer or Discount */}
               <div>
-                <FieldLabel required>Select Offer or Discount</FieldLabel>
+                <FieldLabel>Select Offer or Discount</FieldLabel>
                 <select
                   className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-800 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                  disabled
+                  onChange={(e) => setForm((p) => ({ ...p, discountId: e.target.value }))}
+                  value={form.discountId}
                 >
-                  <option value="">No discounts available</option>
+                  <option value="">No discount</option>
+                  {discounts.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
-              {/* Discount table placeholder */}
-              <div className="overflow-x-auto rounded-xl border border-slate-200">
-                <table className="w-full text-left">
-                  <thead className="bg-slate-50">
-                    <tr>
-                      {["Offer or Discount Name", "Start At", "End At", "Action"].map((h) => (
-                        <th className="px-4 py-3 text-sm font-black text-slate-700" key={h}>
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td
-                        className="px-4 py-6 text-sm font-medium text-slate-400"
-                        colSpan={4}
-                      >
-                        No items found.
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+              {/* Selected Discount Details */}
+              {selectedDiscount && (
+                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                  <table className="w-full text-left">
+                    <thead className="bg-slate-50">
+                      <tr>
+                        {["Offer or Discount Name", "Start At", "End At", "Action"].map((h) => (
+                          <th className="px-4 py-3 text-sm font-black text-slate-700" key={h}>
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="px-4 py-3 text-sm font-medium text-slate-800">
+                          {selectedDiscount.name}
+                        </td>
+                        <td className="px-4 py-3 text-sm font-medium text-slate-500">
+                          {selectedDiscount.startDate ?? "-"}
+                        </td>
+                        <td className="px-4 py-3 text-sm font-medium text-slate-500">
+                          {selectedDiscount.endDate ?? "-"}
+                        </td>
+                        <td className="px-4 py-3">
+                          <button
+                            className="text-sm font-black text-red-600 hover:text-red-800"
+                            onClick={() => setForm((p) => ({ ...p, discountId: "" }))}
+                            type="button"
+                          >
+                            Remove
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              )}
 
               {formError && <ErrorBanner message={formError} />}
 

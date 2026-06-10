@@ -15,6 +15,12 @@ export type ProductDiscount = {
   }>;
 };
 
+export type HeroSlide = {
+  image: string;
+  title: string;
+  copy: string;
+};
+
 export type DiscountForm = {
   id?: string;
   name: string;
