@@ -6,6 +6,7 @@ type User = {
   id: string;
   name: string;
   email: string;
+  phone?: string | null;
 };
 
 type AuthContextValue = {
@@ -15,6 +16,7 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateProfile: (data: Partial<Pick<User, "name" | "email">> & { phone?: string }) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -95,6 +97,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(data.user);
   };
 
+  const updateProfile = async (data: Partial<Pick<User, "name" | "email">> & { phone?: string }) => {
+    if (!token) throw new Error("Not authenticated");
+
+    const res = await fetch(`${BASE_URL}/auth/me`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error((errData as { message?: string }).message || "Failed to update profile");
+    }
+
+    const updatedUser = await res.json();
+    setUser(updatedUser);
+  };
+
   const logout = () => {
     sessionStorage.removeItem(TOKEN_KEY);
     setToken(null);
@@ -102,7 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

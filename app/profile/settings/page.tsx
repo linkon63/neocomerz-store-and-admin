@@ -7,14 +7,14 @@ import { FiUser, FiMail, FiLock, FiSave, FiUpload, FiTrash2, FiCamera } from 're
 import { toast } from 'sonner';
 import { 
   getMyProfile, 
-  updateMyProfile, 
   uploadAvatar, 
   deleteAvatar,
+  changePassword,
   Profile 
 } from '@/lib/admin-api';
 
 export default function SettingsPage() {
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Profile State
@@ -47,11 +47,6 @@ export default function SettingsPage() {
         setIsLoading(true);
         const data = await getMyProfile();
         setProfile(data);
-        setProfileData({
-          name: data.name || '',
-          email: data.email || '',
-          phone: data.phone || '',
-        });
       } catch (error) {
         console.error('Error fetching profile:', error);
         toast.error('Failed to load profile');
@@ -62,6 +57,17 @@ export default function SettingsPage() {
 
     fetchProfile();
   }, []);
+
+  // Populate name/email/phone from GET /auth/me
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        name: user.name,
+        email: user.email,
+        phone: user.phone ?? '',
+      });
+    }
+  }, [user]);
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
@@ -122,16 +128,13 @@ export default function SettingsPage() {
     setIsProfileLoading(true);
 
     try {
-      const updated = await updateMyProfile({
+      await updateProfile({
         name: profileData.name,
         email: profileData.email,
         phone: profileData.phone || undefined,
       });
-      
-      setProfile(updated);
       toast.success('Profile updated successfully!');
     } catch (error) {
-      console.error('Error updating profile:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to update profile');
     } finally {
       setIsProfileLoading(false);
@@ -146,26 +149,25 @@ export default function SettingsPage() {
       return;
     }
 
-    if (passwordData.newPassword.length < 8) {
-      toast.error('Password must be at least 8 characters long');
+    if (passwordData.newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters long');
       return;
     }
 
     setIsPasswordLoading(true);
 
     try {
-      // TODO: Implement password change API when backend supports it
-      // For now, show a message that this feature is coming soon
-      toast.info('Password change feature coming soon!');
-      
-      // Reset form
+      await changePassword({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+      });
+      toast.success('Password changed successfully!');
       setPasswordData({
         currentPassword: '',
         newPassword: '',
         confirmPassword: '',
       });
     } catch (error) {
-      console.error('Error changing password:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to change password');
     } finally {
       setIsPasswordLoading(false);
