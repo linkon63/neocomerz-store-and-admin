@@ -1,20 +1,47 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { toast } from "sonner";
+import { useAuth } from "../../_components/auth-context";
 
 export default function ProfileDetails() {
-  const [name, setName] = useState("Alex Johnson");
-  const [email, setEmail] = useState("alex@example.com");
-  const [phone, setPhone] = useState("+39 123 456 7890");
+  const { user, updateProfile } = useAuth();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+      setEmail(user.email);
+      setPhone(user.phone ?? "");
+    }
+  }, [user]);
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+
+    if (newPassword && newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await updateProfile({ name, email, phone: phone || undefined });
+      toast.success("Changes saved successfully");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update profile");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -104,15 +131,11 @@ export default function ProfileDetails() {
         <div className="flex items-center gap-4">
           <button
             type="submit"
-            className="bg-black px-6 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-white"
+            disabled={saving}
+            className="bg-black px-6 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-white disabled:opacity-50"
           >
-            Save changes
+            {saving ? "Saving..." : "Save changes"}
           </button>
-          {saved && (
-            <span className="text-xs font-semibold text-green-600">
-              Changes saved successfully
-            </span>
-          )}
         </div>
       </form>
     </div>
