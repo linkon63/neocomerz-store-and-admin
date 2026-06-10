@@ -7,6 +7,7 @@ import Presence from '@/components/sections/presence';
 import Prestige from '@/components/sections/prestige';
 import TopHeader from '@/components/sections/top-header';
 import Instagram from '@/components/sections/instagram';
+import Brands from '@/components/sections/brands';
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
       <OurStory />
       <Presence />
       <Prestige />
+      <Brands />
       <Instagram />
       <Mainfooter />
       <Bottomfooter />
