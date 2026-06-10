@@ -25,14 +25,10 @@ export function useHeroCampaigns() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const controller = new AbortController();
-
     (async () => {
       try {
-        const res = await fetch("/api/v1/campaigns", {
-          signal: controller.signal,
-        });
-        if (!res.ok) throw new Error("Failed to fetch campaigns");
+        const res = await fetch("/api/v1/campaigns");
+        if (res.status != 200) throw new Error("Failed to fetch campaigns");
         const campaigns = await res.json();
 
         const hero = (campaigns ?? []).filter(
@@ -57,11 +53,9 @@ export function useHeroCampaigns() {
       } catch {
         setSlides(FALLBACK_SLIDES);
       } finally {
-        if (!controller.signal.aborted) setLoading(false);
+        setLoading(false);
       }
     })();
-
-    return () => controller.abort();
   }, []);
 
   return { slides, loading };
