@@ -16,6 +16,7 @@ import { AdminIcon, PageHeader, ProductThumb } from "../../_components/admin-she
 import {
   apiRequest,
   formatMoney,
+  resolveImageUrl,
   type DashboardSummary,
   type MetricValue,
   type OrderPaymentStatus,
@@ -376,7 +377,7 @@ export default function DashboardPage() {
               summary.recentOrders.slice(0, 5).map((order) => (
                 <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4" key={order.id}>
                   <div className="min-w-0">
-                    <p className="truncate font-black">{order.orderNumber}</p>
+                    <p className="truncate font-normal text-slate-800">{order.orderNumber}</p>
                     <p className="truncate text-sm font-medium text-slate-500">
                       {order.user?.name ?? "Guest"}
                     </p>
@@ -412,22 +413,8 @@ export default function DashboardPage() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     alt={product.name}
-                    className="h-12 w-12 flex-shrink-0 rounded-lg object-cover"
-                    src={
-                      product.imageUrl.startsWith("http://localhost") ||
-                      product.imageUrl.startsWith("http://127.0.0.1")
-                        ? (() => {
-                            try {
-                              const base =
-                                process.env.NEXT_PUBLIC_MEDIA_BASE_URL ||
-                                "https://tinyecomapi.neocomerz.com";
-                              return `${base}${new URL(product.imageUrl).pathname}`;
-                            } catch {
-                              return product.imageUrl;
-                            }
-                          })()
-                        : product.imageUrl
-                    }
+                    className="h-12 w-12 flex-shrink-0 rounded-lg object-cover bg-white"
+                    src={resolveImageUrl(product.imageUrl)}
                   />
                 ) : (
                   <ProductThumb color={THUMB_COLORS[index % THUMB_COLORS.length]} />

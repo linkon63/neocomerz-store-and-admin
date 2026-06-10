@@ -2,16 +2,18 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AdminIcon, PageHeader } from "../../_components/admin-shell";
+import { AdminIcon, PageHeader, ProductThumb } from "../../_components/admin-shell";
 import {
   apiRequest,
   formatMoney,
+  resolveImageUrl,
   type Order,
   type OrderPaymentStatus,
   type OrderStatus,
   type PaginatedOrders,
   type ProductMedia,
 } from "../../../../lib/admin-api";
+
 
 const TABS: { key: OrderStatus | ""; label: string }[] = [
   { key: "", label: "All" },
@@ -65,7 +67,7 @@ function statusTone(status: OrderStatus) {
       return "border-emerald-300 bg-emerald-50 text-emerald-700";
     case "shipped":
     case "processing":
-      return "border-blue-300 bg-blue-50 text-blue-700";
+      return "border-slate-200 bg-slate-50 text-slate-700";
     case "cancelled":
     case "returned":
       return "border-rose-300 bg-rose-50 text-rose-700";
@@ -78,6 +80,24 @@ function paymentTone(status: string) {
   if (status === "paid") return "border-emerald-300 bg-emerald-50 text-emerald-700";
   if (status === "refunded") return "border-amber-300 bg-amber-50 text-amber-700";
   return "border-rose-300 bg-rose-50 text-rose-700";
+}
+
+function statusIcon(status: OrderStatus) {
+  switch (status) {
+    case "pending":
+      return "calendar";
+    case "processing":
+      return "refresh";
+    case "shipped":
+      return "package";
+    case "delivered":
+      return "check";
+    case "cancelled":
+    case "returned":
+      return "x";
+    default:
+      return "orders";
+  }
 }
 
 function formatDateTime(value?: string) {
@@ -93,6 +113,103 @@ function formatDateTime(value?: string) {
 
 function num(value: unknown) {
   return Number(value ?? 0);
+}
+
+const ORDER_STATUS_OPTIONS: { value: OrderStatus; label: string }[] = [
+  { value: "pending", label: "Pending" },
+  { value: "processing", label: "Processing" },
+  { value: "shipped", label: "Shipped" },
+  { value: "delivered", label: "Delivered" },
+  { value: "cancelled", label: "Cancelled" },
+  { value: "returned", label: "Returned" },
+];
+
+const PAYMENT_STATUS_OPTIONS: { value: OrderPaymentStatus; label: string }[] = [
+  { value: "unpaid", label: "Unpaid" },
+  { value: "paid", label: "Paid" },
+  { value: "refunded", label: "Refunded" },
+];
+
+function RichDropdown<T extends string>({
+  value,
+  options,
+  onChange,
+  getTone,
+}: {
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (value: T) => void;
+  getTone: (val: T) => string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find((o) => o.value === value) ?? options[0];
+
+  return (
+    <div className="relative inline-block text-left" ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex h-10 w-44 items-center justify-between gap-2 rounded-md border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100 hover:border-slate-400 cursor-pointer shadow-xs"
+      >
+        <span className={`inline-flex rounded border px-2.5 py-0.5 text-[11px] font-bold capitalize ${getTone(value)}`}>
+          {selectedOption.label}
+        </span>
+        <svg
+          className={`h-4.5 w-4.5 text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2.5}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-1.5 w-44 origin-top-right rounded-lg border border-slate-200 bg-white p-1 shadow-md ring-1 ring-black/5 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+          <div className="space-y-0.5">
+            {options.map((opt) => {
+              const isSelected = opt.value === value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => {
+                    onChange(opt.value);
+                    setIsOpen(false);
+                  }}
+                  className={`flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-xs font-semibold transition cursor-pointer text-left ${
+                    isSelected ? "bg-slate-50 text-slate-900" : "text-slate-600 hover:bg-slate-50/70 hover:text-slate-900"
+                  }`}
+                >
+                  <span className={`inline-flex rounded border px-2 py-0.5 text-[10px] font-bold capitalize ${getTone(opt.value)}`}>
+                    {opt.label}
+                  </span>
+                  {isSelected && (
+                    <svg className="h-3.5 w-3.5 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function OrdersPage() {
@@ -153,7 +270,37 @@ export default function OrdersPage() {
     }
   }, [page, status, paymentStatus, search]);
 
-  // Debounce search; refetch immediately on status/page changes.
+  async function updateOrderStatus(newStatus: OrderStatus) {
+    if (!selectedId) return;
+    setError("");
+    try {
+      await apiRequest(`/orders/${selectedId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      await loadOrders();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update order status");
+    }
+  }
+
+  async function updatePaymentStatus(newPaymentStatus: OrderPaymentStatus) {
+    if (!selectedId) return;
+    setError("");
+    try {
+      await apiRequest(`/orders/${selectedId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentStatus: newPaymentStatus }),
+      });
+      await loadOrders();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update payment status");
+    }
+  }
+
+  // Debounce search; refetch on status/page changes immediately.
   useEffect(() => {
     const timer = setTimeout(loadOrders, search ? 350 : 0);
     return () => clearTimeout(timer);
@@ -209,21 +356,21 @@ export default function OrdersPage() {
         title="Orders"
         description="Search, filter, and manage customer orders."
         action={
-          <span className="inline-flex h-14 items-center gap-2 rounded-lg border border-slate-300 bg-white px-6 font-black text-slate-600">
-            <AdminIcon className="h-5 w-5" name="orders" />
+          <span className="inline-flex h-12 items-center gap-2 rounded-md border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-600 shadow-xs">
+            <AdminIcon className="h-4 w-4 text-slate-400" name="orders" />
             {total} total
           </span>
         }
       />
 
       <section>
-        <div className="mb-6 flex gap-7 overflow-x-auto border-b border-slate-300">
+        <div className="mb-6 flex gap-6 overflow-x-auto border-b border-slate-200">
           {TABS.map((tab) => (
             <button
-              className={`whitespace-nowrap pb-4 text-lg font-black transition ${
+              className={`whitespace-nowrap pb-3 text-sm font-bold transition-all duration-200 border-b-2 -mb-[2px] cursor-pointer ${
                 status === tab.key
-                  ? "border-b-2 border-blue-600 text-blue-600"
-                  : "text-slate-500 hover:text-slate-700"
+                  ? "border-slate-900 text-slate-900 font-extrabold"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
               }`}
               key={tab.key || "all"}
               onClick={() => {
@@ -240,11 +387,11 @@ export default function OrdersPage() {
 
         {paymentStatus && (
           <div className="mb-6 flex items-center gap-2">
-            <span className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-sm font-black capitalize text-amber-700">
+            <span className="inline-flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold capitalize text-amber-700">
               Payment: {paymentStatus}
               <button
                 aria-label="Clear payment filter"
-                className="grid h-4 w-4 place-items-center rounded-full hover:bg-amber-200"
+                className="grid h-4 w-4 place-items-center rounded-full hover:bg-amber-100/80 cursor-pointer"
                 onClick={() => {
                   setPaymentStatus("");
                   setPage(1);
@@ -258,19 +405,18 @@ export default function OrdersPage() {
         )}
 
         {error && (
-          <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-5 py-4 font-black text-rose-700">
+          <div className="mb-6 rounded-md border border-rose-200 bg-rose-50 px-5 py-3.5 text-sm font-semibold text-rose-700">
             {error}
           </div>
         )}
 
         <div className="grid gap-7 xl:grid-cols-[380px_1fr]">
-          {/* ── Order list sidebar ─────────────────────────────── */}
-          <aside className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-            <div className="flex gap-3 p-3">
-              <label className="flex h-12 flex-1 items-center gap-3 rounded-lg border border-slate-300 px-4 focus-within:border-blue-500">
-                <AdminIcon className="h-5 w-5 text-slate-400" name="search" />
+          <aside className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xs">
+            <div className="flex flex-col gap-2 p-3 border-b border-slate-100 bg-slate-50/50">
+              <label className="flex h-10 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-100 transition-all">
+                <AdminIcon className="h-4 w-4 text-slate-400" name="search" />
                 <input
-                  className="w-full bg-transparent font-medium outline-none"
+                  className="w-full bg-transparent text-xs font-medium outline-none text-slate-700 placeholder:text-slate-400"
                   onChange={(e) => {
                     setSearch(e.target.value);
                     setPage(1);
@@ -279,47 +425,62 @@ export default function OrdersPage() {
                   value={search}
                 />
               </label>
+              <div className="flex items-center justify-between gap-2 mt-1">
+                <span title="payment status" className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Payment Status:</span>
+                <select
+                  value={paymentStatus}
+                  onChange={(e) => {
+                    setPaymentStatus(e.target.value as OrderPaymentStatus | "");
+                    setPage(1);
+                  }}
+                  className="h-8 rounded-md border border-slate-200 bg-white px-2 text-[11px] font-semibold text-slate-600 outline-none hover:border-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-50 transition cursor-pointer"
+                >
+                  <option value="">All Payments</option>
+                  <option value="unpaid">Unpaid</option>
+                  <option value="paid">Paid</option>
+                  <option value="refunded">Refunded</option>
+                </select>
+              </div>
             </div>
 
-            <div className="divide-y divide-slate-200">
+            <div className="flex flex-col gap-2.5 p-3 max-h-[calc(100vh-280px)] overflow-y-auto bg-slate-50/30">
               {isLoading ? (
                 Array.from({ length: 6 }).map((_, i) => (
-                  <div className="h-24 animate-pulse bg-slate-50" key={i} />
+                  <div className="h-20 animate-pulse bg-slate-100 rounded-md" key={i} />
                 ))
               ) : orders.length === 0 ? (
-                <p className="p-6 text-center font-medium text-slate-400">No orders found.</p>
+                <p className="p-6 text-center text-xs font-semibold text-slate-400">No orders found.</p>
               ) : (
                 orders.map((order) => (
                   <button
-                    className={`flex w-full justify-between p-4 text-left transition ${
-                      order.id === selectedId ? "bg-sky-50" : "bg-white hover:bg-slate-50"
+                    className={`group flex w-full flex-col gap-2 rounded-md border p-3.5 text-left transition-all ${
+                      order.id === selectedId
+                        ? "bg-slate-50 border-slate-300 shadow-xs border-l-4 border-l-slate-800 pl-[11px]"
+                        : "bg-white border-slate-100 hover:border-slate-200 border-l-4 border-l-transparent pl-[11px]"
                     }`}
                     key={order.id}
                     onClick={() => setSelectedId(order.id)}
                     type="button"
                   >
-                    <div className="min-w-0">
-                      <p className="truncate font-black">{order.orderNumber}</p>
-                      <p className="font-medium text-slate-600">
-                        {order.user?.name ?? "Guest"}
-                      </p>
-                      <p className="text-sm font-medium text-slate-400">
-                        {formatDateTime(order.placedAt)}
-                      </p>
-                      <span
-                        className={`mt-2 inline-flex rounded-md border px-2 py-1 text-xs font-black capitalize ${statusTone(order.status)}`}
-                      >
-                        {order.status}
+                    <div className="flex items-start justify-between gap-2 w-full">
+                      <span className="truncate font-bold text-slate-800 text-[13px] group-hover:text-slate-950 transition-colors">
+                        #{order.orderNumber}
+                      </span>
+                      <span className="shrink-0 font-bold text-slate-900 text-sm">
+                        {formatMoney(order.total)}
                       </span>
                     </div>
-                    <div className="text-right">
-                      <p className="font-black">{formatMoney(order.total)}</p>
-                      <p className="font-medium text-slate-700">
-                        {order.items?.length ?? 0} items
-                      </p>
-                      <span
-                        className={`mt-2 inline-flex rounded-md border px-2 py-1 text-xs font-black capitalize ${paymentTone(order.paymentStatus)}`}
-                      >
+
+                    <div className="flex items-center justify-between text-[11px] text-slate-500 w-full">
+                      <span>{formatDateTime(order.placedAt)}</span>
+                      <span>{order.items?.length ?? 0} {order.items?.length === 1 ? "item" : "items"}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 mt-1 w-full flex-wrap">
+                      <span className={`inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-bold capitalize tracking-wide ${statusTone(order.status)}`}>
+                        {order.status}
+                      </span>
+                      <span className={`inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-bold capitalize tracking-wide ${paymentTone(order.paymentStatus)}`}>
                         {order.paymentStatus}
                       </span>
                     </div>
@@ -329,9 +490,9 @@ export default function OrdersPage() {
             </div>
 
             {totalPages > 1 && (
-              <div className="flex items-center justify-between border-t border-slate-200 p-3 text-sm font-black">
+              <div className="flex items-center justify-between border-t border-slate-100 p-3 text-xs font-bold bg-white">
                 <button
-                  className="rounded-lg border border-slate-300 px-3 py-2 disabled:opacity-40"
+                  className="rounded-md border border-slate-200 px-3 py-1.5 hover:bg-slate-50 disabled:opacity-40 transition cursor-pointer"
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   type="button"
@@ -342,7 +503,7 @@ export default function OrdersPage() {
                   Page {page} of {totalPages}
                 </span>
                 <button
-                  className="rounded-lg border border-slate-300 px-3 py-2 disabled:opacity-40"
+                  className="rounded-md border border-slate-200 px-3 py-1.5 hover:bg-slate-50 disabled:opacity-40 transition cursor-pointer"
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   type="button"
@@ -356,22 +517,56 @@ export default function OrdersPage() {
           {/* ── Order detail panel ─────────────────────────────── */}
           <section>
             {!selected ? (
-              <div className="grid h-full place-items-center rounded-xl border border-slate-200 bg-white p-12 font-black text-slate-400">
-                Select an order to view details.
+              <div className="flex flex-col items-center justify-center h-[500px] rounded-lg border border-dashed border-slate-200 bg-slate-50/50 p-12 text-center">
+                <AdminIcon className="h-10 w-10 text-slate-400 mb-3" name="orders" />
+                <h3 className="font-bold text-slate-700 text-sm">No Order Selected</h3>
+                <p className="text-xs text-slate-400 mt-1 max-w-[240px]">
+                  Select an order from the list on the left to view details and update its status.
+                </p>
               </div>
             ) : (
               <>
-                {/* Status bar */}
-                <div className="mb-7 flex flex-col justify-between gap-4 rounded-xl bg-white p-4 sm:flex-row sm:items-center">
+                <div className="mb-6 flex flex-col justify-between gap-4 rounded-lg bg-white p-4 sm:flex-row sm:items-center shadow-xs border border-slate-200/60">
                   <div className="flex items-center gap-3">
-                    <span
-                      className={`grid h-12 w-12 place-items-center rounded-full ${statusTone(selected.status)}`}
-                    >
-                      <AdminIcon className="h-6 w-6" name="check" />
+                    <span className={`grid h-10 w-10 place-items-center rounded-full border shadow-sm ring-4 ring-offset-0 ${
+                      selected.status === "delivered"
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-600 ring-emerald-50"
+                        : selected.status === "cancelled" || selected.status === "returned"
+                          ? "border-rose-200 bg-rose-50 text-rose-600 ring-rose-50"
+                          : selected.status === "pending"
+                            ? "border-amber-200 bg-amber-50 text-amber-600 ring-amber-50"
+                            : "border-slate-200 bg-slate-50/80 text-slate-600 ring-slate-100"
+                    }`}>
+                      <AdminIcon className="h-5 w-5" name={statusIcon(selected.status)} />
                     </span>
                     <div>
-                      <p className="font-black capitalize">Order {selected.status}</p>
-                      <p className="font-medium">{formatDateTime(selected.placedAt)}</p>
+                      <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        Order #{selected.orderNumber}
+                      </h2>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        Placed on {formatDateTime(selected.placedAt)}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Order Status</span>
+                      <RichDropdown
+                        value={selected.status}
+                        options={ORDER_STATUS_OPTIONS}
+                        onChange={updateOrderStatus}
+                        getTone={statusTone}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Payment Status</span>
+                      <RichDropdown
+                        value={selected.paymentStatus}
+                        options={PAYMENT_STATUS_OPTIONS}
+                        onChange={updatePaymentStatus}
+                        getTone={paymentTone}
+                      />
                     </div>
                   </div>
 
@@ -399,141 +594,164 @@ export default function OrdersPage() {
                   </div>
                 </div>
 
-                {statusUpdateError && (
-                  <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-black text-rose-700">
-                    {statusUpdateError}
-                  </div>
-                )}
-
-                <article className="rounded-xl border border-slate-200 bg-white p-7">
-                  <div className="grid gap-6 border-b border-slate-200 pb-7 lg:grid-cols-[1fr_360px]">
-                    <div>
-                      <h2 className="text-3xl font-black">
-                        {selected.user?.name ?? "Guest"}
-                        {selected.user?.phone ? ` (${selected.user.phone})` : ""}
-                      </h2>
-                      {selected.user?.email && (
-                        <p className="mt-1 text-sm font-medium text-slate-500">
-                          {selected.user.email}
-                        </p>
-                      )}
-                      <p className="mt-8 text-sm font-black uppercase tracking-[0.16em] text-slate-500">
-                        Shipping Address
-                      </p>
-                      {selected.address ? (
-                        <div className="mt-3 text-sm font-medium text-slate-700 space-y-1">
-                          <p className="font-black">{selected.address.fullName}</p>
-                          <p>{selected.address.phone}</p>
-                          <p>
-                            {[
-                              selected.address.addressLine1,
-                              selected.address.addressLine2,
-                              selected.address.city,
-                              selected.address.state,
-                              selected.address.postalCode,
-                            ]
-                              .filter(Boolean)
-                              .join(", ")}
-                          </p>
-                          <p className="font-black">{selected.address.country}</p>
+                <div className="grid gap-6 md:grid-cols-2 mb-6">
+                  {/* Customer Info Card */}
+                  <div className="rounded-lg border border-slate-200/60 bg-white p-5 shadow-xs">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-1.5">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-slate-400" />
+                      Customer Details
+                    </h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="grid h-9 w-9 place-items-center rounded-full bg-slate-100 font-bold text-slate-700 text-sm">
+                          {(selected.user?.name ?? "G").charAt(0).toUpperCase()}
                         </div>
-                      ) : (
-                        <p className="mt-3 font-medium text-slate-400">No address on record.</p>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-[1fr_1fr] gap-y-3 text-right font-medium">
-                      <p className="text-left text-slate-600">Order #</p>
-                      <p className="font-black">{selected.orderNumber}</p>
-                      <p className="text-left text-slate-600">Order Date</p>
-                      <p className="font-black">{formatDateTime(selected.placedAt)}</p>
-                      <p className="text-left text-slate-600">Order Type</p>
-                      <p className="font-black capitalize">{selected.orderType ?? "retail"}</p>
-                      <p className="text-left text-slate-600">Payment</p>
-                      <p>
-                        <span
-                          className={`rounded-md border px-2 py-1 font-black capitalize ${paymentTone(selected.paymentStatus)}`}
-                        >
-                          {selected.paymentStatus}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Line items */}
-                  <div className="grid gap-8 py-10 lg:grid-cols-[1fr_320px]">
-                    <div className="space-y-5">
-                      {(selected.items ?? []).map((item) => {
-                        const imageUrl = getProductImage(
-                          item.product?.media as ProductMedia[] | undefined,
-                        );
-                        return (
-                          <div className="flex gap-4" key={item.id}>
-                            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
-                              {imageUrl ? (
-                                <Image
-                                  src={imageUrl}
-                                  alt={item.product?.name ?? "Product"}
-                                  fill
-                                  sizes="56px"
-                                  className="object-cover"
-                                />
-                              ) : (
-                                <div className="h-full w-full bg-slate-200" />
-                              )}
-                            </div>
-                            <div className="min-w-0">
-                              <h3 className="text-lg font-black uppercase">
-                                {item.product?.name ?? "Product"}
-                              </h3>
-                              <p className="font-medium text-slate-600">
-                                SKU: {item.variant?.sku ?? "—"}
-                              </p>
-                              <p className="font-medium text-slate-600">
-                                {item.quantity} × {formatMoney(item.unitPrice)} ={" "}
-                                {formatMoney(item.totalPrice)}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                      {(selected.items ?? []).length === 0 && (
-                        <p className="font-medium text-slate-400">No line items.</p>
-                      )}
-                    </div>
-
-                    {/* Order totals */}
-                    {totals && (
-                      <div>
-                        <div className="grid grid-cols-2 gap-y-3 text-right font-medium">
-                          <p className="text-left">Subtotal</p>
-                          <p>{formatMoney(totals.subtotal)}</p>
-                          {totals.discount > 0 && (
-                            <>
-                              <p className="text-left">Discount</p>
-                              <p className="text-rose-600">- {formatMoney(totals.discount)}</p>
-                            </>
-                          )}
-                          <p className="text-left">Delivery charge</p>
-                          <p>+ {formatMoney(totals.shipping)}</p>
-                          <p className="border-t border-slate-200 pt-3 text-left font-black">
-                            Total
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-slate-800 truncate">
+                            {selected.user?.name ?? "Guest Customer"}
                           </p>
-                          <p className="border-t border-slate-200 pt-3 font-black">
-                            {formatMoney(totals.grand)}
-                          </p>
-                          <p className="text-left font-black text-emerald-600">Paid Amount</p>
-                          <p className="font-black text-emerald-600">
-                            {formatMoney(totals.paid)}
-                          </p>
-                          <p className="text-left font-black text-rose-600">Due Amount</p>
-                          <p className="font-black text-rose-600">
-                            {formatMoney(totals.due)}
+                          <p className="text-xs text-slate-400 truncate mt-0.5">
+                            {selected.user?.email ?? "No email provided"}
                           </p>
                         </div>
                       </div>
-                    )}
+                      {selected.user?.phone && (
+                        <div className="flex items-center gap-2 text-xs text-slate-600">
+                          <span className="font-medium text-slate-400">Phone:</span>
+                          <span className="font-semibold">{selected.user.phone}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </article>
+
+                  {/* Shipping Info Card */}
+                  <div className="rounded-lg border border-slate-200/60 bg-white p-5 shadow-xs">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-1.5">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-slate-400" />
+                      Shipping Address
+                    </h3>
+                    <p className="text-xs font-semibold text-slate-700 leading-relaxed">
+                      {selected.address
+                        ? [
+                            selected.address.fullName || selected.user?.name,
+                            selected.address.phone || selected.user?.phone,
+                            selected.address.addressLine1,
+                            selected.address.addressLine2,
+                            selected.address.city,
+                            selected.address.state,
+                            selected.address.postalCode,
+                            selected.address.country,
+                          ]
+                            .filter(Boolean)
+                            .join(", ") || "No address details available"
+                        : "No address details available"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-slate-200/60 bg-white shadow-xs overflow-hidden">
+                  <div className="border-b border-slate-100 p-5 bg-slate-50 flex items-center justify-between">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-slate-400" />
+                      Order Items
+                    </h3>
+                    <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 border border-slate-200">
+                      {selected.items?.length ?? 0} {selected.items?.length === 1 ? "item" : "items"}
+                    </span>
+                  </div>
+
+                  <div className="p-5">
+                    <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+                      <div className="space-y-4">
+                        {(selected.items ?? []).map((item, index) => {
+                          const mediaUrl = item.product?.media?.find((m) => m.isFeatured)?.media?.url 
+                            || item.product?.media?.[0]?.media?.url 
+                            || null;
+                          const resolvedUrl = mediaUrl ? resolveImageUrl(mediaUrl) : null;
+
+                          return (
+                            <div className="flex gap-4 items-center border-b border-slate-50 pb-4 last:border-0 last:pb-0" key={item.id}>
+                              {resolvedUrl ? (
+                                <img
+                                  alt={item.product?.name ?? "Product"}
+                                  className="h-12 w-16 rounded-md border border-slate-150 object-cover bg-white shrink-0"
+                                  src={resolvedUrl}
+                                />
+                              ) : (
+                                <ProductThumb color={["bg-slate-500/80", "bg-slate-600/80", "bg-slate-400/80"][index % 3]} />
+                              )}
+                              <div className="min-w-0 flex-1">
+                                <h4 className="text-xs font-bold text-slate-800 uppercase truncate">
+                                  {item.product?.name ?? "Product"}
+                                </h4>
+                                <div className="flex items-center gap-1.5 mt-1">
+                                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide bg-slate-100 px-1.5 py-0.5 rounded">
+                                    SKU: {item.variant?.sku ?? "—"}
+                                  </span>
+                                  {item.variant?.sku && (
+                                    <span className="text-[10px] text-slate-300">|</span>
+                                  )}
+                                  <span className="text-[11px] font-medium text-slate-500">
+                                    {item.quantity} × {formatMoney(item.unitPrice)}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-xs font-bold text-slate-800">
+                                  {formatMoney(item.totalPrice)}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                        {(selected.items ?? []).length === 0 && (
+                          <p className="text-xs font-semibold text-slate-400 text-center py-6">No items in this order.</p>
+                        )}
+                      </div>
+
+                      {totals && (
+                        <div className="rounded-lg border border-slate-200/60 bg-slate-50/80 p-4 shrink-0 h-fit">
+                          <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">
+                            Payment Summary
+                          </h4>
+                          <div className="space-y-2.5 text-xs text-slate-600">
+                            <div className="flex justify-between">
+                              <span className="text-slate-500 font-medium">Subtotal</span>
+                              <span className="font-semibold text-slate-800">{formatMoney(totals.subtotal)}</span>
+                            </div>
+                            
+                            {totals.discount > 0 && (
+                              <div className="flex justify-between">
+                                <span className="text-slate-500 font-medium">Discount</span>
+                                <span className="font-bold text-rose-600">- {formatMoney(totals.discount)}</span>
+                              </div>
+                            )}
+
+                            <div className="flex justify-between">
+                              <span className="text-slate-500 font-medium">Delivery Charge</span>
+                              <span className="font-semibold text-slate-800">{formatMoney(totals.shipping)}</span>
+                            </div>
+
+                            <div className="border-t border-slate-200/60 pt-2.5 flex justify-between items-center">
+                              <span className="font-bold text-slate-800 text-[13px]">Total</span>
+                              <span className="font-extrabold text-slate-900 text-[15px]">{formatMoney(totals.grand)}</span>
+                            </div>
+
+                            <div className="flex justify-between items-center text-emerald-600 bg-emerald-50/50 px-2 py-1.5 rounded-md border border-emerald-100/50 mt-1">
+                              <span className="font-semibold text-[11px]">Paid Amount</span>
+                              <span className="font-bold text-xs">{formatMoney(totals.paid)}</span>
+                            </div>
+
+                            <div className="flex justify-between items-center text-rose-600 bg-rose-50/50 px-2 py-1.5 rounded-md border border-rose-100/50 mt-1">
+                              <span className="font-semibold text-[11px]">Due Amount</span>
+                              <span className="font-bold text-xs">{formatMoney(totals.due)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </>
             )}
           </section>

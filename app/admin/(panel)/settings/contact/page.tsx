@@ -138,7 +138,7 @@ export default function ContactPage() {
       />
 
       {loading ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-10 shadow-sm">
+        <div className="rounded-lg border border-slate-200 bg-white p-10 shadow-sm">
           <p className="text-sm font-medium text-slate-400">Loading...</p>
         </div>
       ) : (
@@ -178,7 +178,7 @@ export default function ContactPage() {
                     {idx > 0 && (
                       <button
                         aria-label="Remove email"
-                        className="mb-0.5 grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
+                        className="mb-0.5 grid h-12 w-12 shrink-0 place-items-center rounded-md border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
                         onClick={() => removeEmail(idx)}
                         type="button"
                       >
@@ -189,7 +189,7 @@ export default function ContactPage() {
                 ))}
                 {emails.length < 2 && (
                   <button
-                    className="text-sm font-black text-blue-600 hover:underline"
+                    className="text-sm font-black text-slate-800 hover:text-slate-900 hover:underline transition"
                     onClick={addEmail}
                     type="button"
                   >
@@ -234,7 +234,7 @@ export default function ContactPage() {
                     {idx > 0 && (
                       <button
                         aria-label="Remove contact"
-                        className="mb-0.5 grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
+                        className="mb-0.5 grid h-12 w-12 shrink-0 place-items-center rounded-md border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
                         onClick={() => removeContact(idx)}
                         type="button"
                       >
@@ -245,7 +245,7 @@ export default function ContactPage() {
                 ))}
                 {contacts.length < 3 && (
                   <button
-                    className="text-sm font-black text-blue-600 hover:underline"
+                    className="text-sm font-black text-slate-800 hover:text-slate-900 hover:underline transition"
                     onClick={addContact}
                     type="button"
                   >
@@ -269,7 +269,7 @@ export default function ContactPage() {
                 {SOCIAL_FIELDS.map(({ key, label, placeholder, bg, Icon }) => (
                   <div key={key}>
                     <FieldLabel>{label}</FieldLabel>
-                    <div className="flex items-center overflow-hidden rounded-xl border border-slate-200 bg-white transition focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100">
+                    <div className="flex items-center overflow-hidden rounded-md border border-slate-200 bg-white transition focus-within:border-slate-400 focus-within:ring-4 focus-within:ring-slate-100">
                       <span className={`grid h-12 w-12 shrink-0 place-items-center text-white ${bg}`}>
                         <Icon className="h-5 w-5" />
                       </span>
