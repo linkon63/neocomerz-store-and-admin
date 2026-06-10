@@ -3,35 +3,29 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
-const slides = [
-  {
-    image: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1800&q=85",
-    title: "Vintage football stories",
-    copy: "Archive jerseys, warm-up jackets, and one-off pieces selected for everyday wear.",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1800&q=85",
-    title: "Curated streetwear",
-    copy: "Statement layers, classic silhouettes, and fresh arrivals from the Humana archive.",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1800&q=85",
-    title: "Football corner",
-    copy: "Find club colors, training tops, and retro match-day essentials.",
-  },
-];
+import { useHeroCampaigns } from "./use-hero-campaigns";
 
 export default function HeroSlider() {
+  const { slides, loading } = useHeroCampaigns();
   const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
+    if (slides.length === 0) return;
     const timer = window.setInterval(() => {
       setActiveSlide((current) => (current + 1) % slides.length);
     }, 4500);
-
     return () => window.clearInterval(timer);
-  }, []);
+  }, [slides.length]);
+
+  if (loading) {
+    return (
+      <section className="w-full">
+        <div className="h-[58vh] min-h-[460px] animate-pulse bg-neutral-100 sm:h-[74vh]" />
+      </section>
+    );
+  }
+
+  if (slides.length === 0) return null;
 
   return (
     <section className="w-full">
