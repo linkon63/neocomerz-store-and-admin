@@ -22,28 +22,24 @@ import {
   type SalesTrendPoint,
   type TopProduct,
 } from "../../../../lib/admin-api";
+import { toISODate } from "../../../../lib/utils";
 
-type Period = "today" | "yesterday" | "week" | "month" | "custom";
 type Granularity = "daily" | "monthly" | "yearly";
 
-const PERIODS: { key: Period; label: string }[] = [
-  { key: "today", label: "Today" },
-  { key: "yesterday", label: "Yesterday" },
-  { key: "week", label: "This Week" },
-  { key: "month", label: "This Month" },
-];
-
-const THUMB_COLORS = [
-  "bg-blue-600",
-  "bg-emerald-700",
-  "bg-violet-600",
-  "bg-amber-600",
-  "bg-rose-600",
-];
-
-function formatNumber(value: number) {
-  return value.toLocaleString("en");
+function formatNumber(n: number) {
+  return n.toLocaleString("en");
 }
+
+type Period = "week" | "month" | "quarter" | "year" | "custom";
+
+const THUMB_COLORS = ["blue", "amber", "emerald", "violet", "rose", "cyan"];
+
+const PERIODS: { key: Period; label: string }[] = [
+  { key: "week", label: "Week" },
+  { key: "month", label: "Month" },
+  { key: "quarter", label: "Quarter" },
+  { key: "year", label: "Year" },
+];
 
 function formatBucket(date: string, granularity: Granularity) {
   const d = new Date(date);
@@ -56,14 +52,6 @@ function formatBucket(date: string, granularity: Granularity) {
       ? { month: "short", year: "2-digit" }
       : { month: "short", day: "numeric" },
   ).format(d);
-}
-
-/** Local yyyy-MM-dd (avoids the UTC day-shift of toISOString). */
-function toISODate(date: Date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
 }
 
 function paymentTone(status: OrderPaymentStatus) {
