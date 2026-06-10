@@ -112,7 +112,7 @@ export default function PolicyPage() {
               <button
                 className={`shrink-0 border-b-2 px-4 pb-3 pt-1 text-sm font-black transition ${
                   isActive
-                    ? "border-blue-600 text-blue-600"
+                    ? "border-slate-900 text-slate-900"
                     : "border-transparent text-slate-600 hover:text-slate-900"
                 }`}
                 key={tab.key}
@@ -149,7 +149,7 @@ export default function PolicyPage() {
             </div>
 
             {/* Rich-text editor (visual toolbar + textarea) */}
-            <div className="overflow-hidden rounded-xl border border-slate-200">
+            <div className="overflow-hidden rounded-lg border border-slate-200">
               {/* Toolbar */}
               <div className="flex flex-wrap gap-1 border-b border-slate-200 bg-slate-50 p-2">
                 {TOOLBAR_BUTTONS.map((btn) => (

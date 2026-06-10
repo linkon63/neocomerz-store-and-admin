@@ -46,7 +46,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="grid min-h-screen bg-[#f7f8fb] text-slate-950 lg:grid-cols-[0.95fr_1.05fr]">
+    <main className="admin-dashboard grid min-h-screen bg-[#f7f8fb] text-slate-950 lg:grid-cols-[0.95fr_1.05fr]">
       <section className="hidden bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
         <Link className="text-5xl font-black italic tracking-tight" href="/">
           Mock

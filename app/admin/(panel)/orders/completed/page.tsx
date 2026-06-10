@@ -19,7 +19,7 @@ export default function CompletedOrdersPage() {
           {orders.slice(0, 4).map((order) => (
             <div className="flex items-center justify-between p-5" key={order.no}>
               <div>
-                <p className="font-black">{order.no}</p>
+                <p className="font-normal text-slate-800">{order.no}</p>
                 <p className="font-medium text-slate-500">Delivered · Apr 18, 2026</p>
               </div>
               <span className="rounded-md border border-emerald-300 bg-emerald-50 px-3 py-1 font-black text-emerald-700">

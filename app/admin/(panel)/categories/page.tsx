@@ -6,6 +6,7 @@ import { ConfirmModal } from "../../_components/confirm-modal";
 import {
   apiRequest,
   formatDate,
+  resolveImageUrl,
   slugify,
   type Category,
 } from "../../../../lib/admin-api";
@@ -59,6 +60,8 @@ export default function CategoriesPage() {
   );
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBulkDelete, setIsBulkDelete] = useState(false);
 
   const rows = useMemo(() => flattenCategories(categories), [categories]);
   const filteredRows = useMemo(() => {
@@ -188,24 +191,72 @@ export default function CategoriesPage() {
 
   async function deleteCategory(category: CategoryRow) {
     setCategoryToDelete(category);
+    setIsBulkDelete(false);
     setDeleteModalOpen(true);
   }
 
-  async function confirmDelete() {
-    if (!categoryToDelete) return;
+  function openBulkDeleteModal() {
+    setIsBulkDelete(true);
+    setDeleteModalOpen(true);
+  }
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const isAllSelected =
+    filteredRows.length > 0 && filteredRows.every((r) => selectedIds.has(r.id));
+
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        filteredRows.forEach((r) => next.delete(r.id));
+        return next;
+      });
+    } else {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        filteredRows.forEach((r) => next.add(r.id));
+        return next;
+      });
+    }
+  };
+
+  async function confirmDelete() {
     setError("");
     try {
-      await apiRequest(`/category/${categoryToDelete.id}`, {
-        method: "DELETE",
-      });
+      if (isBulkDelete) {
+        setIsSaving(true);
+        const idsArray = Array.from(selectedIds);
+        for (const id of idsArray) {
+          await apiRequest(`/category/${id}`, {
+            method: "DELETE",
+          });
+        }
+        setSelectedIds(new Set());
+      } else if (categoryToDelete) {
+        await apiRequest(`/category/${categoryToDelete.id}`, {
+          method: "DELETE",
+        });
+        setCategoryToDelete(null);
+      }
       setDeleteModalOpen(false);
-      setCategoryToDelete(null);
       await loadCategories();
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to delete category",
       );
+    } finally {
+      setIsSaving(false);
     }
   }
 
@@ -223,11 +274,12 @@ export default function CategoriesPage() {
   }
 
   const visibleImagePreview =
-    imagePreviewUrl ?? (form.removeImage ? null : form.imageUrl);
+    imagePreviewUrl ?? (form.removeImage ? null : resolveImageUrl(form.imageUrl));
 
   function cancelDelete() {
     setDeleteModalOpen(false);
     setCategoryToDelete(null);
+    setIsBulkDelete(false);
   }
 
   return (
@@ -278,8 +330,16 @@ export default function CategoriesPage() {
 
           <div className="overflow-x-auto">
             <table className="w-full min-w-[840px] text-left">
-              <thead className="bg-slate-50">
+              <thead className="bg-slate-50 text-xs font-black uppercase tracking-wider text-slate-500">
                 <tr>
+                  <th className="w-12 px-5 py-4">
+                    <input
+                      type="checkbox"
+                      checked={isAllSelected}
+                      onChange={handleSelectAll}
+                      className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    />
+                  </th>
                   {[
                     "Name",
                     "Image",
@@ -289,7 +349,7 @@ export default function CategoriesPage() {
                     "Created",
                     "Actions",
                   ].map((heading) => (
-                    <th className="px-5 py-4 font-black" key={heading}>
+                    <th className="px-5 py-4" key={heading}>
                       {heading}
                     </th>
                   ))}
@@ -300,7 +360,7 @@ export default function CategoriesPage() {
                   <tr>
                     <td
                       className="px-5 py-8 font-bold text-slate-500"
-                      colSpan={7}
+                      colSpan={8}
                     >
                       Loading categories...
                     </td>
@@ -308,9 +368,17 @@ export default function CategoriesPage() {
                 ) : (
                   filteredRows.map((category) => (
                     <tr
-                      className="odd:bg-white even:bg-slate-50/70"
+                      className="odd:bg-white even:bg-slate-50/70 hover:bg-slate-100/60 transition-colors"
                       key={category.id}
                     >
+                      <td className="w-12 px-5 py-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(category.id)}
+                          onChange={() => toggleSelect(category.id)}
+                          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        />
+                      </td>
                       <td className="px-5 py-4 font-bold text-slate-800">
                         <span
                           style={{ paddingLeft: `${category.depth * 18}px` }}
@@ -324,8 +392,8 @@ export default function CategoriesPage() {
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
                             alt=""
-                            className="h-12 w-12 rounded-lg border border-slate-200 object-cover"
-                            src={category.imageUrl}
+                            className="h-12 w-12 rounded-lg border border-slate-200 object-cover bg-white"
+                            src={resolveImageUrl(category.imageUrl)}
                           />
                         ) : (
                           <div className="grid h-12 w-12 place-items-center rounded-lg border border-slate-200 bg-white text-xl">
@@ -351,7 +419,7 @@ export default function CategoriesPage() {
                       <td className="px-5 py-4">
                         <div className="flex gap-2">
                           <button
-                            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-black"
+                            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-black hover:bg-slate-50 cursor-pointer"
                             onClick={() => openEditModal(category)}
                             type="button"
                           >
@@ -359,7 +427,7 @@ export default function CategoriesPage() {
                             Edit
                           </button>
                           <button
-                            className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-black text-red-700"
+                            className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-black text-red-700 hover:bg-red-100 cursor-pointer"
                             onClick={() => deleteCategory(category)}
                             type="button"
                           >
@@ -550,12 +618,33 @@ export default function CategoriesPage() {
         </div>
       )}
 
+      {selectedIds.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-4 rounded-full border border-slate-200 bg-white px-6 py-3 shadow-xl transition-all duration-300 ease-in-out">
+          <span className="text-sm font-bold text-slate-700">
+            {selectedIds.size} selected
+          </span>
+          <div className="h-4 w-px bg-slate-200" />
+          <button
+            onClick={openBulkDeleteModal}
+            className="inline-flex items-center gap-2 text-sm font-black text-red-600 hover:text-red-700 cursor-pointer"
+            type="button"
+          >
+            <AdminIcon className="h-4 w-4" name="x" />
+            Delete Selected
+          </button>
+        </div>
+      )}
+
       <ConfirmModal
         isOpen={deleteModalOpen}
         onClose={cancelDelete}
         onConfirm={confirmDelete}
-        title="Delete Category"
-        message={`Are you sure you want to delete "${categoryToDelete?.name}"? This action cannot be undone.`}
+        title={isBulkDelete ? "Delete Multiple Categories" : "Delete Category"}
+        message={
+          isBulkDelete
+            ? `Are you sure you want to delete ${selectedIds.size} selected categories? This action cannot be undone.`
+            : `Are you sure you want to delete "${categoryToDelete?.name}"? This action cannot be undone.`
+        }
         confirmText="Delete"
         cancelText="Cancel"
         isDestructive={true}

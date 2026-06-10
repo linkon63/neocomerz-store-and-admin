@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   apiRequest,
   clearAdminSession,
+  resolveImageUrl,
   type AdminUser,
 } from "../../../lib/admin-api";
 export { PageHeader } from "./page-header";
@@ -287,15 +288,20 @@ export function AdminIcon({
   return <svg {...iconProps}>{paths[name]}</svg>;
 }
 
-const menuGroups: {
-  title: string;
-  items: {
+type MenuItem = {
+  label: string;
+  href: string;
+  icon: AdminIconName;
+  children?: {
     label: string;
     href: string;
     icon: AdminIconName;
-    child?: boolean;
-    active?: boolean;
   }[];
+};
+
+const menuGroups: {
+  title: string;
+  items: MenuItem[];
 }[] = [
   {
     title: "Overview",
@@ -304,20 +310,25 @@ const menuGroups: {
   {
     title: "Inventory & Procurement",
     items: [
-      { label: "Product", href: "/admin/products", icon: "package", active: true },
-      { label: "Tags", href: "/admin/tags", icon: "tag", child: true },
-      { label: "Brands", href: "/admin/brands", icon: "brand", child: true },
-      { label: "Categories", href: "/admin/categories", icon: "category", child: true },
-      { label: "Variant Options", href: "/admin/variant-options", icon: "variants", child: true },
-      { label: "Units of Measurement", href: "/admin/units", icon: "units", child: true },
-      { label: "Products", href: "/admin/products", icon: "package", child: true },
-      
+      {
+        label: "Product Catalog",
+        href: "/admin/products",
+        icon: "package",
+        children: [
+          { label: "Products", href: "/admin/products", icon: "package" },
+          { label: "Categories", href: "/admin/categories", icon: "category" },
+          { label: "Brands", href: "/admin/brands", icon: "brand" },
+          { label: "Tags", href: "/admin/tags", icon: "tag" },
+          { label: "Variant Options", href: "/admin/variant-options", icon: "variants" },
+          { label: "Units of Measurement", href: "/admin/units", icon: "units" },
+        ],
+      },
     ],
   },
   {
     title: "Stock & inventory",
     items: [
-      { label: "Stock Management", href: "/admin/stock", icon: "stock", child: true },
+      { label: "Stock Management", href: "/admin/stock", icon: "stock" },
     ],
   },
   {
@@ -331,22 +342,33 @@ const menuGroups: {
   {
     title: "Online Store",
     items: [
-      { label: "E-Commerce", href: "/admin/orders", icon: "store", active: true },
-      { label: "New Orders", href: "/admin/orders", icon: "orders", child: true },
-      { label: "Canceled Orders", href: "/admin/orders/canceled", icon: "x", child: true },
-      { label: "Completed Orders", href: "/admin/orders/completed", icon: "check", child: true },
-      { label: "Wholesale Requests", href: "/admin/wholesale-requests", icon: "wholesale", child: true },
-      { label: "Reviews", href: "/admin/reviews", icon: "reviews", child: true },
+      {
+        label: "E-Commerce",
+        href: "/admin/orders",
+        icon: "store",
+        children: [
+          { label: "New Orders", href: "/admin/orders", icon: "orders" },
+          { label: "Canceled Orders", href: "/admin/orders/canceled", icon: "x" },
+          { label: "Completed Orders", href: "/admin/orders/completed", icon: "check" },
+          { label: "Wholesale Requests", href: "/admin/wholesale-requests", icon: "wholesale" },
+          { label: "Reviews", href: "/admin/reviews", icon: "reviews" },
+        ],
+      },
     ],
   },
   {
     title: "Finance",
     items: [
-      { label: "Report", href: "/admin/reports", icon: "report", active: true },
-      { label: "Sales Report", href: "/admin/reports/sales", icon: "report", child: true },
-      // { label: "Purchase Report", href: "/admin/reports/purchase", icon: "stock", child: true },
-      { label: "Discount Report", href: "/admin/reports/discount", icon: "discount", child: true },
-      { label: "Customer Report", href: "/admin/reports/customer", icon: "reviews", child: true },
+      {
+        label: "Reports",
+        href: "/admin/reports",
+        icon: "report",
+        children: [
+          { label: "Sales Report", href: "/admin/reports/sales", icon: "report" },
+          { label: "Discount Report", href: "/admin/reports/discount", icon: "discount" },
+          { label: "Customer Report", href: "/admin/reports/customer", icon: "reviews" },
+        ],
+      },
     ],
   },
   {
@@ -360,6 +382,32 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<AdminUser | null>(null);
   const [isChecking, setIsChecking] = useState(true);
+  const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    const initialOpen: Record<string, boolean> = {};
+    menuGroups.forEach((group) => {
+      group.items.forEach((item) => {
+        if (item.children) {
+          const hasActiveChild = item.children.some(
+            (child) => pathname === child.href || pathname.startsWith(child.href + "/"),
+          );
+          const isActiveParent = pathname === item.href;
+          if (hasActiveChild || isActiveParent) {
+            initialOpen[item.label] = true;
+          }
+        }
+      });
+    });
+    setOpenSubmenus((prev) => ({ ...prev, ...initialOpen }));
+  }, [pathname]);
+
+  const toggleSubmenu = (label: string) => {
+    setOpenSubmenus((prev) => ({
+      ...prev,
+      [label]: !prev[label],
+    }));
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -406,7 +454,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#fbfbfc] text-[#111827]">
+    <div className="admin-dashboard min-h-screen bg-[#fbfbfc] text-[#111827]">
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-[312px] border-r border-slate-200 bg-white lg:block">
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between px-5 py-5">
@@ -422,27 +470,82 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 </p>
                 <div className="mt-2 space-y-1">
                   {group.items.map((item) => {
+                    const hasChildren = item.children && item.children.length > 0;
+                    const isOpen = !!openSubmenus[item.label];
+                    const isParentActive =
+                      pathname === item.href ||
+                      (item.children?.some((c) => pathname === c.href) ?? false);
+
+                    if (hasChildren) {
+                      return (
+                        <div className="flex flex-col" key={`${group.title}-${item.label}`}>
+                          <button
+                            onClick={() => toggleSubmenu(item.label)}
+                            className={`flex h-10 w-full cursor-pointer items-center gap-3 rounded-md px-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors ${
+                              isParentActive ? "bg-slate-50 text-slate-950 font-extrabold" : ""
+                            }`}
+                            type="button"
+                          >
+                            <span className="text-slate-500">
+                              <AdminIcon name={item.icon} />
+                            </span>
+                            <span className="flex-1 text-left">{item.label}</span>
+                            <AdminIcon
+                              className={`h-4 w-4 text-slate-400 transition-transform duration-300 ease-in-out ${
+                                isOpen ? "rotate-90 text-slate-600" : ""
+                              }`}
+                              name="chevronRight"
+                            />
+                          </button>
+
+                          <div
+                            className={`grid transition-all duration-300 ease-in-out ${
+                              isOpen
+                                ? "grid-rows-[1fr] opacity-100 mt-1"
+                                : "grid-rows-[0fr] opacity-0 pointer-events-none"
+                            }`}
+                          >
+                            <div className="overflow-hidden">
+                              <div className="space-y-1 pl-4 border-l border-slate-100 ml-5 py-1">
+                                {item.children?.map((child) => {
+                                  const isChildActive = pathname === child.href;
+                                  return (
+                                    <Link
+                                      href={child.href}
+                                      key={`${group.title}-${item.label}-${child.label}`}
+                                      className={`flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors ${
+                                        isChildActive
+                                          ? "bg-slate-100 text-slate-950 font-bold"
+                                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                                      }`}
+                                    >
+                                      <span className="text-slate-400">
+                                        <AdminIcon name={child.icon} className="h-3.5 w-3.5" />
+                                      </span>
+                                      <span>{child.label}</span>
+                                    </Link>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+
                     const isCurrent = pathname === item.href;
                     return (
                       <Link
-                        className={`flex h-10 items-center gap-3 rounded-md px-3 text-sm font-bold text-slate-700 hover:bg-slate-50 ${
-                          item.child ? "ml-5 font-medium" : ""
-                        } ${
+                        className={`flex h-10 items-center gap-3 rounded-md px-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors ${
                           isCurrent ? "bg-slate-100 text-slate-950" : ""
                         }`}
                         href={item.href}
                         key={`${group.title}-${item.label}`}
                       >
-                        <span className={item.child ? "text-slate-400" : "text-slate-500"}>
+                        <span className="text-slate-500">
                           <AdminIcon name={item.icon} />
                         </span>
                         <span className="flex-1">{item.label}</span>
-                        {!item.child && (
-                          <AdminIcon
-                            className="h-4 w-4 text-slate-400"
-                            name="chevronRight"
-                          />
-                        )}
                       </Link>
                     );
                   })}

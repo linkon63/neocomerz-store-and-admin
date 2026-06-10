@@ -6,6 +6,7 @@ import { ConfirmModal } from "../../_components/confirm-modal";
 import {
   apiRequest,
   formatDate,
+  resolveImageUrl,
   slugify,
   type Brand,
 } from "../../../../lib/admin-api";
@@ -178,7 +179,7 @@ export default function BrandsPage() {
   }
 
   const visibleLogoPreview =
-    logoPreviewUrl ?? (form.removeLogo ? null : form.logoUrl);
+    logoPreviewUrl ?? (form.removeLogo ? null : resolveImageUrl(form.logoUrl));
 
   return (
     <>
@@ -267,8 +268,8 @@ export default function BrandsPage() {
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
                             alt=""
-                            className="h-12 w-12 rounded-lg border border-slate-200 object-cover"
-                            src={brand.logoUrl}
+                            className="h-12 w-12 rounded-lg border border-slate-200 object-cover bg-white"
+                            src={resolveImageUrl(brand.logoUrl)}
                           />
                         ) : (
                           <div className="grid h-12 w-12 place-items-center rounded-lg border border-slate-200 bg-white text-xl">

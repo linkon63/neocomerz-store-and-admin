@@ -89,3 +89,19 @@ body {
   font-family: var(--font-gotham);
 }
 
+/* ── Admin Dashboard Clean Typography ── */
+.admin-dashboard .font-black,
+.admin-dashboard .font-extrabold,
+.admin-dashboard .font-bold,
+.admin-dashboard th,
+.admin-dashboard h1,
+.admin-dashboard h2,
+.admin-dashboard h3,
+.admin-dashboard button,
+.admin-dashboard select,
+.admin-dashboard input,
+.admin-dashboard label {
+  font-weight: 500 !important;
+}
+
+
