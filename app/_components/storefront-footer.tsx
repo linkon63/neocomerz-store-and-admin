@@ -44,9 +44,9 @@ export default function StorefrontFooter({
 	return (
 		<footer
 			ref={ref}
-			className="relative w-full bg-white px-4 py-14 sm:px-8 lg:fixed lg:bottom-0 lg:left-0 lg:-z-10 lg:py-20"
+			className="relative w-full bg-white px-4 py-14 lg:fixed lg:bottom-0 lg:left-0 lg:-z-10 lg:py-20"
 		>
-			<div className="mx-auto max-w-[1180px]">
+			<div className="mx-auto container">
 				<div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.2fr_1.2fr_1.2fr_1fr]">
 					{footerGroups.map((group) => (
 						<div key={group.title}>
