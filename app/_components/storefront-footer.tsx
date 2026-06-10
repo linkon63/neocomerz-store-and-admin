@@ -110,7 +110,7 @@ export default function StorefrontFooter({
 
 					<div>
 						{
-							!isLoading && data.socialContact && data.socialContact.length !== 0 &&
+							!isLoading && data?.socialContact && data?.socialContact.length !== 0 &&
 							<div>
 								<h2 className="text-sm font-bold uppercase tracking-[0.02em] text-neutral-900">
 									Social Media
