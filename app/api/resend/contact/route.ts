@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 import { NextResponse } from 'next/server';
 import 'dotenv/config';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
 const fromEmail = process.env.RESEND_FROM_EMAIL;
 const toEmail = process.env.RESEND_TO_EMAIL;
 
