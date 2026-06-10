@@ -5,6 +5,8 @@ import { AdminIcon } from "../../../_components/admin-shell";
 
 // ─── SettingsCard ─────────────────────────────────────────────────────────────
 
+// ─── SettingsCard ─────────────────────────────────────────────────────────────
+
 export function SettingsCard({
   title,
   description,
@@ -17,7 +19,7 @@ export function SettingsCard({
   action?: ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <section className="rounded-lg border border-slate-200 bg-white shadow-xs">
       <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5 sm:px-8">
         <div>
           <h2 className="text-xl font-black text-slate-900">{title}</h2>
@@ -70,7 +72,7 @@ export function Input({
 }) {
   return (
     <input
-      className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-800 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 disabled:bg-slate-50 disabled:text-slate-400"
+      className="h-12 w-full rounded-md border border-slate-200 bg-white px-4 text-sm font-medium text-slate-800 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100 disabled:bg-slate-50 disabled:text-slate-400"
       disabled={disabled}
       min={min}
       onChange={(e) => onChange(e.target.value)}
@@ -97,7 +99,7 @@ export function Textarea({
 }) {
   return (
     <textarea
-      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+      className="w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       rows={rows}
@@ -119,7 +121,7 @@ export function StatusToggle({
     <button
       aria-checked={active}
       className={`inline-flex h-7 w-12 items-center rounded-full p-1 transition-colors ${
-        active ? "bg-blue-600" : "bg-slate-200"
+        active ? "bg-slate-900" : "bg-slate-200"
       }`}
       onClick={() => onChange?.(!active)}
       role="switch"
@@ -147,7 +149,7 @@ export function SaveButton({
 }) {
   return (
     <button
-      className="inline-flex h-11 items-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-black text-white transition hover:bg-blue-700 disabled:opacity-60"
+      className="inline-flex h-11 items-center gap-2 rounded-md bg-slate-900 px-6 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60 cursor-pointer"
       disabled={saving}
       onClick={onClick}
       type={onClick ? "button" : "submit"}
@@ -163,7 +165,7 @@ export function SaveButton({
 export function ErrorBanner({ message }: { message: string }) {
   if (!message) return null;
   return (
-    <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{message}</p>
+    <p className="rounded-md bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{message}</p>
   );
 }
 
@@ -172,6 +174,6 @@ export function ErrorBanner({ message }: { message: string }) {
 export function SuccessBanner({ message }: { message: string }) {
   if (!message) return null;
   return (
-    <p className="rounded-xl bg-green-50 px-4 py-3 text-sm font-bold text-green-700">{message}</p>
+    <p className="rounded-md bg-green-50 px-4 py-3 text-sm font-bold text-green-700">{message}</p>
   );
 }

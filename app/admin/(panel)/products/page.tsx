@@ -7,6 +7,7 @@ import { ConfirmModal } from "../../_components/confirm-modal";
 import {
   apiRequest,
   formatDate,
+  resolveImageUrl,
   slugify,
   type Brand,
   type Category,
@@ -63,11 +64,11 @@ function flattenCategories(categories: Category[], depth = 0): CategoryOption[] 
 }
 
 function getFeaturedMedia(product: Product) {
-  return (
+  const url =
     product.media?.find((item) => item.isFeatured)?.media.url ??
     product.media?.[0]?.media.url ??
-    null
-  );
+    null;
+  return url ? resolveImageUrl(url) : null;
 }
 
 function getDefaultVariant(product: Product): ProductVariant | undefined {
@@ -95,6 +96,8 @@ export default function ProductsPage() {
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBulkDelete, setIsBulkDelete] = useState(false);
 
   const categoryOptions = useMemo(
     () => flattenCategories(categories),
@@ -127,6 +130,7 @@ export default function ProductsPage() {
       );
       setProducts(response.data);
       setTotal(response.meta.total);
+      setSelectedIds(new Set());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load products");
     } finally {
@@ -335,27 +339,73 @@ export default function ProductsPage() {
 
   function deleteProduct(product: Product) {
     setProductToDelete(product);
+    setIsBulkDelete(false);
     setDeleteModalOpen(true);
   }
 
+  function openBulkDeleteModal() {
+    setIsBulkDelete(true);
+    setDeleteModalOpen(true);
+  }
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const isAllSelected =
+    products.length > 0 && products.every((p) => selectedIds.has(p.id));
+
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        products.forEach((p) => next.delete(p.id));
+        return next;
+      });
+    } else {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        products.forEach((p) => next.add(p.id));
+        return next;
+      });
+    }
+  };
+
   async function confirmDelete() {
-    if (!productToDelete) return;
-
     setError("");
-
     try {
-      await apiRequest(`/products/${productToDelete.id}`, { method: "DELETE" });
+      if (isBulkDelete) {
+        setIsSaving(true);
+        const idsArray = Array.from(selectedIds);
+        for (const id of idsArray) {
+          await apiRequest(`/products/${id}`, { method: "DELETE" });
+        }
+        setSelectedIds(new Set());
+      } else if (productToDelete) {
+        await apiRequest(`/products/${productToDelete.id}`, { method: "DELETE" });
+        setProductToDelete(null);
+      }
       setDeleteModalOpen(false);
-      setProductToDelete(null);
       await loadProducts();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete product");
+      setError(err instanceof Error ? err.message : "Failed to delete product(s)");
+    } finally {
+      setIsSaving(false);
     }
   }
 
   function cancelDelete() {
     setDeleteModalOpen(false);
     setProductToDelete(null);
+    setIsBulkDelete(false);
   }
 
   return (
@@ -417,8 +467,16 @@ export default function ProductsPage() {
 
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1080px] border-collapse text-left">
-              <thead className="bg-slate-50 text-sm text-slate-900">
+              <thead className="bg-slate-50 text-xs font-black uppercase tracking-wider text-slate-500">
                 <tr>
+                  <th className="w-12 px-5 py-4">
+                    <input
+                      type="checkbox"
+                      checked={isAllSelected}
+                      onChange={handleSelectAll}
+                      className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    />
+                  </th>
                   {[
                     "Products",
                     "Brand",
@@ -439,7 +497,7 @@ export default function ProductsPage() {
               <tbody className="divide-y divide-slate-100">
                 {isLoading ? (
                   <tr>
-                    <td className="px-8 py-8 font-bold text-slate-500" colSpan={9}>
+                    <td className="px-8 py-8 font-bold text-slate-500" colSpan={10}>
                       Loading products...
                     </td>
                   </tr>
@@ -449,14 +507,22 @@ export default function ProductsPage() {
                     const imageUrl = getFeaturedMedia(product);
 
                     return (
-                      <tr className="hover:bg-slate-50" key={product.id}>
+                      <tr className="hover:bg-slate-50/80 transition-colors" key={product.id}>
+                        <td className="w-12 px-5 py-5">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(product.id)}
+                            onChange={() => toggleSelect(product.id)}
+                            className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                          />
+                        </td>
                         <td className="px-5 py-5">
                           <div className="flex items-center gap-4">
                             {imageUrl ? (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
                                 alt=""
-                                className="h-14 w-14 rounded-lg border border-slate-200 object-cover"
+                                className="h-14 w-14 rounded-lg border border-slate-200 object-cover bg-white"
                                 src={imageUrl}
                               />
                             ) : (
@@ -494,14 +560,20 @@ export default function ProductsPage() {
                           {formatDate(product.createdAt)}
                         </td>
                         <td className="px-5 py-5">
-                          <span className="rounded-lg bg-slate-100 px-3 py-1 text-sm font-black capitalize text-slate-700">
+                          <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-bold ring-1 ring-inset capitalize ${
+                            product.status === "active"
+                              ? "bg-emerald-50 text-emerald-700 ring-emerald-600/10"
+                              : product.status === "draft"
+                                ? "bg-amber-50 text-amber-700 ring-amber-600/10"
+                                : "bg-rose-50 text-rose-700 ring-rose-600/10"
+                          }`}>
                             {product.status}
                           </span>
                         </td>
                         <td className="px-5 py-5">
                           <div className="flex gap-2">
                             <button
-                              className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-black"
+                              className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-black hover:bg-slate-50 cursor-pointer"
                               onClick={() => openEditModal(product)}
                               type="button"
                             >
@@ -509,7 +581,7 @@ export default function ProductsPage() {
                               Edit
                             </button>
                             <button
-                              className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-black text-red-700"
+                              className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-black text-red-700 hover:bg-red-100 cursor-pointer"
                               onClick={() => deleteProduct(product)}
                               type="button"
                             >
@@ -523,7 +595,7 @@ export default function ProductsPage() {
                   })
                 ) : (
                   <tr>
-                    <td className="px-8 py-8 font-bold text-slate-500" colSpan={9}>
+                    <td className="px-8 py-8 font-bold text-slate-500" colSpan={10}>
                       No products found.
                     </td>
                   </tr>
@@ -804,7 +876,7 @@ export default function ProductsPage() {
                           <img
                             alt=""
                             className="aspect-square w-full rounded-lg border border-slate-200 object-cover"
-                            src={item.media.url}
+                            src={resolveImageUrl(item.media.url)}
                           />
                           <button
                             className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-lg bg-red-600 text-white"
@@ -837,16 +909,60 @@ export default function ProductsPage() {
                     </div>
                     <div className="grid grid-cols-3 gap-3">
                       {imagePreviewUrls.map((url, index) => (
-                        <div className="overflow-hidden rounded-lg border border-slate-200" key={url}>
+                        <div
+                          className="relative overflow-hidden rounded-lg border border-slate-200 bg-white cursor-grab active:cursor-grabbing transition hover:border-slate-350 hover:shadow-2xs"
+                          key={url}
+                          draggable
+                          onDragStart={(e) => {
+                            e.dataTransfer.setData("text/plain", index.toString());
+                          }}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                          }}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            const fromIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
+                            const toIndex = index;
+                            if (fromIndex === toIndex || isNaN(fromIndex)) return;
+                            setForm((current) => {
+                              const next = [...current.images];
+                              const [removed] = next.splice(fromIndex, 1);
+                              next.splice(toIndex, 0, removed);
+                              return { ...current, images: next };
+                            });
+                          }}
+                        >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             alt=""
-                            className="aspect-square w-full object-cover"
+                            className="aspect-square w-full object-cover pointer-events-none"
                             src={url}
                           />
-                          <p className="truncate px-2 py-1 text-xs font-bold text-slate-600">
-                            {form.images[index]?.name}
-                          </p>
+                          <div className="absolute top-1 left-1 flex gap-1 pointer-events-none">
+                            {index === 0 ? (
+                              <span className="rounded bg-slate-900/80 px-1.5 py-0.5 text-[10px] font-black text-white backdrop-blur-xs">
+                                Featured
+                              </span>
+                            ) : (
+                              <span className="rounded bg-slate-500/80 px-1.5 py-0.5 text-[10px] font-bold text-white backdrop-blur-xs">
+                                #{index + 1}
+                              </span>
+                            )}
+                          </div>
+                          
+                          <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/80 p-2 pointer-events-none">
+                            <svg className="h-3.5 w-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                              <circle cx="9" cy="5" r="1.2" fill="currentColor" />
+                              <circle cx="9" cy="12" r="1.2" fill="currentColor" />
+                              <circle cx="9" cy="19" r="1.2" fill="currentColor" />
+                              <circle cx="15" cy="5" r="1.2" fill="currentColor" />
+                              <circle cx="15" cy="12" r="1.2" fill="currentColor" />
+                              <circle cx="15" cy="19" r="1.2" fill="currentColor" />
+                            </svg>
+                            <p className="truncate flex-1 text-right pl-2 text-[10px] font-bold text-slate-605">
+                              {form.images[index]?.name}
+                            </p>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -901,15 +1017,36 @@ export default function ProductsPage() {
         </div>
       )}
 
+      {selectedIds.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-4 rounded-full border border-slate-200 bg-white px-6 py-3 shadow-xl transition-all duration-300 ease-in-out">
+          <span className="text-sm font-bold text-slate-700">
+            {selectedIds.size} selected
+          </span>
+          <div className="h-4 w-px bg-slate-200" />
+          <button
+            onClick={openBulkDeleteModal}
+            className="inline-flex items-center gap-2 text-sm font-black text-red-600 hover:text-red-700 cursor-pointer"
+            type="button"
+          >
+            <AdminIcon className="h-4 w-4" name="x" />
+            Delete Selected
+          </button>
+        </div>
+      )}
+
       <ConfirmModal
         cancelText="No"
         confirmText="Yes"
         isDestructive={true}
         isOpen={deleteModalOpen}
-        message={`Are you sure you want to delete "${productToDelete?.name}"? This action cannot be undone.`}
+        title={isBulkDelete ? "Delete Multiple Products" : "Delete Product"}
+        message={
+          isBulkDelete
+            ? `Are you sure you want to delete ${selectedIds.size} selected products? This action cannot be undone.`
+            : `Are you sure you want to delete "${productToDelete?.name}"? This action cannot be undone.`
+        }
         onClose={cancelDelete}
         onConfirm={confirmDelete}
-        title="Delete Product"
       />
     </>
   );

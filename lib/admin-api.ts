@@ -681,3 +681,30 @@ export function formatMoney(value?: string | number | null) {
     maximumFractionDigits: 2,
   })}`;
 }
+
+export function resolveImageUrl(url?: string | null): string {
+  if (!url) return "";
+
+  // Get API origin from environment variable
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "https://tinyecomapi.neocomerz.com/api/v1";
+  let apiOrigin = "https://tinyecomapi.neocomerz.com";
+  try {
+    const parsed = new URL(apiBaseUrl);
+    apiOrigin = parsed.origin;
+  } catch (e) {
+    // Fallback if parsing fails
+  }
+
+  let resolvedUrl = url;
+  if (resolvedUrl.includes("localhost:")) {
+    resolvedUrl = resolvedUrl.replace(/^https?:\/\/localhost:\d+/, apiOrigin);
+  }
+
+  if (!resolvedUrl.startsWith("http://") && !resolvedUrl.startsWith("https://") && !resolvedUrl.startsWith("data:")) {
+    const separator = resolvedUrl.startsWith("/") ? "" : "/";
+    resolvedUrl = `${apiOrigin}${separator}${resolvedUrl}`;
+  }
+
+  return resolvedUrl;
+}
+

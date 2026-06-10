@@ -117,10 +117,10 @@ export default function NewProductPage() {
         if (!option) return null;
 
         return {
-        ...option,
-        values: (option.values ?? []).filter((value) =>
-          selection.valueIds.includes(value.id),
-        ),
+          ...option,
+          values: selection.valueIds
+            .map((id) => (option.values ?? []).find((value) => value.id === id))
+            .filter((val): val is NonNullable<typeof val> => Boolean(val)),
         };
       })
       .filter((option): option is Attribute & { values: NonNullable<Attribute["values"]> } =>
@@ -379,28 +379,28 @@ export default function NewProductPage() {
         description="Create product details, pricing, tags, images, and optional variants."
         action={
           <Link
-            className="inline-flex h-14 items-center gap-2 rounded-lg border border-slate-300 bg-white px-5 font-black"
+            className="inline-flex h-12 items-center gap-2 rounded-md border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-600 shadow-xs hover:bg-slate-50 transition"
             href="/admin/products"
           >
-            <AdminIcon className="h-5 w-5" name="chevronRight" />
+            <AdminIcon className="h-4 w-4 text-slate-400" name="chevronRight" />
             Products
           </Link>
         }
       />
 
       <form
-        className="mx-auto max-w-5xl space-y-6 rounded-xl border border-slate-100 bg-white p-6 shadow-sm"
+        className="mx-auto max-w-5xl space-y-6 rounded-lg border border-slate-200/60 bg-white p-6 shadow-xs"
         onSubmit={handleSubmit}
       >
         <div className="space-y-5">
           <div className="grid gap-4 md:grid-cols-2">
             <label className="block">
-              <span className="mb-2 block text-sm font-black text-slate-700">
+              <span className="mb-2 block text-sm font-bold text-slate-700">
                 Product name
               </span>
               <input
                 autoFocus
-                className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                className="h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-medium text-slate-700 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition"
                 onChange={(event) => updateName(event.target.value)}
                 placeholder="Premium Green Tea"
                 required
@@ -408,11 +408,11 @@ export default function NewProductPage() {
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm font-black text-slate-700">
+              <span className="mb-2 block text-sm font-bold text-slate-700">
                 Category
               </span>
               <select
-                className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                className="h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-medium text-slate-700 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition cursor-pointer"
                 onChange={(event) =>
                   setForm((current) => ({
                     ...current,
@@ -434,11 +434,11 @@ export default function NewProductPage() {
           </div>
 
           <label className="block">
-            <span className="mb-2 block text-sm font-black text-slate-700">
+            <span className="mb-2 block text-sm font-bold text-slate-700">
               Product slug
             </span>
             <input
-              className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              className="h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-medium text-slate-700 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition"
               onChange={(event) =>
                 setForm((current) => ({
                   ...current,
@@ -452,11 +452,11 @@ export default function NewProductPage() {
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-sm font-black text-slate-700">
+            <span className="mb-2 block text-sm font-bold text-slate-700">
               Description
             </span>
             <textarea
-              className="min-h-28 w-full rounded-lg border border-slate-300 px-4 py-3 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              className="min-h-28 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition"
               onChange={(event) =>
                 setForm((current) => ({
                   ...current,
@@ -470,11 +470,11 @@ export default function NewProductPage() {
 
           <div className="grid gap-4 md:grid-cols-3">
             <label className="block">
-              <span className="mb-2 block text-sm font-black text-slate-700">
+              <span className="mb-2 block text-sm font-bold text-slate-700">
                 Brand
               </span>
               <select
-                className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                className="h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-medium text-slate-700 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition cursor-pointer"
                 onChange={(event) =>
                   setForm((current) => ({ ...current, brandId: event.target.value }))
                 }
@@ -490,11 +490,11 @@ export default function NewProductPage() {
               </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm font-black text-slate-700">
+              <span className="mb-2 block text-sm font-bold text-slate-700">
                 Unit
               </span>
               <select
-                className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                className="h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-medium text-slate-700 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition cursor-pointer"
                 onChange={(event) =>
                   setForm((current) => ({ ...current, unitId: event.target.value }))
                 }
@@ -509,11 +509,11 @@ export default function NewProductPage() {
               </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm font-black text-slate-700">
+              <span className="mb-2 block text-sm font-bold text-slate-700">
                 Status
               </span>
               <select
-                className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium capitalize outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                className="h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-medium text-slate-700 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition cursor-pointer"
                 onChange={(event) =>
                   setForm((current) => ({
                     ...current,
@@ -530,7 +530,7 @@ export default function NewProductPage() {
           </div>
 
           <div>
-            <span className="mb-2 block text-sm font-black text-slate-700">
+            <span className="mb-2 block text-sm font-bold text-slate-700">
               Tags
             </span>
             {tags.length > 0 ? (
@@ -540,10 +540,10 @@ export default function NewProductPage() {
 
                   return (
                     <button
-                      className={`rounded-lg border px-3 py-2 text-sm font-black ${
+                      className={`rounded-md border px-3 py-1.5 text-xs font-semibold transition cursor-pointer ${
                         selected
-                          ? "border-blue-600 bg-blue-50 text-blue-700"
-                          : "border-slate-300 bg-white text-slate-700"
+                          ? "border-slate-900 bg-slate-900 text-white shadow-xs"
+                          : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                       }`}
                       key={tag.id}
                       onClick={() => toggleTag(tag.id)}
@@ -555,7 +555,7 @@ export default function NewProductPage() {
                 })}
               </div>
             ) : (
-              <p className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 font-medium text-slate-500">
+              <p className="rounded-md border border-dashed border-slate-200 bg-slate-50 p-4 text-xs font-medium text-slate-400">
                 No active tags found.
               </p>
             )}
@@ -563,27 +563,27 @@ export default function NewProductPage() {
 
           <div className="rounded-lg border border-slate-200 p-4">
             <div className="mb-4 flex items-center justify-between gap-3">
-              <h2 className="text-lg font-black">Product type and pricing</h2>
+              <h2 className="text-sm font-bold text-slate-800">Product type and pricing</h2>
               <button
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-black"
+                className="inline-flex h-10 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition cursor-pointer shadow-xs"
                 onClick={generateSku}
                 type="button"
               >
-                <AdminIcon className="h-4 w-4" name="refresh" />
+                <AdminIcon className="h-3.5 w-3.5 text-slate-500" name="refresh" />
                 Generate SKU
               </button>
             </div>
 
-            <div className="mb-4 grid grid-cols-2 gap-2 rounded-lg bg-slate-100 p-1">
+            <div className="mb-4 grid grid-cols-2 gap-2 rounded-md bg-slate-100 p-1">
               {[
                 ["simple", "No variant product"],
                 ["variant", "Variant product"],
               ].map(([value, label]) => (
                 <button
-                  className={`h-11 rounded-lg text-sm font-black ${
+                  className={`h-10 rounded-md text-sm font-bold transition cursor-pointer ${
                     form.productType === value
-                      ? "bg-white text-blue-700 shadow-sm"
-                      : "text-slate-600"
+                      ? "bg-white text-slate-800 shadow-xs font-extrabold"
+                      : "text-slate-550 hover:text-slate-700"
                   }`}
                   key={value}
                   onClick={() => {
@@ -604,11 +604,11 @@ export default function NewProductPage() {
 
             <div className="grid gap-4 md:grid-cols-3">
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+                <span className="mb-2 block text-sm font-bold text-slate-700">
                   SKU
                 </span>
                 <input
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium uppercase outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-12 w-full rounded-md border border-slate-200 bg-white px-4 text-sm font-medium uppercase outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition"
                   onChange={(event) =>
                     setForm((current) => ({ ...current, sku: event.target.value }))
                   }
@@ -617,11 +617,11 @@ export default function NewProductPage() {
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+                <span className="mb-2 block text-sm font-bold text-slate-700">
                   Unit price
                 </span>
                 <input
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-12 w-full rounded-md border border-slate-200 bg-white px-4 text-sm font-medium outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition"
                   min="0"
                   onChange={(event) =>
                     setForm((current) => ({
@@ -636,11 +636,11 @@ export default function NewProductPage() {
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+                <span className="mb-2 block text-sm font-bold text-slate-700">
                   Retail price
                 </span>
                 <input
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-12 w-full rounded-md border border-slate-200 bg-white px-4 text-sm font-medium outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition"
                   min="0"
                   onChange={(event) =>
                     setForm((current) => ({
@@ -659,8 +659,8 @@ export default function NewProductPage() {
             {form.productType === "variant" && (
               <div className="mt-5 border-t border-slate-100 pt-5">
                 <div className="mb-4">
-                  <h3 className="text-base font-black">Variant options</h3>
-                  <p className="mt-1 text-sm font-medium text-slate-500">
+                  <h3 className="text-sm font-bold text-slate-800">Variant options</h3>
+                  <p className="mt-1 text-xs font-medium text-slate-400">
                     Choose a variant option first, then choose values from that option.
                   </p>
                 </div>
@@ -672,36 +672,36 @@ export default function NewProductPage() {
                       );
                       const usedOptionIds = new Set(
                         variantSelections
-                          .filter((item) => item.key !== selection.key)
-                          .map((item) => item.optionId)
-                          .filter(Boolean),
+                           .filter((item) => item.key !== selection.key)
+                           .map((item) => item.optionId)
+                           .filter(Boolean),
                       );
 
                       return (
                         <div
-                          className="rounded-lg border border-slate-200 p-4"
+                          className="rounded-md border border-slate-200/70 bg-white p-4"
                           key={selection.key}
                         >
-                          <div className="mb-3 flex items-center justify-between gap-3">
-                            <p className="font-black text-slate-800">
+                          <div className="mb-3 flex items-center justify-between gap-3 border-b border-slate-50 pb-3">
+                            <p className="text-sm font-bold text-slate-800">
                               Variant option {index + 1}
                             </p>
                             <button
-                              className="inline-flex h-9 items-center gap-2 rounded-lg bg-red-50 px-3 text-sm font-black text-red-700"
+                              className="inline-flex h-8 items-center gap-1.5 rounded-md bg-rose-50 hover:bg-rose-100 px-3 text-sm font-semibold text-rose-700 transition cursor-pointer"
                               onClick={() => removeVariantSelection(selection.key)}
                               type="button"
                             >
-                              <AdminIcon className="h-4 w-4" name="x" />
+                              <AdminIcon className="h-3.5 w-3.5" name="x" />
                               Remove
                             </button>
                           </div>
                           <div className="grid gap-3 md:grid-cols-[0.8fr_1.2fr]">
                             <label className="block">
-                              <span className="mb-2 block text-sm font-black text-slate-700">
+                              <span className="mb-2 block text-sm font-bold text-slate-700">
                                 Variant option
                               </span>
                               <select
-                                className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                                className="h-12 w-full rounded-md border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition cursor-pointer"
                                 onChange={(event) =>
                                   updateVariantSelection(selection.key, {
                                     optionId: event.target.value,
@@ -726,53 +726,98 @@ export default function NewProductPage() {
                               </select>
                             </label>
                             <div className="block">
-                              <span className="mb-2 block text-sm font-black text-slate-700">
+                              <span className="mb-2 block text-sm font-bold text-slate-700">
                                 Option values
                               </span>
-                              <div className="mb-2 flex min-h-12 flex-wrap items-center gap-2 rounded-lg border border-slate-300 px-3 py-2">
-                                {selection.valueIds.length > 0 ? (
-                                  selection.valueIds.map((valueId) => (
-                                    <button
-                                      className="inline-flex items-center gap-2 rounded-lg bg-blue-50 px-2.5 py-1.5 text-sm font-black text-blue-700"
-                                      key={valueId}
-                                      onClick={() =>
-                                        removeVariantValue(selection.key, valueId)
-                                      }
-                                      type="button"
-                                    >
-                                      {getAttributeValueLabel(
-                                        selection.optionId,
-                                        valueId,
-                                      )}
-                                      <AdminIcon className="h-4 w-4" name="x" />
-                                    </button>
-                                  ))
-                                ) : (
-                                  <span className="font-medium text-slate-400">
-                                    Selected values will appear here
-                                  </span>
-                                )}
-                              </div>
-                              <select
-                                className="min-h-28 w-full rounded-lg border border-slate-300 px-4 py-3 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                                disabled={!option}
-                                multiple
-                                onChange={(event) =>
-                                  updateVariantSelection(selection.key, {
-                                    valueIds: Array.from(
-                                      event.target.selectedOptions,
-                                      (selectedOption) => selectedOption.value,
-                                    ),
-                                  })
-                                }
-                                value={selection.valueIds}
-                              >
-                                {option?.values?.map((value) => (
-                                  <option key={value.id} value={value.id}>
-                                    {value.value}
-                                  </option>
-                                ))}
-                              </select>
+                              {option ? (
+                                <div className="space-y-3">
+                                  <div className="flex flex-wrap gap-2 p-3 border border-slate-200 rounded-md bg-slate-50/50 min-h-12">
+                                    {(option.values ?? []).map((val) => {
+                                      const isSelected = selection.valueIds.includes(val.id);
+                                      return (
+                                        <button
+                                          key={val.id}
+                                          type="button"
+                                          onClick={() => {
+                                            const nextValueIds = isSelected
+                                              ? selection.valueIds.filter((id) => id !== val.id)
+                                              : [...selection.valueIds, val.id];
+                                            updateVariantSelection(selection.key, {
+                                              valueIds: nextValueIds,
+                                            });
+                                          }}
+                                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-semibold border transition cursor-pointer ${
+                                            isSelected
+                                              ? "bg-slate-900 border-slate-900 text-white shadow-xs font-bold"
+                                              : "bg-white border-slate-200 text-slate-650 hover:bg-slate-50 hover:text-slate-800"
+                                          }`}
+                                        >
+                                          <span>{val.value}</span>
+                                          {isSelected && (
+                                            <AdminIcon className="h-3 w-3 text-white/80" name="check" />
+                                          )}
+                                        </button>
+                                      );
+                                    })}
+                                    {(option.values ?? []).length === 0 && (
+                                      <span className="text-sm font-medium text-slate-400 p-1">
+                                        No values found for this option
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {selection.valueIds.length > 1 && (
+                                    <div className="rounded-md border border-slate-100 bg-slate-50/30 p-2.5">
+                                      <p className="mb-2 text-xs font-bold text-slate-500">
+                                        Drag and drop value tags to reorder them:
+                                      </p>
+                                      <div className="flex flex-wrap gap-2">
+                                        {selection.valueIds.map((valId, idx) => {
+                                          const label = getAttributeValueLabel(selection.optionId, valId);
+                                          return (
+                                            <div
+                                              key={valId}
+                                              draggable
+                                              onDragStart={(e) => {
+                                                e.dataTransfer.setData("text/plain", idx.toString());
+                                              }}
+                                              onDragOver={(e) => {
+                                                e.preventDefault();
+                                              }}
+                                              onDrop={(e) => {
+                                                e.preventDefault();
+                                                const fromIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
+                                                const toIndex = idx;
+                                                if (fromIndex === toIndex || isNaN(fromIndex)) return;
+                                                const next = [...selection.valueIds];
+                                                const [removed] = next.splice(fromIndex, 1);
+                                                next.splice(toIndex, 0, removed);
+                                                updateVariantSelection(selection.key, { valueIds: next });
+                                              }}
+                                              className="cursor-grab active:cursor-grabbing inline-flex items-center gap-2 rounded-md bg-white border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 hover:border-slate-350 transition"
+                                              title="Drag to reorder"
+                                            >
+                                              <svg className="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                                <circle cx="9" cy="5" r="1.2" fill="currentColor" />
+                                                <circle cx="9" cy="12" r="1.2" fill="currentColor" />
+                                                <circle cx="9" cy="19" r="1.2" fill="currentColor" />
+                                                <circle cx="15" cy="5" r="1.2" fill="currentColor" />
+                                                <circle cx="15" cy="12" r="1.2" fill="currentColor" />
+                                                <circle cx="15" cy="19" r="1.2" fill="currentColor" />
+                                              </svg>
+                                              <span>{label}</span>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <div className="flex items-center min-h-12 border border-slate-200 border-dashed bg-slate-50/30 rounded-md px-3 text-sm font-semibold text-slate-400">
+                                  Select a variant option first
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -780,26 +825,26 @@ export default function NewProductPage() {
                     })}
 
                     <button
-                      className="inline-flex h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 font-black text-slate-700 disabled:opacity-50"
+                      className="inline-flex h-10 items-center gap-1.5 rounded-md border border-slate-200 hover:bg-slate-50 bg-white px-4 text-sm font-semibold text-slate-600 disabled:opacity-50 transition cursor-pointer"
                       disabled={
                         variantSelections.length >= variantOptions.length
                       }
                       onClick={addVariantSelection}
                       type="button"
                     >
-                      <AdminIcon className="h-4 w-4" name="plus" />
+                      <AdminIcon className="h-3.5 w-3.5 text-slate-500" name="plus" />
                       Add another variant option
                     </button>
 
                     {variantPreview.length > 0 && (
-                      <div className="rounded-lg bg-slate-50 p-4">
-                        <p className="mb-2 text-sm font-black text-slate-700">
+                      <div className="rounded-md border border-slate-200 bg-slate-50/50 p-4">
+                        <p className="mb-2 text-sm font-bold text-slate-700">
                           Variants to create
                         </p>
                         <div className="flex flex-wrap gap-2">
                           {variantPreview.map((variant) => (
                             <span
-                              className="rounded-lg bg-white px-3 py-2 text-sm font-bold text-slate-700"
+                              className="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-sm font-semibold text-slate-700"
                               key={variant.sku}
                             >
                               {variant.label}
@@ -810,7 +855,7 @@ export default function NewProductPage() {
                     )}
                   </div>
                 ) : (
-                  <p className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 font-medium text-slate-500">
+                  <p className="rounded-md border border-dashed border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-400 text-center">
                     No variant options found. Add options from Variant Options first.
                   </p>
                 )}
@@ -821,12 +866,12 @@ export default function NewProductPage() {
 
         <div className="space-y-5 border-t border-slate-100 pt-6">
           <label className="block">
-            <span className="mb-2 block text-sm font-black text-slate-700">
+            <span className="mb-2 block text-sm font-bold text-slate-700">
               Product images
             </span>
             <input
               accept="image/*"
-              className="block w-full rounded-lg border border-slate-300 px-4 py-3 font-medium"
+              className="block w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-500"
               multiple
               onChange={(event) => updateImages(event.target.files)}
               ref={imageInputRef}
@@ -837,11 +882,11 @@ export default function NewProductPage() {
           {imagePreviewUrls.length > 0 ? (
             <div>
               <div className="mb-3 flex items-center justify-between gap-3">
-                <h2 className="text-sm font-black text-slate-700">
+                <h2 className="text-sm font-bold text-slate-700">
                   Selected images
                 </h2>
                 <button
-                  className="text-sm font-black text-red-700"
+                  className="text-sm font-semibold text-red-700"
                   disabled={isSaving}
                   onClick={clearImages}
                   type="button"
@@ -852,59 +897,100 @@ export default function NewProductPage() {
               <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
                 {imagePreviewUrls.map((url, index) => (
                   <div
-                    className="overflow-hidden rounded-lg border border-slate-200"
+                    className="relative overflow-hidden rounded-md border border-slate-200 bg-white cursor-grab active:cursor-grabbing transition hover:border-slate-350 hover:shadow-2xs"
                     key={url}
+                    draggable
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData("text/plain", index.toString());
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const fromIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
+                      const toIndex = index;
+                      if (fromIndex === toIndex || isNaN(fromIndex)) return;
+                      setForm((current) => {
+                        const next = [...current.images];
+                        const [removed] = next.splice(fromIndex, 1);
+                        next.splice(toIndex, 0, removed);
+                        return { ...current, images: next };
+                      });
+                    }}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       alt=""
-                      className="aspect-square w-full object-cover"
+                      className="aspect-square w-full object-cover pointer-events-none"
                       src={url}
                     />
-                    <p className="truncate px-2 py-1 text-xs font-bold text-slate-600">
-                      {form.images[index]?.name}
-                    </p>
+                    <div className="absolute top-1 left-1 flex gap-1 pointer-events-none">
+                      {index === 0 ? (
+                        <span className="rounded bg-slate-900/80 px-1.5 py-0.5 text-[10px] font-black text-white backdrop-blur-xs">
+                          Featured
+                        </span>
+                      ) : (
+                        <span className="rounded bg-slate-500/80 px-1.5 py-0.5 text-[10px] font-bold text-white backdrop-blur-xs">
+                          #{index + 1}
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/80 p-2 pointer-events-none">
+                      <svg className="h-3.5 w-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <circle cx="9" cy="5" r="1.2" fill="currentColor" />
+                        <circle cx="9" cy="12" r="1.2" fill="currentColor" />
+                        <circle cx="9" cy="19" r="1.2" fill="currentColor" />
+                        <circle cx="15" cy="5" r="1.2" fill="currentColor" />
+                        <circle cx="15" cy="12" r="1.2" fill="currentColor" />
+                        <circle cx="15" cy="19" r="1.2" fill="currentColor" />
+                      </svg>
+                      <p className="truncate flex-1 text-right pl-2 text-xs font-semibold text-slate-650">
+                        {form.images[index]?.name}
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="grid min-h-64 place-items-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-slate-500">
+            <div className="grid min-h-48 place-items-center rounded-md border border-dashed border-slate-200 bg-slate-50/50 p-6 text-center text-slate-450">
               <div>
-                <AdminIcon className="mx-auto h-8 w-8" name="upload" />
-                <p className="mt-3 font-medium">
+                <AdminIcon className="mx-auto h-8 w-8 text-slate-350" name="upload" />
+                <p className="mt-3 text-xs font-medium">
                   Upload product gallery images. The first selected image becomes featured.
                 </p>
               </div>
             </div>
           )}
 
-          <div className="rounded-lg bg-slate-50 p-4">
-            <h2 className="font-black text-slate-800">Stock adjustment</h2>
-            <p className="mt-1 text-sm font-medium text-slate-600">
+          <div className="rounded-md border border-slate-200/60 bg-slate-50 p-4">
+            <h2 className="text-sm font-bold text-slate-800">Stock adjustment</h2>
+            <p className="mt-1 text-xs font-medium text-slate-500">
               Stock is not adjusted here. New variants start with 0 stock and should be updated from Stock Management.
             </p>
           </div>
 
           {error && (
-            <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+            <p className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm font-bold text-red-700">
               {error}
             </p>
           )}
 
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end gap-3 border-t border-slate-100 pt-5">
             <Link
-              className="inline-flex h-12 items-center rounded-lg border border-slate-300 bg-white px-5 font-black text-slate-700"
+              className="inline-flex h-12 items-center rounded-md border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition"
               href="/admin/products"
             >
               Cancel
             </Link>
             <button
-              className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-5 font-black text-white disabled:bg-slate-400"
+              className="inline-flex h-12 items-center gap-1.5 rounded-md bg-slate-900 px-5 text-sm font-semibold text-white hover:bg-slate-800 disabled:bg-slate-300 disabled:opacity-60 cursor-pointer shadow-xs transition"
               disabled={isSaving}
               type="submit"
             >
-              <AdminIcon className="h-5 w-5" name="plus" />
+              <AdminIcon className="h-4 w-4" name="plus" />
               {isSaving ? "Creating..." : "Create Product"}
             </button>
           </div>
