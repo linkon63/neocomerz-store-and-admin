@@ -8,6 +8,11 @@ import ProductPurchasePanel from "./product-purchase-panel";
 import ProductImageGallery from "./product-image-gallery";
 import WishlistButton from "./wishlist-button";
 
+export const metadata = {
+    title: 'Shop | Humana Vintage',
+    description: 'Explore our curated collection of vintage treasures at Humana Vintage. Discover unique, high-quality pieces handpicked for your sustainable wardrobe.',
+};
+
 function formatPrice(price: number) {
   return `€${price.toFixed(2)}`;
 }

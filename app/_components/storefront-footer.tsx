@@ -1,46 +1,77 @@
 "use client";
-
+import { useFetchSettings } from "@/hooks/useFetchSettings";
 import Link from "next/link";
-import { FaFacebookF, FaInstagram } from "react-icons/fa";
+import { useEffect } from "react";
+import { FaCcPaypal, FaCcVisa, FaFacebookF, FaInstagram, FaLinkedinIn, FaStripe, FaTiktok, FaYoutube } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 
 const footerGroups = [
 	{
 		title: "Customer Service",
 		links: [
-			{ label: "FAQ", href: "#" },
-			{ label: "Terms & Conditions", href: "#" },
-			{ label: "Shipping & Delivery", href: "#" },
-			{ label: "Wishlist", href: "/wishlist" },
+			{ id: "faq", label: "FAQ", href: "#" },
+			{ id: "wishlist", label: "Wishlist", href: "/wishlist" },
+			{ id: "delivery", label: "Shipping & Delivery", href: "#" },
+			{ id: "terms", label: "Terms & Conditions", href: "#" },
 		],
 	},
 	{
 		title: "Who We Are",
 		links: [
-			{ label: "About Us", href: "/about" },
-			{ label: "Contacts", href: "/contact" },
-			{ label: "Our Stores", href: "/shop" },
-			{ label: "Institutional Blog", href: "#" },
+			{ id: "about-us", label: "About Us", href: "/about" },
+			{ id: "contacts", label: "Contacts", href: "/contact" },
+			{ id: "our-stores", label: "Our Stores", href: "/about" },
+			{ id: "institutional-blog", label: "Institutional Blog", href: "/about" },
 		],
 	},
 	{
 		title: "Policies",
 		links: [
-			{ label: "Delivery", href: "#" },
-			{ label: "Refund and Return", href: "#" },
-			{ label: "Cacellation", href: "#" },
-			{ label: "Privacy", href: "#" },
-			{ label: "Terms & Conditions", href: "#" },
+			{ id: "refund", label: "Refund", href: "#" },
+			{ id: "return", label: "Return", href: "#" },
+			{ id: "cancellation", label: "Cacellation", href: "#" },
+			{ id: "privacy", label: "Privacy", href: "#" },
+
 		],
 	},
 ];
 
-const paymentMethods = ["VISA", "PayPal", "stripe", "VeriSign"];
 
 export default function StorefrontFooter({
 	ref,
+	onOpenPolicy,
+	onSetIsFAQOpen
+
 }: {
 	ref?: React.Ref<HTMLElement>;
+	onOpenPolicy: (id: string, title: string) => void;
+	onSetIsFAQOpen: () => void;
 }) {
+
+	const { data, isLoading } = useFetchSettings();
+
+	const socialIcons = {
+		facebook: FaFacebookF,
+		instagram: FaInstagram,
+		linkedin: FaLinkedinIn,
+		twitter: FaXTwitter,
+		youtube: FaYoutube,
+		tiktok: FaTiktok,
+	};
+
+	// Handle Open Faq modal
+	const handleOpenFAQ = () => {
+		onSetIsFAQOpen();
+	}
+
+	// Handle Open Policy
+	const handleOpenPolicy = (id: string, label: string) => {
+		onOpenPolicy(id, label);
+	}
+
+	console.log(data);
+
+
 	return (
 		<footer
 			ref={ref}
@@ -56,12 +87,21 @@ export default function StorefrontFooter({
 							<ul className="mt-5 space-y-2">
 								{group.links.map((link) => (
 									<li key={link.label}>
-										<Link
-											href={link.href}
-											className="text-sm font-medium uppercase leading-5 text-neutral-400 transition hover:text-neutral-900 sm:text-base"
-										>
-											{link.label}
-										</Link>
+										{link.href === "#" ? (
+											<button
+												onClick={link.label === "FAQ" ? handleOpenFAQ : () => handleOpenPolicy(link.id, link.label)}
+												className="text-sm font-medium uppercase leading-5 text-neutral-400 transition hover:text-neutral-900 sm:text-base text-left"
+											>
+												{link.label}
+											</button>
+										) : (
+											<Link
+												href={link.href}
+												className="text-sm font-medium uppercase leading-5 text-neutral-400 transition hover:text-neutral-900 sm:text-base"
+											>
+												{link.label}
+											</Link>
+										)}
 									</li>
 								))}
 							</ul>
@@ -69,46 +109,80 @@ export default function StorefrontFooter({
 					))}
 
 					<div>
-						<h2 className="text-sm font-bold uppercase tracking-[0.02em] text-neutral-900">
-							Social Media
-						</h2>
-						<div className="mt-5 flex gap-3">
-							<Link
-								href="#"
-								className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-300 text-neutral-900 transition hover:border-neutral-900"
-								aria-label="Facebook"
-							>
-								<FaFacebookF className="text-sm" />
-							</Link>
-							<Link
-								href="#"
-								className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-300 text-neutral-900 transition hover:border-neutral-900"
-								aria-label="Instagram"
-							>
-								<FaInstagram className="text-base" />
-							</Link>
-						</div>
+						{
+							!isLoading && data?.socialContact && data?.socialContact.length !== 0 &&
+							<div>
+								<h2 className="text-sm font-bold uppercase tracking-[0.02em] text-neutral-900">
+									Social Media
+								</h2>
+								<div className="mt-5 flex gap-3">
+									{isLoading ? (
+										Array.from({ length: 4 }).map((_, index) => (
+											<div
+												key={index}
+												className="h-10 w-10 animate-pulse rounded-full bg-neutral-200"
+											/>
+										))
+									) : (
+										Object.entries(data?.socialContact || {}).map(([platform, url]) => {
+											if (!url) return null;
 
-						<h2 className="mt-9 text-sm font-bold uppercase tracking-[0.02em] text-neutral-900">
-							Payment Methods
-						</h2>
-						<div className="mt-4 flex flex-wrap gap-2">
-							{paymentMethods.map((method) => (
-								<span
-									key={method}
-									className="inline-flex h-8 items-center rounded bg-neutral-800 px-3 text-sm font-black text-white"
-								>
-									{method}
-								</span>
-							))}
+											const Icon =
+												socialIcons[platform as keyof typeof socialIcons];
+
+											if (!Icon) return null;
+
+											return (
+												<Link
+													key={platform}
+													href={url}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-300 text-neutral-900 transition hover:border-neutral-900"
+													aria-label={platform}
+												>
+													<Icon className="text-sm" />
+												</Link>
+											);
+										})
+									)}
+								</div>
+
+
+							</div>
+						}
+						<div>
+							<h2 className="mt-9 text-sm font-bold uppercase tracking-[0.02em] text-neutral-900">
+								Payment Methods
+							</h2>
+							<div className="mt-4 flex flex-wrap gap-4 items-center">
+
+								<FaCcVisa className="text-4xl text-neutral-800" />
+								<FaCcPaypal className="text-4xl text-neutral-800" />
+								<FaStripe className="text-4xl text-neutral-800" />
+							</div>
 						</div>
 					</div>
+
 				</div>
 
 				<div className="mt-12 border-t border-neutral-300 pt-10 text-xs font-medium text-neutral-400">
-					© 2026 Humana Vintage Italia | Powered by LikeYou Srl .
+					© {data?.copyrightYear} {data?.shopName} | Powered by{" "}
+					{data?.parentCompanyLink ? (
+						<Link
+							href={data.parentCompanyLink}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="hover:text-neutral-900 transition-colors"
+						>
+							{data.parentCompany}
+						</Link>
+					) : (
+						data?.parentCompany
+					)}
 				</div>
 			</div>
+
 		</footer>
 	);
 }
