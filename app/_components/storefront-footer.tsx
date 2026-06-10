@@ -9,9 +9,7 @@ const footerGroups = [
     links: [
       { label: "FAQ", href: "#" },
       { label: "Terms & Conditions", href: "#" },
-      { label: "Terms & Conditions Store", href: "#" },
       { label: "Shipping & Delivery", href: "#" },
-      { label: "Login", href: "/profile" },
       { label: "Wishlist", href: "/wishlist" },
     ],
   },
@@ -20,17 +18,18 @@ const footerGroups = [
     links: [
       { label: "About Us", href: "/about" },
       { label: "Contacts", href: "/contact" },
-      { label: "Our Stores", href: "#" },
+      { label: "Our Stores", href: "/shop" },
       { label: "Institutional Blog", href: "#" },
     ],
   },
   {
-    title: "More Information",
+    title: "Policies",
     links: [
+      { label: "Delivery", href: "#" },
+      { label: "Refund and Return", href: "#" },
+      { label: "Cacellation", href: "#" },
       { label: "Privacy", href: "#" },
-      { label: "Cookie Policy", href: "#" },
-      { label: "Info and Returns", href: "#" },
-      { label: "Refunds", href: "#" },
+      { label: "Terms & Conditions", href: "#" },
     ],
   },
 ];
@@ -39,8 +38,8 @@ const paymentMethods = ["VISA", "PayPal", "stripe", "VeriSign"];
 
 export default function StorefrontFooter() {
   return ( 
-    <footer className="fixed bottom-0 left-0 -z-10 w-full bg-white px-4 py-14 sm:px-8 lg:py-20">
-        <div className="mx-auto max-w-[1180px]">
+    <footer className="fixed bottom-0 left-0 -z-10 w-full bg-white py-14 lg:py-20">
+        <div className="mx-auto container">
           <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.2fr_1.2fr_1.2fr_1fr]">
             {footerGroups.map((group) => (
               <div key={group.title}>

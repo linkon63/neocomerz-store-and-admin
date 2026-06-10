@@ -44,15 +44,14 @@ export default function HeroSlider() {
             fill
             priority={index === 0}
             sizes="100vw"
-            className={`object-cover object-center transition-opacity duration-700 ${
-              activeSlide === index ? "opacity-100" : "opacity-0"
-            }`}
+            className={`object-cover object-center transition-opacity duration-700 ${activeSlide === index ? "opacity-100" : "opacity-0"
+              }`}
           />
         ))}
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
 
-        <div className="absolute inset-x-0 bottom-0 px-6 pb-12 text-white sm:px-12 sm:pb-16">
+        <div className="absolute inset-x-0 bottom-0 pb-12 text-white sm:pb-16 max-w-434 px-4 md:px-6 mx-auto">
           <p className="text-xs font-bold uppercase tracking-[0.18em]">Humana Vintage</p>
           <h1 className="mt-4 max-w-3xl font-bembo text-5xl font-bold leading-none sm:text-7xl">
             {slides[activeSlide].title}
@@ -74,9 +73,8 @@ export default function HeroSlider() {
               key={slide.title}
               type="button"
               onClick={() => setActiveSlide(index)}
-              className={`h-2.5 rounded-full transition-all ${
-                activeSlide === index ? "w-8 bg-white" : "w-2.5 bg-white/55"
-              }`}
+              className={`h-2.5 rounded-full transition-all ${activeSlide === index ? "w-8 bg-white" : "w-2.5 bg-white/55"
+                }`}
               aria-label={`Show slide ${index + 1}`}
             />
           ))}

@@ -44,8 +44,8 @@ export default function Newsletter() {
     };
 
     return (
-        <section className="bg-[#ffd02f] px-4 py-16 sm:px-8">
-            <div className="mx-auto grid max-w-[1400px] gap-8 lg:grid-cols-[1fr_460px] lg:items-center">
+        <section className="bg-[#ffd02f] py-16 mb-16 md:mb-20 lg:mb-24">
+            <div className="mx-auto container grid gap-8 lg:grid-cols-[1fr_460px] lg:items-center">
                 <div>
                     <h2 className="font-bembo text-3xl font-bold leading-tight text-black sm:text-5xl">
                         Subscribe to our newsletter
