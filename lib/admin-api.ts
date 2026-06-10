@@ -236,6 +236,13 @@ export type OrderItem = {
   variant?: ProductVariant | null;
 };
 
+export type OrderStatusLog = {
+  id: string;
+  status: string;
+  note?: string | null;
+  createdAt: string;
+};
+
 export type Order = {
   id: string;
   orderNumber: string;
@@ -250,7 +257,14 @@ export type Order = {
   user?: { id: string; name: string; email: string; phone?: string | null } | null;
   address?: CustomerAddress | null;
   items?: OrderItem[];
-  payments?: { id: string; amount: string | number; method: string; status: string }[];
+  payments?: { 
+    id: string; 
+    amount: string | number; 
+    method: string; 
+    status: string;
+    transactionId?: string | null;
+  }[];
+  statusLogs?: OrderStatusLog[];
 };
 
 export type PaginatedOrders = {
@@ -544,6 +558,25 @@ export type ReportOverview = {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/v1";
 
+// ─── Customer Token Helpers ────────────────────────────────────────────────
+
+export function getCustomerToken() {
+  if (typeof window === "undefined") return null;
+  return sessionStorage.getItem("customer_access_token");
+}
+
+export function setCustomerToken(token: string) {
+  if (typeof window === "undefined") return;
+  sessionStorage.setItem("customer_access_token", token);
+}
+
+export function clearCustomerToken() {
+  if (typeof window === "undefined") return;
+  sessionStorage.removeItem("customer_access_token");
+}
+
+// ─── Admin Token Helpers ───────────────────────────────────────────────────
+
 export function getAdminToken() {
   if (typeof document === "undefined") return null;
 
@@ -573,6 +606,56 @@ type RequestOptions = RequestInit & {
   auth?: boolean;
 };
 
+// Customer API request helper (uses sessionStorage token)
+export async function customerApiRequest<T>(
+  path: string,
+  { auth = true, headers, ...options }: RequestOptions = {},
+): Promise<T> {
+  const token = getCustomerToken();
+  const requestHeaders = new Headers(headers);
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 10000);
+
+  if (auth && token) {
+    requestHeaders.set("Authorization", `Bearer ${token}`);
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      headers: requestHeaders,
+      signal: controller.signal,
+    });
+
+    const contentType = response.headers.get("content-type");
+    const payload = contentType?.includes("application/json")
+      ? await response.json()
+      : await response.text();
+
+    if (!response.ok) {
+      const message =
+        typeof payload === "object" && payload && "message" in payload
+          ? Array.isArray(payload.message)
+            ? payload.message.join(", ")
+            : String(payload.message)
+          : `Request failed with status ${response.status}`;
+
+      throw new Error(message);
+    }
+
+    return payload as T;
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw new Error("Backend API did not respond. Start the backend server and try again.");
+    }
+
+    throw err instanceof Error ? err : new Error("API request failed");
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+// Admin API request helper (uses cookie token)
 export async function apiRequest<T>(
   path: string,
   { auth = true, headers, ...options }: RequestOptions = {},
@@ -677,7 +760,23 @@ export function toInventoryRows(
 export function formatMoney(value?: string | number | null) {
   if (value === undefined || value === null || value === "") return "-";
 
-  return `৳${Number(value).toLocaleString("en", {
+  return `€${Number(value).toLocaleString("en", {
     maximumFractionDigits: 2,
   })}`;
+}
+
+// Order API Functions (Customer - uses sessionStorage token)
+export async function getMyOrders(): Promise<Order[]> {
+  return customerApiRequest<Order[]>('/orders/my-orders', { auth: true });
+}
+
+export async function getOrderById(id: string): Promise<Order> {
+  return customerApiRequest<Order>(`/orders/${id}`, { auth: true });
+}
+
+export async function cancelOrder(id: string): Promise<Order> {
+  return customerApiRequest<Order>(`/orders/${id}/cancel`, { 
+    auth: true,
+    method: 'DELETE'
+  });
 }
