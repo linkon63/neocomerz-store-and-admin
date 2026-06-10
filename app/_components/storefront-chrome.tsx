@@ -15,6 +15,7 @@ export default function StorefrontChrome({
 }) {
 	const pathname = usePathname();
 	const isAdminRoute = pathname.startsWith("/admin");
+	const isProfileRoute = pathname.startsWith("/profile");
 
 	const [footerHeight, setFooterHeight] = useState(450);
 	const footerRef = useRef<HTMLElement>(null);
@@ -39,10 +40,25 @@ export default function StorefrontChrome({
 			observer.disconnect();
 			isDesktop.removeEventListener("change", updateFooterHeight);
 		};
-	}, [isAdminRoute]);
+	}, [isAdminRoute, isProfileRoute]);
 
 	if (isAdminRoute) {
 		return children;
+	}
+
+	if (isProfileRoute) {
+		return (
+			<AuthProvider>
+				<WishlistProvider>
+					<CartProvider>
+						<div className="relative z-10 bg-white shadow-2xl">
+							<StorefrontHeader />
+							{children}
+						</div>
+					</CartProvider>
+				</WishlistProvider>
+			</AuthProvider>
+		);
 	}
 
 	return (
