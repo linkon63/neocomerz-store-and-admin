@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { type HeroSlide } from "../../lib/type";
-import { resolveImageUrl } from "../shop/products";
-
 const FALLBACK_SLIDES: HeroSlide[] = [
   {
     image: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1800&q=85",
@@ -46,7 +44,7 @@ export function useHeroCampaigns() {
         if (hero.length > 0) {
           const mapped: HeroSlide[] = hero
             .map((c: any) => ({
-              image: resolveImageUrl(c.images?.[0]?.images?.[0]),
+              image: c.images?.[0]?.images?.[0] ?? "",
               title: c.title,
               copy: c.description ?? "",
             }))

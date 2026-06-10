@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useHeroCampaigns } from "./use-hero-campaigns";
@@ -31,14 +30,12 @@ export default function HeroSlider() {
     <section className="w-full">
       <div className="relative h-[58vh] min-h-[460px] overflow-hidden sm:h-[74vh]">
         {slides.map((slide, index) => (
-          <Image
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
             key={slide.image}
             src={slide.image}
             alt={slide.title}
-            fill
-            priority={index === 0}
-            sizes="100vw"
-            className={`object-cover object-center transition-opacity duration-700 ${
+            className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ${
               activeSlide === index ? "opacity-100" : "opacity-0"
             }`}
           />
