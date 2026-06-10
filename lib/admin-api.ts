@@ -357,16 +357,16 @@ export type AppPolicies = {
 
 // ─── Campaigns ─────────────────────────────────────────────────────────────
 
-export type CampaignSection = {
-  id: string;
-  title: string;
-  page: string;
-  position: number;
-};
-
 export type CampaignImage = {
   id: string;
   images: string[];
+};
+
+export type CampaignSection = {
+  id: string;
+  title: string;
+  position: number;
+  page: string;
 };
 
 export type Campaign = {
@@ -378,7 +378,8 @@ export type Campaign = {
   endAt?: string | null;
   hasDiscount?: boolean;
   discountId?: string | null;
-  section: CampaignSection;
+  sectionId: string;
+  section?: CampaignSection;
   images?: CampaignImage[];
   createdAt?: string;
   updatedAt?: string;

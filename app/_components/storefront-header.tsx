@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FiHeart, FiLogOut, FiSearch, FiShoppingBag, FiUser } from "react-icons/fi";
+import { FiHeart, FiLogOut, FiMenu, FiSearch, FiShoppingBag, FiUser, FiX } from "react-icons/fi";
 import humanaLogo from "../../references/logo.png";
 import { useAuth } from "./auth-context";
 import { useCart } from "./cart-context";
@@ -18,6 +18,7 @@ export default function StorefrontHeader() {
 
   const [authMode, setAuthMode] = useState<"login" | "register" | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -186,13 +187,21 @@ export default function StorefrontHeader() {
       </section>
 
       <header className="border-b border-neutral-200 bg-white">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-4 py-3 sm:px-8">
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 py-3">
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(true)}
+            className="flex items-center text-black lg:hidden"
+            aria-label="Open menu"
+          >
+            <FiMenu className="h-6 w-6" />
+          </button>
+
           <nav className="hidden items-center gap-7 text-[11px] font-semibold uppercase tracking-[0.08em] lg:flex">
             <Link href="/">Home</Link>
             <Link href="/shop">Shop</Link>
-            <Link href="#">New In</Link>
-            <Link href="#">Brands</Link>
-            <Link href="#">Archive</Link>
+            <Link href="/about">About Us</Link>
+            <Link href="/contact">Contact</Link>
           </nav>
 
           <Link href="/" className="mx-auto lg:mx-0" aria-label="Humana Vintage home">
@@ -206,31 +215,31 @@ export default function StorefrontHeader() {
 
           <div className="hidden items-center gap-5 text-lg text-black lg:flex">
             <div ref={desktopSearchRef} className="relative hidden min-w-[220px] xl:block">
-            {searchOpen ? (
-              <div className="flex items-center gap-2 border-b border-black pb-1">
-                <FiSearch className="shrink-0 text-sm" />
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  placeholder="Football jerseys"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === "Escape" && closeSearch()}
-                  className="w-full bg-transparent text-[11px] font-semibold uppercase tracking-[0.08em] outline-none placeholder:text-neutral-400"
-                />
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setSearchOpen(true)}
-                className="flex w-full justify-end text-lg text-black"
-                aria-label="Open search"
-              >
-                <FiSearch />
-              </button>
-            )}
-            {renderSearchResults("right-0 w-80")}
-          </div>
+              {searchOpen ? (
+                <div className="flex items-center gap-2 border-b border-black pb-1">
+                  <FiSearch className="shrink-0 text-sm" />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Football jerseys"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === "Escape" && closeSearch()}
+                    className="w-full bg-transparent text-[11px] font-semibold uppercase tracking-[0.08em] outline-none placeholder:text-neutral-400"
+                  />
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setSearchOpen(true)}
+                  className="flex w-full justify-end text-lg text-black"
+                  aria-label="Open search"
+                >
+                  <FiSearch />
+                </button>
+              )}
+              {renderSearchResults("right-0 w-80")}
+            </div>
             {user ? (
               <div className="group relative">
                 <button
@@ -326,6 +335,24 @@ export default function StorefrontHeader() {
               </div>
             </div>
           </div>
+
+          <div className="flex items-center gap-4 text-lg text-black lg:hidden">
+            <Link href="/wishlist" aria-label="Wishlist" className="relative block">
+              <FiHeart />
+              {mounted && wishlistItemCount > 0 && (
+                <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[10px] font-bold text-white">
+                  {wishlistItemCount}
+                </span>
+              )}
+            </Link>
+
+            <Link href="/cart" aria-label="Cart" className="relative block">
+              <FiShoppingBag />
+              <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                {mounted ? itemCount : 0}
+              </span>
+            </Link>
+          </div>
         </div>
 
         <div className="border-t border-neutral-200 px-4 py-2 xl:hidden">
@@ -384,18 +411,16 @@ export default function StorefrontHeader() {
               <button
                 type="button"
                 onClick={() => setAuthMode("login")}
-                className={`px-4 py-3 transition ${
-                  authMode === "login" ? "bg-black text-white" : "bg-white text-black hover:bg-neutral-50"
-                }`}
+                className={`px-4 py-3 transition ${authMode === "login" ? "bg-black text-white" : "bg-white text-black hover:bg-neutral-50"
+                  }`}
               >
                 Login
               </button>
               <button
                 type="button"
                 onClick={() => setAuthMode("register")}
-                className={`px-4 py-3 transition ${
-                  authMode === "register" ? "bg-black text-white" : "bg-white text-black hover:bg-neutral-50"
-                }`}
+                className={`px-4 py-3 transition ${authMode === "register" ? "bg-black text-white" : "bg-white text-black hover:bg-neutral-50"
+                  }`}
               >
                 Register
               </button>
@@ -475,6 +500,117 @@ export default function StorefrontHeader() {
           </div>
         </div>
       )}
+
+      <div className={`fixed inset-0 z-[100] lg:hidden transition-all duration-300 ${mobileMenuOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+        <div
+          className={`fixed inset-0 bg-black/50 transition-opacity duration-300 ease-in-out ${mobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}
+          onClick={() => setMobileMenuOpen(false)}
+        />
+
+        <div className={`fixed inset-y-0 left-0 flex w-full max-w-[300px] flex-col bg-white p-6 shadow-2xl transition-transform duration-300 ease-in-out transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
+            <Link
+              href="/"
+              onClick={() => setMobileMenuOpen(false)}
+              aria-label="Humana Vintage home"
+            >
+              <Image
+                src={humanaLogo}
+                alt="Humana Vintage"
+                priority
+                className="h-8 w-auto"
+              />
+            </Link>
+            <button
+              type="button"
+              className="text-2xl text-black hover:text-neutral-600 focus:outline-none transition-transform duration-200 hover:rotate-90"
+              onClick={() => setMobileMenuOpen(false)}
+              aria-label="Close menu"
+            >
+              <FiX />
+            </button>
+          </div>
+
+          <nav className="flex flex-col gap-6 py-8 text-sm font-semibold uppercase tracking-[0.1em] text-black">
+            <Link
+              href="/"
+              onClick={() => setMobileMenuOpen(false)}
+              className="transition-all duration-200 hover:text-neutral-500 hover:pl-2"
+            >
+              Home
+            </Link>
+            <Link
+              href="/shop"
+              onClick={() => setMobileMenuOpen(false)}
+              className="transition-all duration-200 hover:text-neutral-500 hover:pl-2"
+            >
+              Shop
+            </Link>
+            <Link
+              href="/about"
+              onClick={() => setMobileMenuOpen(false)}
+              className="transition-all duration-200 hover:text-neutral-500 hover:pl-2"
+            >
+              About Us
+            </Link>
+            <Link
+              href="/contact"
+              onClick={() => setMobileMenuOpen(false)}
+              className="transition-all duration-200 hover:text-neutral-500 hover:pl-2"
+            >
+              Contact
+            </Link>
+          </nav>
+
+          <div className="mt-auto border-t border-neutral-100 pt-6">
+            {user ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <FiUser className="text-lg text-black shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] uppercase tracking-[0.06em] text-neutral-500">Logged in as</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.06em] text-black truncate">
+                      {user.name}
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 pt-2">
+                  <Link
+                    href="/profile"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block border border-black bg-white px-3 py-2 text-center text-[10px] font-bold uppercase tracking-[0.08em] text-black hover:bg-neutral-50 transition"
+                  >
+                    Profile
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      logout();
+                    }}
+                    className="flex items-center justify-center gap-1.5 border border-red-200 bg-red-50 px-3 py-2 text-center text-[10px] font-bold uppercase tracking-[0.08em] text-red-600 hover:bg-red-100 transition"
+                  >
+                    <FiLogOut className="text-xs" />
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setAuthMode("login");
+                }}
+                className="flex w-full items-center justify-center gap-2 border border-black bg-black px-4 py-3 text-xs font-black uppercase tracking-[0.12em] text-white hover:bg-neutral-800 transition"
+              >
+                <FiUser className="text-sm" />
+                Sign In / Register
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

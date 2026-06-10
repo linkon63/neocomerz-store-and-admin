@@ -15,11 +15,17 @@ export default function JournalParallax() {
             backgroundSize: 'cover'
           }}
         />
-        <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/70 to-transparent px-6 pb-12 pt-28 text-white sm:px-12 z-10">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em]">Journal</p>
-          <h2 className="mt-3 max-w-3xl font-bembo text-3xl font-bold leading-none sm:text-5xl">
-            Small gestures that transform the world
-          </h2>
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+
+        {/* Content Container */}
+        <div className="relative h-full w-full max-w-360 mx-auto flex flex-col justify-end pb-12 sm:pb-16 z-10">
+          <div className="px-6 sm:px-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white">Journal</p>
+            <h2 className="mt-3 max-w-3xl font-bembo text-3xl font-bold leading-none text-white sm:text-5xl">
+              Small gestures that transform the world
+            </h2>
+          </div>
         </div>
       </div>
     </section>

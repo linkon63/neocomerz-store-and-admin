@@ -9,13 +9,13 @@ export const metadata = {
 
 export default function ContactPage() {
     return (
-        <div className="py-12">
+        <div className="py-12 bg-white">
             {/* Banner */}
             <div className="relative w-full h-[300px] mb-12">
                 <Image src="/images/contacts/banner.webp" alt="Contact Banner" fill className="object-cover" />
             </div>
 
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-20 px-6 bg-white">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-20 px-6 ">
                 {/* Left Form */}
                 <div>
                     <h1 className="text-3xl font-bold mb-2">Let's talk</h1>
