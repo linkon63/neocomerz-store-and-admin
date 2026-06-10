@@ -186,7 +186,7 @@ export default function StorefrontHeader() {
       </section>
 
       <header className="border-b border-neutral-200 bg-white">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-4 py-3 sm:px-8">
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 py-3">
           <nav className="hidden items-center gap-7 text-[11px] font-semibold uppercase tracking-[0.08em] lg:flex">
             <Link href="/">Home</Link>
             <Link href="/shop">Shop</Link>
