@@ -257,11 +257,9 @@ export default function ProductsPage() {
   }
 
   async function saveDefaultVariant(productId: string) {
-    if (!form.sku.trim() || !form.price) return;
-
     const body = {
-      sku: form.sku.trim(),
-      price: Number(form.price),
+      sku: form.sku.trim() || `${slugify(form.name || productId)}-default`,
+      price: form.price ? Number(form.price) : 0,
       cost: form.cost ? Number(form.cost) : undefined,
       stockQuantity: Number(form.stockQuantity || 0),
       isDefault: true,
@@ -277,13 +275,23 @@ export default function ProductsPage() {
     );
   }
 
+  function buildDefaultVariant() {
+    return [{
+      sku: form.sku.trim() || `${slugify(form.name || "product")}-default`,
+      price: form.price ? Number(form.price) : 0,
+      cost: form.cost ? Number(form.cost) : undefined,
+      stockQuantity: Number(form.stockQuantity || 0),
+      isDefault: true,
+    }];
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     setIsSaving(true);
 
     try {
-      const payload = {
+      const payload: Record<string, any> = {
         name: form.name.trim(),
         slug: form.slug.trim() || slugify(form.name),
         description: form.description.trim() || undefined,
@@ -292,6 +300,10 @@ export default function ProductsPage() {
         categoryId: form.categoryId,
         unitId: form.unitId || undefined,
       };
+
+      if (!form.id) {
+        payload.variants = buildDefaultVariant();
+      }
 
       const savedProduct = await apiRequest<Product>(
         form.id ? `/products/${form.id}` : "/products",
@@ -302,7 +314,9 @@ export default function ProductsPage() {
         },
       );
 
-      await saveDefaultVariant(savedProduct.id);
+      if (form.id) {
+        await saveDefaultVariant(savedProduct.id);
+      }
       await uploadProductImages(savedProduct.id);
 
       setForm(emptyForm);
