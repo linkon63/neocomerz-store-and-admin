@@ -7,6 +7,9 @@ import { CartProvider } from "./cart-context";
 import StorefrontFooter from "./storefront-footer";
 import StorefrontHeader from "./storefront-header";
 import { WishlistProvider } from "./wishlist-context";
+import FAQModal from "@/components/FAQModal";
+import PolicyModal from "@/components/PolicyModal";
+import { PolicyKey } from "@/types/policy";
 
 export default function StorefrontChrome({
 	children,
@@ -18,6 +21,9 @@ export default function StorefrontChrome({
 
 	const [footerHeight, setFooterHeight] = useState(450);
 	const footerRef = useRef<HTMLElement>(null);
+
+	const [isFAQOpen, setIsFAQOpen] = useState(false);
+	const [policyModal, setPolicyModal] = useState({ isOpen: false, policyId: "", policyTitle: "" });
 
 	useEffect(() => {
 		const footer = footerRef.current;
@@ -55,7 +61,24 @@ export default function StorefrontChrome({
 					>
 						<StorefrontHeader />
 						{children}
-						<StorefrontFooter ref={footerRef} />
+						<StorefrontFooter
+							onSetIsFAQOpen={() => setIsFAQOpen(true)}
+							onOpenPolicy={(id: string, title: string) => setPolicyModal({ isOpen: true, policyTitle: title, policyId: id })}
+							ref={footerRef}
+						/>
+
+						{/* FAQ Modal */}
+						<FAQModal isOpen={isFAQOpen} onClose={() => setIsFAQOpen(false)} />
+
+						{/* Policy Modal */}
+						<PolicyModal
+							isOpen={policyModal.isOpen}
+							policyId={policyModal.policyId as PolicyKey}
+							policyTitle={policyModal.policyTitle}
+							onClose={() =>
+								setPolicyModal({ ...policyModal, isOpen: false })
+							}
+						/>
 					</div>
 				</CartProvider>
 			</WishlistProvider>
