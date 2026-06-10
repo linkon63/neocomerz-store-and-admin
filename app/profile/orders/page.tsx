@@ -178,17 +178,17 @@ export default function OrdersPage() {
         <p className="text-gray-600">Track and manage your orders</p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+      {/* Stats Cards - Responsive Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {statCards.map((stat) => (
           <div
             key={stat.label}
-            className={`bg-white p-4 rounded-lg border ${stat.color.split(' ')[2]} shadow-sm`}
+            className={`bg-white p-4 rounded-lg border ${stat.color.split(' ')[2]} shadow-sm hover:shadow-md transition-shadow`}
           >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                <p className="text-2xl font-bold">{stat.value}</p>
+                <p className="text-xl sm:text-2xl font-bold">{stat.value}</p>
               </div>
               <div className={`p-2 rounded-full ${stat.color}`}>
                 <stat.icon className="text-xl" />
@@ -198,14 +198,14 @@ export default function OrdersPage() {
         ))}
       </div>
 
-      {/* Orders Table */}
+      {/* Orders Table - Mobile Card View / Desktop Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold">Order History</h2>
         </div>
 
         {orders.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="text-center py-12 px-4">
             <FiPackage className="text-6xl text-gray-300 mx-auto mb-4" />
             <p className="text-gray-600 text-lg mb-4">No orders yet</p>
             <Link
@@ -216,96 +216,165 @@ export default function OrdersPage() {
             </Link>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Order
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Items
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Payment
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {orders.map((order) => (
-                  <tr 
-                    key={order.id} 
-                    className="hover:bg-gray-50 transition-colors cursor-pointer"
-                    onClick={() => window.location.href = `/profile/orders/${order.id}`}
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <FiPackage className="text-gray-400 mr-2" />
-                        <span className="font-medium text-gray-900">{order.orderNumber}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {formatDate(order.placedAt)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {(order.items || []).reduce((sum, item) => sum + item.quantity, 0)} items
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+          <>
+            {/* Mobile Card View */}
+            <div className="lg:hidden divide-y divide-gray-200">
+              {orders.map((order) => (
+                <div 
+                  key={order.id}
+                  className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                  onClick={() => window.location.href = `/profile/orders/${order.id}`}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <FiPackage className="text-gray-400" />
+                      <span className="font-medium text-gray-900">{order.orderNumber}</span>
+                    </div>
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                        order.status
+                      )}`}
+                    >
+                      {getStatusIcon(order.status)}
+                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Date:</span>
+                      <span className="text-gray-900">{formatDate(order.placedAt)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Items:</span>
+                      <span className="text-gray-900">
+                        {(order.items || []).reduce((sum, item) => sum + item.quantity, 0)} items
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Total:</span>
                       <span className="font-semibold text-gray-900">
                         {formatMoney(order.total)}
                       </span>
-                      {Number(order.discount) > 0 && (
-                        <span className="ml-2 text-xs text-green-600">
-                          (-{formatMoney(order.discount)})
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Payment:</span>
                       <span
-                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
-                          order.status
-                        )}`}
-                      >
-                        {getStatusIcon(order.status)}
-                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getPaymentStatusColor(
+                        className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getPaymentStatusColor(
                           order.paymentStatus
                         )}`}
                       >
                         {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <Link
-                        href={`/profile/orders/${order.id}`}
-                        className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <FiEye className="text-sm" />
-                        View Details
-                      </Link>
-                    </td>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <Link
+                      href={`/profile/orders/${order.id}`}
+                      className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-sm font-medium"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <FiEye className="text-sm" />
+                      View Details
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden lg:block overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Order
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Items
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Total
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Payment
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {orders.map((order) => (
+                    <tr 
+                      key={order.id} 
+                      className="hover:bg-gray-50 transition-colors cursor-pointer"
+                      onClick={() => window.location.href = `/profile/orders/${order.id}`}
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <FiPackage className="text-gray-400 mr-2" />
+                          <span className="font-medium text-gray-900">{order.orderNumber}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {formatDate(order.placedAt)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {(order.items || []).reduce((sum, item) => sum + item.quantity, 0)} items
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="font-semibold text-gray-900">
+                          {formatMoney(order.total)}
+                        </span>
+                        {Number(order.discount) > 0 && (
+                          <span className="ml-2 text-xs text-green-600">
+                            (-{formatMoney(order.discount)})
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                            order.status
+                          )}`}
+                        >
+                          {getStatusIcon(order.status)}
+                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getPaymentStatusColor(
+                            order.paymentStatus
+                          )}`}
+                        >
+                          {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <Link
+                          href={`/profile/orders/${order.id}`}
+                          className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <FiEye className="text-sm" />
+                          View Details
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>
