@@ -8,6 +8,7 @@ import {
   clearAdminSession,
   type AdminUser,
 } from "../../../lib/admin-api";
+export { PageHeader } from "./page-header";
 
 export type AdminIconName =
   | "actions"
@@ -310,7 +311,13 @@ const menuGroups: {
       { label: "Variant Options", href: "/admin/variant-options", icon: "variants", child: true },
       { label: "Units of Measurement", href: "/admin/units", icon: "units", child: true },
       { label: "Products", href: "/admin/products", icon: "package", child: true },
-      { label: "Stock Management", href: "/admin/stock", icon: "stock" },
+      
+    ],
+  },
+  {
+    title: "Stock & inventory",
+    items: [
+      { label: "Stock Management", href: "/admin/stock", icon: "stock", child: true },
     ],
   },
   {
@@ -334,7 +341,13 @@ const menuGroups: {
   },
   {
     title: "Finance",
-    items: [{ label: "Report", href: "/admin/reports", icon: "report" }],
+    items: [
+      { label: "Report", href: "/admin/reports", icon: "report", active: true },
+      { label: "Sales Report", href: "/admin/reports/sales", icon: "report", child: true },
+      // { label: "Purchase Report", href: "/admin/reports/purchase", icon: "stock", child: true },
+      { label: "Discount Report", href: "/admin/reports/discount", icon: "discount", child: true },
+      { label: "Customer Report", href: "/admin/reports/customer", icon: "reviews", child: true },
+    ],
   },
   {
     title: "Administration",
@@ -466,26 +479,6 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </main>
       </div>
     </div>
-  );
-}
-
-export function PageHeader({
-  title,
-  description,
-  action,
-}: {
-  title: string;
-  description: string;
-  action?: ReactNode;
-}) {
-  return (
-    <header className="mb-8 flex flex-col justify-between gap-5 border-b border-slate-200 pb-9 sm:flex-row sm:items-start">
-      <div>
-        <h1 className="text-4xl font-black tracking-normal">{title}</h1>
-        <p className="mt-1 text-lg font-medium text-slate-600">{description}</p>
-      </div>
-      {action}
-    </header>
   );
 }
 
