@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { FiChevronDown, FiGrid, FiHeart, FiList, FiSearch, FiShoppingBag } from "react-icons/fi";
+import { FiChevronDown, FiGrid, FiHeart, FiList, FiSearch, FiShoppingBag, FiFilter, FiX } from "react-icons/fi";
 import { useCart } from "../_components/cart-context";
 import { useWishlist } from "../_components/wishlist-context";
 import { productSlug, resolveImageUrl, type ShopProduct, type DBProduct, type ProductVariant, type ProductMedia } from "./products";
@@ -61,6 +61,7 @@ export default function ShopCatalog() {
   const [productsPerPage, setProductsPerPage] = useState(8);
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -337,7 +338,16 @@ export default function ShopCatalog() {
 
           <section>
             <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3 text-sm font-bold text-neutral-500">
+              <div className="flex flex-wrap items-center gap-3 text-sm font-bold text-neutral-500">
+                <button
+                  type="button"
+                  onClick={() => setMobileFilterOpen(true)}
+                  className="flex items-center gap-2 border border-black bg-black px-4 py-2 text-xs font-black uppercase tracking-[0.08em] text-white hover:bg-neutral-800 transition lg:hidden"
+                >
+                  <FiFilter className="text-sm" />
+                  Filters
+                </button>
+
                 <span>Sort by:</span>
                 <select
                   value={sortBy}
@@ -495,6 +505,134 @@ export default function ShopCatalog() {
               </button>
             </div>
           </section>
+        </div>
+      </div>
+
+      {/* Mobile Filter Drawer (visible only on mobile when opened) */}
+      <div className={`fixed inset-0 z-[100] lg:hidden transition-all duration-300 ${mobileFilterOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+        {/* Overlay background */}
+        <div
+          className={`fixed inset-0 bg-black/50 transition-opacity duration-300 ease-in-out ${mobileFilterOpen ? 'opacity-100' : 'opacity-0'}`}
+          onClick={() => setMobileFilterOpen(false)}
+        />
+
+        {/* Drawer content */}
+        <div className={`fixed inset-y-0 right-0 flex w-full max-w-[320px] flex-col bg-white p-6 shadow-2xl transition-transform duration-300 ease-in-out transform ${mobileFilterOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+          {/* Drawer Header */}
+          <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
+            <h3 className="text-base font-black uppercase tracking-[0.08em] text-black flex items-center gap-2">
+              <FiFilter /> Filters
+            </h3>
+            <button
+              type="button"
+              className="text-2xl text-black hover:text-neutral-600 focus:outline-none transition-transform duration-200 hover:rotate-90"
+              onClick={() => setMobileFilterOpen(false)}
+              aria-label="Close filters"
+            >
+              <FiX />
+            </button>
+          </div>
+
+          {/* Scrollable Filters Content */}
+          <div className="flex-1 overflow-y-auto py-6 space-y-8 pr-1">
+            {/* Categories */}
+            <div>
+              <h4 className="text-sm font-black uppercase tracking-[0.06em] text-black">Categories</h4>
+              <div className="mt-4 grid gap-3">
+                <button
+                  type="button"
+                  onClick={() => updateFilter(() => setSelectedCategory(""))}
+                  className={`text-left text-xs font-bold uppercase tracking-[0.04em] ${selectedCategory === "" ? "text-black border-l-2 border-black pl-2" : "text-neutral-500 pl-2"}`}
+                >
+                  All Products
+                </button>
+                {categoryOptions.map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => updateFilter(() => setSelectedCategory(category))}
+                    className={`flex items-center justify-between text-left text-xs font-bold uppercase tracking-[0.04em] ${selectedCategory === category ? "text-black border-l-2 border-black pl-2" : "text-neutral-500 pl-2"}`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Colors */}
+            <div>
+              <h4 className="text-sm font-black uppercase tracking-[0.06em] text-black">Color</h4>
+              <div className="mt-4 grid grid-cols-3 gap-4">
+                {colorOptions.map((color) => {
+                  const isSelected = selectedColor === color.label;
+                  return (
+                    <button
+                      key={color.label}
+                      className="flex flex-col items-center text-center focus:outline-none"
+                      type="button"
+                      onClick={() =>
+                        updateFilter(() => setSelectedColor(isSelected ? "" : color.label))
+                      }
+                    >
+                      <span
+                        className={`block h-7 w-7 rounded-full border transition-all duration-200 ${isSelected ? "border-black ring-2 ring-black ring-offset-2 scale-110" : "border-neutral-200"}`}
+                        style={{ backgroundColor: color.value }}
+                      />
+                      <span className="mt-1.5 block text-[10px] font-bold text-neutral-500 truncate w-full">
+                        {color.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Sizes */}
+            <div>
+              <h4 className="text-sm font-black uppercase tracking-[0.06em] text-black">Size</h4>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {sizeOptions.map((size) => {
+                  const isSelected = selectedSize === size;
+                  return (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => updateFilter(() => setSelectedSize(isSelected ? "" : size))}
+                      className={`h-9 w-9 border text-xs font-bold uppercase flex items-center justify-center transition ${isSelected ? "bg-black border-black text-white" : "border-neutral-200 text-neutral-600 hover:border-black"}`}
+                    >
+                      {size}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Sticky footer buttons in Drawer */}
+          <div className="border-t border-neutral-100 pt-4 mt-auto space-y-2">
+            <div className="text-xs text-neutral-500 font-bold text-center mb-2">
+              Found {filteredProducts.length} items
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  clearFilters();
+                  setMobileFilterOpen(false);
+                }}
+                className="w-full border border-black bg-white py-3 text-center text-xs font-black uppercase tracking-[0.1em] text-black hover:bg-neutral-50 transition"
+              >
+                Clear All
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileFilterOpen(false)}
+                className="w-full bg-black py-3 text-center text-xs font-black uppercase tracking-[0.1em] text-white hover:bg-neutral-800 transition"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
