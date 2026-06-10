@@ -187,7 +187,7 @@ export default function StorefrontHeader() {
       </section>
 
       <header className="border-b border-neutral-200 bg-white">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-4 py-3 sm:px-8">
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 py-3">
           <button
             type="button"
             onClick={() => setMobileMenuOpen(true)}
@@ -215,31 +215,31 @@ export default function StorefrontHeader() {
 
           <div className="hidden items-center gap-5 text-lg text-black lg:flex">
             <div ref={desktopSearchRef} className="relative hidden min-w-[220px] xl:block">
-            {searchOpen ? (
-              <div className="flex items-center gap-2 border-b border-black pb-1">
-                <FiSearch className="shrink-0 text-sm" />
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  placeholder="Football jerseys"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === "Escape" && closeSearch()}
-                  className="w-full bg-transparent text-[11px] font-semibold uppercase tracking-[0.08em] outline-none placeholder:text-neutral-400"
-                />
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setSearchOpen(true)}
-                className="flex w-full justify-end text-lg text-black"
-                aria-label="Open search"
-              >
-                <FiSearch />
-              </button>
-            )}
-            {renderSearchResults("right-0 w-80")}
-          </div>
+              {searchOpen ? (
+                <div className="flex items-center gap-2 border-b border-black pb-1">
+                  <FiSearch className="shrink-0 text-sm" />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Football jerseys"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === "Escape" && closeSearch()}
+                    className="w-full bg-transparent text-[11px] font-semibold uppercase tracking-[0.08em] outline-none placeholder:text-neutral-400"
+                  />
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setSearchOpen(true)}
+                  className="flex w-full justify-end text-lg text-black"
+                  aria-label="Open search"
+                >
+                  <FiSearch />
+                </button>
+              )}
+              {renderSearchResults("right-0 w-80")}
+            </div>
             {user ? (
               <div className="group relative">
                 <button
@@ -411,18 +411,16 @@ export default function StorefrontHeader() {
               <button
                 type="button"
                 onClick={() => setAuthMode("login")}
-                className={`px-4 py-3 transition ${
-                  authMode === "login" ? "bg-black text-white" : "bg-white text-black hover:bg-neutral-50"
-                }`}
+                className={`px-4 py-3 transition ${authMode === "login" ? "bg-black text-white" : "bg-white text-black hover:bg-neutral-50"
+                  }`}
               >
                 Login
               </button>
               <button
                 type="button"
                 onClick={() => setAuthMode("register")}
-                className={`px-4 py-3 transition ${
-                  authMode === "register" ? "bg-black text-white" : "bg-white text-black hover:bg-neutral-50"
-                }`}
+                className={`px-4 py-3 transition ${authMode === "register" ? "bg-black text-white" : "bg-white text-black hover:bg-neutral-50"
+                  }`}
               >
                 Register
               </button>
@@ -534,29 +532,29 @@ export default function StorefrontHeader() {
           </div>
 
           <nav className="flex flex-col gap-6 py-8 text-sm font-semibold uppercase tracking-[0.1em] text-black">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               onClick={() => setMobileMenuOpen(false)}
               className="transition-all duration-200 hover:text-neutral-500 hover:pl-2"
             >
               Home
             </Link>
-            <Link 
-              href="/shop" 
+            <Link
+              href="/shop"
               onClick={() => setMobileMenuOpen(false)}
               className="transition-all duration-200 hover:text-neutral-500 hover:pl-2"
             >
               Shop
             </Link>
-            <Link 
-              href="/about" 
+            <Link
+              href="/about"
               onClick={() => setMobileMenuOpen(false)}
               className="transition-all duration-200 hover:text-neutral-500 hover:pl-2"
             >
               About Us
             </Link>
-            <Link 
-              href="/contact" 
+            <Link
+              href="/contact"
               onClick={() => setMobileMenuOpen(false)}
               className="transition-all duration-200 hover:text-neutral-500 hover:pl-2"
             >

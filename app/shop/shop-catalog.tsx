@@ -75,10 +75,10 @@ export default function ShopCatalog() {
         const mapped = activeDbProducts.map((p: DBProduct) => {
           const defaultVariant = p.variants?.find((v: ProductVariant) => v.isDefault) || p.variants?.[0];
           const price = defaultVariant ? Number(defaultVariant.price) : 0;
-          
+
           let color = "Black";
           let size = "M";
-          
+
           if (defaultVariant?.attributes) {
             for (const attr of defaultVariant.attributes) {
               const val = attr.attributeValue?.value;
@@ -91,10 +91,10 @@ export default function ShopCatalog() {
               }
             }
           }
-          
+
           const featuredMedia = p.media?.find((m: ProductMedia) => m.isFeatured) || p.media?.[0];
           const image = resolveImageUrl(featuredMedia?.media?.url);
-          
+
           const allColors = new Set<string>();
           const allSizes = new Set<string>();
           if (p.variants) {
@@ -219,7 +219,7 @@ export default function ShopCatalog() {
 
   if (isLoading) {
     return (
-      <section className="mx-auto max-w-[1400px] px-4 py-32 sm:px-8 flex flex-col items-center justify-center gap-4 text-center">
+      <section className="mx-auto max-w-[1440px] px-4 py-32 sm:px-8 flex flex-col items-center justify-center gap-4 text-center">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#ffd02f] border-t-transparent" />
         <p className="text-sm font-black uppercase tracking-[0.08em] text-neutral-500">Loading Shop Catalog...</p>
       </section>
@@ -228,7 +228,7 @@ export default function ShopCatalog() {
 
   if (error) {
     return (
-      <section className="mx-auto max-w-[1400px] px-4 py-32 sm:px-8 flex flex-col items-center justify-center gap-4 text-center">
+      <section className="mx-auto max-w-[1440px] px-4 py-32 sm:px-8 flex flex-col items-center justify-center gap-4 text-center">
         <p className="text-lg font-bold text-red-500">{error}</p>
         <button
           type="button"
@@ -242,263 +242,260 @@ export default function ShopCatalog() {
   }
 
   return (
-    <section className="mx-auto max-w-[1400px] px-4 py-8 sm:px-8">
-      <div className="flex items-center gap-4">
-        <FiSearch className="text-3xl" />
-        <h1 className="text-base font-black uppercase tracking-[0.02em]">
-          {selectedCategory || "All Products"}
-        </h1>
-      </div>
+    <section className="mx-auto py-8 mb-16 md:mb-20 lg:mb-24">
+      <div className="container">
+        <div className="flex items-center gap-4">
+          <FiSearch className="text-3xl" />
+          <h1 className="text-base font-black uppercase tracking-[0.02em]">
+            {selectedCategory || "All Products"}
+          </h1>
+        </div>
 
-      <div className="mt-7 flex flex-wrap items-center gap-3 text-xs font-black uppercase">
-        {breadcrumbItems.map((item, index) => (
-          <span key={`${item.label}-${index}`} className="flex items-center gap-3">
-            {item.href ? <Link href={item.href}>{item.label}</Link> : <span>{item.label}</span>}
-            {index < breadcrumbItems.length - 1 && (
-              <span className="text-base font-medium">›</span>
-            )}
-          </span>
-        ))}
-      </div>
+        <div className="mt-7 flex flex-wrap items-center gap-3 text-xs font-black uppercase">
+          {breadcrumbItems.map((item, index) => (
+            <span key={`${item.label}-${index}`} className="flex items-center gap-3">
+              {item.href ? <Link href={item.href}>{item.label}</Link> : <span>{item.label}</span>}
+              {index < breadcrumbItems.length - 1 && (
+                <span className="text-base font-medium">›</span>
+              )}
+            </span>
+          ))}
+        </div>
 
-      <h2 className="mt-3 text-4xl font-medium tracking-tight">
-        {selectedCategory || "Shop"}
-      </h2>
+        <h2 className="mt-3 text-4xl font-medium tracking-tight">
+          {selectedCategory || "Shop"}
+        </h2>
 
-      <div className="mt-9 grid gap-10 lg:grid-cols-[260px_1fr]">
-        <aside className="hidden lg:block">
-          <h3 className="text-base font-black uppercase">Categories</h3>
+        <div className="mt-9 grid gap-10 lg:grid-cols-[260px_1fr]">
+          <aside className="hidden lg:block">
+            <h3 className="text-base font-black uppercase">Categories</h3>
 
-          <div className="mt-7 grid gap-3">
-            <button
-              type="button"
-              onClick={() => updateFilter(() => setSelectedCategory(""))}
-              className={`text-left text-sm font-bold ${
-                selectedCategory === "" ? "text-black" : "text-neutral-500"
-              }`}
-            >
-              All Products
-            </button>
-            {categoryOptions.map((category) => (
+            <div className="mt-7 grid gap-3">
               <button
-                key={category}
                 type="button"
-                onClick={() => updateFilter(() => setSelectedCategory(category))}
-                className={`flex items-center justify-between text-left text-sm font-bold ${
-                  selectedCategory === category ? "text-black" : "text-neutral-500"
-                }`}
+                onClick={() => updateFilter(() => setSelectedCategory(""))}
+                className={`text-left text-sm font-bold ${selectedCategory === "" ? "text-black" : "text-neutral-500"
+                  }`}
               >
-                {category}
-                {selectedCategory === category && <FiChevronDown />}
+                All Products
               </button>
-            ))}
-          </div>
-
-          <h3 className="mt-12 text-base font-black uppercase">Color</h3>
-          <div className="mt-6 grid grid-cols-3 gap-x-7 gap-y-7">
-            {colorOptions.map((color) => {
-              const isSelected = selectedColor === color.label;
-
-              return (
+              {categoryOptions.map((category) => (
                 <button
-                  key={color.label}
-                  className="text-left"
+                  key={category}
                   type="button"
-                  onClick={() =>
-                    updateFilter(() => setSelectedColor(isSelected ? "" : color.label))
-                  }
-                >
-                  <span
-                    className={`block h-8 w-8 rounded-full border ${
-                      isSelected ? "border-black ring-2 ring-black ring-offset-2" : "border-neutral-200"
+                  onClick={() => updateFilter(() => setSelectedCategory(category))}
+                  className={`flex items-center justify-between text-left text-sm font-bold ${selectedCategory === category ? "text-black" : "text-neutral-500"
                     }`}
-                    style={{ backgroundColor: color.value }}
-                  />
-                  <span className="mt-2 block text-sm font-bold text-neutral-500">
-                    {color.label}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          <h3 className="mt-14 text-base font-black uppercase">Size</h3>
-          <div className="mt-7 grid gap-4 text-base font-bold">
-            {sizeOptions.map((size) => (
-              <button
-                key={size}
-                type="button"
-                onClick={() => updateFilter(() => setSelectedSize(selectedSize === size ? "" : size))}
-                className={`text-left ${selectedSize === size ? "text-black" : "text-neutral-500"}`}
-              >
-                {size}
-              </button>
-            ))}
-          </div>
-        </aside>
-
-        <section>
-          <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3 text-sm font-bold text-neutral-500">
-              <span>Sort by:</span>
-              <select
-                value={sortBy}
-                onChange={(event) => updateFilter(() => setSortBy(event.target.value as SortOption))}
-                className="border border-neutral-200 bg-white px-3 py-2 font-medium outline-none"
-              >
-                <option value="featured">Featured</option>
-                <option value="price-low">Price: low to high</option>
-                <option value="price-high">Price: high to low</option>
-                <option value="name">Name</option>
-              </select>
-              <button
-                type="button"
-                onClick={clearFilters}
-                className="bg-[#ffd02f] px-4 py-2 text-xs font-black uppercase tracking-[0.08em] text-black transition hover:bg-black hover:text-white"
-              >
-                Clear Filters
-              </button>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 text-sm font-bold text-neutral-500">
-              <span>
-                Showing {visibleProducts.length} of {filteredProducts.length}
-              </span>
-              <select
-                value={productsPerPage}
-                onChange={(event) => {
-                  setProductsPerPage(Number(event.target.value));
-                  setCurrentPage(1);
-                }}
-                className="border border-neutral-200 bg-white px-3 py-2 font-medium outline-none"
-              >
-                {showOptions.map((option) => (
-                  <option key={option} value={option}>
-                    Show {option}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                onClick={() => setViewMode("grid")}
-                className={`border border-neutral-200 p-2 text-lg ${
-                  viewMode === "grid" ? "bg-black text-white" : "text-black"
-                }`}
-                aria-label="Grid view"
-              >
-                <FiGrid />
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode("list")}
-                className={`border border-neutral-200 p-2 text-lg ${
-                  viewMode === "list" ? "bg-black text-white" : "text-black"
-                }`}
-                aria-label="List view"
-              >
-                <FiList />
-              </button>
-            </div>
-          </div>
-
-          {visibleProducts.length === 0 ? (
-            <div className="border border-neutral-200 px-6 py-12 text-center">
-              <h3 className="text-xl font-bold">No products found</h3>
-              <p className="mt-2 text-sm text-neutral-500">Try a different category, color, or size.</p>
-            </div>
-          ) : (
-            <div
-              className={
-                viewMode === "grid"
-                  ? "grid grid-cols-2 gap-x-5 gap-y-10 xl:grid-cols-4"
-                  : "grid gap-5"
-              }
-            >
-              {visibleProducts.map((product) => (
-                <article
-                  key={product.name}
-                  className={viewMode === "grid" ? "group" : "group grid gap-5 sm:grid-cols-[220px_1fr]"}
                 >
-                  <div className="relative group/image overflow-hidden border border-neutral-100 bg-white">
-                    <Link href={`/shop/${productSlug(product)}`} className="block">
-                      <div className={viewMode === "grid" ? "relative aspect-square" : "relative aspect-square sm:h-full"}>
-                        <Image
-                          src={product.image}
-                          alt={product.name}
-                          fill
-                          sizes="(min-width: 1280px) 22vw, (min-width: 768px) 45vw, 50vw"
-                          className="object-cover object-center p-6 transition duration-500 group-hover:scale-[1.03]"
-                        />
-                      </div>
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleAddToCart(product);
-                      }}
-                      className="absolute bottom-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-black shadow-lg border border-neutral-200 transition-all duration-300 opacity-0 scale-90 group-hover/image:opacity-100 group-hover/image:scale-100 hover:bg-black hover:text-white"
-                      title="Add to Cart"
-                    >
-                      <FiShoppingBag className="text-base" />
-                    </button>
-                  </div>
-
-                  <div className={viewMode === "grid" ? "mt-4 flex items-start justify-between gap-3" : "flex items-start justify-between gap-4 py-2"}>
-                    <div className="min-w-0">
-                      <p className="truncate text-[10px] font-black uppercase text-neutral-400">
-                        {product.category}, {product.team}, {product.color}, Size {product.size}
-                      </p>
-                      <h3 className="mt-1 truncate text-sm font-black uppercase text-neutral-800">
-                        {product.name}
-                      </h3>
-                      {viewMode === "list" && (
-                        <p className="mt-3 max-w-xl text-sm leading-6 text-neutral-500">
-                          A curated vintage football piece from the Humana archive, selected for condition,
-                          color, and everyday styling.
-                        </p>
-                      )}
-                      <p className="mt-2 text-base font-black text-neutral-800">
-                        {formatPrice(product.price)}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => toggleWishlist(product)}
-                      className="mt-1 shrink-0 text-lg hover:text-red-500 transition-colors"
-                      aria-label="Add to wishlist"
-                    >
-                      <FiHeart className={product.id && isInWishlist(product.id) ? "fill-red-500 text-red-500" : "text-neutral-600"} />
-                    </button>
-                  </div>
-                </article>
+                  {category}
+                  {selectedCategory === category && <FiChevronDown />}
+                </button>
               ))}
             </div>
-          )}
 
-          <div className="mt-12 flex items-center justify-between border-t border-neutral-200 pt-6 text-sm font-bold">
-            <button
-              type="button"
-              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-              disabled={currentPage === 1}
-              className="text-neutral-600 disabled:text-neutral-300"
-            >
-              Previous
-            </button>
-            <span>
-              Page {currentPage} of {pageCount}
-            </span>
-            <button
-              type="button"
-              onClick={() => setCurrentPage((page) => Math.min(pageCount, page + 1))}
-              disabled={currentPage === pageCount}
-              className="text-neutral-600 disabled:text-neutral-300"
-            >
-              Next
-            </button>
-          </div>
-        </section>
+            <h3 className="mt-12 text-base font-black uppercase">Color</h3>
+            <div className="mt-6 grid grid-cols-3 gap-x-7 gap-y-7">
+              {colorOptions.map((color) => {
+                const isSelected = selectedColor === color.label;
+
+                return (
+                  <button
+                    key={color.label}
+                    className="text-left"
+                    type="button"
+                    onClick={() =>
+                      updateFilter(() => setSelectedColor(isSelected ? "" : color.label))
+                    }
+                  >
+                    <span
+                      className={`block h-8 w-8 rounded-full border ${isSelected ? "border-black ring-2 ring-black ring-offset-2" : "border-neutral-200"
+                        }`}
+                      style={{ backgroundColor: color.value }}
+                    />
+                    <span className="mt-2 block text-sm font-bold text-neutral-500">
+                      {color.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <h3 className="mt-14 text-base font-black uppercase">Size</h3>
+            <div className="mt-7 grid gap-4 text-base font-bold">
+              {sizeOptions.map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => updateFilter(() => setSelectedSize(selectedSize === size ? "" : size))}
+                  className={`text-left ${selectedSize === size ? "text-black" : "text-neutral-500"}`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </aside>
+
+          <section>
+            <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3 text-sm font-bold text-neutral-500">
+                <span>Sort by:</span>
+                <select
+                  value={sortBy}
+                  onChange={(event) => updateFilter(() => setSortBy(event.target.value as SortOption))}
+                  className="border border-neutral-200 bg-white px-3 py-2 font-medium outline-none"
+                >
+                  <option value="featured">Featured</option>
+                  <option value="price-low">Price: low to high</option>
+                  <option value="price-high">Price: high to low</option>
+                  <option value="name">Name</option>
+                </select>
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="bg-[#ffd02f] px-4 py-2 text-xs font-black uppercase tracking-[0.08em] text-black transition hover:bg-black hover:text-white"
+                >
+                  Clear Filters
+                </button>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 text-sm font-bold text-neutral-500">
+                <span>
+                  Showing {visibleProducts.length} of {filteredProducts.length}
+                </span>
+                <select
+                  value={productsPerPage}
+                  onChange={(event) => {
+                    setProductsPerPage(Number(event.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="border border-neutral-200 bg-white px-3 py-2 font-medium outline-none"
+                >
+                  {showOptions.map((option) => (
+                    <option key={option} value={option}>
+                      Show {option}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("grid")}
+                  className={`hidden md:flex border border-neutral-200 p-2 text-lg ${viewMode === "grid" ? "bg-black text-white" : "text-black"
+                    }`}
+                  aria-label="Grid view"
+                >
+                  <FiGrid />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("list")}
+                  className={`hidden md:flex border border-neutral-200 p-2 text-lg ${viewMode === "list" ? "bg-black text-white" : "text-black"
+                    }`}
+                  aria-label="List view"
+                >
+                  <FiList />
+                </button>
+              </div>
+            </div>
+
+            {visibleProducts.length === 0 ? (
+              <div className="border border-neutral-200 px-6 py-12 text-center">
+                <h3 className="text-xl font-bold">No products found</h3>
+                <p className="mt-2 text-sm text-neutral-500">Try a different category, color, or size.</p>
+              </div>
+            ) : (
+              <div
+                className={
+                  viewMode === "grid"
+                    ? "grid grid-cols-2 gap-x-5 gap-y-10 xl:grid-cols-4"
+                    : "grid gap-5"
+                }
+              >
+                {visibleProducts.map((product) => (
+                  <article
+                    key={product.name}
+                    className={viewMode === "grid" ? "group" : "group grid gap-5 sm:grid-cols-[220px_1fr]"}
+                  >
+                    <div className="relative group/image overflow-hidden border border-neutral-100 bg-white">
+                      <Link href={`/shop/${productSlug(product)}`} className="block">
+                        <div className={viewMode === "grid" ? "relative aspect-square" : "relative aspect-square sm:h-full"}>
+                          <Image
+                            src={product.image}
+                            alt={product.name}
+                            fill
+                            sizes="(min-width: 1280px) 22vw, (min-width: 768px) 45vw, 50vw"
+                            className="object-cover object-center p-6 transition duration-500 group-hover:scale-[1.03]"
+                          />
+                        </div>
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleAddToCart(product);
+                        }}
+                        className="absolute bottom-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-black shadow-lg border border-neutral-200 transition-all duration-300 opacity-0 scale-90 group-hover/image:opacity-100 group-hover/image:scale-100 hover:bg-black hover:text-white"
+                        title="Add to Cart"
+                      >
+                        <FiShoppingBag className="text-base" />
+                      </button>
+                    </div>
+
+                    <div className={viewMode === "grid" ? "mt-4 flex items-start justify-between gap-3" : "flex items-start justify-between gap-4 py-2"}>
+                      <div className="min-w-0">
+                        <p className="truncate text-[10px] font-black uppercase text-neutral-400">
+                          {product.category}, {product.team}, {product.color}, Size {product.size}
+                        </p>
+                        <h3 className="mt-1 truncate text-sm font-black uppercase text-neutral-800">
+                          {product.name}
+                        </h3>
+                        {viewMode === "list" && (
+                          <p className="mt-3 max-w-xl text-sm leading-6 text-neutral-500">
+                            A curated vintage football piece from the Humana archive, selected for condition,
+                            color, and everyday styling.
+                          </p>
+                        )}
+                        <p className="mt-2 text-base font-black text-neutral-800">
+                          {formatPrice(product.price)}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => toggleWishlist(product)}
+                        className="mt-1 shrink-0 text-lg hover:text-red-500 transition-colors"
+                        aria-label="Add to wishlist"
+                      >
+                        <FiHeart className={product.id && isInWishlist(product.id) ? "fill-red-500 text-red-500" : "text-neutral-600"} />
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+
+            <div className="mt-12 flex items-center justify-between border-t border-neutral-200 pt-6 text-sm font-bold">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                disabled={currentPage === 1}
+                className="text-neutral-600 disabled:text-neutral-300"
+              >
+                Previous
+              </button>
+              <span>
+                Page {currentPage} of {pageCount}
+              </span>
+              <button
+                type="button"
+                onClick={() => setCurrentPage((page) => Math.min(pageCount, page + 1))}
+                disabled={currentPage === pageCount}
+                className="text-neutral-600 disabled:text-neutral-300"
+              >
+                Next
+              </button>
+            </div>
+          </section>
+        </div>
       </div>
     </section>
   );
