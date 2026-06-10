@@ -2,19 +2,32 @@
 'use client';
 
 import { useAuth } from '@/app/_components/auth-context';
-import { useState } from 'react';
-import { FiUser, FiMail, FiLock, FiSave } from 'react-icons/fi';
+import { useState, useEffect, useRef } from 'react';
+import { FiUser, FiMail, FiLock, FiSave, FiUpload, FiTrash2, FiCamera } from 'react-icons/fi';
 import { toast } from 'sonner';
+import { 
+  getMyProfile, 
+  updateMyProfile, 
+  uploadAvatar, 
+  deleteAvatar,
+  Profile 
+} from '@/lib/admin-api';
 
 export default function SettingsPage() {
   const { user } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Profile Information State
+  // Profile State
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Profile Edit State
   const [profileData, setProfileData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
+    name: '',
+    email: '',
     phone: '',
   });
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
 
   // Password Change State
   const [passwordData, setPasswordData] = useState({
@@ -22,29 +35,104 @@ export default function SettingsPage() {
     newPassword: '',
     confirmPassword: '',
   });
-
-  const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+
+  // Avatar Upload State
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Fetch profile data on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getMyProfile();
+        setProfile(data);
+        setProfileData({
+          name: data.name || '',
+          email: data.email || '',
+          phone: data.phone || '',
+        });
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        toast.error('Failed to load profile');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const result = await uploadAvatar(file);
+      
+      // Update profile with new avatar
+      setProfile(prev => prev ? { ...prev, avatarUrl: result.avatarUrl } : null);
+      
+      toast.success('Avatar uploaded successfully!');
+      
+      // Clear file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to upload avatar');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDeleteAvatar = async () => {
+    if (!confirm('Are you sure you want to delete your avatar?')) return;
+
+    try {
+      await deleteAvatar();
+      setProfile(prev => prev ? { ...prev, avatarUrl: null } : null);
+      toast.success('Avatar deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting avatar:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to delete avatar');
+    }
+  };
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProfileLoading(true);
 
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch('/api/v1/profile', {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(profileData),
-      // });
+      const updated = await updateMyProfile({
+        name: profileData.name,
+        email: profileData.email,
+        phone: profileData.phone || undefined,
+      });
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      setProfile(updated);
       toast.success('Profile updated successfully!');
     } catch (error) {
-      toast.error('Failed to update profile');
-      console.error(error);
+      console.error('Error updating profile:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to update profile');
     } finally {
       setIsProfileLoading(false);
     }
@@ -66,44 +154,124 @@ export default function SettingsPage() {
     setIsPasswordLoading(true);
 
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch('/api/v1/auth/change-password', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(passwordData),
-      // });
+      // TODO: Implement password change API when backend supports it
+      // For now, show a message that this feature is coming soon
+      toast.info('Password change feature coming soon!');
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast.success('Password changed successfully!');
+      // Reset form
       setPasswordData({
         currentPassword: '',
         newPassword: '',
         confirmPassword: '',
       });
     } catch (error) {
-      toast.error('Failed to change password');
-      console.error(error);
+      console.error('Error changing password:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to change password');
     } finally {
       setIsPasswordLoading(false);
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl">
-      <h1 className="text-3xl font-bold mb-2">Account Settings</h1>
-      <p className="text-gray-600 mb-8">Manage your profile information and security settings</p>
+      <h1 className="text-2xl sm:text-3xl font-bold mb-2">Account Settings</h1>
+      <p className="text-gray-600 text-sm sm:text-base mb-6 sm:mb-8">Manage your profile information and security settings</p>
 
-      {/* Profile Information Section */}
-      <div className="bg-white p-6 rounded-lg border border-gray-200 mb-8">
+      {/* Profile Avatar Section */}
+      <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 mb-6 sm:mb-8">
         <div className="flex items-center gap-2 mb-6">
           <FiUser className="text-xl text-blue-600" />
-          <h2 className="text-xl font-bold">Profile Information</h2>
+          <h2 className="text-lg sm:text-xl font-bold">Profile Picture</h2>
         </div>
 
-        <form onSubmit={handleProfileUpdate} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+          {/* Avatar Display */}
+          <div className="relative">
+            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-4 border-gray-100">
+              {profile?.avatarUrl ? (
+                <img 
+                  src={profile.avatarUrl} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <FiUser className="text-4xl sm:text-6xl text-gray-400" />
+              )}
+            </div>
+            
+            {/* Upload Overlay Button */}
+            <button
+              onClick={handleAvatarClick}
+              disabled={isUploading}
+              className="absolute bottom-0 right-0 w-8 h-8 sm:w-10 sm:h-10 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition shadow-lg disabled:opacity-50"
+              aria-label="Upload avatar"
+            >
+              {isUploading ? (
+                <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-white border-t-transparent"></div>
+              ) : (
+                <FiCamera className="text-sm sm:text-base" />
+              )}
+            </button>
+          </div>
+
+          {/* Avatar Actions */}
+          <div className="flex-1">
+            <h3 className="font-semibold text-gray-900 mb-2">{profile?.name || 'Your Name'}</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Upload a profile picture. Maximum file size: 5MB. Supported formats: JPG, PNG, GIF.
+            </p>
+            
+            <div className="flex flex-wrap gap-2 sm:gap-3">
+              <button
+                onClick={handleAvatarClick}
+                disabled={isUploading}
+                className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm disabled:opacity-50"
+              >
+                <FiUpload className="text-sm" />
+                Upload Photo
+              </button>
+              
+              {profile?.avatarUrl && (
+                <button
+                  onClick={handleDeleteAvatar}
+                  className="flex items-center gap-2 px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition text-sm"
+                >
+                  <FiTrash2 className="text-sm" />
+                  Remove Photo
+                </button>
+              )}
+            </div>
+            
+            {/* Hidden File Input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              className="hidden"
+              aria-label="Upload avatar"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Profile Information Section */}
+      <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 mb-6 sm:mb-8">
+        <div className="flex items-center gap-2 mb-6">
+          <FiUser className="text-xl text-blue-600" />
+          <h2 className="text-lg sm:text-xl font-bold">Profile Information</h2>
+        </div>
+
+        <form onSubmit={handleProfileUpdate} className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Full Name
@@ -142,7 +310,7 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <div>
+            <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Phone Number
               </label>
@@ -151,7 +319,7 @@ export default function SettingsPage() {
                 value={profileData.phone}
                 onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter your phone number"
+                placeholder="Enter your phone number (optional)"
               />
             </div>
           </div>
@@ -160,7 +328,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={isProfileLoading}
-              className="flex items-center gap-2 px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-4 sm:px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             >
               <FiSave />
               {isProfileLoading ? 'Saving...' : 'Save Changes'}
@@ -170,13 +338,13 @@ export default function SettingsPage() {
       </div>
 
       {/* Change Password Section */}
-      <div className="bg-white p-6 rounded-lg border border-gray-200">
+      <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200">
         <div className="flex items-center gap-2 mb-6">
           <FiLock className="text-xl text-red-600" />
-          <h2 className="text-xl font-bold">Change Password</h2>
+          <h2 className="text-lg sm:text-xl font-bold">Change Password</h2>
         </div>
 
-        <form onSubmit={handlePasswordChange} className="space-y-6">
+        <form onSubmit={handlePasswordChange} className="space-y-4 sm:space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Current Password
@@ -196,7 +364,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 New Password
@@ -242,7 +410,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={isPasswordLoading}
-              className="flex items-center gap-2 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-4 sm:px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             >
               <FiLock />
               {isPasswordLoading ? 'Updating...' : 'Change Password'}

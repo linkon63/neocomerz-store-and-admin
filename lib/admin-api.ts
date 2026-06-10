@@ -780,3 +780,47 @@ export async function cancelOrder(id: string): Promise<Order> {
     method: 'DELETE'
   });
 }
+
+// Profile Types
+export type Profile = {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  avatarUrl?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+// Profile API Functions (Customer - uses sessionStorage token)
+export async function getMyProfile(): Promise<Profile> {
+  return customerApiRequest<Profile>('/profile/me', { auth: true });
+}
+
+export async function updateMyProfile(data: Partial<Profile>): Promise<Profile> {
+  return customerApiRequest<Profile>('/profile/me', { 
+    auth: true,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+}
+
+export async function uploadAvatar(file: File): Promise<{ avatarUrl: string }> {
+  const formData = new FormData();
+  formData.append('avatar', file);
+  
+  return customerApiRequest<{ avatarUrl: string }>('/profile/avatar', {
+    auth: true,
+    method: 'POST',
+    body: formData,
+    headers: {} // Don't set Content-Type for FormData
+  });
+}
+
+export async function deleteAvatar(): Promise<void> {
+  return customerApiRequest<void>('/profile/avatar', {
+    auth: true,
+    method: 'DELETE'
+  });
+}
