@@ -1,18 +1,23 @@
 "use client";
 import { useFetchSettings } from "@/hooks/useFetchSettings";
+import { getPolicyTitle, type PolicyData, type PolicyKey } from "@/types/policy";
 import Link from "next/link";
-import { useEffect } from "react";
 import { FaCcPaypal, FaCcVisa, FaFacebookF, FaInstagram, FaLinkedinIn, FaStripe, FaTiktok, FaYoutube } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 
-const footerGroups = [
+type FooterLink =
+	| { id: "faq"; label: string; href: "#" }
+	| { id: "wishlist" | "about-us" | "contacts" | "our-stores" | "institutional-blog"; label: string; href: string }
+	| { id: PolicyKey; label: string; href: "#"; policy: true };
+
+const footerGroups: { title: string; links: FooterLink[] }[] = [
 	{
 		title: "Customer Service",
 		links: [
 			{ id: "faq", label: "FAQ", href: "#" },
 			{ id: "wishlist", label: "Wishlist", href: "/wishlist" },
-			{ id: "delivery", label: "Shipping & Delivery", href: "#" },
-			{ id: "terms", label: "Terms & Conditions", href: "#" },
+			{ id: "delivery", label: "Delivery Policy", href: "#", policy: true },
+			{ id: "terms", label: "Terms and Conditions", href: "#", policy: true },
 		],
 	},
 	{
@@ -27,11 +32,9 @@ const footerGroups = [
 	{
 		title: "Policies",
 		links: [
-			{ id: "refund", label: "Refund", href: "#" },
-			{ id: "return", label: "Return", href: "#" },
-			{ id: "cancellation", label: "Cacellation", href: "#" },
-			{ id: "privacy", label: "Privacy", href: "#" },
-
+			{ id: "return", label: "Refund & Return", href: "#", policy: true },
+			{ id: "cancellation", label: "Cancellation Policy", href: "#", policy: true },
+			{ id: "privacy", label: "Privacy Policy", href: "#", policy: true },
 		],
 	},
 ];
@@ -40,12 +43,14 @@ const footerGroups = [
 export default function StorefrontFooter({
 	ref,
 	onOpenPolicy,
-	onSetIsFAQOpen
+	onSetIsFAQOpen,
+	policies
 
 }: {
 	ref?: React.Ref<HTMLElement>;
-	onOpenPolicy: (id: string, title: string) => void;
+	onOpenPolicy: (id: PolicyKey, title: string) => void;
 	onSetIsFAQOpen: () => void;
+	policies?: PolicyData | null;
 }) {
 
 	const { data, isLoading } = useFetchSettings();
@@ -65,12 +70,9 @@ export default function StorefrontFooter({
 	}
 
 	// Handle Open Policy
-	const handleOpenPolicy = (id: string, label: string) => {
-		onOpenPolicy(id, label);
+	const handleOpenPolicy = (id: PolicyKey) => {
+		onOpenPolicy(id, getPolicyTitle(policies, id));
 	}
-
-	console.log(data);
-
 
 	return (
 		<footer
@@ -85,32 +87,35 @@ export default function StorefrontFooter({
 								{group.title}
 							</h2>
 							<ul className="mt-5 space-y-2">
-								{group.links.map((link) => (
+								{group.links.map((link) => {
+									const label = "policy" in link ? getPolicyTitle(policies, link.id) : link.label;
+
+									return (
 									<li key={link.label}>
 										{link.href === "#" ? (
 											<button
-												onClick={link.label === "FAQ" ? handleOpenFAQ : () => handleOpenPolicy(link.id, link.label)}
+												onClick={link.id === "faq" ? handleOpenFAQ : () => handleOpenPolicy(link.id as PolicyKey)}
 												className="text-sm font-medium uppercase leading-5 text-neutral-400 transition hover:text-neutral-900 sm:text-base text-left"
 											>
-												{link.label}
+												{label}
 											</button>
 										) : (
 											<Link
 												href={link.href}
 												className="text-sm font-medium uppercase leading-5 text-neutral-400 transition hover:text-neutral-900 sm:text-base"
 											>
-												{link.label}
+												{label}
 											</Link>
 										)}
 									</li>
-								))}
+								)})}
 							</ul>
 						</div>
 					))}
 
 					<div>
 						{
-							!isLoading && data?.socialContact && data?.socialContact.length !== 0 &&
+							!isLoading && data?.socialContact && Object.values(data.socialContact).some(Boolean) &&
 							<div>
 								<h2 className="text-sm font-bold uppercase tracking-[0.02em] text-neutral-900">
 									Social Media

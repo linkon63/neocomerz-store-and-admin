@@ -10,6 +10,7 @@ import { WishlistProvider } from "./wishlist-context";
 import FAQModal from "@/components/FAQModal";
 import PolicyModal from "@/components/PolicyModal";
 import { PolicyKey } from "@/types/policy";
+import { usePolicies } from "@/hooks/usePolicies";
 
 export default function StorefrontChrome({
 	children,
@@ -25,6 +26,9 @@ export default function StorefrontChrome({
 
 	const [isFAQOpen, setIsFAQOpen] = useState(false);
 	const [policyModal, setPolicyModal] = useState({ isOpen: false, policyId: "", policyTitle: "" });
+	const { data: policies, isLoading: isPolicyLoading } = usePolicies({
+		enabled: !isAdminRoute && !isProfileRoute,
+	});
 
 	useEffect(() => {
 		const footer = footerRef.current;
@@ -79,7 +83,8 @@ export default function StorefrontChrome({
 						{children}
 						<StorefrontFooter
 							onSetIsFAQOpen={() => setIsFAQOpen(true)}
-							onOpenPolicy={(id: string, title: string) => setPolicyModal({ isOpen: true, policyTitle: title, policyId: id })}
+							onOpenPolicy={(id: PolicyKey, title: string) => setPolicyModal({ isOpen: true, policyTitle: title, policyId: id })}
+							policies={policies}
 							ref={footerRef}
 						/>
 
@@ -91,6 +96,8 @@ export default function StorefrontChrome({
 							isOpen={policyModal.isOpen}
 							policyId={policyModal.policyId as PolicyKey}
 							policyTitle={policyModal.policyTitle}
+							policies={policies}
+							isLoading={isPolicyLoading}
 							onClose={() =>
 								setPolicyModal({ ...policyModal, isOpen: false })
 							}

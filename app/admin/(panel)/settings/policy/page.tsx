@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { PageHeader } from "../../../_components/admin-shell";
 import { apiRequest, type AppPolicies } from "../../../../../lib/admin-api";
+import { toPolicySavePayload } from "../../../../../types/policy";
 import {
   SettingsCard,
   FieldLabel,
@@ -49,21 +50,26 @@ export default function PolicyPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const loadPolicies = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await apiRequest<AppPolicies>("/policies");
-      if (data) setPolicies(data);
-    } catch {
-      // empty on first run
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    loadPolicies();
-  }, [loadPolicies]);
+    let isMounted = true;
+
+    async function loadPolicies() {
+      try {
+        const data = await apiRequest<AppPolicies>("/policies");
+        if (isMounted && data) setPolicies(data);
+      } catch {
+        // empty on first run
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    void loadPolicies();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   async function save() {
     setSaving(true);
@@ -73,7 +79,7 @@ export default function PolicyPage() {
       await apiRequest("/policies", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(policies),
+        body: JSON.stringify(toPolicySavePayload(policies)),
       });
       setSuccess("Policies saved successfully.");
       setTimeout(() => setSuccess(""), 3000);
