@@ -6,24 +6,9 @@ import { useEffect, useMemo, useState } from "react";
 import { FiChevronDown, FiGrid, FiHeart, FiList, FiSearch, FiShoppingBag, FiFilter, FiX } from "react-icons/fi";
 import { useCart } from "../_components/cart-context";
 import { useWishlist } from "../_components/wishlist-context";
-import { productSlug, resolveImageUrl, type ShopProduct, type DBProduct, type ProductVariant, type ProductMedia } from "./products";
+import { productSlug, resolveImageUrl, type ShopProduct, type DBProduct, type ProductVariant, type ProductMedia, type VariantAttribute } from "./products";
 
-const colorHexMap: Record<string, string> = {
-  Orange: "#f58a4b",
-  "Sky Blue": "#2ac6d4",
-  Beige: "#d8bd97",
-  White: "#f5f5f5",
-  Blue: "#00569c",
-  Yellow: "#f4dc45",
-  Gray: "#c7c7c7",
-  Lilac: "#a77adf",
-  Brown: "#9a4c26",
-  Black: "#050505",
-  Pink: "#e7b1f5",
-  Red: "#ed0d0d",
-  Green: "#179400",
-  Purple: "#5d00a5",
-};
+
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5010/api/v1";
 
@@ -48,15 +33,14 @@ export default function ShopCatalog() {
     void addItem({
       slug: productSlug(product),
       name: product.name,
-      price: product.price,
+      price: product.discountedPrice != null && product.discountedPrice < product.price ? product.discountedPrice : product.price,
       image: product.image,
       color: product.color,
       size: product.size,
       variantId: product.variantId,
     });
   }
-  const [selectedColor, setSelectedColor] = useState("");
-  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedFilters, setSelectedFilters] = useState<Record<string, string>>({});
   const [sortBy, setSortBy] = useState<SortOption>("featured");
   const [productsPerPage, setProductsPerPage] = useState(8);
   const [currentPage, setCurrentPage] = useState(1);
@@ -76,18 +60,21 @@ export default function ShopCatalog() {
         const mapped = activeDbProducts.map((p: DBProduct) => {
           const defaultVariant = p.variants?.find((v: ProductVariant) => v.isDefault) || p.variants?.[0];
           const price = defaultVariant ? Number(defaultVariant.price) : 0;
+          const discountedPrice = defaultVariant && (defaultVariant as any).discountedPrice != null
+            ? Number((defaultVariant as any).discountedPrice)
+            : undefined;
 
-          let color = "Black";
-          let size = "M";
+          let color = "";
+          let size = "";
 
           if (defaultVariant?.attributes) {
             for (const attr of defaultVariant.attributes) {
               const val = attr.attributeValue?.value;
               if (!val) continue;
-              const attrName = attr.attributeValue?.attribute?.name?.toLowerCase();
-              if (attrName === "size" || ["S", "M", "L", "XL", "XXL"].includes(val)) {
+              const name = attr.attributeValue?.attribute?.name?.toLowerCase() ?? "";
+              if (name === "size") {
                 size = val;
-              } else {
+              } else if (name === "color" || name === "colour") {
                 color = val;
               }
             }
@@ -96,20 +83,18 @@ export default function ShopCatalog() {
           const featuredMedia = p.media?.find((m: ProductMedia) => m.isFeatured) || p.media?.[0];
           const image = resolveImageUrl(featuredMedia?.media?.url);
 
-          const allColors = new Set<string>();
-          const allSizes = new Set<string>();
+          const productAttrMap = new Map<string, Set<string>>();
           if (p.variants) {
             for (const v of p.variants) {
               if (v.attributes) {
                 for (const attr of v.attributes) {
+                  const name = attr.attributeValue?.attribute?.name;
                   const val = attr.attributeValue?.value;
-                  const name = attr.attributeValue?.attribute?.name?.toLowerCase();
-                  if (val) {
-                    if (name === "size" || ["S", "M", "L", "XL", "XXL"].includes(val)) {
-                      allSizes.add(val);
-                    } else {
-                      allColors.add(val);
+                  if (name && val) {
+                    if (!productAttrMap.has(name)) {
+                      productAttrMap.set(name, new Set());
                     }
+                    productAttrMap.get(name)!.add(val);
                   }
                 }
               }
@@ -120,15 +105,19 @@ export default function ShopCatalog() {
             id: p.id,
             slug: p.slug,
             name: p.name,
+            description: p.description,
             category: p.category?.name || "Football Corner",
-            team: p.brand?.name || "Juventus",
+            team: p.brand?.name || "—",
             price,
+            discountedPrice,
             color,
             size,
             image,
             variantId: defaultVariant?.id,
-            colors: Array.from(allColors),
-            sizes: Array.from(allSizes),
+            attributes: Array.from(productAttrMap.entries()).map(([name, valuesSet]) => ({
+              name,
+              values: Array.from(valuesSet)
+            }))
           };
         });
         setProducts(mapped);
@@ -146,41 +135,56 @@ export default function ShopCatalog() {
     return Array.from(new Set(products.map((product) => product.category)));
   }, [products]);
 
-  const colorOptions = useMemo(() => {
-    const colors = new Set<string>();
+  const filterOptions = useMemo(() => {
+    const map = new Map<string, Set<string>>();
     for (const p of products) {
-      if (p.colors && p.colors.length > 0) {
-        p.colors.forEach((c) => colors.add(c));
-      } else if (p.color) {
-        colors.add(p.color);
+      if (p.attributes) {
+        for (const attr of p.attributes) {
+          if (!map.has(attr.name)) {
+            map.set(attr.name, new Set());
+          }
+          for (const val of attr.values) {
+            map.get(attr.name)!.add(val);
+          }
+        }
       }
     }
-    return Array.from(colors).map((c) => ({
-      label: c,
-      value: colorHexMap[c] || "#cccccc",
-    }));
-  }, [products]);
-
-  const sizeOptions = useMemo(() => {
-    const sizes = new Set<string>();
-    for (const p of products) {
-      if (p.sizes && p.sizes.length > 0) {
-        p.sizes.forEach((s) => sizes.add(s));
-      } else if (p.size) {
-        sizes.add(p.size);
+    const order = ["XS", "S", "M", "L", "XL", "XXL", "2XL", "3XL"];
+    return Array.from(map.entries()).map(([name, valuesSet]) => {
+      const values = Array.from(valuesSet);
+      if (name.toLowerCase() === "size") {
+        values.sort((a, b) => {
+          const indexA = order.indexOf(a.toUpperCase());
+          const indexB = order.indexOf(b.toUpperCase());
+          if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+          if (indexA !== -1) return -1;
+          if (indexB !== -1) return 1;
+          const numA = parseFloat(a);
+          const numB = parseFloat(b);
+          if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+          return a.localeCompare(b);
+        });
+      } else {
+        if (values.every(v => !isNaN(parseFloat(v)))) {
+          values.sort((a, b) => parseFloat(a) - parseFloat(b));
+        } else {
+          values.sort();
+        }
       }
-    }
-    const order = ["S", "M", "L", "XL", "XXL"];
-    return Array.from(sizes).sort((a, b) => order.indexOf(a) - order.indexOf(b));
+      return { name, values };
+    });
   }, [products]);
 
   const filteredProducts = useMemo(() => {
     const filtered = products.filter((product) => {
       const categoryMatches = !selectedCategory || product.category === selectedCategory;
-      const colorMatches = !selectedColor || (product.colors ? product.colors.includes(selectedColor) : product.color === selectedColor);
-      const sizeMatches = !selectedSize || (product.sizes ? product.sizes.includes(selectedSize) : product.size === selectedSize);
+      if (!categoryMatches) return false;
 
-      return categoryMatches && colorMatches && sizeMatches;
+      return Object.entries(selectedFilters).every(([attrName, selectedVal]) => {
+        const productAttr = product.attributes?.find((a: any) => a.name === attrName);
+        if (!productAttr) return false;
+        return productAttr.values.includes(selectedVal);
+      });
     });
 
     return [...filtered].sort((a, b) => {
@@ -189,7 +193,7 @@ export default function ShopCatalog() {
       if (sortBy === "name") return a.name.localeCompare(b.name);
       return products.indexOf(a) - products.indexOf(b);
     });
-  }, [products, selectedCategory, selectedColor, selectedSize, sortBy]);
+  }, [products, selectedCategory, selectedFilters, sortBy]);
 
   const pageCount = Math.max(1, Math.ceil(filteredProducts.length / productsPerPage));
   const visibleProducts = filteredProducts.slice(
@@ -201,8 +205,10 @@ export default function ShopCatalog() {
     { label: "Home", href: "/" },
     { label: "Shop", href: "/shop" },
     ...(selectedCategory ? [{ label: selectedCategory, href: "" }] : []),
-    ...(selectedColor ? [{ label: selectedColor, href: "" }] : []),
-    ...(selectedSize ? [{ label: `Size ${selectedSize}`, href: "" }] : []),
+    ...Object.entries(selectedFilters).map(([name, val]) => ({
+      label: `${name}: ${val}`,
+      href: "",
+    })),
   ];
 
   function updateFilter(update: () => void) {
@@ -210,10 +216,22 @@ export default function ShopCatalog() {
     setCurrentPage(1);
   }
 
+  const handleToggleFilter = (attrName: string, val: string) => {
+    setSelectedFilters((prev) => {
+      const updated = { ...prev };
+      if (updated[attrName] === val) {
+        delete updated[attrName];
+      } else {
+        updated[attrName] = val;
+      }
+      return updated;
+    });
+    setCurrentPage(1);
+  };
+
   function clearFilters() {
     setSelectedCategory("");
-    setSelectedColor("");
-    setSelectedSize("");
+    setSelectedFilters({});
     setSortBy("featured");
     setCurrentPage(1);
   }
@@ -294,46 +312,30 @@ export default function ShopCatalog() {
               ))}
             </div>
 
-            <h3 className="mt-12 text-base font-black uppercase">Color</h3>
-            <div className="mt-6 grid grid-cols-3 gap-x-7 gap-y-7">
-              {colorOptions.map((color) => {
-                const isSelected = selectedColor === color.label;
-
-                return (
-                  <button
-                    key={color.label}
-                    className="text-left"
-                    type="button"
-                    onClick={() =>
-                      updateFilter(() => setSelectedColor(isSelected ? "" : color.label))
-                    }
-                  >
-                    <span
-                      className={`block h-8 w-8 rounded-full border ${isSelected ? "border-black ring-2 ring-black ring-offset-2" : "border-neutral-200"
+            {filterOptions.map((filter) => (
+              <div key={filter.name} className="mt-12">
+                <h3 className="text-base font-black uppercase">{filter.name}</h3>
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {filter.values.map((val) => {
+                    const isSelected = selectedFilters[filter.name] === val;
+                    return (
+                      <button
+                        key={val}
+                        type="button"
+                        onClick={() => handleToggleFilter(filter.name, val)}
+                        className={`min-w-[40px] h-8 px-3 text-xs font-bold border rounded-none transition-all ${
+                          isSelected
+                            ? "border-black bg-black text-white"
+                            : "border-neutral-200 text-neutral-600 hover:border-black"
                         }`}
-                      style={{ backgroundColor: color.value }}
-                    />
-                    <span className="mt-2 block text-sm font-bold text-neutral-500">
-                      {color.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <h3 className="mt-14 text-base font-black uppercase">Size</h3>
-            <div className="mt-7 grid gap-4 text-base font-bold">
-              {sizeOptions.map((size) => (
-                <button
-                  key={size}
-                  type="button"
-                  onClick={() => updateFilter(() => setSelectedSize(selectedSize === size ? "" : size))}
-                  className={`text-left ${selectedSize === size ? "text-black" : "text-neutral-500"}`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
+                      >
+                        {val}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </aside>
 
           <section>
@@ -459,14 +461,20 @@ export default function ShopCatalog() {
                         <h3 className="mt-1 truncate text-sm font-black uppercase text-neutral-800">
                           {product.name}
                         </h3>
-                        {viewMode === "list" && (
-                          <p className="mt-3 max-w-xl text-sm leading-6 text-neutral-500">
-                            A curated vintage football piece from the Humana archive, selected for condition,
-                            color, and everyday styling.
+                        {viewMode === "list" && (product as ShopProduct & { description?: string }).description && (
+                          <p className="mt-3 max-w-xl text-sm leading-6 text-neutral-500 line-clamp-3">
+                            {(product as ShopProduct & { description?: string }).description}
                           </p>
                         )}
-                        <p className="mt-2 text-base font-black text-neutral-800">
-                          {formatPrice(product.price)}
+                        <p className="mt-2 text-base font-black flex items-center gap-2">
+                          {product.discountedPrice != null && product.discountedPrice < product.price ? (
+                            <>
+                              <span className="text-red-650">{formatPrice(product.discountedPrice)}</span>
+                              <span className="text-neutral-400 line-through text-sm font-semibold">{formatPrice(product.price)}</span>
+                            </>
+                          ) : (
+                            formatPrice(product.price)
+                          )}
                         </p>
                       </div>
                       <button
@@ -559,53 +567,30 @@ export default function ShopCatalog() {
               </div>
             </div>
 
-            {/* Colors */}
-            <div>
-              <h4 className="text-sm font-black uppercase tracking-[0.06em] text-black">Color</h4>
-              <div className="mt-4 grid grid-cols-3 gap-4">
-                {colorOptions.map((color) => {
-                  const isSelected = selectedColor === color.label;
-                  return (
-                    <button
-                      key={color.label}
-                      className="flex flex-col items-center text-center focus:outline-none"
-                      type="button"
-                      onClick={() =>
-                        updateFilter(() => setSelectedColor(isSelected ? "" : color.label))
-                      }
-                    >
-                      <span
-                        className={`block h-7 w-7 rounded-full border transition-all duration-200 ${isSelected ? "border-black ring-2 ring-black ring-offset-2 scale-110" : "border-neutral-200"}`}
-                        style={{ backgroundColor: color.value }}
-                      />
-                      <span className="mt-1.5 block text-[10px] font-bold text-neutral-500 truncate w-full">
-                        {color.label}
-                      </span>
-                    </button>
-                  );
-                })}
+            {filterOptions.map((filter) => (
+              <div key={filter.name}>
+                <h4 className="text-sm font-black uppercase tracking-[0.06em] text-black">{filter.name}</h4>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {filter.values.map((val) => {
+                    const isSelected = selectedFilters[filter.name] === val;
+                    return (
+                      <button
+                        key={val}
+                        type="button"
+                        onClick={() => handleToggleFilter(filter.name, val)}
+                        className={`h-9 px-3 border text-xs font-bold uppercase flex items-center justify-center transition ${
+                          isSelected
+                            ? "bg-black border-black text-white"
+                            : "border-neutral-200 text-neutral-600 hover:border-black"
+                        }`}
+                      >
+                        {val}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-
-            {/* Sizes */}
-            <div>
-              <h4 className="text-sm font-black uppercase tracking-[0.06em] text-black">Size</h4>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {sizeOptions.map((size) => {
-                  const isSelected = selectedSize === size;
-                  return (
-                    <button
-                      key={size}
-                      type="button"
-                      onClick={() => updateFilter(() => setSelectedSize(isSelected ? "" : size))}
-                      className={`h-9 w-9 border text-xs font-bold uppercase flex items-center justify-center transition ${isSelected ? "bg-black border-black text-white" : "border-neutral-200 text-neutral-600 hover:border-black"}`}
-                    >
-                      {size}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* Sticky footer buttons in Drawer */}

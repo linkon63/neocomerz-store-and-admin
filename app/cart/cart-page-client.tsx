@@ -73,6 +73,59 @@ export default function CartPageClient() {
   const [checkoutError, setCheckoutError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Coupon code state
+  const [couponInput, setCouponInput] = useState("");
+  const [couponError, setCouponError] = useState("");
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discount: number;
+    total: number;
+    couponType: string;
+    couponValue: number;
+  } | null>(null);
+
+  // ── Apply coupon ─────────────────────────────────────────────────────────────
+  async function handleApplyCoupon() {
+    const code = couponInput.trim().toUpperCase();
+    if (!code) {
+      setCouponError("Please enter a coupon code.");
+      return;
+    }
+    setIsApplyingCoupon(true);
+    setCouponError("");
+    try {
+      const res = await fetch(`${BASE_URL}/coupons/apply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error((data as { message?: string }).message || "Invalid coupon.");
+      }
+      setAppliedCoupon({
+        code,
+        discount: data.discount,
+        total: data.total,
+        couponType: data.coupon.type,
+        couponValue: Number(data.coupon.value),
+      });
+      setCouponInput("");
+    } catch (err) {
+      setCouponError(err instanceof Error ? err.message : "Failed to apply coupon.");
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  }
+
+  function handleRemoveCoupon() {
+    setAppliedCoupon(null);
+    setCouponError("");
+  }
+
+  const orderTotal = appliedCoupon ? appliedCoupon.total : subtotal;
+
   // Prevent double submission
   const isSubmittingRef = useRef(false);
 
@@ -160,7 +213,10 @@ export default function CartPageClient() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ addressId }),
+      body: JSON.stringify({
+        addressId,
+        ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
+      }),
     });
 
     if (!res.ok) {
@@ -203,6 +259,7 @@ export default function CartPageClient() {
           addressLine2: addressFields.addressLine2 || undefined,
         },
         items: lineItems,
+        ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
       }),
     });
 
@@ -485,10 +542,63 @@ export default function CartPageClient() {
                   <span className="text-neutral-500">Shipping</span>
                   <span className="font-black">€0.00</span>
                 </div>
+                {appliedCoupon && (
+                  <div className="flex justify-between text-emerald-600 font-medium">
+                    <span>Discount ({appliedCoupon.code})</span>
+                    <span>-{formatPrice(appliedCoupon.discount)}</span>
+                  </div>
+                )}
               </div>
               <div className="mt-6 flex justify-between text-lg font-black">
                 <span>Total</span>
-                <span>{formatPrice(subtotal)}</span>
+                <span>{formatPrice(orderTotal)}</span>
+              </div>
+
+              {/* Coupon input */}
+              <div className="mt-6 pt-6 border-t border-neutral-200">
+                {!appliedCoupon ? (
+                  <div className="space-y-2">
+                    <label className="text-xs font-black uppercase tracking-[0.12em] text-neutral-500">
+                      Promo Code
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Enter code"
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value)}
+                        className="flex-1 border border-neutral-200 px-3 py-2 text-sm uppercase outline-none focus:border-black"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleApplyCoupon}
+                        disabled={isApplyingCoupon}
+                        className="bg-black text-white px-4 py-2 text-xs font-black uppercase tracking-[0.12em] transition hover:bg-neutral-800 disabled:bg-neutral-400"
+                      >
+                        {isApplyingCoupon ? "Applying" : "Apply"}
+                      </button>
+                    </div>
+                    {couponError && (
+                      <p className="text-xs font-bold text-red-650">{couponError}</p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between bg-neutral-50 p-3 border border-neutral-200">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.12em] text-neutral-500">
+                        Code Applied
+                      </p>
+                      <p className="text-sm font-black uppercase mt-0.5">{appliedCoupon.code}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveCoupon}
+                      className="text-xs font-black uppercase tracking-[0.12em] text-red-600 hover:text-red-800"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
               </div>
 
               {checkoutStep === "cart" ? (

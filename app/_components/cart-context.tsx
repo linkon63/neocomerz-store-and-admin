@@ -76,6 +76,14 @@ function mapBackendCartItem(item: BackendCartItem): CartItem {
   };
 }
 
+function sortCartItems(items: CartItem[]): CartItem[] {
+  return [...items].sort((a, b) => {
+    const keyA = a.id || a.variantId || a.slug;
+    const keyB = b.id || b.variantId || b.slug;
+    return keyA.localeCompare(keyB);
+  });
+}
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5010/api/v1";
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
@@ -87,7 +95,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (!token) {
       try {
         const savedCart = sessionStorage.getItem("humana-cart");
-        setItems(savedCart ? (JSON.parse(savedCart) as CartItem[]) : []);
+        setItems(sortCartItems(savedCart ? (JSON.parse(savedCart) as CartItem[]) : []));
       } catch {
         setItems([]);
       }
@@ -127,7 +135,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (res.ok) {
           const data = await res.json();
           const mapped = (data.items || []).map(mapBackendCartItem);
-          setItems(mapped);
+          setItems(sortCartItems(mapped));
         }
       } catch (err) {
         console.error("Error syncing cart with database:", err);
@@ -172,7 +180,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             if (res.ok) {
               const data = await res.json();
               const mapped = (data.items || []).map(mapBackendCartItem);
-              setItems(mapped);
+              setItems(sortCartItems(mapped));
               setToastMessage("Added to cart");
               setTimeout(() => setToastMessage(""), 2500);
             }
@@ -184,14 +192,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             const existingItem = currentItems.find((cartItem) => cartItem.slug === item.slug);
 
             if (existingItem) {
-              return currentItems.map((cartItem) =>
+              return sortCartItems(currentItems.map((cartItem) =>
                 cartItem.slug === item.slug
                   ? { ...cartItem, quantity: cartItem.quantity + (item.quantity ?? 1) }
                   : cartItem,
-              );
+              ));
             }
 
-            return [...currentItems, { ...item, quantity: item.quantity ?? 1 }];
+            return sortCartItems([...currentItems, { ...item, quantity: item.quantity ?? 1 }]);
           });
           setToastMessage("Added to cart");
           setTimeout(() => setToastMessage(""), 2500);
@@ -211,7 +219,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               if (res.ok) {
                 const data = await res.json();
                 const mapped = (data.items || []).map(mapBackendCartItem);
-                setItems(mapped);
+                setItems(sortCartItems(mapped));
               }
             }
           } catch (err) {
@@ -236,7 +244,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 if (res.ok) {
                   const data = await res.json();
                   const mapped = (data.items || []).map(mapBackendCartItem);
-                  setItems(mapped);
+                  setItems(sortCartItems(mapped));
                 }
               } else {
                 const res = await fetch(`${BASE_URL}/cart/items/${itemToUpdate.id}`, {
@@ -250,7 +258,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 if (res.ok) {
                   const data = await res.json();
                   const mapped = (data.items || []).map(mapBackendCartItem);
-                  setItems(mapped);
+                  setItems(sortCartItems(mapped));
                 }
               }
             }
@@ -259,9 +267,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           }
         } else {
           setItems((currentItems) =>
-            currentItems
+            sortCartItems(currentItems
                .map((item) => (item.slug === slug ? { ...item, quantity } : item))
-               .filter((item) => item.quantity > 0),
+               .filter((item) => item.quantity > 0)),
           );
         }
       },

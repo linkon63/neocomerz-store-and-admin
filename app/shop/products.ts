@@ -11,6 +11,8 @@ export type ShopProduct = {
   variantId?: string;
   colors?: string[];
   sizes?: string[];
+  discountedPrice?: number;
+  attributes?: { name: string; values: string[] }[];
 };
 
 export interface Category {
@@ -72,6 +74,7 @@ export interface DBProduct {
   brand?: Brand;
   variants?: ProductVariant[];
   media?: ProductMedia[];
+  tags?: { id: string; name: string; slug: string }[];
 }
 
 export interface Address {
@@ -145,15 +148,10 @@ export function resolveImageUrl(url: string | undefined | null): string {
   // Already a public HTTPS URL — pass through unchanged
   if (url.startsWith("https://")) return url;
 
-  // Rewrite localhost file-server URLs to the public API host
-  // e.g. http://localhost:3007/products/abc.webp → https://tinyecomapi.neocomerz.com/products/abc.webp
   if (url.startsWith("http://localhost") || url.startsWith("http://127.0.0.1")) {
-    const publicBase =
-      (typeof process !== "undefined" && process.env.NEXT_PUBLIC_MEDIA_BASE_URL) ||
-      "https://tinyecomapi.neocomerz.com";
     try {
       const parsed = new URL(url);
-      return `${publicBase}${parsed.pathname}`;
+      return parsed.pathname;
     } catch {
       return fallback;
     }

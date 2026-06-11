@@ -27,7 +27,6 @@ export type AdminIconName =
   | "orders"
   | "package"
   | "plus"
-  | "pos"
   | "refresh"
   | "report"
   | "reviews"
@@ -160,15 +159,6 @@ export function AdminIcon({
       <>
         <path d="M12 5v14" />
         <path d="M5 12h14" />
-      </>
-    ),
-    pos: (
-      <>
-        <rect height="16" rx="2" width="18" x="3" y="4" />
-        <path d="M7 8h10" />
-        <path d="M7 13h2" />
-        <path d="M12 13h2" />
-        <path d="M17 13h0" />
       </>
     ),
     refresh: (
@@ -334,8 +324,8 @@ const menuGroups: {
   {
     title: "Sales & Billing",
     items: [
-      { label: "POS", href: "/admin/pos", icon: "pos" },
       { label: "Discount", href: "/admin/discounts", icon: "discount" },
+      { label: "Coupons", href: "/admin/coupons", icon: "voucher" },
       { label: "Gift Voucher", href: "/admin/gift-vouchers", icon: "voucher" },
     ],
   },
