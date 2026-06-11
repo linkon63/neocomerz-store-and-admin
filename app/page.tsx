@@ -18,16 +18,16 @@ export default function Home() {
     <div>
       <TopHeader />
       <Header />
+      <Hero />
+      <Invitation />
+      <NewArrivals />
+      <Collection />
       <Philosophy />
       <OurStory />
       <Presence />
       <Prestige />
       <Brands />
       <Instagram />
-      <Hero />
-      <Invitation />
-      <NewArrivals />
-      <Collection />
       <Mainfooter />
       <Bottomfooter />
     </div>
