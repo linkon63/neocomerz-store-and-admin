@@ -3,9 +3,6 @@ import type { NextConfig } from "next";
 const backendApiUrl = process.env.API_BASE_URL ?? "http://localhost:5010/api/v1";
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: __dirname,
-  },
   images: {
     remotePatterns: [
       {
