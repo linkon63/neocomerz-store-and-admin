@@ -10,8 +10,10 @@ import WishlistButton from "./wishlist-button";
 import { FaInstagram } from "react-icons/fa";
 
 export const metadata = {
-  title: 'Shop | Humana Vintage',
-  description: 'Explore our curated collection of vintage treasures at Humana Vintage. Discover unique, high-quality pieces handpicked for your sustainable wardrobe.',
+  title: process.env.SHOP_NAME 
+    ? `Shop | ${process.env.SHOP_NAME}` 
+    : "Shop",
+  description: process.env.SHOP_DESCRIPTION || "Discover our curated collection of unique products and treasures.",
 };
 
 function formatPrice(price: number) {
