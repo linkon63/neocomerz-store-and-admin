@@ -14,7 +14,8 @@ import {
 
 const POLICY_TABS = [
   { key: "delivery",     label: "Delivery Policy"       },
-  { key: "return",       label: "Refund & Return"        },
+  { key: "refund",       label: "Refund Policy"         },
+  { key: "return",       label: "Return Policy"         },
   { key: "cancellation", label: "Cancellation Policy"    },
   { key: "privacy",      label: "Privacy Policy"         },
   { key: "terms",        label: "Terms and Conditions"   },
@@ -70,10 +71,11 @@ export default function PolicyPage() {
     setError("");
     setSuccess("");
     try {
+      const { id: _id, createdAt: _ca, updatedAt: _ua, ...payload } = policies;
       await apiRequest("/policies", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(policies),
+        body: JSON.stringify(payload),
       });
       setSuccess("Policies saved successfully.");
       setTimeout(() => setSuccess(""), 3000);
