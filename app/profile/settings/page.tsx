@@ -10,6 +10,7 @@ import {
   uploadAvatar, 
   deleteAvatar,
   changePassword,
+  resolveImageUrl,
   Profile 
 } from '@/lib/admin-api';
 
@@ -200,7 +201,7 @@ export default function SettingsPage() {
             <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-4 border-gray-100">
               {profile?.avatarUrl ? (
                 <img 
-                  src={profile.avatarUrl} 
+                  src={resolveImageUrl(profile.avatarUrl)} 
                   alt="Profile" 
                   className="w-full h-full object-cover"
                 />
