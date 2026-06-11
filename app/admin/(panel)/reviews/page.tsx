@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { AdminIcon, PageHeader } from "../../_components/admin-shell";
 import { ConfirmModal } from "../../_components/confirm-modal";
+import { apiRequest } from "@/lib/admin-api";
 
 type Review = {
   id: string;
@@ -76,23 +77,25 @@ export default function ReviewsPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [reviewToDelete, setReviewToDelete] = useState<Review | null>(null);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("neocomerz_reviews");
-    if (saved) {
-      try {
-        setReviews(JSON.parse(saved));
-      } catch (e) {
-        setReviews(DEFAULT_REVIEWS);
-      }
-    } else {
-      setReviews(DEFAULT_REVIEWS);
+  const loadReviewsFromApi = async () => {
+    try {
+      const data = await apiRequest<any[]>("/reviews");
+      const mapped = data.map((r) => ({
+        id: r.id,
+        name: r.user?.name || r.user?.email || "Anonymous",
+        detail: `${r.rating} stars on ${r.product?.name || "Unknown Product"}${r.comment ? `: "${r.comment}"` : ""}`,
+        meta: r.isApproved ? "Approved" as const : "Pending moderation" as const,
+        status: r.isApproved ? "Active" as const : "Draft" as const,
+      }));
+      setReviews(mapped);
+    } catch (err) {
+      console.error("Failed to load reviews:", err);
     }
-  }, []);
-
-  const saveReviews = (updated: Review[]) => {
-    setReviews(updated);
-    localStorage.setItem("neocomerz_reviews", JSON.stringify(updated));
   };
+
+  useEffect(() => {
+    loadReviewsFromApi();
+  }, []);
 
   const filteredReviews = useMemo(() => {
     return reviews.filter((review) =>
@@ -102,11 +105,24 @@ export default function ReviewsPage() {
     );
   }, [reviews, search]);
 
-  const handleToggleStatus = (id: string) => {
-    const updated = reviews.map((r) =>
-      r.id === id ? { ...r, status: r.status === "Active" ? "Draft" as const : "Active" as const } : r
-    );
-    saveReviews(updated);
+  const handleToggleStatus = async (id: string) => {
+    const review = reviews.find((r) => r.id === id);
+    if (!review) return;
+    const isApproved = review.status !== "Active";
+    try {
+      if (isApproved) {
+        await apiRequest(`/reviews/${id}/approve`, { method: "PATCH" });
+      } else {
+        await apiRequest(`/reviews/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isApproved: false }),
+        });
+      }
+      await loadReviewsFromApi();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to toggle status");
+    }
   };
 
   const openAddModal = () => {
@@ -115,7 +131,7 @@ export default function ReviewsPage() {
   };
 
   const openEditModal = (review: Review) => {
-    const match = review.detail.match(/^(\d+)\s+stars?\s+on\s+(.+)$/i);
+    const match = review.detail.match(/^(\d+)\s+stars?\s+on\s+([^:]+)/i);
     const rating = match ? match[1] : "5";
     const product = match ? match[2] : review.detail;
 
@@ -135,12 +151,16 @@ export default function ReviewsPage() {
     setDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!reviewToDelete) return;
-    const updated = reviews.filter((r) => r.id !== reviewToDelete.id);
-    saveReviews(updated);
-    setDeleteModalOpen(false);
-    setReviewToDelete(null);
+    try {
+      await apiRequest(`/reviews/${reviewToDelete.id}`, { method: "DELETE" });
+      setDeleteModalOpen(false);
+      setReviewToDelete(null);
+      await loadReviewsFromApi();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to delete review");
+    }
   };
 
   const cancelDelete = () => {
@@ -148,27 +168,28 @@ export default function ReviewsPage() {
     setReviewToDelete(null);
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const detail = `${form.rating} stars on ${form.product}`;
-
     if (form.id) {
-      const updated = reviews.map((r) =>
-        r.id === form.id ? { ...r, name: form.name, detail, meta: form.meta, status: form.status } : r
-      );
-      saveReviews(updated);
+      try {
+        await apiRequest(`/reviews/${form.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            rating: Number(form.rating),
+            isApproved: form.meta === "Approved" || form.status === "Active",
+          }),
+        });
+        setIsModalOpen(false);
+        setForm(emptyForm);
+        await loadReviewsFromApi();
+      } catch (err) {
+        alert(err instanceof Error ? err.message : "Failed to update review");
+      }
     } else {
-      const newReview: Review = {
-        id: String(Date.now()),
-        name: form.name,
-        detail,
-        meta: form.meta,
-        status: form.status,
-      };
-      saveReviews([...reviews, newReview]);
+      alert("Manual review creation is not supported. Reviews are created by customers on the storefront.");
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
-    setForm(emptyForm);
   };
 
   return (
@@ -179,26 +200,11 @@ export default function ReviewsPage() {
         action={
           <div className="flex gap-3">
             <button
-              onClick={() => {
-                const saved = localStorage.getItem("neocomerz_reviews");
-                if (saved) {
-                  try {
-                    setReviews(JSON.parse(saved));
-                  } catch (e) {}
-                }
-              }}
+              onClick={loadReviewsFromApi}
               className="grid h-14 w-14 place-items-center rounded-lg border border-slate-300 bg-white hover:bg-slate-50 transition cursor-pointer font-black"
               type="button"
             >
               <AdminIcon className="h-5 w-5 text-slate-500" name="refresh" />
-            </button>
-            <button
-              className="inline-flex h-14 items-center gap-2 rounded-md bg-slate-900 px-6 font-black text-white hover:bg-slate-800 transition cursor-pointer shadow-lg shadow-slate-900/15"
-              onClick={openAddModal}
-              type="button"
-            >
-              <AdminIcon className="h-5 w-5" name="plus" />
-              Add Review
             </button>
           </div>
         }
@@ -326,13 +332,13 @@ export default function ReviewsPage() {
             </div>
             
             <div className="space-y-4">
-              <label className="block">
+              <label className="block text-slate-400">
                 <span className="mb-2 block text-sm font-black text-slate-700">
                   Reviewer Name
                 </span>
                 <input
-                  autoFocus
-                  className="h-12 w-full rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition"
+                  disabled={!!form.id}
+                  className="h-12 w-full rounded-md border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-500 outline-none cursor-not-allowed"
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   required
                   value={form.name}
@@ -374,12 +380,13 @@ export default function ReviewsPage() {
                 </label>
               </div>
 
-              <label className="block">
+              <label className="block text-slate-400">
                 <span className="mb-2 block text-sm font-black text-slate-700">
                   Product Name
                 </span>
                 <input
-                  className="h-12 w-full rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition"
+                  disabled={!!form.id}
+                  className="h-12 w-full rounded-md border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-500 outline-none cursor-not-allowed"
                   onChange={(e) => setForm({ ...form, product: e.target.value })}
                   required
                   value={form.product}

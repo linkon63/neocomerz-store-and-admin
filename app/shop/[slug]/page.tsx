@@ -61,6 +61,9 @@ export default async function ProductDetailsPage({
   const defaultVariant =
     dbProduct.variants?.find((v: ProductVariant) => v.isDefault) || dbProduct.variants?.[0];
   const price = defaultVariant ? Number(defaultVariant.price) : 0;
+  const discountedPrice = defaultVariant && (defaultVariant as any).discountedPrice != null
+    ? Number((defaultVariant as any).discountedPrice)
+    : undefined;
 
   // ── Resolve attributes from default variant ──────────────────────────────
   let color = "—";
@@ -92,6 +95,7 @@ export default async function ProductDetailsPage({
     categoryId: dbProduct.category?.id,
     team: dbProduct.brand?.name || "—",
     price,
+    discountedPrice,
     color,
     size,
     image,
@@ -106,6 +110,7 @@ export default async function ProductDetailsPage({
     category: string;
     team: string;
     price: number;
+    discountedPrice?: number;
     image: string;
     slug: string;
   }[] = [];
@@ -122,6 +127,7 @@ export default async function ProductDetailsPage({
         .map((p: DBProduct) => {
           const v = p.variants?.find((vi: ProductVariant) => vi.isDefault) || p.variants?.[0];
           const pr = v ? Number(v.price) : 0;
+          const dp = v && (v as any).discountedPrice != null ? Number((v as any).discountedPrice) : undefined;
           const fm = p.media?.find((mi: ProductMedia) => mi.isFeatured) || p.media?.[0];
           const img = resolveImageUrl(fm?.media?.url);
           return {
@@ -129,6 +135,7 @@ export default async function ProductDetailsPage({
             category: p.category?.name || "Vintage",
             team: p.brand?.name || "—",
             price: pr,
+            discountedPrice: dp,
             image: img,
             slug: p.slug,
           };
@@ -202,9 +209,20 @@ export default async function ProductDetailsPage({
                   {product.name}
                 </h1>
                 <div className="mt-3">
-                  <span className="text-2xl font-black text-neutral-900">
-                    {formatPrice(product.price)}
-                  </span>
+                  {product.discountedPrice != null && product.discountedPrice < product.price ? (
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl font-black text-red-650">
+                        {formatPrice(product.discountedPrice)}
+                      </span>
+                      <span className="text-neutral-400 line-through text-lg font-semibold">
+                        {formatPrice(product.price)}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-2xl font-black text-neutral-900">
+                      {formatPrice(product.price)}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -344,7 +362,16 @@ export default async function ProductDetailsPage({
                         <h3 className="mt-1 truncate text-sm font-black uppercase text-neutral-800">
                           {item.name}
                         </h3>
-                        <p className="mt-2 text-base font-black">{formatPrice(item.price)}</p>
+                        <p className="mt-2 text-base font-black flex items-center gap-2">
+                          {item.discountedPrice != null && item.discountedPrice < item.price ? (
+                            <>
+                              <span className="text-red-650">{formatPrice(item.discountedPrice)}</span>
+                              <span className="text-neutral-400 line-through text-sm font-semibold">{formatPrice(item.price)}</span>
+                            </>
+                          ) : (
+                            formatPrice(item.price)
+                          )}
+                        </p>
                       </div>
                       <FiHeart className="mt-1 shrink-0 text-lg text-neutral-600" />
                     </div>

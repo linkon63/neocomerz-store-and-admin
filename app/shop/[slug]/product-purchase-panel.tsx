@@ -111,6 +111,9 @@ export default function ProductPurchasePanel({
   });
 
   const price = matchedVariant ? Number(matchedVariant.price) : 0;
+  const discountedPrice = matchedVariant && (matchedVariant as any).discountedPrice != null
+    ? Number((matchedVariant as any).discountedPrice)
+    : undefined;
   const stock = matchedVariant ? matchedVariant.stockQuantity : 0;
   const isOutOfStock = stock <= 0;
 
@@ -118,7 +121,7 @@ export default function ProductPurchasePanel({
     return {
       slug: productSlug,
       name: productName,
-      price,
+      price: discountedPrice != null && discountedPrice < price ? discountedPrice : price,
       image: productImage,
       color: selectedColor,
       size: selectedSize,
@@ -145,9 +148,20 @@ export default function ProductPurchasePanel({
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.08em] text-neutral-400">Variant Price</p>
             <div className="mt-1 flex items-center gap-3">
-              <span className="text-2xl font-black text-neutral-900">
-                €{price.toFixed(2)}
-              </span>
+              {discountedPrice != null && discountedPrice < price ? (
+                <>
+                  <span className="text-2xl font-black text-red-650">
+                    €{discountedPrice.toFixed(2)}
+                  </span>
+                  <span className="text-neutral-400 line-through text-sm font-semibold">
+                    €{price.toFixed(2)}
+                  </span>
+                </>
+              ) : (
+                <span className="text-2xl font-black text-neutral-900">
+                  €{price.toFixed(2)}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -265,7 +279,7 @@ export default function ProductPurchasePanel({
           disabled={!matchedVariant || isOutOfStock}
           onClick={handleBuyNow}
         >
-          Buy Now — €{price.toFixed(2)}
+          Buy Now — €{(discountedPrice != null && discountedPrice < price ? discountedPrice : price).toFixed(2)}
         </button>
 
         <button

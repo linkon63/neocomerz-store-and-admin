@@ -11,6 +11,7 @@ export type ShopProduct = {
   variantId?: string;
   colors?: string[];
   sizes?: string[];
+  discountedPrice?: number;
 };
 
 export interface Category {
@@ -135,13 +136,9 @@ export function resolveImageUrl(url: string | undefined | null): string {
   if (url.startsWith("https://")) return url;
 
   if (url.startsWith("http://localhost") || url.startsWith("http://127.0.0.1")) {
-    let publicBase =
-      (typeof process !== "undefined" && process.env.NEXT_PUBLIC_MEDIA_BASE_URL) ||
-      "https://tinyecomapi.neocomerz.com";
-    publicBase = publicBase.replace(/\/api\/v1\/?$/, "");
     try {
       const parsed = new URL(url);
-      return `${publicBase}${parsed.pathname}`;
+      return parsed.pathname;
     } catch {
       return fallback;
     }

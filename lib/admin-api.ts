@@ -837,6 +837,19 @@ export async function changePassword(data: { currentPassword: string; newPasswor
     body: JSON.stringify(data),
   });
 }
+
+export async function createProductReview(
+  productId: string,
+  data: { rating: number; comment?: string }
+): Promise<any> {
+  return customerApiRequest(`/products/${productId}/reviews`, {
+    auth: true,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}
+
 export function resolveImageUrl(url?: string | null): string {
   if (!url) return "";
 

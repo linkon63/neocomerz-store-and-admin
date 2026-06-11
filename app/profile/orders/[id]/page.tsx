@@ -11,7 +11,7 @@ import {
   FiClock,
   FiXCircle 
 } from 'react-icons/fi';
-import { getOrderById, cancelOrder, Order, formatMoney, formatDate } from '@/lib/admin-api';
+import { getOrderById, cancelOrder, Order, formatMoney, formatDate, createProductReview } from '@/lib/admin-api';
 
 export default function OrderDetailPage() {
   const params = useParams();
@@ -20,6 +20,42 @@ export default function OrderDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [canceling, setCanceling] = useState(false);
+
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewProductId, setReviewProductId] = useState("");
+  const [reviewProductName, setReviewProductName] = useState("");
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewSuccess, setReviewSuccess] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+
+  const handleOpenReviewModal = (productId: string, productName: string) => {
+    setReviewProductId(productId);
+    setReviewProductName(productName);
+    setReviewRating(5);
+    setReviewComment("");
+    setReviewSuccess(false);
+    setReviewError("");
+    setReviewModalOpen(true);
+  };
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setReviewSubmitting(true);
+    setReviewError("");
+    try {
+      await createProductReview(reviewProductId, {
+        rating: reviewRating,
+        comment: reviewComment.trim() || undefined,
+      });
+      setReviewSuccess(true);
+    } catch (err) {
+      setReviewError(err instanceof Error ? err.message : "Failed to submit review");
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -315,6 +351,14 @@ export default function OrderDetailPage() {
                         <span className="font-semibold text-gray-900">{formatMoney(item.totalPrice)}</span>
                       </div>
                     </div>
+                    {order.status === 'delivered' && item.product?.id && (
+                      <button
+                        onClick={() => handleOpenReviewModal(item.product!.id, item.product!.name)}
+                        className="mt-3 w-full bg-black text-white py-1.5 rounded text-xs font-black uppercase tracking-wider hover:bg-neutral-800 transition"
+                      >
+                        Write Review
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -367,7 +411,15 @@ export default function OrderDetailPage() {
                           </div>
                         )}
                         <div className="font-medium text-gray-900">
-                          {item.product?.name || 'Unknown Product'}
+                          <div>{item.product?.name || 'Unknown Product'}</div>
+                          {order.status === 'delivered' && item.product?.id && (
+                            <button
+                              onClick={() => handleOpenReviewModal(item.product!.id, item.product!.name)}
+                              className="mt-1.5 inline-flex bg-black text-white px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-wider hover:bg-neutral-800 transition"
+                            >
+                              Write Review
+                            </button>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -449,6 +501,93 @@ export default function OrderDetailPage() {
           </div>
         )}
       </div>
+
+      {reviewModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setReviewModalOpen(false);
+          }}
+        >
+          <div className="w-full max-w-md bg-white p-6 shadow-2xl rounded-sm">
+            <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+              <h2 className="text-lg font-black uppercase tracking-[0.06em]">
+                Review Product
+              </h2>
+              <button
+                type="button"
+                className="text-2xl leading-none font-bold"
+                onClick={() => setReviewModalOpen(false)}
+              >
+                ×
+              </button>
+            </div>
+            <p className="mt-2 text-xs font-bold uppercase text-neutral-500">
+              Product: <span className="text-black">{reviewProductName}</span>
+            </p>
+
+            {reviewSuccess ? (
+              <div className="mt-6 bg-green-50 border border-green-200 p-4 text-center">
+                <p className="text-sm font-bold text-green-700">
+                  ✓ Review submitted successfully! It is pending moderation.
+                </p>
+                <button
+                  onClick={() => setReviewModalOpen(false)}
+                  className="mt-4 bg-black text-white px-4 py-2 text-xs font-black uppercase tracking-[0.12em] hover:bg-neutral-800 transition"
+                >
+                  Close
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleReviewSubmit} className="mt-6 space-y-4">
+                {reviewError && (
+                  <div className="bg-red-50 border border-red-200 p-3 text-xs font-bold text-red-700">
+                    {reviewError}
+                  </div>
+                )}
+                <div>
+                  <label className="mb-2 block text-xs font-black uppercase tracking-[0.06em] text-neutral-500">
+                    Rating *
+                  </label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setReviewRating(star)}
+                        className={`text-2xl transition-colors ${
+                          star <= reviewRating ? "text-[#ffd02f]" : "text-neutral-300"
+                        }`}
+                      >
+                        ★
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-2 block text-xs font-black uppercase tracking-[0.06em] text-neutral-500">
+                    Comment (optional)
+                  </label>
+                  <textarea
+                    value={reviewComment}
+                    onChange={(e) => setReviewComment(e.target.value)}
+                    placeholder="Tell us what you think of this product..."
+                    rows={4}
+                    className="w-full border border-neutral-200 p-3 text-sm outline-none focus:border-black resize-none"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={reviewSubmitting}
+                  className="w-full bg-black text-white py-3 text-xs font-black uppercase tracking-[0.12em] hover:bg-neutral-800 transition disabled:bg-neutral-300"
+                >
+                  {reviewSubmitting ? "Submitting..." : "Submit Review"}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

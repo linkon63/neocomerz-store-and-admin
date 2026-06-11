@@ -101,12 +101,15 @@ export default function ProductGrid() {
         </h1>
         <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-5">
           {products.map((product) => {
+            const defaultVariant = product.variants?.find((v) => v.isDefault) || product.variants?.[0];
+            const price = defaultVariant?.price;
+            const discountedPrice = defaultVariant && (defaultVariant as any).discountedPrice != null
+              ? Number((defaultVariant as any).discountedPrice)
+              : undefined;
+            const variantId = defaultVariant?.id;
             const featured = product.media?.find((m) => m.isFeatured);
             const rawUrl = featured?.media?.url ?? product.media?.[0]?.media?.url;
             const imageUrl = resolveImageUrl(rawUrl);
-            const defaultVariant = product.variants?.find((v) => v.isDefault);
-            const price = defaultVariant?.price ?? product.variants?.[0]?.price;
-            const variantId = defaultVariant?.id ?? product.variants?.[0]?.id;
 
             const inCart = items.some((i) => i.slug === product.slug);
 
@@ -145,7 +148,7 @@ export default function ProductGrid() {
                       addItem({
                         slug: product.slug,
                         name: product.name,
-                        price: Number(price ?? 0),
+                        price: Number(discountedPrice ?? price ?? 0),
                         image: imageUrl ?? "",
                         color: "",
                         size: "",
@@ -167,8 +170,15 @@ export default function ProductGrid() {
                     <p className="text-[10px] font-semibold uppercase leading-4 tracking-[0.08em]">
                       {product.name}
                     </p>
-                    <p className="mt-2 text-xs font-semibold">
-                      {price != null ? `€${Number(price).toFixed(2)}` : ""}
+                    <p className="mt-2 text-xs font-semibold flex items-center gap-2">
+                      {discountedPrice != null && discountedPrice < Number(price) ? (
+                        <>
+                          <span className="text-red-650">€{Number(discountedPrice).toFixed(2)}</span>
+                          <span className="text-neutral-400 line-through">€{Number(price).toFixed(2)}</span>
+                        </>
+                      ) : (
+                        price != null ? `€${Number(price).toFixed(2)}` : ""
+                      )}
                     </p>
                   </div>
                   <FiHeart className="mt-0.5 shrink-0 text-sm" aria-label="Add to wishlist" />

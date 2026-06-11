@@ -65,7 +65,7 @@ export default function ShopCatalog() {
     void addItem({
       slug: productSlug(product),
       name: product.name,
-      price: product.price,
+      price: product.discountedPrice != null && product.discountedPrice < product.price ? product.discountedPrice : product.price,
       image: product.image,
       color: product.color,
       size: product.size,
@@ -93,6 +93,9 @@ export default function ShopCatalog() {
         const mapped = activeDbProducts.map((p: DBProduct) => {
           const defaultVariant = p.variants?.find((v: ProductVariant) => v.isDefault) || p.variants?.[0];
           const price = defaultVariant ? Number(defaultVariant.price) : 0;
+          const discountedPrice = defaultVariant && (defaultVariant as any).discountedPrice != null
+            ? Number((defaultVariant as any).discountedPrice)
+            : undefined;
 
           let color = "Black";
           let size = "M";
@@ -139,6 +142,7 @@ export default function ShopCatalog() {
             category: p.category?.name || "Football Corner",
             team: p.brand?.name || "Juventus",
             price,
+            discountedPrice,
             color,
             size,
             image,
@@ -480,8 +484,15 @@ export default function ShopCatalog() {
                             {(product as ShopProduct & { description?: string }).description}
                           </p>
                         )}
-                        <p className="mt-2 text-base font-black text-neutral-800">
-                          {formatPrice(product.price)}
+                        <p className="mt-2 text-base font-black flex items-center gap-2">
+                          {product.discountedPrice != null && product.discountedPrice < product.price ? (
+                            <>
+                              <span className="text-red-650">{formatPrice(product.discountedPrice)}</span>
+                              <span className="text-neutral-400 line-through text-sm font-semibold">{formatPrice(product.price)}</span>
+                            </>
+                          ) : (
+                            formatPrice(product.price)
+                          )}
                         </p>
                       </div>
                       <button
