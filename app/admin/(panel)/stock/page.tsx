@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AdminIcon, PageHeader, ProductThumb } from "../../_components/admin-shell";
 import { useStockData } from "../../_hooks/use-stock-data";
+import { resolveImageUrl } from "../../../../lib/admin-api";
 import { AdjustmentLogsModal } from "./_components/adjustment-logs-modal";
 import { AdjustStockModal } from "./_components/adjust-stock-modal";
 
@@ -110,9 +111,21 @@ export default function StockPage() {
                     key={variant.id ?? `product-${variant.product.id}`}
                   >
                     <div className="flex min-w-0 items-center gap-4">
-                      <ProductThumb
-                        color={THUMB_COLORS[index % THUMB_COLORS.length]}
-                      />
+                      {(() => {
+                        const featuredMedia = variant.product.media?.find((m) => m.isFeatured) || variant.product.media?.[0];
+                        const imageUrl = featuredMedia?.media?.url ? resolveImageUrl(featuredMedia.media.url) : null;
+                        return imageUrl ? (
+                          <img
+                            src={imageUrl}
+                            alt={variant.product.name}
+                            className="h-12 w-16 rounded object-cover border border-slate-200"
+                          />
+                        ) : (
+                          <ProductThumb
+                            color={THUMB_COLORS[index % THUMB_COLORS.length]}
+                          />
+                        );
+                      })()}
                       <div className="min-w-0">
                         <p className="truncate font-black uppercase">
                           {variant.product.name}

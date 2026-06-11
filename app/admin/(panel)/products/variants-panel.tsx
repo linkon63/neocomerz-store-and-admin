@@ -265,7 +265,7 @@ export default function VariantsPanel({
             </label>
             {/* Price */}
             <label className="block">
-              <span className="mb-1.5 block text-xs font-black text-slate-600">Price *</span>
+              <span className="mb-1.5 block text-xs font-black text-slate-600">Retail Price *</span>
               <input
                 type="number"
                 min="0"
@@ -278,7 +278,7 @@ export default function VariantsPanel({
             </label>
             {/* Cost */}
             <label className="block">
-              <span className="mb-1.5 block text-xs font-black text-slate-600">Cost</span>
+              <span className="mb-1.5 block text-xs font-black text-slate-600">Unit Price</span>
               <input
                 type="number"
                 min="0"
@@ -379,7 +379,7 @@ export default function VariantsPanel({
           <table className="w-full min-w-[700px] border-collapse text-left text-sm">
             <thead className="bg-slate-50 text-xs font-black uppercase tracking-wider text-slate-500">
               <tr>
-                {["SKU", "Price", "Cost", "Stock", "Attributes", "Default", "Actions"].map((h) => (
+                {["SKU", "Retail Price", "Unit Price", "Stock", "Attributes", "Default", "Actions"].map((h) => (
                   <th key={h} className="px-5 py-3 font-black">
                     {h}
                   </th>

@@ -537,10 +537,63 @@ export default function CartPageClient() {
                   <span className="text-neutral-500">Shipping</span>
                   <span className="font-black">€0.00</span>
                 </div>
+                {appliedCoupon && (
+                  <div className="flex justify-between text-emerald-600 font-medium">
+                    <span>Discount ({appliedCoupon.code})</span>
+                    <span>-{formatPrice(appliedCoupon.discount)}</span>
+                  </div>
+                )}
               </div>
               <div className="mt-6 flex justify-between text-lg font-black">
                 <span>Total</span>
-                <span>{formatPrice(subtotal)}</span>
+                <span>{formatPrice(orderTotal)}</span>
+              </div>
+
+              {/* Coupon input */}
+              <div className="mt-6 pt-6 border-t border-neutral-200">
+                {!appliedCoupon ? (
+                  <div className="space-y-2">
+                    <label className="text-xs font-black uppercase tracking-[0.12em] text-neutral-500">
+                      Promo Code
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Enter code"
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value)}
+                        className="flex-1 border border-neutral-200 px-3 py-2 text-sm uppercase outline-none focus:border-black"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleApplyCoupon}
+                        disabled={isApplyingCoupon}
+                        className="bg-black text-white px-4 py-2 text-xs font-black uppercase tracking-[0.12em] transition hover:bg-neutral-800 disabled:bg-neutral-400"
+                      >
+                        {isApplyingCoupon ? "Applying" : "Apply"}
+                      </button>
+                    </div>
+                    {couponError && (
+                      <p className="text-xs font-bold text-red-650">{couponError}</p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between bg-neutral-50 p-3 border border-neutral-200">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.12em] text-neutral-500">
+                        Code Applied
+                      </p>
+                      <p className="text-sm font-black uppercase mt-0.5">{appliedCoupon.code}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveCoupon}
+                      className="text-xs font-black uppercase tracking-[0.12em] text-red-600 hover:text-red-800"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
               </div>
 
               {checkoutStep === "cart" ? (

@@ -215,10 +215,14 @@ export default function ProductsPage() {
   }
 
   function updateImages(files: FileList | null) {
+    if (!files || files.length === 0) return;
     setForm((current) => ({
       ...current,
-      images: files ? Array.from(files) : [],
+      images: [...current.images, ...Array.from(files)],
     }));
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
   }
 
   function clearSelectedImages() {
@@ -795,7 +799,7 @@ export default function ProductsPage() {
                     </label>
                     <label className="block">
                       <span className="mb-2 block text-sm font-black text-slate-700">
-                        Price
+                        Retail Price
                       </span>
                       <input
                         className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
@@ -813,7 +817,7 @@ export default function ProductsPage() {
                     </label>
                     <label className="block">
                       <span className="mb-2 block text-sm font-black text-slate-700">
-                        Cost
+                        Unit Price
                       </span>
                       <input
                         className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
@@ -933,6 +937,25 @@ export default function ProductsPage() {
                             });
                           }}
                         >
+                          <button
+                            className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-lg bg-red-600 text-white z-10 hover:bg-red-750 transition shadow-sm cursor-pointer"
+                            disabled={isSaving}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setForm((current) => {
+                                const next = [...current.images];
+                                next.splice(index, 1);
+                                return { ...current, images: next };
+                              });
+                            }}
+                            onDragStart={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                            }}
+                            type="button"
+                          >
+                            <AdminIcon className="h-4 w-4" name="x" />
+                          </button>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             alt=""

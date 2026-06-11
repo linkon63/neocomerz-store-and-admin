@@ -44,8 +44,9 @@ function resolveAdminImageUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   if (url.startsWith("https://")) return url;
   if (url.startsWith("http://localhost") || url.startsWith("http://127.0.0.1")) {
-    const publicBase =
+    let publicBase =
       process.env.NEXT_PUBLIC_MEDIA_BASE_URL || "https://tinyecomapi.neocomerz.com";
+    publicBase = publicBase.replace(/\/api\/v1\/?$/, "");
     try {
       const parsed = new URL(url);
       return `${publicBase}${parsed.pathname}`;

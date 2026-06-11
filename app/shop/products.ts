@@ -134,12 +134,11 @@ export function resolveImageUrl(url: string | undefined | null): string {
   // Already a public HTTPS URL — pass through unchanged
   if (url.startsWith("https://")) return url;
 
-  // Rewrite localhost file-server URLs to the public API host
-  // e.g. http://localhost:3007/products/abc.webp → https://tinyecomapi.neocomerz.com/products/abc.webp
   if (url.startsWith("http://localhost") || url.startsWith("http://127.0.0.1")) {
-    const publicBase =
+    let publicBase =
       (typeof process !== "undefined" && process.env.NEXT_PUBLIC_MEDIA_BASE_URL) ||
       "https://tinyecomapi.neocomerz.com";
+    publicBase = publicBase.replace(/\/api\/v1\/?$/, "");
     try {
       const parsed = new URL(url);
       return `${publicBase}${parsed.pathname}`;
