@@ -69,8 +69,6 @@ export default function StorefrontFooter({
 		onOpenPolicy(id, label);
 	}
 
-	console.log(data);
-
 
 	return (
 		<footer
