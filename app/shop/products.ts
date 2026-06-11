@@ -12,6 +12,7 @@ export type ShopProduct = {
   colors?: string[];
   sizes?: string[];
   discountedPrice?: number;
+  attributes?: { name: string; values: string[] }[];
 };
 
 export interface Category {
