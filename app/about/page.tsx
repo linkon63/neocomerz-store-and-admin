@@ -2,8 +2,10 @@ import AboutBottomSlide from "@/components/about/AboutBottomSlide";
 import Image from "next/image";
 
 export const metadata = {
-    title: `About Us | ${process.env.SHOP_NAME}`,
-    description: process.env.SHOP_DESCRIPTION,
+    title: process.env.SHOP_NAME
+        ? `About Us | ${process.env.SHOP_NAME}`
+        : "About Us",
+    description: process.env.SHOP_DESCRIPTION || "Discover our curated collection of unique products and treasures.",
 };
 
 const sectionsData = [

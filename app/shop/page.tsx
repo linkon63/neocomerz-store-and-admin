@@ -1,8 +1,10 @@
 import ShopCatalog from "./shop-catalog";
 
 export const metadata = {
-    title: `Shop | ${process.env.SHOP_NAME}`,
-    description: process.env.SHOP_DESCRIPTION,
+  title: process.env.SHOP_NAME
+    ? `Shop | ${process.env.SHOP_NAME}`
+    : "Shop",
+  description: process.env.SHOP_DESCRIPTION || "Discover our curated collection of unique products and treasures.",
 };
 
 

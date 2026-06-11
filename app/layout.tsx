@@ -4,8 +4,8 @@ import "./globals.css";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: process.env.SHOP_NAME,
-  description: process.env.SHOP_DESCRIPTION,
+  title: process.env.SHOP_NAME || "Home",
+  description: process.env.SHOP_DESCRIPTION || "Welcome to our store, where quality meets style.",
 };
 
 export default function RootLayout({

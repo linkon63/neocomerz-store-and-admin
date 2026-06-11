@@ -3,9 +3,12 @@ import ContactForm from "@/components/contacts/ContactForm";
 import ContactInfoCard from "@/components/contacts/ContactInfoCard";
 import Image from "next/image";
 
+
 export const metadata = {
-    title: `Contact Us | ${process.env.SHOP_NAME}`,
-    description: process.env.SHOP_DESCRIPTION,
+    title: process.env.SHOP_NAME
+        ? `Contact Us | ${process.env.SHOP_NAME}`
+        : "Contact Us",
+    description: process.env.SHOP_DESCRIPTION || "Discover our curated collection of unique products and treasures.",
 };
 
 export default function ContactPage() {
