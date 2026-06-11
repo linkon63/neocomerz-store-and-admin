@@ -70,13 +70,13 @@ export default function ProductPurchasePanel({
   const defaultVariant = variants.find((v) => v.isDefault) || variants[0];
   const defaultColor = defaultVariant
     ? (defaultVariant.attributes
-        .map((a) => getAttributeValueName(a, "Color"))
-        .find(Boolean) as string)
+      .map((a) => getAttributeValueName(a, "Color"))
+      .find(Boolean) as string)
     : colors[0] || "";
   const defaultSize = defaultVariant
     ? (defaultVariant.attributes
-        .map((a) => getAttributeValueName(a, "Size"))
-        .find(Boolean) as string)
+      .map((a) => getAttributeValueName(a, "Size"))
+      .find(Boolean) as string)
     : sortedSizes[0] || "";
 
   const [selectedColor, setSelectedColor] = useState<string>(defaultColor);
@@ -149,11 +149,10 @@ export default function ProductPurchasePanel({
                   key={color}
                   type="button"
                   onClick={() => setSelectedColor(color)}
-                  className={`relative h-9 w-9 rounded-full border flex items-center justify-center transition-all ${
-                    isSelected
-                      ? "border-black ring-2 ring-black ring-offset-2 scale-105"
-                      : "border-neutral-200 hover:border-neutral-400"
-                  }`}
+                  className={`relative h-9 w-9 rounded-full border flex items-center justify-center transition-all ${isSelected
+                    ? "border-black ring-2 ring-black ring-offset-2 scale-105"
+                    : "border-neutral-200 hover:border-neutral-400"
+                    }`}
                   style={{ backgroundColor: hex }}
                   title={color}
                 >
@@ -191,13 +190,12 @@ export default function ProductPurchasePanel({
                   type="button"
                   disabled={!sizeExists}
                   onClick={() => setSelectedSize(size)}
-                  className={`min-w-[48px] h-10 px-3 text-xs font-bold border rounded-none transition-all ${
-                    isSelected
-                      ? "border-black bg-black text-white"
-                      : sizeExists
+                  className={`min-w-[48px] h-10 px-3 text-xs font-bold border rounded-none transition-all ${isSelected
+                    ? "border-black bg-black text-white"
+                    : sizeExists
                       ? "border-neutral-200 text-neutral-800 hover:border-neutral-400"
                       : "border-neutral-100 text-neutral-300 cursor-not-allowed opacity-50 bg-neutral-50"
-                  }`}
+                    }`}
                 >
                   {size}
                 </button>
@@ -246,10 +244,10 @@ export default function ProductPurchasePanel({
           type="button"
           disabled={isOutOfStock}
         >
-          Buy with <FaApple className="text-xl" /> Pay
+          Buy Now
         </button>
         <button
-          className="flex w-full items-center justify-center gap-4 bg-black px-6 py-3 text-center text-sm font-bold text-white hover:bg-neutral-900 transition disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-4 bg-black px-6 py-3 text-center text-sm font-bold text-white transition disabled:opacity-50 !cursor-not-allowed hover:bg-neutral-900"
           type="button"
           disabled={isOutOfStock}
         >
