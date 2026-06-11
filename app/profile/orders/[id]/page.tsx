@@ -30,6 +30,16 @@ export default function OrderDetailPage() {
   const [reviewSuccess, setReviewSuccess] = useState(false);
   const [reviewError, setReviewError] = useState("");
 
+  const refreshOrder = async () => {
+    if (!params.id) return;
+    try {
+      const data = await getOrderById(params.id as string);
+      setOrder(data);
+    } catch (err) {
+      console.error('Failed to refresh order details after review submission:', err);
+    }
+  };
+
   const handleOpenReviewModal = (productId: string, productName: string) => {
     setReviewProductId(productId);
     setReviewProductName(productName);
@@ -48,8 +58,10 @@ export default function OrderDetailPage() {
       await createProductReview(reviewProductId, {
         rating: reviewRating,
         comment: reviewComment.trim() || undefined,
+        orderId: order?.id,
       });
       setReviewSuccess(true);
+      await refreshOrder();
     } catch (err) {
       setReviewError(err instanceof Error ? err.message : "Failed to submit review");
     } finally {
@@ -352,12 +364,21 @@ export default function OrderDetailPage() {
                       </div>
                     </div>
                     {order.status === 'delivered' && item.product?.id && (
-                      <button
-                        onClick={() => handleOpenReviewModal(item.product!.id, item.product!.name)}
-                        className="mt-3 w-full bg-black text-white py-1.5 rounded text-xs font-black uppercase tracking-wider hover:bg-neutral-800 transition"
-                      >
-                        Write Review
-                      </button>
+                      order.reviews?.some(r => r.productId === item.product!.id) ? (
+                        <button
+                          disabled
+                          className="mt-3 w-full bg-neutral-100 text-neutral-400 py-1.5 rounded text-xs font-black uppercase tracking-wider border border-neutral-200 cursor-not-allowed"
+                        >
+                          Reviewed
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleOpenReviewModal(item.product!.id, item.product!.name)}
+                          className="mt-3 w-full bg-black text-white py-1.5 rounded text-xs font-black uppercase tracking-wider hover:bg-neutral-800 transition"
+                        >
+                          Write Review
+                        </button>
+                      )
                     )}
                   </div>
                 </div>
@@ -413,12 +434,21 @@ export default function OrderDetailPage() {
                         <div className="font-medium text-gray-900">
                           <div>{item.product?.name || 'Unknown Product'}</div>
                           {order.status === 'delivered' && item.product?.id && (
-                            <button
-                              onClick={() => handleOpenReviewModal(item.product!.id, item.product!.name)}
-                              className="mt-1.5 inline-flex bg-black text-white px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-wider hover:bg-neutral-800 transition"
-                            >
-                              Write Review
-                            </button>
+                            order.reviews?.some(r => r.productId === item.product!.id) ? (
+                              <button
+                                disabled
+                                className="mt-1.5 inline-flex bg-neutral-100 text-neutral-400 px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-wider border border-neutral-200 cursor-not-allowed"
+                              >
+                                Reviewed
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleOpenReviewModal(item.product!.id, item.product!.name)}
+                                className="mt-1.5 inline-flex bg-black text-white px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-wider hover:bg-neutral-800 transition"
+                              >
+                                Write Review
+                              </button>
+                            )
                           )}
                         </div>
                       </div>

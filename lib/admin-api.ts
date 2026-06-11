@@ -265,6 +265,7 @@ export type Order = {
     transactionId?: string | null;
   }[];
   statusLogs?: OrderStatusLog[];
+  reviews?: { id: string; productId: string; rating: number; comment?: string | null }[];
 };
 
 export type PaginatedOrders = {
@@ -840,7 +841,7 @@ export async function changePassword(data: { currentPassword: string; newPasswor
 
 export async function createProductReview(
   productId: string,
-  data: { rating: number; comment?: string }
+  data: { rating: number; comment?: string; orderId?: string }
 ): Promise<any> {
   return customerApiRequest(`/products/${productId}/reviews`, {
     auth: true,
