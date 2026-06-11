@@ -13,7 +13,7 @@ const certifications = [
 
 export default function Quality() {
   return (
-    <section className="w-full py-16 px-6 md:px-12 lg:py-20">
+    <section className="w-full py-16 px-6 md:px-12 lg:py-24">
       <div className="Quality-wrapper">
         <div className="container mx-auto">
             {/* Header */}
