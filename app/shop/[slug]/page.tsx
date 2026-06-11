@@ -7,6 +7,7 @@ import { productSlug, resolveImageUrl, type DBProduct, type ProductVariant, type
 import ProductPurchasePanel from "./product-purchase-panel";
 import ProductImageGallery from "./product-image-gallery";
 import WishlistButton from "./wishlist-button";
+import { FaInstagram } from "react-icons/fa";
 
 export const metadata = {
   title: process.env.SHOP_NAME 
@@ -48,6 +49,8 @@ export default async function ProductDetailsPage({
   let color = "Black";
   let size = "M";
 
+
+
   if (defaultVariant?.attributes) {
     for (const attr of defaultVariant.attributes) {
       const val = attr.attributeValue?.value;
@@ -59,6 +62,8 @@ export default async function ProductDetailsPage({
       }
     }
   }
+
+  const isOutOfStock = (defaultVariant?.stockQuantity ?? 0) <= 0;
 
   const featuredMedia = dbProduct.media?.find((m: ProductMedia) => m.isFeatured) || dbProduct.media?.[0];
   const image = resolveImageUrl(featuredMedia?.media?.url);
@@ -157,19 +162,13 @@ export default async function ProductDetailsPage({
                   </div>
                 </div>
 
-                <div className="flex gap-2">
-                  <button className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200" type="button" aria-label="Previous product">
-                    <FiChevronLeft />
-                  </button>
-                  <button className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200" type="button" aria-label="Next product">
-                    <FiChevronRight />
-                  </button>
-                </div>
+
               </div>
 
               <div className="mt-6 space-y-3 text-sm leading-6 text-neutral-600">
                 <p>
-                  <span className="font-black text-neutral-900">Availability:</span> Available
+                  <span className="font-black text-neutral-900">Availability: </span>
+                  {isOutOfStock ? <span className="text-red-500">Out of Stock</span> : "Available"}
                 </p>
                 <p>
                   <span className="font-black text-neutral-900">Code:</span> HV-{slug.slice(0, 10).toUpperCase()}
@@ -186,19 +185,46 @@ export default async function ProductDetailsPage({
                 productSlug={slug}
                 variants={dbProduct.variants || []}
               />
-
               <div>
                 <div className="mt-6 flex flex-wrap items-center gap-3">
-                  {[FaFacebookF, FaXTwitter, FaLinkedinIn, FaGooglePlusG, FiMail].map((Icon, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 text-xs"
-                      aria-label="Share product"
-                    >
-                      <Icon />
-                    </button>
-                  ))}
+                  {/* Facebook */}
+                  <a
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://your-domain.com'}/shop/${slug}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 text-xs hover:bg-neutral-100 transition"
+                  >
+                    <FaFacebookF />
+                  </a>
+
+                  {/* Twitter */}
+                  <a
+                    href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://your-domain.com'}/shop/${slug}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 text-xs hover:bg-neutral-100 transition"
+                  >
+                    <FaXTwitter />
+                  </a>
+                  {/* LinkedIn */}
+                  <a
+                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${process.env.NEXT_PUBLIC_SITE_URL}/shop/${slug}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 text-xs hover:bg-neutral-100 transition"
+                  >
+                    <FaLinkedinIn />
+                  </a>
+
+                  {/* Instagram  */}
+                  <a
+                    href="https://www.instagram.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 text-xs hover:bg-neutral-100 transition"
+                  >
+                    <FaInstagram />
+                  </a>
                   <WishlistButton product={product} />
                 </div>
               </div>
