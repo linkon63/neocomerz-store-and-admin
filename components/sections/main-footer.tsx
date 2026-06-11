@@ -69,7 +69,7 @@ export default function Mainfooter() {
               </p>
 
               {/* Philosophy Icons */}
-              <div className="flex gap-10 mb-6">
+              <div className="flex gap-3 md:gap-10 mb-6">
                 {philosophyIcons.map((item, index) => (
                   <div key={index} className="flex flex-col items-center text-center">
                     <Image 
