@@ -5,7 +5,7 @@ import { AdminIcon, PageHeader } from "../../../_components/admin-shell";
 import { ConfirmModal } from "../../../_components/confirm-modal";
 import { useDiscounts } from "../../../_hooks/use-discounts";
 import { useSections } from "../../../_hooks/use-sections";
-import { apiRequest, type Campaign } from "../../../../../lib/admin-api";
+import { apiRequest, type Campaign, resolveImageUrl } from "../../../../../lib/admin-api";
 import {
   SettingsCard,
   FieldLabel,
@@ -388,7 +388,7 @@ export default function CampaignsPage() {
                       <img
                         alt=""
                         className="h-20 w-full rounded-lg border border-slate-200 object-cover"
-                        src={url}
+                        src={resolveImageUrl(url)}
                       />
                       <button
                         className="absolute -right-2 -top-2 grid h-6 w-6 place-items-center rounded-full bg-red-500 text-xs text-white"
