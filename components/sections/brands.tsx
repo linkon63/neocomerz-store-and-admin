@@ -13,7 +13,6 @@ const brands = [
   "/images/brands/brands-5.png",
   "/images/brands/brands-6.png",
 ];
-
 export default function Brands() {
   return (
     <section className="w-full py-12 px-6 md:px-12 lg:py-16">
