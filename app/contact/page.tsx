@@ -4,8 +4,8 @@ import ContactInfoCard from "@/components/contacts/ContactInfoCard";
 import Image from "next/image";
 
 export const metadata = {
-    title: 'Contact Us | Humana Vintage',
-    description: 'Contact with the finest collection owners at Humana Vintage.',
+    title: `Contact Us | ${process.env.SHOP_NAME}`,
+    description: process.env.SHOP_DESCRIPTION,
 };
 
 export default function ContactPage() {

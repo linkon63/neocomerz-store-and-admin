@@ -10,11 +10,13 @@ import { useCart } from "./cart-context";
 import { useWishlist } from "./wishlist-context";
 import { useProductSearch } from "./use-product-search";
 import { resolveImageUrl } from "../shop/products";
+import { useFetchSettings } from "@/hooks/useFetchSettings";
 
 export default function StorefrontHeader() {
   const { itemCount, items, subtotal } = useCart();
   const { itemCount: wishlistItemCount } = useWishlist();
   const { user, login, register, logout } = useAuth();
+  const { data, isLoading } = useFetchSettings();
 
   const [authMode, setAuthMode] = useState<"login" | "register" | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -180,11 +182,15 @@ export default function StorefrontHeader() {
     }
   }
 
+
   return (
     <div className="sticky top-0 z-50 bg-white">
-      <section className="bg-black px-4 py-2 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
-        Join our community and get 10% off every piece
-      </section>
+      {
+        data?.slogan && <section className="bg-black px-4 py-2 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
+          {data.slogan}
+        </section>
+      }
+
 
       <header className="border-b border-neutral-200 bg-white">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 py-3">
@@ -204,13 +210,19 @@ export default function StorefrontHeader() {
             <Link href="/contact">Contact</Link>
           </nav>
 
-          <Link href="/" className="mx-auto lg:mx-0" aria-label="Humana Vintage home">
-            <Image
-              src={humanaLogo}
-              alt="Humana Vintage"
-              priority
-              className="h-9 w-auto sm:h-11"
-            />
+          <Link href="/" className="mx-auto lg:mx-0" aria-label={data?.shopName || "Store"}>
+            {isLoading ? (
+              <div className="h-9 w-32 animate-pulse rounded bg-neutral-200 sm:h-11" />
+            ) : (
+              <Image
+                src={data?.logo || humanaLogo}
+                alt={data?.shopName || "Store Logo"}
+                priority
+                width={150}
+                height={44}
+                className="h-9 w-auto sm:h-11"
+              />
+            )}
           </Link>
 
           <div className="hidden items-center gap-5 text-lg text-black lg:flex">
@@ -243,20 +255,20 @@ export default function StorefrontHeader() {
             {user ? (
               <div className="group relative">
                 <Link
-                    href="/profile"
-                    className="block px-4 py-3 text-xs font-bold uppercase tracking-[0.08em] hover:bg-neutral-50"
+                  href="/profile"
+                  className="block px-4 py-3 text-xs font-bold uppercase tracking-[0.08em] hover:bg-neutral-50"
+                >
+                  <button
+                    type="button"
+                    aria-label="Account menu"
+                    className="flex items-center gap-1.5 text-sm font-bold"
                   >
-                    <button
-                      type="button"
-                      aria-label="Account menu"
-                      className="flex items-center gap-1.5 text-sm font-bold"
-                    >
-                      <FiUser />
-                      <span className="max-w-[90px] truncate text-[11px] uppercase tracking-[0.06em]">
-                        {user.name.split(" ")[0]}
-                      </span>
-                    </button>
-                  </Link>
+                    <FiUser />
+                    <span className="max-w-[90px] truncate text-[11px] uppercase tracking-[0.06em]">
+                      {user.name.split(" ")[0]}
+                    </span>
+                  </button>
+                </Link>
               </div>
             ) : (
               <button

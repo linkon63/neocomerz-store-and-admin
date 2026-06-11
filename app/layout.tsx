@@ -4,8 +4,8 @@ import "./globals.css";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: "Humana Vintage",
-  description: "A vintage fashion storefront with curated archive pieces and everyday streetwear.",
+  title: process.env.SHOP_NAME,
+  description: process.env.SHOP_DESCRIPTION,
 };
 
 export default function RootLayout({

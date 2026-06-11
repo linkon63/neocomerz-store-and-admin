@@ -9,8 +9,8 @@ import ProductImageGallery from "./product-image-gallery";
 import WishlistButton from "./wishlist-button";
 
 export const metadata = {
-    title: 'Shop | Humana Vintage',
-    description: 'Explore our curated collection of vintage treasures at Humana Vintage. Discover unique, high-quality pieces handpicked for your sustainable wardrobe.',
+  title: `Shop | ${process.env.SHOP_NAME}`,
+  description: process.env.SHOP_DESCRIPTION,
 };
 
 function formatPrice(price: number) {

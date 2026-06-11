@@ -2,8 +2,8 @@ import AboutBottomSlide from "@/components/about/AboutBottomSlide";
 import Image from "next/image";
 
 export const metadata = {
-    title: 'About Us | Humana Vintage',
-    description: 'Shop the finest collection of authentic vintage clothing at Humana Vintage.',
+    title: `About Us | ${process.env.SHOP_NAME}`,
+    description: process.env.SHOP_DESCRIPTION,
 };
 
 const sectionsData = [
