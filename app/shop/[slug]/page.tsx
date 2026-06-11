@@ -158,6 +158,11 @@ export default async function ProductDetailsPage({
     console.error("Error fetching reviews:", err);
   }
 
+  const avgRating =
+    reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+      : 0;
+
   // ── Gallery images ────────────────────────────────────────────────────────
   const images = dbProduct.media?.length
     ? dbProduct.media.map((m: ProductMedia) => resolveImageUrl(m.media?.url))
@@ -203,12 +208,40 @@ export default async function ProductDetailsPage({
                 <span className="text-neutral-800">{product.name}</span>
               </div>
 
-              {/* Product Title & Price */}
+              {/* Product Title, Brand & Reviews Summary */}
               <div className="mt-3">
                 <h1 className="text-3xl font-black uppercase leading-tight tracking-tight text-neutral-900">
                   {product.name}
                 </h1>
-                <div className="mt-3">
+                
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-black uppercase tracking-wider text-neutral-500">
+                  {product.team && product.team !== "—" && (
+                    <span className="text-neutral-800 font-bold">
+                      Brand: <span className="font-extrabold text-neutral-900 underline decoration-2 decoration-[#ffd02f] underline-offset-4">{product.team}</span>
+                    </span>
+                  )}
+                  {product.team && product.team !== "—" && reviews.length > 0 && (
+                    <span className="text-neutral-300 font-light">|</span>
+                  )}
+                  {reviews.length > 0 ? (
+                    <div className="flex items-center gap-1.5">
+                      <div className="flex text-[#ffd02f] text-sm">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <span key={i} className="leading-none">
+                            {i < Math.round(avgRating) ? "★" : "☆"}
+                          </span>
+                        ))}
+                      </div>
+                      <span className="text-neutral-700 normal-case font-bold">
+                        {avgRating.toFixed(1)} ({reviews.length} {reviews.length === 1 ? "review" : "reviews"})
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-neutral-400 normal-case italic font-semibold">No reviews yet</span>
+                  )}
+                </div>
+
+                <div className="mt-4">
                   {product.discountedPrice != null && product.discountedPrice < product.price ? (
                     <div className="flex items-center gap-3">
                       <span className="text-2xl font-black text-red-650">

@@ -13,36 +13,8 @@ type ProductPurchasePanelProps = {
   variants: ProductVariant[];
 };
 
-const colorHexMap: Record<string, string> = {
-  Black: "#050505",
-  Red: "#ed0d0d",
-  Yellow: "#f4dc45",
-  Green: "#179400",
-  White: "#f8f9fa",
-  Orange: "#f58a4b",
-  Blue: "#00569c",
-  "Sky Blue": "#2ac6d4",
-  Beige: "#d8bd97",
-  Gray: "#c7c7c7",
-  Lilac: "#a77adf",
-  Brown: "#9a4c26",
-  Pink: "#e7b1f5",
-  Purple: "#5d00a5",
-};
-
-function isSize(attr: VariantAttribute): boolean {
-  const name = attr.attributeValue?.attribute?.name?.toLowerCase() ?? "";
-  if (name === "size") return true;
-  const val = attr.attributeValue?.value ?? "";
-  return ["xs", "s", "m", "l", "xl", "xxl", "2xl", "3xl"].includes(val.toLowerCase());
-}
-
-function isColor(attr: VariantAttribute): boolean {
-  const name = attr.attributeValue?.attribute?.name?.toLowerCase() ?? "";
-  if (name === "color" || name === "colour") return true;
-  const val = attr.attributeValue?.value ?? "";
-  return val.length > 0 && !["xs", "s", "m", "l", "xl", "xxl", "2xl", "3xl"].includes(val.toLowerCase());
-}
+// Map of default size option order for consistent sorting
+const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL", "2XL", "3XL"];
 
 export default function ProductPurchasePanel({
   productName,
@@ -53,61 +25,78 @@ export default function ProductPurchasePanel({
   const { addItem } = useCart();
   const router = useRouter();
 
-  const getAttributeValueName = (attr: VariantAttribute, type: "color" | "size") => {
-    const val = attr.attributeValue?.value;
-    if (!val) return null;
-    if (type === "size") return isSize(attr) ? val : null;
-    if (type === "color") return isColor(attr) ? val : null;
-    return null;
-  };
+  // Map of attributeName -> Set of unique values
+  const attributesMap = new Map<string, Set<string>>();
+  for (const variant of variants) {
+    for (const varAttr of variant.attributes) {
+      const attrName = varAttr.attributeValue?.attribute?.name;
+      const attrVal = varAttr.attributeValue?.value;
+      if (attrName && attrVal) {
+        if (!attributesMap.has(attrName)) {
+          attributesMap.set(attrName, new Set());
+        }
+        attributesMap.get(attrName)!.add(attrVal);
+      }
+    }
+  }
 
-  // Get unique colors and sizes
-  const colors = Array.from(
-    new Set(
-      variants.flatMap((v) =>
-        v.attributes.map((a) => getAttributeValueName(a, "color")).filter(Boolean),
-      ),
-    ),
-  ) as string[];
+  // Convert map to sorted arrays
+  const dynamicAttributes = Array.from(attributesMap.entries()).map(([name, valuesSet]) => {
+    const values = Array.from(valuesSet);
+    if (name.toLowerCase() === "size") {
+      values.sort((a, b) => {
+        const indexA = sizeOrder.indexOf(a.toUpperCase());
+        const indexB = sizeOrder.indexOf(b.toUpperCase());
+        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+        if (indexA !== -1) return -1;
+        if (indexB !== -1) return 1;
+        // fallback to numeric or alphabetic sorting
+        const numA = parseFloat(a);
+        const numB = parseFloat(b);
+        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+        return a.localeCompare(b);
+      });
+    } else {
+      if (values.every(v => !isNaN(parseFloat(v)))) {
+        values.sort((a, b) => parseFloat(a) - parseFloat(b));
+      } else {
+        values.sort();
+      }
+    }
+    return { name, values };
+  });
 
-  const sizes = Array.from(
-    new Set(
-      variants.flatMap((v) =>
-        v.attributes.map((a) => getAttributeValueName(a, "size")).filter(Boolean),
-      ),
-    ),
-  ) as string[];
+  // Track current selections in a single state object
+  const [selections, setSelections] = useState<Record<string, string>>(() => {
+    const defaultVariant = variants.find((v) => v.isDefault) || variants[0];
+    const initial: Record<string, string> = {};
+    if (defaultVariant) {
+      for (const varAttr of defaultVariant.attributes) {
+        const attrName = varAttr.attributeValue?.attribute?.name;
+        const attrVal = varAttr.attributeValue?.value;
+        if (attrName && attrVal) {
+          initial[attrName] = attrVal;
+        }
+      }
+    }
+    // ensure all attributes have an initial selection
+    for (const [name, valuesSet] of attributesMap.entries()) {
+      if (!initial[name]) {
+        initial[name] = Array.from(valuesSet)[0] || "";
+      }
+    }
+    return initial;
+  });
 
-  const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL", "2XL", "3XL"];
-  const sortedSizes = [...sizes].sort(
-    (a, b) => sizeOrder.indexOf(a.toUpperCase()) - sizeOrder.indexOf(b.toUpperCase()),
-  );
-
-  // Default selection
-  const defaultVariant = variants.find((v) => v.isDefault) || variants[0];
-  const defaultColor = defaultVariant
-    ? (defaultVariant.attributes
-      .map((a) => getAttributeValueName(a, "color"))
-      .find(Boolean) as string)
-    : colors[0] || "";
-  const defaultSize = defaultVariant
-    ? (defaultVariant.attributes
-      .map((a) => getAttributeValueName(a, "size"))
-      .find(Boolean) as string)
-    : sortedSizes[0] || "";
-
-  const [selectedColor, setSelectedColor] = useState<string>(defaultColor);
-  const [selectedSize, setSelectedSize] = useState<string>(defaultSize);
-
-  // Find variant matching current selection
+  // Find variant matching current selections
   const matchedVariant = variants.find((v) => {
-    const colorMatch =
-      colors.length === 0 ||
-      v.attributes.some((a) => getAttributeValueName(a, "color") === selectedColor);
-    const sizeMatch =
-      sizes.length === 0 ||
-      v.attributes.some((a) => getAttributeValueName(a, "size") === selectedSize);
-    return colorMatch && sizeMatch;
+    return Object.entries(selections).every(([attrName, selectedVal]) => {
+      return v.attributes.some(
+        (varAttr) =>
+          varAttr.attributeValue?.attribute?.name === attrName &&
+          varAttr.attributeValue?.value === selectedVal
+      );
+    });
   });
 
   const price = matchedVariant ? Number(matchedVariant.price) : 0;
@@ -123,8 +112,8 @@ export default function ProductPurchasePanel({
       name: productName,
       price: discountedPrice != null && discountedPrice < price ? discountedPrice : price,
       image: productImage,
-      color: selectedColor,
-      size: selectedSize,
+      color: selections["Color"] || selections["Colour"] || "",
+      size: selections["Size"] || selections["size"] || "",
       variantId: matchedVariant?.id,
     };
   }
@@ -167,77 +156,62 @@ export default function ProductPurchasePanel({
         </div>
       )}
 
-      {/* Color Selection */}
-      {colors.length > 0 && (
-        <div>
+      {/* Dynamic Attributes Selection */}
+      {dynamicAttributes.map((attr) => (
+        <div key={attr.name}>
           <h3 className="text-xs font-black uppercase tracking-[0.08em] text-neutral-500">
-            Color: <span className="text-neutral-900 font-bold">{selectedColor}</span>
-          </h3>
-          <div className="mt-3 flex gap-3">
-            {colors.map((color) => {
-              const hex = colorHexMap[color] || color.toLowerCase();
-              const isSelected = selectedColor === color;
-              return (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => setSelectedColor(color)}
-                  className={`relative h-9 w-9 rounded-full border flex items-center justify-center transition-all ${isSelected
-                    ? "border-black ring-2 ring-black ring-offset-2 scale-105"
-                    : "border-neutral-200 hover:border-neutral-400"
-                    }`}
-                  style={{ backgroundColor: hex }}
-                  title={color}
-                >
-                  {color === "White" && (
-                    <span className="absolute inset-0.5 rounded-full border border-neutral-200" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Size Selection */}
-      {sortedSizes.length > 0 && (
-        <div>
-          <h3 className="text-xs font-black uppercase tracking-[0.08em] text-neutral-500">
-            Size: <span className="text-neutral-900 font-bold">{selectedSize}</span>
+            {attr.name}: <span className="text-neutral-900 font-bold">{selections[attr.name]}</span>
           </h3>
           <div className="mt-3 flex flex-wrap gap-2">
-            {sortedSizes.map((size) => {
-              const isSelected = selectedSize === size;
-              const sizeExists = variants.some((v) => {
-                const colorMatch =
-                  colors.length === 0 ||
-                  v.attributes.some((a) => getAttributeValueName(a, "color") === selectedColor);
-                const sizeMatch = v.attributes.some(
-                  (a) => getAttributeValueName(a, "size") === size,
+            {attr.values.map((val) => {
+              const isSelected = selections[attr.name] === val;
+              
+              // A value is selectable if there is any variant that has this value,
+              // and matches all other currently selected attributes.
+              const valExists = variants.some((v) => {
+                const hasVal = v.attributes.some(
+                  (varAttr) =>
+                    varAttr.attributeValue?.attribute?.name === attr.name &&
+                    varAttr.attributeValue?.value === val
                 );
-                return colorMatch && sizeMatch;
+                if (!hasVal) return false;
+                
+                return Object.entries(selections).every(([otherName, otherVal]) => {
+                  if (otherName === attr.name) return true;
+                  return v.attributes.some(
+                    (varAttr) =>
+                      varAttr.attributeValue?.attribute?.name === otherName &&
+                      varAttr.attributeValue?.value === otherVal
+                  );
+                });
               });
 
               return (
                 <button
-                  key={size}
+                  key={val}
                   type="button"
-                  disabled={!sizeExists}
-                  onClick={() => setSelectedSize(size)}
-                  className={`min-w-[48px] h-10 px-3 text-xs font-bold border rounded-none transition-all ${isSelected
-                    ? "border-black bg-black text-white"
-                    : sizeExists
-                      ? "border-neutral-200 text-neutral-800 hover:border-neutral-400"
-                      : "border-neutral-100 text-neutral-300 cursor-not-allowed opacity-50 bg-neutral-50"
-                    }`}
+                  disabled={!valExists}
+                  onClick={() =>
+                    setSelections((prev) => ({
+                      ...prev,
+                      [attr.name]: val,
+                    }))
+                  }
+                  className={`min-w-[48px] h-10 px-4 text-xs font-bold border rounded-none transition-all ${
+                    isSelected
+                      ? "border-black bg-black text-white"
+                      : valExists
+                        ? "border-neutral-200 text-neutral-800 hover:border-neutral-400"
+                        : "border-neutral-100 text-neutral-300 cursor-not-allowed opacity-50 bg-neutral-50"
+                  }`}
                 >
-                  {size}
+                  {val}
                 </button>
               );
             })}
           </div>
         </div>
-      )}
+      ))}
 
       {/* Stock Status Indicator */}
       {matchedVariant && (
