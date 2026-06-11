@@ -6,7 +6,24 @@ import { useEffect, useMemo, useState } from "react";
 import { FiChevronDown, FiGrid, FiHeart, FiList, FiSearch, FiShoppingBag, FiFilter, FiX } from "react-icons/fi";
 import { useCart } from "../_components/cart-context";
 import { useWishlist } from "../_components/wishlist-context";
-import { productSlug, resolveImageUrl, type ShopProduct, type DBProduct, type ProductVariant, type ProductMedia } from "./products";
+import { productSlug, resolveImageUrl, type ShopProduct, type DBProduct, type ProductVariant, type ProductMedia, type VariantAttribute } from "./products";
+
+/** Determine if an attribute value is a size by checking name first, then value heuristics */
+function isSize(attr: VariantAttribute): boolean {
+  const name = attr.attributeValue?.attribute?.name?.toLowerCase() ?? "";
+  if (name === "size") return true;
+  const val = attr.attributeValue?.value ?? "";
+  return ["xs", "s", "m", "l", "xl", "xxl", "2xl", "3xl"].includes(val.toLowerCase());
+}
+
+/** Determine if an attribute value is a color by checking name first, then value heuristics */
+function isColor(attr: VariantAttribute): boolean {
+  const name = attr.attributeValue?.attribute?.name?.toLowerCase() ?? "";
+  if (name === "color" || name === "colour") return true;
+  const val = attr.attributeValue?.value ?? "";
+  // Not a size → treat as color
+  return val.length > 0 && !["xs", "s", "m", "l", "xl", "xxl", "2xl", "3xl"].includes(val.toLowerCase());
+}
 
 const colorHexMap: Record<string, string> = {
   Orange: "#f58a4b",
@@ -84,10 +101,9 @@ export default function ShopCatalog() {
             for (const attr of defaultVariant.attributes) {
               const val = attr.attributeValue?.value;
               if (!val) continue;
-              const attrName = attr.attributeValue?.attribute?.name?.toLowerCase();
-              if (attrName === "size" || ["S", "M", "L", "XL", "XXL"].includes(val)) {
+              if (isSize(attr)) {
                 size = val;
-              } else {
+              } else if (isColor(attr)) {
                 color = val;
               }
             }
@@ -103,11 +119,10 @@ export default function ShopCatalog() {
               if (v.attributes) {
                 for (const attr of v.attributes) {
                   const val = attr.attributeValue?.value;
-                  const name = attr.attributeValue?.attribute?.name?.toLowerCase();
                   if (val) {
-                    if (name === "size" || ["S", "M", "L", "XL", "XXL"].includes(val)) {
+                    if (isSize(attr)) {
                       allSizes.add(val);
-                    } else {
+                    } else if (isColor(attr)) {
                       allColors.add(val);
                     }
                   }
@@ -120,6 +135,7 @@ export default function ShopCatalog() {
             id: p.id,
             slug: p.slug,
             name: p.name,
+            description: p.description,
             category: p.category?.name || "Football Corner",
             team: p.brand?.name || "Juventus",
             price,
@@ -459,10 +475,9 @@ export default function ShopCatalog() {
                         <h3 className="mt-1 truncate text-sm font-black uppercase text-neutral-800">
                           {product.name}
                         </h3>
-                        {viewMode === "list" && (
-                          <p className="mt-3 max-w-xl text-sm leading-6 text-neutral-500">
-                            A curated vintage football piece from the Humana archive, selected for condition,
-                            color, and everyday styling.
+                        {viewMode === "list" && (product as ShopProduct & { description?: string }).description && (
+                          <p className="mt-3 max-w-xl text-sm leading-6 text-neutral-500 line-clamp-3">
+                            {(product as ShopProduct & { description?: string }).description}
                           </p>
                         )}
                         <p className="mt-2 text-base font-black text-neutral-800">

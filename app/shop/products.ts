@@ -72,6 +72,7 @@ export interface DBProduct {
   brand?: Brand;
   variants?: ProductVariant[];
   media?: ProductMedia[];
+  tags?: { id: string; name: string; slug: string }[];
 }
 
 export interface Address {

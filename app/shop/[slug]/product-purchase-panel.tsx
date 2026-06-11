@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FaApple, FaGoogle } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 import { FiCreditCard, FiShoppingBag, FiInfo } from "react-icons/fi";
 import { useCart } from "../../_components/cart-context";
 import { type ProductVariant, type VariantAttribute } from "../products";
@@ -20,7 +20,29 @@ const colorHexMap: Record<string, string> = {
   Green: "#179400",
   White: "#f8f9fa",
   Orange: "#f58a4b",
+  Blue: "#00569c",
+  "Sky Blue": "#2ac6d4",
+  Beige: "#d8bd97",
+  Gray: "#c7c7c7",
+  Lilac: "#a77adf",
+  Brown: "#9a4c26",
+  Pink: "#e7b1f5",
+  Purple: "#5d00a5",
 };
+
+function isSize(attr: VariantAttribute): boolean {
+  const name = attr.attributeValue?.attribute?.name?.toLowerCase() ?? "";
+  if (name === "size") return true;
+  const val = attr.attributeValue?.value ?? "";
+  return ["xs", "s", "m", "l", "xl", "xxl", "2xl", "3xl"].includes(val.toLowerCase());
+}
+
+function isColor(attr: VariantAttribute): boolean {
+  const name = attr.attributeValue?.attribute?.name?.toLowerCase() ?? "";
+  if (name === "color" || name === "colour") return true;
+  const val = attr.attributeValue?.value ?? "";
+  return val.length > 0 && !["xs", "s", "m", "l", "xl", "xxl", "2xl", "3xl"].includes(val.toLowerCase());
+}
 
 export default function ProductPurchasePanel({
   productName,
@@ -29,20 +51,13 @@ export default function ProductPurchasePanel({
   variants,
 }: ProductPurchasePanelProps) {
   const { addItem } = useCart();
+  const router = useRouter();
 
-  const getAttributeValueName = (attr: VariantAttribute, targetName: string) => {
-    const attrName = attr.attributeValue?.attribute?.name?.toLowerCase();
-    if (attrName === targetName.toLowerCase() && attr.attributeValue?.value) {
-      return attr.attributeValue.value;
-    }
+  const getAttributeValueName = (attr: VariantAttribute, type: "color" | "size") => {
     const val = attr.attributeValue?.value;
     if (!val) return null;
-    if (targetName.toLowerCase() === "size" && ["S", "M", "L", "XL", "XXL"].includes(val)) {
-      return val;
-    }
-    if (targetName.toLowerCase() === "color" && !["S", "M", "L", "XL", "XXL"].includes(val)) {
-      return val;
-    }
+    if (type === "size") return isSize(attr) ? val : null;
+    if (type === "color") return isColor(attr) ? val : null;
     return null;
   };
 
@@ -50,7 +65,7 @@ export default function ProductPurchasePanel({
   const colors = Array.from(
     new Set(
       variants.flatMap((v) =>
-        v.attributes.map((a) => getAttributeValueName(a, "Color")).filter(Boolean),
+        v.attributes.map((a) => getAttributeValueName(a, "color")).filter(Boolean),
       ),
     ),
   ) as string[];
@@ -58,24 +73,26 @@ export default function ProductPurchasePanel({
   const sizes = Array.from(
     new Set(
       variants.flatMap((v) =>
-        v.attributes.map((a) => getAttributeValueName(a, "Size")).filter(Boolean),
+        v.attributes.map((a) => getAttributeValueName(a, "size")).filter(Boolean),
       ),
     ),
   ) as string[];
 
-  const sizeOrder = ["S", "M", "L", "XL", "XXL"];
-  const sortedSizes = [...sizes].sort((a, b) => sizeOrder.indexOf(a) - sizeOrder.indexOf(b));
+  const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL", "2XL", "3XL"];
+  const sortedSizes = [...sizes].sort(
+    (a, b) => sizeOrder.indexOf(a.toUpperCase()) - sizeOrder.indexOf(b.toUpperCase()),
+  );
 
   // Default selection
   const defaultVariant = variants.find((v) => v.isDefault) || variants[0];
   const defaultColor = defaultVariant
     ? (defaultVariant.attributes
-      .map((a) => getAttributeValueName(a, "Color"))
+      .map((a) => getAttributeValueName(a, "color"))
       .find(Boolean) as string)
     : colors[0] || "";
   const defaultSize = defaultVariant
     ? (defaultVariant.attributes
-      .map((a) => getAttributeValueName(a, "Size"))
+      .map((a) => getAttributeValueName(a, "size"))
       .find(Boolean) as string)
     : sortedSizes[0] || "";
 
@@ -86,30 +103,38 @@ export default function ProductPurchasePanel({
   const matchedVariant = variants.find((v) => {
     const colorMatch =
       colors.length === 0 ||
-      v.attributes.some((a) => getAttributeValueName(a, "Color") === selectedColor);
+      v.attributes.some((a) => getAttributeValueName(a, "color") === selectedColor);
     const sizeMatch =
       sizes.length === 0 ||
-      v.attributes.some((a) => getAttributeValueName(a, "Size") === selectedSize);
+      v.attributes.some((a) => getAttributeValueName(a, "size") === selectedSize);
     return colorMatch && sizeMatch;
   });
 
-  const basePrice = matchedVariant ? Number(matchedVariant.price) : 0;
-  const discountedPrice = basePrice * 0.8; // 20% discount as configured in detail page
+  const price = matchedVariant ? Number(matchedVariant.price) : 0;
   const stock = matchedVariant ? matchedVariant.stockQuantity : 0;
   const isOutOfStock = stock <= 0;
 
-  function handleAddToCart() {
-    if (!matchedVariant) return;
-
-    void addItem({
+  function buildCartItem() {
+    return {
       slug: productSlug,
       name: productName,
-      price: discountedPrice,
+      price,
       image: productImage,
       color: selectedColor,
       size: selectedSize,
-      variantId: matchedVariant.id,
-    });
+      variantId: matchedVariant?.id,
+    };
+  }
+
+  function handleAddToCart() {
+    if (!matchedVariant) return;
+    void addItem(buildCartItem());
+  }
+
+  async function handleBuyNow() {
+    if (!matchedVariant) return;
+    await addItem(buildCartItem());
+    router.push("/cart");
   }
 
   return (
@@ -118,16 +143,10 @@ export default function ProductPurchasePanel({
       {matchedVariant && (
         <div className="flex items-center gap-3 bg-neutral-50 p-4 border border-neutral-100 rounded-sm">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.08em] text-neutral-400">Selected Variant Price</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.08em] text-neutral-400">Variant Price</p>
             <div className="mt-1 flex items-center gap-3">
-              <span className="text-sm font-bold text-neutral-400 line-through">
-                €{basePrice.toFixed(2)}
-              </span>
-              <span className="text-xl font-black text-neutral-900">
-                €{discountedPrice.toFixed(2)}
-              </span>
-              <span className="bg-[#ffd02f] px-2 py-0.5 text-[10px] font-black uppercase rounded-sm">
-                Save 20%
+              <span className="text-2xl font-black text-neutral-900">
+                €{price.toFixed(2)}
               </span>
             </div>
           </div>
@@ -175,12 +194,13 @@ export default function ProductPurchasePanel({
           <div className="mt-3 flex flex-wrap gap-2">
             {sortedSizes.map((size) => {
               const isSelected = selectedSize === size;
-              // Check if size is available in current selected color
               const sizeExists = variants.some((v) => {
                 const colorMatch =
                   colors.length === 0 ||
-                  v.attributes.some((a) => getAttributeValueName(a, "Color") === selectedColor);
-                const sizeMatch = v.attributes.some((a) => getAttributeValueName(a, "Size") === size);
+                  v.attributes.some((a) => getAttributeValueName(a, "color") === selectedColor);
+                const sizeMatch = v.attributes.some(
+                  (a) => getAttributeValueName(a, "size") === size,
+                );
                 return colorMatch && sizeMatch;
               });
 
@@ -216,7 +236,7 @@ export default function ProductPurchasePanel({
           ) : stock <= matchedVariant.stockAlertThreshold ? (
             <p className="text-amber-600 flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
-              Only {stock} left in stock - order soon!
+              Only {stock} left in stock — order soon!
             </p>
           ) : (
             <p className="text-green-600 flex items-center gap-1.5">
@@ -228,7 +248,7 @@ export default function ProductPurchasePanel({
       )}
 
       {/* Purchase Actions */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         <button
           className="w-full inline-flex items-center justify-center gap-3 bg-neutral-900 px-6 py-4 text-sm font-black uppercase text-white hover:bg-neutral-800 transition disabled:bg-neutral-300 disabled:text-neutral-500 disabled:cursor-not-allowed"
           type="button"
@@ -240,31 +260,29 @@ export default function ProductPurchasePanel({
         </button>
 
         <button
-          className="flex w-full items-center justify-center gap-2 bg-black px-6 py-4 text-center text-base font-bold text-white hover:bg-neutral-900 transition disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 border-2 border-black bg-[#ffd02f] px-6 py-4 text-center text-sm font-black uppercase text-black hover:bg-black hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
           type="button"
-          disabled={isOutOfStock}
+          disabled={!matchedVariant || isOutOfStock}
+          onClick={handleBuyNow}
         >
-          Buy Now
+          Buy Now — €{price.toFixed(2)}
         </button>
+
         <button
-          className="flex w-full items-center justify-center gap-4 bg-black px-6 py-3 text-center text-sm font-bold text-white transition disabled:opacity-50 !cursor-not-allowed hover:bg-neutral-900"
+          className="flex w-full items-center justify-center gap-4 bg-neutral-100 px-6 py-3 text-center text-sm font-bold text-neutral-500 cursor-not-allowed"
           type="button"
-          disabled={isOutOfStock}
+          disabled
+          title="Card payment coming soon"
         >
-          <span className="inline-flex items-center gap-1">
-            <FaGoogle className="text-base" /> Pay
-          </span>
-          <span className="h-4 w-px bg-white/40" />
-          <span className="inline-flex items-center gap-1">
-            <FiCreditCard className="text-base" /> Card
-          </span>
+          <FiCreditCard className="text-base" />
+          Card Payment — Coming Soon
         </button>
       </div>
 
       <div className="flex gap-2 text-[10px] text-neutral-400 font-semibold bg-neutral-50 p-3 rounded-sm">
         <FiInfo className="text-xs shrink-0 mt-0.5 text-neutral-500" />
         <p>
-          Pay in 3 interest-free installments. Free returns on all archive purchases.
+          Free returns on all archive purchases. Secure checkout.
         </p>
       </div>
     </div>

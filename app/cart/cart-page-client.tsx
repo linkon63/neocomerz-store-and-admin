@@ -73,6 +73,59 @@ export default function CartPageClient() {
   const [checkoutError, setCheckoutError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Coupon code state
+  const [couponInput, setCouponInput] = useState("");
+  const [couponError, setCouponError] = useState("");
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discount: number;
+    total: number;
+    couponType: string;
+    couponValue: number;
+  } | null>(null);
+
+  // ── Apply coupon ─────────────────────────────────────────────────────────────
+  async function handleApplyCoupon() {
+    const code = couponInput.trim().toUpperCase();
+    if (!code) {
+      setCouponError("Please enter a coupon code.");
+      return;
+    }
+    setIsApplyingCoupon(true);
+    setCouponError("");
+    try {
+      const res = await fetch(`${BASE_URL}/coupons/apply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error((data as { message?: string }).message || "Invalid coupon.");
+      }
+      setAppliedCoupon({
+        code,
+        discount: data.discount,
+        total: data.total,
+        couponType: data.coupon.type,
+        couponValue: Number(data.coupon.value),
+      });
+      setCouponInput("");
+    } catch (err) {
+      setCouponError(err instanceof Error ? err.message : "Failed to apply coupon.");
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  }
+
+  function handleRemoveCoupon() {
+    setAppliedCoupon(null);
+    setCouponError("");
+  }
+
+  const orderTotal = appliedCoupon ? appliedCoupon.total : subtotal;
+
   // Prevent double submission
   const isSubmittingRef = useRef(false);
 
@@ -160,7 +213,10 @@ export default function CartPageClient() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ addressId }),
+      body: JSON.stringify({
+        addressId,
+        ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
+      }),
     });
 
     if (!res.ok) {
@@ -203,6 +259,7 @@ export default function CartPageClient() {
           addressLine2: addressFields.addressLine2 || undefined,
         },
         items: lineItems,
+        ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
       }),
     });
 

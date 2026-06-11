@@ -17,6 +17,7 @@ import {
   type ProductVariant,
   type Unit,
 } from "../../../../lib/admin-api";
+import VariantsPanel from "./variants-panel";
 
 type ProductForm = {
   id?: string;
@@ -981,6 +982,16 @@ export default function ProductsPage() {
                 )}
               </div>
             </div>
+
+            {/* Variants panel — only visible when editing an existing product */}
+            {form.id && (
+              <div className="mt-6 border-t border-slate-200 pt-6">
+                <VariantsPanel
+                  productId={form.id}
+                  onVariantsChange={loadProducts}
+                />
+              </div>
+            )}
 
             {error && (
               <p className="mt-5 rounded-lg bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
