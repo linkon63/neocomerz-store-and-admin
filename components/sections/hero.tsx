@@ -1,0 +1,30 @@
+import HeroSlider from "./ui/hero-slider";
+import type { Slide } from "@/data/types";
+
+export default function Hero() {
+  const slides: Slide[] = [
+    {
+      videoId: "CFfP9DFeOog",
+      title: "From the Gardens of Sylhet to the World's Finest Tables",
+      subtitle: "A HERITAGE OF RARE TEA, REFINED THROUGH CRAFTSMANSHIP, PURITY, AND TIMELESS ELEGANCE.",
+    },
+    {
+      videoId: "Ko0frhpjKOk",
+      title: "From the Gardens of Sylhet to the World's Finest Tables",
+      subtitle: "A HERITAGE OF RARE TEA, REFINED THROUGH CRAFTSMANSHIP, PURITY, AND TIMELESS ELEGANCE.",
+    },
+    {
+      videoId: "_I60fhC6Cyg",
+      title: "From the Gardens of Sylhet to the World's Finest Tables",
+      subtitle: "A HERITAGE OF RARE TEA, REFINED THROUGH CRAFTSMANSHIP, PURITY, AND TIMELESS ELEGANCE.",
+    },
+  ];
+
+  return (
+    <section className="w-full relative">
+      <div className="hero-wrapper">
+        <HeroSlider slides={slides} />
+      </div>
+    </section>
+  );
+}
