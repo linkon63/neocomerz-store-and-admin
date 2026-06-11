@@ -12,8 +12,8 @@ type LoginResponse = {
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("david.brown@example.com");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -124,9 +124,6 @@ export default function AdminLoginPage() {
             >
               {isSubmitting ? "Signing in..." : "Login to dashboard"}
             </button>
-            <p className="rounded-xl bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600">
-              Seed admin: david.brown@example.com / password123
-            </p>
           </form>
         </div>
       </section>
