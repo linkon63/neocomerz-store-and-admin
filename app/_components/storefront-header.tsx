@@ -185,11 +185,11 @@ export default function StorefrontHeader() {
 
   return (
     <div className="sticky top-0 z-50 bg-white">
-      {
+      {/* {
         data?.slogan && <section className="bg-black px-4 py-2 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
           {data.slogan}
         </section>
-      }
+      } */}
 
 
       <header className="border-b border-neutral-200 bg-white">
