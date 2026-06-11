@@ -605,21 +605,21 @@ export default function OrdersPage() {
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
                         <div className="grid h-9 w-9 place-items-center rounded-full bg-slate-100 font-bold text-slate-700 text-sm">
-                          {(selected.user?.name ?? "G").charAt(0).toUpperCase()}
+                          {(selected.user?.name ?? selected.shippingAddress?.fullName ?? "G").charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-slate-800 truncate">
-                            {selected.user?.name ?? "Guest Customer"}
+                            {selected.user?.name ?? selected.shippingAddress?.fullName ?? "Guest Customer"}
                           </p>
                           <p className="text-xs text-slate-400 truncate mt-0.5">
-                            {selected.user?.email ?? "No email provided"}
+                            {selected.user?.email ?? selected.shippingAddress?.email ?? "No email provided"}
                           </p>
                         </div>
                       </div>
-                      {selected.user?.phone && (
+                      {(selected.user?.phone ?? selected.shippingAddress?.phone) && (
                         <div className="flex items-center gap-2 text-xs text-slate-600">
                           <span className="font-medium text-slate-400">Phone:</span>
-                          <span className="font-semibold">{selected.user.phone}</span>
+                          <span className="font-semibold">{selected.user?.phone ?? selected.shippingAddress?.phone}</span>
                         </div>
                       )}
                     </div>
@@ -632,20 +632,22 @@ export default function OrdersPage() {
                       Shipping Address
                     </h3>
                     <p className="text-xs font-semibold text-slate-700 leading-relaxed">
-                      {selected.address
-                        ? [
-                            selected.address.fullName || selected.user?.name,
-                            selected.address.phone || selected.user?.phone,
-                            selected.address.addressLine1,
-                            selected.address.addressLine2,
-                            selected.address.city,
-                            selected.address.state,
-                            selected.address.postalCode,
-                            selected.address.country,
-                          ]
-                            .filter(Boolean)
-                            .join(", ") || "No address details available"
-                        : "No address details available"}
+                      {(() => {
+                        const addr = selected.address ?? selected.shippingAddress;
+                        if (!addr) return "No address details available";
+                        return [
+                          addr.fullName || selected.user?.name,
+                          addr.phone || selected.user?.phone,
+                          addr.addressLine1,
+                          addr.addressLine2,
+                          addr.city,
+                          addr.state,
+                          addr.postalCode,
+                          addr.country,
+                        ]
+                          .filter(Boolean)
+                          .join(", ") || "No address details available";
+                      })()}
                     </p>
                   </div>
                 </div>
