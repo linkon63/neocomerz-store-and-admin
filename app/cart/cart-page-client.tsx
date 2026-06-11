@@ -197,8 +197,8 @@ export default function CartPageClient() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        email: guestEmail,
         address: {
+          email: guestEmail,
           ...addressFields,
           addressLine2: addressFields.addressLine2 || undefined,
         },
@@ -254,7 +254,7 @@ export default function CartPageClient() {
         })
       : new Date().toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
 
-    const confirmationEmail = placedOrder.user?.email ?? user?.email ?? guestEmail;
+    const confirmationEmail = placedOrder.user?.email ?? user?.email ?? placedOrder.shippingAddress?.email;
 
     return (
       <main className="flex min-h-screen items-center justify-center bg-neutral-50 px-4 py-16 text-[#151515] sm:px-8">
@@ -371,27 +371,32 @@ export default function CartPageClient() {
             </div>
           </div>
 
-          {/* Shipping address */}
-          {placedOrder.address && (
+          {/* Shipping address — supports both authenticated (address relation) and guest (embedded JSON) */}
+          {(placedOrder.address || placedOrder.shippingAddress) && (
             <div className="mt-8 border-t border-neutral-200 pt-6">
               <h3 className="mb-2 text-xs font-black uppercase tracking-[0.15em] text-neutral-400">
                 Shipping Destination
               </h3>
               <div className="border border-neutral-100 bg-neutral-50 p-4 text-xs">
-                <p className="font-bold text-neutral-800">{placedOrder.address.fullName}</p>
+                <p className="font-bold text-neutral-800">
+                  {placedOrder.address?.fullName ?? placedOrder.shippingAddress?.fullName}
+                </p>
                 <p className="mt-1 font-semibold text-neutral-500">
-                  Phone: {placedOrder.address.phone}
+                  Phone: {placedOrder.address?.phone ?? placedOrder.shippingAddress?.phone}
                 </p>
                 <p className="mt-1 leading-relaxed text-neutral-500">
-                  {placedOrder.address.addressLine1}
-                  {placedOrder.address.addressLine2
-                    ? `, ${placedOrder.address.addressLine2}`
+                  {placedOrder.address?.addressLine1 ?? placedOrder.shippingAddress?.addressLine1}
+                  {(placedOrder.address?.addressLine2 ?? placedOrder.shippingAddress?.addressLine2)
+                    ? `, ${placedOrder.address?.addressLine2 ?? placedOrder.shippingAddress?.addressLine2}`
                     : ""}
                   <br />
-                  {placedOrder.address.city}, {placedOrder.address.state},{" "}
-                  {placedOrder.address.postalCode}
+                  {placedOrder.address?.city ?? placedOrder.shippingAddress?.city},{" "}
+                  {placedOrder.address?.state ?? placedOrder.shippingAddress?.state},{" "}
+                  {placedOrder.address?.postalCode ?? placedOrder.shippingAddress?.postalCode}
                   <br />
-                  <span className="font-bold">{placedOrder.address.country}</span>
+                  <span className="font-bold">
+                    {placedOrder.address?.country ?? placedOrder.shippingAddress?.country}
+                  </span>
                 </p>
               </div>
             </div>
