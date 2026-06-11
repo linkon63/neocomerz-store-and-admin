@@ -39,6 +39,7 @@ export type AdminIconName =
   | "upload"
   | "variants"
   | "voucher"
+  | "wholesale"
   | "x";
 
 export function AdminIcon({
@@ -266,6 +267,14 @@ export function AdminIcon({
         <path d="M8 14h2" />
       </>
     ),
+    wholesale: (
+      <>
+        <path d="M3 7h11v10H3z" />
+        <path d="M14 10h4l3 3v4h-7z" />
+        <circle cx="7" cy="18" r="1.6" />
+        <circle cx="17" cy="18" r="1.6" />
+      </>
+    ),
     x: (
       <>
         <path d="M18 6L6 18" />
@@ -319,6 +328,7 @@ const menuGroups: {
       { label: "New Orders", href: "/admin/orders", icon: "orders", child: true },
       { label: "Canceled Orders", href: "/admin/orders/canceled", icon: "x", child: true },
       { label: "Completed Orders", href: "/admin/orders/completed", icon: "check", child: true },
+      { label: "Wholesale Requests", href: "/admin/wholesale-requests", icon: "wholesale", child: true },
       { label: "Reviews", href: "/admin/reviews", icon: "reviews", child: true },
     ],
   },

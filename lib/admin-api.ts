@@ -116,6 +116,148 @@ export type PaginatedProducts = {
   };
 };
 
+export type WholesaleRequestStatus =
+  | "pending"
+  | "info_requested"
+  | "approved"
+  | "rejected"
+  | "converted";
+
+export type CustomerAddress = {
+  id: string;
+  fullName?: string;
+  phone?: string;
+  addressLine1?: string;
+  addressLine2?: string | null;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+  isDefault?: boolean;
+};
+
+export type WholesaleRequestUser = {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  addresses?: CustomerAddress[];
+};
+
+export type WholesaleRequestItem = {
+  id: string;
+  productId?: string;
+  product?: Product | null;
+  variantId?: string | null;
+  variant?: ProductVariant | null;
+  requestedQuantity: number;
+  targetPrice?: string | number | null;
+  note?: string | null;
+};
+
+export type WholesaleOrderRequest = {
+  id: string;
+  requestNumber: string;
+  status: WholesaleRequestStatus;
+  customerNote?: string | null;
+  adminNote?: string | null;
+  infoRequestMessage?: string | null;
+  contactPhone?: string | null;
+  user: WholesaleRequestUser;
+  items: WholesaleRequestItem[];
+  orderId?: string | null;
+  order?: { id: string; orderNumber?: string } | null;
+  createdAt?: string;
+  updatedAt?: string;
+  reviewedAt?: string | null;
+};
+
+export type OrderStatus =
+  | "pending"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled"
+  | "returned";
+
+export type OrderPaymentStatus = "unpaid" | "paid" | "refunded";
+
+export type MetricValue = {
+  value: number;
+  trend: number | null;
+};
+
+export type DashboardRecentOrder = {
+  id: string;
+  orderNumber: string;
+  status: OrderStatus;
+  paymentStatus: OrderPaymentStatus;
+  total: number;
+  placedAt: string;
+  user: { id: string; name: string; email: string } | null;
+};
+
+export type DashboardSummary = {
+  range: { start: string; end: string };
+  totalSales: MetricValue;
+  totalOrders: MetricValue;
+  pendingOrders: MetricValue;
+  avgOrderValue: MetricValue;
+  refundAmount: MetricValue;
+  newCustomers: MetricValue;
+  lowStockProducts: MetricValue;
+  totalCustomers: MetricValue;
+  totalProducts: MetricValue;
+  recentOrders: DashboardRecentOrder[];
+};
+
+export type SalesTrendPoint = {
+  date: string;
+  total: number;
+  orders: number;
+};
+
+export type TopProduct = {
+  id: string;
+  name: string;
+  slug: string;
+  imageUrl: string | null;
+  unitsSold: number;
+  revenue: number;
+  stock: number;
+};
+
+export type OrderItem = {
+  id: string;
+  quantity: number;
+  unitPrice: string | number;
+  totalPrice: string | number;
+  product?: Product | null;
+  variant?: ProductVariant | null;
+};
+
+export type Order = {
+  id: string;
+  orderNumber: string;
+  status: OrderStatus;
+  paymentStatus: OrderPaymentStatus;
+  total: string | number;
+  discount?: string | number;
+  shippingCost?: string | number;
+  tax?: string | number;
+  orderType?: "retail" | "wholesale";
+  placedAt: string;
+  user?: { id: string; name: string; email: string; phone?: string | null } | null;
+  address?: CustomerAddress | null;
+  items?: OrderItem[];
+  payments?: { id: string; amount: string | number; method: string; status: string }[];
+};
+
+export type PaginatedOrders = {
+  data: Order[];
+  meta: { page: number; limit: number; total: number };
+};
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/v1";
 
 export function getAdminToken() {
@@ -211,4 +353,12 @@ export function formatDate(value?: string) {
     month: "short",
     day: "numeric",
   }).format(new Date(value));
+}
+
+export function formatMoney(value?: string | number | null) {
+  if (value === undefined || value === null || value === "") return "-";
+
+  return `৳${Number(value).toLocaleString("en", {
+    maximumFractionDigits: 2,
+  })}`;
 }
