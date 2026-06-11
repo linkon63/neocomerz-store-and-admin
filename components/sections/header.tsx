@@ -21,7 +21,7 @@ const navItems = [
 
 export default function Header() {
   return (
-    <header className="w-full bg-white border-b border-gray-200">
+    <header className="w-full bg-white border-b border-gray-200 fixed top-[44px] sm:top-[32px] left-0 right-0 z-50">
       <div className="header-wrapper">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between py-3 sm:py-4 gap-4">

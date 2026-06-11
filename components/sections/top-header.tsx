@@ -1,12 +1,12 @@
 import { IoIosArrowDown } from "react-icons/io";
 import { IoCallOutline, IoLocationOutline } from "react-icons/io5";
 import TopSlider from "./ui/topslider";
-import data from "@/data/top-header.json";
+import data from "@/data/data.json";
 export default function TopHeader() {
   const { help, selectors } = data;
 
   return (
-    <section className="w-full bg-brand-primary text-white font-medium px-2 sm:px-4 md:px-6">
+    <section className="w-full bg-brand-primary text-white font-medium px-2 sm:px-4 md:px-6 fixed top-0 left-0 right-0 z-50">
       <div className="topheader-wrapper">
         <div className="flex items-center justify-between py-1 sm:py-1.5 gap-2 md:gap-4">
           {/* Left Section - Help & Phone */}
