@@ -364,6 +364,12 @@ const menuGroups: {
     ],
   },
   {
+    title: "Customers",
+    items: [
+      { label: "Customers", href: "/admin/customers", icon: "reviews", section: "customers" },
+    ],
+  },
+  {
     title: "Finance",
     items: [
       {

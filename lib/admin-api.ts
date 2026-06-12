@@ -109,6 +109,147 @@ export function deleteRole(id: string) {
   return apiRequest<{ message: string }>(`/roles/${id}`, { method: "DELETE" });
 }
 
+// ─── Customers (admin) ──────────────────────────────────────────────────────
+
+export type CustomerMedia = {
+  id: string;
+  isFeatured?: boolean;
+  media?: { url: string } | null;
+};
+
+export type CustomerListItem = {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  createdAt: string;
+  ordersCount: number;
+  totalSpent: number;
+  lastOrderAt: string | null;
+  abandonedCartItems: number;
+  wishlistCount: number;
+};
+
+export type CustomerListResponse = {
+  data: CustomerListItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type CustomerOrderItem = {
+  id: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  product: { id: string; name: string; media?: CustomerMedia[] };
+};
+
+export type CustomerOrder = {
+  id: string;
+  orderNumber: string;
+  status: string;
+  paymentStatus: string;
+  total: number;
+  discount: number;
+  shippingCost: number;
+  tax: number;
+  placedAt: string;
+  items: CustomerOrderItem[];
+};
+
+export type CustomerCartItem = {
+  id: string;
+  quantity: number;
+  addedAt: string;
+  sku: string;
+  price: number;
+  lineTotal: number;
+  product: { id: string; name: string; slug: string; media?: CustomerMedia[] };
+};
+
+export type CustomerWishlistItem = {
+  id: string;
+  createdAt: string;
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    price: number | null;
+    media?: CustomerMedia[];
+  };
+};
+
+export type CustomerDetail = {
+  customer: {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string | null;
+    createdAt: string;
+    emailVerifiedAt?: string | null;
+    profile?: { bio?: string | null; avatarMedia?: { url: string } | null } | null;
+    addresses: CustomerAddress[];
+  };
+  summary: {
+    ordersCount: number;
+    totalSpent: number;
+    abandonedCartItems: number;
+    wishlistCount: number;
+  };
+  orders: CustomerOrder[];
+  abandonedCart: { items: CustomerCartItem[]; total: number };
+  wishlist: CustomerWishlistItem[];
+};
+
+export function listCustomers(params: { search?: string; page?: number; limit?: number } = {}) {
+  const query = new URLSearchParams();
+  if (params.search) query.set("search", params.search);
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  const qs = query.toString();
+  return apiRequest<CustomerListResponse>(`/customers${qs ? `?${qs}` : ""}`);
+}
+
+export function getCustomer(id: string) {
+  return apiRequest<CustomerDetail>(`/customers/${id}`);
+}
+
+/**
+ * Trigger an abandoned-cart reminder email (via Resend) to a customer. Hits the
+ * Next.js route at the app origin (not the NestJS API), forwarding the admin
+ * token so the backend can authorize the send.
+ */
+export async function sendAbandonedCartReminder(
+  customerId: string,
+  options: { subject?: string; message?: string } = {},
+) {
+  const token = getAdminToken();
+  const response = await fetch(`/api/resend/abandoned-cart`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ customerId, ...options }),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || !payload.success) {
+    throw new Error(payload.message || "Failed to send reminder email");
+  }
+  return payload as { success: boolean; message: string };
+}
+
+const PRODUCT_IMAGE_FALLBACK =
+  "https://images.unsplash.com/photo-1523398002811-999ca8dec234?auto=format&fit=crop&w=400&q=80";
+
+/** Resolve the featured image URL for a product's media array, with a safe fallback. */
+export function resolveProductImage(media?: CustomerMedia[] | null): string {
+  const featured = media?.find((m) => m.isFeatured) ?? media?.[0];
+  return resolveImageUrl(featured?.media?.url) || PRODUCT_IMAGE_FALLBACK;
+}
+
 export type Brand = {
   id: string;
   name: string;

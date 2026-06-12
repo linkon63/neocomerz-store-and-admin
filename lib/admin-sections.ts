@@ -12,6 +12,7 @@ export type AdminSectionKey =
   | "stock"
   | "sales"
   | "orders"
+  | "customers"
   | "reports"
   | "settings";
 
@@ -65,6 +66,12 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       "/admin/reviews",
       "/admin/news",
     ],
+  },
+  {
+    key: "customers",
+    label: "Customers",
+    description: "Customer list, orders, abandoned carts and wishlists",
+    prefixes: ["/admin/customers"],
   },
   {
     key: "reports",
