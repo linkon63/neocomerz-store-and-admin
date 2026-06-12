@@ -1,44 +1,21 @@
 // app/profile/dashboard/page.tsx
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/app/_components/auth-context';
 import { useCart } from '@/app/_components/cart-context';
 import { useWishlist } from '@/app/_components/wishlist-context';
 import Link from 'next/link';
 import { FiShoppingBag, FiHeart, FiMapPin, FiPackage, FiClock, FiCheckCircle, FiTruck } from 'react-icons/fi';
-
-// Mock data for orders - Replace with API call
-const recentOrders = [
-  {
-    id: 'ORD-001',
-    date: '2024-01-15',
-    status: 'Delivered',
-    total: 189.00,
-    items: 3,
-  },
-  {
-    id: 'ORD-002',
-    date: '2024-01-10',
-    status: 'Shipped',
-    total: 129.00,
-    items: 2,
-  },
-  {
-    id: 'ORD-003',
-    date: '2024-01-05',
-    status: 'Processing',
-    total: 245.00,
-    items: 4,
-  },
-];
+import { getMyOrders, customerApiRequest, formatMoney, formatDate, Order } from '@/lib/admin-api';
 
 const getStatusIcon = (status: string) => {
   switch (status) {
-    case 'Delivered':
+    case 'delivered':
       return <FiCheckCircle className="text-green-600" />;
-    case 'Shipped':
+    case 'shipped':
       return <FiTruck className="text-blue-600" />;
-    case 'Processing':
+    case 'processing':
       return <FiClock className="text-amber-600" />;
     default:
       return <FiPackage className="text-gray-600" />;
@@ -47,11 +24,11 @@ const getStatusIcon = (status: string) => {
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'Delivered':
+    case 'delivered':
       return 'bg-green-100 text-green-800';
-    case 'Shipped':
+    case 'shipped':
       return 'bg-blue-100 text-blue-800';
-    case 'Processing':
+    case 'processing':
       return 'bg-amber-100 text-amber-800';
     default:
       return 'bg-gray-100 text-gray-800';
@@ -59,12 +36,35 @@ const getStatusColor = (status: string) => {
 };
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const { items: cartItems, subtotal: cartSubtotal } = useCart();
   const { wishlistItems } = useWishlist();
-  
-  // Mock address count - Replace with API call
-  const addressCount = 2;
+
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [addressCount, setAddressCount] = useState(0);
+
+  useEffect(() => {
+    if (!token) return;
+    let active = true;
+    (async () => {
+      try {
+        const [orderData, addressData] = await Promise.all([
+          getMyOrders(),
+          customerApiRequest<unknown[]>('/addresses', { auth: true }).catch(() => []),
+        ]);
+        if (!active) return;
+        setOrders(orderData);
+        setAddressCount(Array.isArray(addressData) ? addressData.length : 0);
+      } catch (err) {
+        console.error('Failed to load dashboard data:', err);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [token]);
+
+  const recentOrders = orders.slice(0, 3);
 
   const stats = [
     {
@@ -90,7 +90,7 @@ export default function DashboardPage() {
     },
     {
       label: 'Total Orders',
-      value: recentOrders.length,
+      value: orders.length,
       icon: FiPackage,
       color: 'bg-purple-50 text-purple-600',
       link: '/profile/orders',
@@ -173,9 +173,9 @@ export default function DashboardPage() {
             >
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <p className="font-semibold">{order.id}</p>
+                  <p className="font-semibold">{order.orderNumber}</p>
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getStatusColor(
+                    className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 capitalize ${getStatusColor(
                       order.status
                     )}`}
                   >
@@ -184,7 +184,7 @@ export default function DashboardPage() {
                   </span>
                 </div>
                 <p className="text-sm text-gray-600">
-                  {order.items} items • €{order.total.toFixed(2)} • {order.date}
+                  {(order.items || []).reduce((sum, item) => sum + item.quantity, 0)} items • {formatMoney(order.total)} • {formatDate(order.placedAt)}
                 </p>
               </div>
               <Link

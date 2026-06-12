@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FiHeart, FiShoppingBag } from "react-icons/fi";
 import { useCart } from "./cart-context";
-import { resolveImageUrl } from "../shop/products";
+import { useWishlist } from "./wishlist-context";
+import { resolveImageUrl, type ShopProduct } from "../shop/products";
 
 interface ProductMedia {
   isFeatured: boolean;
@@ -27,6 +28,7 @@ interface Product {
 
 export default function ProductGrid() {
   const { items, addItem } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -112,6 +114,19 @@ export default function ProductGrid() {
             const imageUrl = resolveImageUrl(rawUrl);
 
             const inCart = items.some((i) => i.slug === product.slug);
+            const wishlistProduct: ShopProduct = {
+              id: product.id,
+              slug: product.slug,
+              name: product.name,
+              category: "",
+              team: "",
+              price: Number(price ?? 0),
+              color: "",
+              size: "",
+              image: imageUrl ?? "",
+              variantId,
+            };
+            const inWishlist = isInWishlist(product.id);
 
             return (
               <article key={product.id} className="group">
@@ -181,7 +196,18 @@ export default function ProductGrid() {
                       )}
                     </p>
                   </div>
-                  <FiHeart className="mt-0.5 shrink-0 text-sm" aria-label="Add to wishlist" />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      void toggleWishlist(wishlistProduct);
+                    }}
+                    className="mt-0.5 shrink-0 text-sm transition-colors hover:text-red-500"
+                    aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                  >
+                    <FiHeart className={inWishlist ? "fill-red-500 text-red-500" : "text-neutral-600"} />
+                  </button>
                 </div>
               </article>
             );

@@ -12,7 +12,7 @@ import { productSlug, resolveImageUrl, type ShopProduct, type DBProduct, type Pr
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5010/api/v1";
 
-const showOptions = [8, 12, 20];
+const showOptions = [20, 40, 60];
 
 type SortOption = "featured" | "price-low" | "price-high" | "name";
 type ViewMode = "grid" | "list";
@@ -42,7 +42,7 @@ export default function ShopCatalog() {
   }
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string>>({});
   const [sortBy, setSortBy] = useState<SortOption>("featured");
-  const [productsPerPage, setProductsPerPage] = useState(8);
+  const [productsPerPage, setProductsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);

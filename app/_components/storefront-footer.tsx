@@ -21,7 +21,7 @@ const footerGroups = [
 			{ id: "about-us", label: "About Us", href: "/about" },
 			{ id: "contacts", label: "Contacts", href: "/contact" },
 			{ id: "our-stores", label: "Our Stores", href: "/about" },
-			{ id: "institutional-blog", label: "Institutional Blog", href: "/about" },
+			{ id: "news-blog", label: "News & Blog", href: "/news" },
 		],
 	},
 	{
@@ -165,18 +165,23 @@ export default function StorefrontFooter({
 				</div>
 
 				<div className="mt-12 border-t border-neutral-300 pt-10 text-xs font-medium text-neutral-400">
-					© {data?.copyrightYear} {data?.shopName} | Powered by{" "}
-					{data?.parentCompanyLink ? (
-						<Link
-							href={data.parentCompanyLink}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="hover:text-neutral-900 transition-colors"
-						>
-							{data.parentCompany}
-						</Link>
-					) : (
-						data?.parentCompany
+					© {data?.copyrightYear} {data?.shopName}
+					{data?.parentCompany && (
+						<>
+							{" | Powered by "}
+							{data?.parentCompanyLink ? (
+								<Link
+									href={data.parentCompanyLink}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="italic underline text-amber-600 transition-colors hover:text-amber-700"
+								>
+									{data.parentCompany}
+								</Link>
+							) : (
+								<span className="italic underline text-amber-600">{data.parentCompany}</span>
+							)}
+						</>
 					)}
 				</div>
 			</div>

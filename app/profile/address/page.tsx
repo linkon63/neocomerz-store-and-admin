@@ -1,7 +1,7 @@
 // app/profile/address/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/app/_components/auth-context';
 import { FiPlus, FiEdit2, FiTrash2, FiMapPin, FiX, FiCheck } from 'react-icons/fi';
 import { toast } from 'sonner';
@@ -22,7 +22,7 @@ interface Address {
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5010/api/v1';
 
 export default function AddressPage() {
-  const { token } = useAuth();
+  const { token, isLoading: authLoading } = useAuth();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,7 +30,6 @@ export default function AddressPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
-  const hasFetched = useRef(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -48,10 +47,12 @@ export default function AddressPage() {
   // Fetch addresses function
   const fetchAddresses = useCallback(async () => {
     if (!token) {
-      setIsLoading(false);
+      // Auth may still be restoring the session token from storage; keep the
+      // loading state until it settles so addresses don't flash as empty.
+      if (!authLoading) setIsLoading(false);
       return;
     }
-    
+
     try {
       setIsLoading(true);
       const res = await fetch(`${BASE_URL}/addresses`, {
@@ -72,14 +73,12 @@ export default function AddressPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [token]);
+  }, [token, authLoading]);
 
-  // Fetch addresses on mount only once
+  // Re-fetch whenever the auth token becomes available (e.g. after a page
+  // reload, where the token is restored from storage asynchronously).
   useEffect(() => {
-    if (!hasFetched.current) {
-      hasFetched.current = true;
-      fetchAddresses();
-    }
+    fetchAddresses();
   }, [fetchAddresses]);
 
   const handleOpenModal = (address?: Address) => {

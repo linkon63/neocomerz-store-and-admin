@@ -287,7 +287,7 @@ export default function CampaignsPage() {
           aria-labelledby="campaign-modal-title"
         >
           <form
-            className="w-full max-w-2xl rounded-lg border border-slate-200 bg-white p-6 shadow-2xl"
+            className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-y-auto rounded-lg border border-slate-200 bg-white p-6 shadow-2xl"
             onSubmit={handleSubmit}
           >
             <div className="mb-5 flex items-start justify-between gap-4">
@@ -512,7 +512,7 @@ export default function CampaignsPage() {
 
               {formError && <ErrorBanner message={formError} />}
 
-              <div className="flex justify-end gap-3 pt-2">
+              <div className="sticky bottom-0 -mx-6 -mb-6 flex justify-end gap-3 border-t border-slate-100 bg-white px-6 py-4">
                 <button
                   className="h-12 rounded-md border border-slate-300 bg-white px-5 font-black text-slate-700 hover:bg-slate-50 transition"
                   disabled={saving}
