@@ -359,6 +359,7 @@ export type PolicyEntry = { title: string; content: string };
 export type AppPolicies = {
   id?: string;
   delivery?: PolicyEntry;
+  refund?: PolicyEntry;
   return?: PolicyEntry;
   cancellation?: PolicyEntry;
   privacy?: PolicyEntry;
