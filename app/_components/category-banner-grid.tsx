@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { resolveImageUrl } from "../shop/products";
+import { resolveImageUrl } from "@/lib/admin-api";
 
 interface Category {
   id: string;

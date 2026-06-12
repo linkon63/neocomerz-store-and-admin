@@ -11,7 +11,7 @@ import {
   FiClock,
   FiXCircle 
 } from 'react-icons/fi';
-import { getOrderById, cancelOrder, Order, formatMoney, formatDate, createProductReview } from '@/lib/admin-api';
+import { getOrderById, cancelOrder, Order, formatMoney, formatDate, createProductReview, resolveImageUrl } from '@/lib/admin-api';
 
 export default function OrderDetailPage() {
   const params = useParams();
@@ -58,7 +58,6 @@ export default function OrderDetailPage() {
       await createProductReview(reviewProductId, {
         rating: reviewRating,
         comment: reviewComment.trim() || undefined,
-        orderId: order?.id,
       });
       setReviewSuccess(true);
       await refreshOrder();
@@ -323,9 +322,10 @@ export default function OrderDetailPage() {
         {/* Mobile Card View */}
         <div className="lg:hidden divide-y divide-gray-200">
           {(order.items || []).map((item) => {
-            const featuredImage = item.product?.media?.find(m => m.isFeatured)?.media.url 
-              || item.product?.media?.[0]?.media.url 
+            const rawImage = item.product?.media?.find(m => m.isFeatured)?.media.url
+              || item.product?.media?.[0]?.media.url
               || null;
+            const featuredImage = rawImage ? resolveImageUrl(rawImage) : null;
 
             return (
               <div key={item.id} className="p-4">
@@ -411,10 +411,11 @@ export default function OrderDetailPage() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {(order.items || []).map((item) => {
-                // Get featured image URL
-                const featuredImage = item.product?.media?.find(m => m.isFeatured)?.media.url 
-                  || item.product?.media?.[0]?.media.url 
+                // Get featured image URL (resolve relative/localhost paths to the API origin)
+                const rawImage = item.product?.media?.find(m => m.isFeatured)?.media.url
+                  || item.product?.media?.[0]?.media.url
                   || null;
+                const featuredImage = rawImage ? resolveImageUrl(rawImage) : null;
 
                 return (
                   <tr key={item.id}>

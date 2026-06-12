@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { useAuth } from "./auth-context";
 import { type DBProduct, type ProductVariant, type ProductMedia, resolveImageUrl } from "../shop/products";
 
@@ -89,7 +90,6 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5010/
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const { token } = useAuth();
   const [items, setItems] = useState<CartItem[]>([]);
-  const [toastMessage, setToastMessage] = useState("");
 
   useEffect(() => {
     if (!token) {
@@ -181,8 +181,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               const data = await res.json();
               const mapped = (data.items || []).map(mapBackendCartItem);
               setItems(sortCartItems(mapped));
-              setToastMessage("Added to cart");
-              setTimeout(() => setToastMessage(""), 2500);
+              toast.success("Added to cart");
             }
           } catch (err) {
             console.error("Error adding item to server cart:", err);
@@ -201,8 +200,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
             return sortCartItems([...currentItems, { ...item, quantity: item.quantity ?? 1 }]);
           });
-          setToastMessage("Added to cart");
-          setTimeout(() => setToastMessage(""), 2500);
+          toast.success("Added to cart");
         }
       },
       removeItem: async (slug) => {
@@ -298,13 +296,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   return (
     <CartContext.Provider value={value}>
       {children}
-      <div
-        className={`fixed bottom-6 right-6 z-[100] rounded-full bg-black px-5 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-white shadow-xl transition-all duration-300 ${
-          toastMessage ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"
-        }`}
-      >
-        {toastMessage}
-      </div>
     </CartContext.Provider>
   );
 }

@@ -2,12 +2,14 @@
 'use client';
 
 import { useWishlist } from '@/app/_components/wishlist-context';
+import { useCart } from '@/app/_components/cart-context';
 import Link from 'next/link';
 import Image from 'next/image';
 import { FiTrash2, FiShoppingBag } from 'react-icons/fi';
 
 export default function WishlistPage() {
   const { wishlistItems, toggleWishlist } = useWishlist();
+  const { addItem } = useCart();
 
   if (wishlistItems.length === 0) {
     return (
@@ -55,7 +57,22 @@ export default function WishlistPage() {
                   Remove
                 </button>
                 
-                <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition text-sm">
+                <button
+                  type="button"
+                  onClick={() =>
+                    addItem({
+                      slug: item.slug ?? '',
+                      name: item.name,
+                      price: item.price,
+                      image: item.image,
+                      color: item.color,
+                      size: item.size,
+                      variantId: item.variantId,
+                      quantity: 1,
+                    })
+                  }
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition text-sm"
+                >
                   <FiShoppingBag />
                   Add to Cart
                 </button>

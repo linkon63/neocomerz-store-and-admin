@@ -359,6 +359,7 @@ export type PolicyEntry = { title: string; content: string };
 export type AppPolicies = {
   id?: string;
   delivery?: PolicyEntry;
+  refund?: PolicyEntry;
   return?: PolicyEntry;
   cancellation?: PolicyEntry;
   privacy?: PolicyEntry;
@@ -852,14 +853,59 @@ export async function changePassword(data: { currentPassword: string; newPasswor
 
 export async function createProductReview(
   productId: string,
-  data: { rating: number; comment?: string; orderId?: string }
+  data: { rating: number; comment?: string }
 ): Promise<any> {
+  // Only send fields the backend's CreateReviewDto whitelists — extra keys are
+  // rejected by the API's `forbidNonWhitelisted` validation pipe.
   return customerApiRequest(`/products/${productId}/reviews`, {
     auth: true,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify({ rating: data.rating, comment: data.comment }),
   });
+}
+
+// ─── News / Blog ───────────────────────────────────────────────────────────
+
+export type News = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string | null;
+  content: string;
+  coverImageUrl?: string | null;
+  author?: string | null;
+  isPublished: boolean;
+  publishedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// Admin: all articles (drafts included).
+export async function getAllNews(): Promise<News[]> {
+  return apiRequest<News[]>("/news/manage");
+}
+
+// Public: published articles only.
+export async function getPublishedNews(): Promise<News[]> {
+  return apiRequest<News[]>("/news", { auth: false });
+}
+
+// Public: a single published article by slug.
+export async function getNewsBySlug(slug: string): Promise<News> {
+  return apiRequest<News>(`/news/slug/${slug}`, { auth: false });
+}
+
+export async function createNews(body: FormData): Promise<News> {
+  return apiRequest<News>("/news", { method: "POST", body });
+}
+
+export async function updateNews(id: string, body: FormData): Promise<News> {
+  return apiRequest<News>(`/news/${id}`, { method: "PATCH", body });
+}
+
+export async function deleteNews(id: string): Promise<void> {
+  return apiRequest<void>(`/news/${id}`, { method: "DELETE" });
 }
 
 export function resolveImageUrl(url?: string | null): string {
