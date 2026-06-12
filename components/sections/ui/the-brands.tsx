@@ -2,7 +2,9 @@ import Image from "next/image";
 
 export default function TheBrands() {
   return (
-    <section className="w-full bg-[#F6F6F6] py-16 px-6 md:px-12 lg:py-20">
+    <section className="w-full bg-[#F6F6F6] py-16 px-6 md:px-12 lg:py-44"  style={{
+          clipPath: "ellipse(95% 100% at 50% 0%)",
+        }}>
       <div className="thebrands-wrapper">
         <div className="container mx-auto px-3">
           {/* Top Section - The Brand */}
