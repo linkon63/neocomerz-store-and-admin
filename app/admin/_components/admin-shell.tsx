@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -9,6 +9,16 @@ import {
   resolveImageUrl,
   type AdminUser,
 } from "../../../lib/admin-api";
+import {
+  ACCOUNT_ROUTE,
+  STAFF_ROUTE,
+  allowedSectionKeys,
+  canAccessPath,
+  canEnterAdminPanel,
+  firstAllowedRoute,
+  isSuperadmin,
+  type AdminSectionKey,
+} from "../../../lib/admin-sections";
 export { PageHeader } from "./page-header";
 
 export type AdminIconName =
@@ -282,6 +292,10 @@ type MenuItem = {
   label: string;
   href: string;
   icon: AdminIconName;
+  /** Section permission required to see this item. Omit for always-visible items. */
+  section?: AdminSectionKey;
+  /** Only visible to the superadmin. */
+  superadminOnly?: boolean;
   children?: {
     label: string;
     href: string;
@@ -295,7 +309,7 @@ const menuGroups: {
 }[] = [
   {
     title: "Overview",
-    items: [{ label: "Dashboard", href: "/admin/dashboard", icon: "dashboard" }],
+    items: [{ label: "Dashboard", href: "/admin/dashboard", icon: "dashboard", section: "dashboard" }],
   },
   {
     title: "Inventory & Procurement",
@@ -304,6 +318,7 @@ const menuGroups: {
         label: "Product Catalog",
         href: "/admin/products",
         icon: "package",
+        section: "products",
         children: [
           { label: "Products", href: "/admin/products", icon: "package" },
           { label: "Categories", href: "/admin/categories", icon: "category" },
@@ -318,15 +333,15 @@ const menuGroups: {
   {
     title: "Stock & inventory",
     items: [
-      { label: "Stock Management", href: "/admin/stock", icon: "stock" },
+      { label: "Stock Management", href: "/admin/stock", icon: "stock", section: "stock" },
     ],
   },
   {
     title: "Sales & Billing",
     items: [
-      { label: "Discount", href: "/admin/discounts", icon: "discount" },
-      { label: "Coupons", href: "/admin/coupons", icon: "voucher" },
-      { label: "Gift Voucher", href: "/admin/gift-vouchers", icon: "voucher" },
+      { label: "Discount", href: "/admin/discounts", icon: "discount", section: "sales" },
+      { label: "Coupons", href: "/admin/coupons", icon: "voucher", section: "sales" },
+      { label: "Gift Voucher", href: "/admin/gift-vouchers", icon: "voucher", section: "sales" },
     ],
   },
   {
@@ -336,6 +351,7 @@ const menuGroups: {
         label: "E-Commerce",
         href: "/admin/orders",
         icon: "store",
+        section: "orders",
         children: [
           { label: "New Orders", href: "/admin/orders", icon: "orders" },
           { label: "Canceled Orders", href: "/admin/orders/canceled", icon: "x" },
@@ -344,7 +360,7 @@ const menuGroups: {
           { label: "Reviews", href: "/admin/reviews", icon: "reviews" },
         ],
       },
-      { label: "News & Blog", href: "/admin/news", icon: "report" },
+      { label: "News & Blog", href: "/admin/news", icon: "report", section: "orders" },
     ],
   },
   {
@@ -354,6 +370,7 @@ const menuGroups: {
         label: "Reports",
         href: "/admin/reports",
         icon: "report",
+        section: "reports",
         children: [
           { label: "Sales Report", href: "/admin/reports/sales", icon: "report" },
           { label: "Discount Report", href: "/admin/reports/discount", icon: "discount" },
@@ -364,7 +381,10 @@ const menuGroups: {
   },
   {
     title: "Administration",
-    items: [{ label: "Settings", href: "/admin/settings", icon: "settings" }],
+    items: [
+      { label: "Settings", href: "/admin/settings", icon: "settings", section: "settings" },
+      { label: "Staff & Roles", href: STAFF_ROUTE, icon: "suppliers", superadminOnly: true },
+    ],
   },
 ];
 
@@ -407,7 +427,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       .then((currentUser) => {
         if (!isMounted) return;
 
-        if (currentUser.role?.name !== "admin") {
+        if (!canEnterAdminPanel(currentUser)) {
           clearAdminSession();
           router.replace("/admin/login");
           return;
@@ -427,6 +447,33 @@ export function AdminShell({ children }: { children: ReactNode }) {
       isMounted = false;
     };
   }, [router]);
+
+  // Guard the current route against the signed-in staff member's permissions.
+  // A limited admin who types/links a disallowed URL is bounced to their first
+  // allowed section.
+  useEffect(() => {
+    if (!user) return;
+    if (!canAccessPath(user, pathname)) {
+      router.replace(firstAllowedRoute(user));
+    }
+  }, [user, pathname, router]);
+
+  const superadmin = isSuperadmin(user);
+
+  // Only show sidebar entries the signed-in staff member is allowed to open.
+  const visibleGroups = useMemo(() => {
+    const allowed = allowedSectionKeys(user);
+    return menuGroups
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item) => {
+          if (item.superadminOnly) return superadmin;
+          if (!item.section) return true;
+          return allowed.has(item.section);
+        }),
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [user, superadmin]);
 
   function handleLogout() {
     clearAdminSession();
@@ -454,7 +501,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             </Link>
           </div>
           <nav className="flex-1 overflow-y-auto px-3 pb-6 pt-5">
-            {menuGroups.map((group) => (
+            {visibleGroups.map((group) => (
               <div className="mb-7" key={group.title}>
                 <p className="px-3 text-xs font-black uppercase tracking-[0.16em] text-slate-500">
                   {group.title}
@@ -545,25 +592,30 @@ export function AdminShell({ children }: { children: ReactNode }) {
             ))}
           </nav>
           <div className="border-t border-slate-100 p-4">
-            <div className="flex items-center gap-3">
+            <Link
+              href={ACCOUNT_ROUTE}
+              className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-slate-50"
+            >
               <div className="grid h-10 w-10 place-items-center rounded-full bg-blue-600 font-black text-white">
                 {user?.name?.charAt(0).toUpperCase() ?? "A"}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-black">{user?.name ?? "Admin"}</p>
                 <p className="truncate text-xs font-medium text-slate-500">
-                  {user?.email ?? "Store admin"}
+                  {user?.role?.name
+                    ? `${user.role.name} · ${user.email}`
+                    : user?.email ?? "Store admin"}
                 </p>
               </div>
-              <button
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2 text-xs font-black text-slate-600 hover:bg-slate-50"
-                onClick={handleLogout}
-                type="button"
-              >
-                <AdminIcon className="h-3.5 w-3.5" name="logout" />
-                Exit
-              </button>
-            </div>
+            </Link>
+            <button
+              className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-md border border-slate-200 px-3 py-2 text-xs font-black text-slate-600 hover:bg-slate-50"
+              onClick={handleLogout}
+              type="button"
+            >
+              <AdminIcon className="h-3.5 w-3.5" name="logout" />
+              Sign out
+            </button>
           </div>
         </div>
       </aside>

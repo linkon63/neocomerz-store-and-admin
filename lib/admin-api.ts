@@ -1,12 +1,113 @@
+export type AdminPermission = {
+  id: string;
+  name: string;
+};
+
 export type AdminUser = {
   id: string;
   name: string;
   email: string;
+  phone?: string | null;
   role?: {
     id: string;
     name: string;
+    permissions?: AdminPermission[];
   } | null;
 };
+
+// ─── Staff & Role management (superadmin only) ─────────────────────────────
+
+export type AdminRole = {
+  id: string;
+  name: string;
+  permissions: AdminPermission[];
+  users?: { id: string; name: string; email: string }[];
+};
+
+export type StaffUser = {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  role?: { id: string; name: string } | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export function listStaff() {
+  return apiRequest<StaffUser[]>("/users");
+}
+
+export function createStaff(input: {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  roleId?: string;
+}) {
+  return apiRequest<StaffUser>("/users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateStaff(
+  id: string,
+  input: Partial<{
+    name: string;
+    email: string;
+    phone: string;
+    roleId: string;
+    password: string;
+  }>,
+) {
+  return apiRequest<StaffUser>(`/users/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteStaff(id: string) {
+  return apiRequest<{ message: string }>(`/users/${id}`, { method: "DELETE" });
+}
+
+export function listRoles() {
+  return apiRequest<AdminRole[]>("/roles");
+}
+
+export function listPermissions() {
+  return apiRequest<AdminPermission[]>("/permissions");
+}
+
+export function createRole(name: string) {
+  return apiRequest<AdminRole>("/roles", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  });
+}
+
+export function updateRoleName(id: string, name: string) {
+  return apiRequest<AdminRole>(`/roles/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  });
+}
+
+export function assignRolePermissions(id: string, permissionIds: string[]) {
+  return apiRequest<AdminRole>(`/roles/${id}/permissions`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ permissionIds }),
+  });
+}
+
+export function deleteRole(id: string) {
+  return apiRequest<{ message: string }>(`/roles/${id}`, { method: "DELETE" });
+}
 
 export type Brand = {
   id: string;
