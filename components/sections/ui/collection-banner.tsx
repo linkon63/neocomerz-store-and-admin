@@ -20,27 +20,33 @@ export default function CollectionBanner() {
                   THE COLLECTIONS
                 </h3>
               </div>
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 py-3">
+              <div className="flex flex-col lg:flex-row justify-center items-center gap-4 py-3 px-4">
                 <Link
                   href="/collections/assorted"
-                  className="bg-brand-primary text-white text-center py-4 px-6 font-bembo text-base uppercase tracking-wide hover:bg-opacity-90 transition-all"
+                  className="bg-brand-primary text-white text-center py-3 px-5 font-bembo text-sm uppercase tracking-wide hover:bg-opacity-90 transition-all min-w-[170px]"
                 >
                   ASSORTED COLLECTIONS
                 </Link>
-                <div className="w-16 h-16 flex items-center justify-center relative">
+                <div className="w-12 h-12 flex items-center justify-center relative shrink-0">
                   <Image
                     src="/images/footer/footerrightlogo.png"
                     alt="London Tea Exchange Logo"
-                    width={64}
-                    height={64}
+                    width={48}
+                    height={48}
                     className="object-contain"
                   />
                 </div>
                 <Link
                   href="/collections/tea-book"
-                  className="bg-white text-text-primary text-center py-4 px-6 font-bembo text-base uppercase tracking-wide hover:bg-brand-3 hover:text-white transition-all"
+                  className="bg-white text-text-primary text-center py-3 px-5 font-bembo text-sm uppercase tracking-wide hover:bg-brand-3 hover:text-white transition-all min-w-[170px]"
                 >
                   TEA BOOK COLLECTIONS
+                </Link>
+                <Link
+                  href="/collections/tea-chests"
+                  className="bg-white text-text-primary text-center py-3 px-5 font-bembo text-sm uppercase tracking-wide hover:bg-brand-3 hover:text-white transition-all min-w-[170px]"
+                >
+                  TEA CHESTS
                 </Link>
               </div>
               <div className="flex justify-center px-6">
