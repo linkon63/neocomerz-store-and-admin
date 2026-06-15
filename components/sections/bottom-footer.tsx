@@ -15,8 +15,10 @@ export default function Bottomfooter() {
           allow="autoplay; encrypted-media"
           className="absolute top-1/2 left-1/2 w-full h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
           style={{
-            minWidth: '100vw',
-            minHeight: '100vh',
+            minWidth: "177.77vh",
+            minHeight: "56.25vw",
+            width: "100%",
+            height: "100%",
           }}
         />
         <div className="absolute inset-0 bg-black/50 z-1"></div>
