@@ -1,0 +1,34 @@
+{
+  "help": {
+    "text": "Help",
+    "phone": {
+      "full": "+8801339-879494",
+      "short": "+8801339-879494",
+      "label": "Helpline"
+    }
+  },
+  "slider": {
+    "slides": [
+      "Purveyor Of Direct Trade, Organic Teas From Off The Beaten Path",
+      "Handpicked Single-Origin Teas From Remote Mountain Gardens"
+    ],
+    "autoplayDelay": 3000,
+    "speed": 500
+  },
+  "selectors": {
+    "language": {
+      "options": [
+        { "value": "en", "label": "EN" },
+        { "value": "bn", "label": "BN" }
+      ],
+      "default": "en"
+    },
+    "currency": {
+      "options": [
+        { "value": "bd", "label": "BD" },
+        { "value": "usd", "label": "USD" }
+      ],
+      "default": "bd"
+    }
+  }
+}

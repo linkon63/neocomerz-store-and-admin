@@ -17,8 +17,8 @@
   --color-brand-6: rgba(245, 245, 240, 1);
   
   /* Font Families */
-  --font-family-gotham: 'Gotham', Arial, Helvetica, sans-serif;
-  --font-family-bembo: 'Bembo Std', Georgia, serif;
+  --font-gotham: 'Gotham', Arial, Helvetica, sans-serif;
+  --font-bembo: 'Bembo Std', Georgia, serif;
 }
 
 /* Custom Fonts */
