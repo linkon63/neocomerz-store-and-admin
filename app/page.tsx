@@ -10,18 +10,18 @@ import Brands from '@/components/sections/brands';
 import Instagram from '@/components/sections/instagram';
 
 export default function Home() {
-  return (
-    <div className="main-wrapper">
-      <Hero />
-      <Invitation />
-      <NewArrivals />
-      <Collection />
-      <Philosophy />
-      <OurStory />
-      <Presence />
-      <Prestige />
-      <Brands />
-      <Instagram />
-    </div>
-  );
+  return (
+    <div>
+      <Hero />
+      <Invitation />
+      <NewArrivals />
+      <Collection />
+      <Philosophy />
+      <OurStory />
+      <Presence />
+      <Prestige />
+      <Brands />
+      <Instagram />
+    </div>
+  );
 }

@@ -1,8 +1,7 @@
 import { IoIosArrowDown } from "react-icons/io";
 import { IoCallOutline, IoLocationOutline } from "react-icons/io5";
 import TopSlider from "./ui/topslider";
-import data from "@/data/top-header.json";
-
+import data from "@/data/data.json";
 export default function TopHeader() {
   const { help, selectors } = data;
 

@@ -96,8 +96,10 @@ export default function FooterLinks() {
             </div>
           </div>
         </div>
-        <div className="copyright text-center mt-4">
-          <p className="font-gotham text-white text-xs">
+
+        {/* Copyright Row */}
+        <div className="text-center">
+          <p className="font-['Gotham'] text-white text-xs">
             © 2026 London Tea Exchange. All rights reserved.
           </p>
         </div>

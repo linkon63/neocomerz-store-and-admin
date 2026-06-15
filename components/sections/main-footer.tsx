@@ -13,19 +13,22 @@ export default function Mainfooter() {
   ];
 
   const exploreLinks = [
-    { label: "Sylheti Tea", href: "/sylheti-tea" },
-    { label: "Gift Sets", href: "/gift-sets" },
-    { label: "Best Sellers", href: "/best-sellers" },
-    { label: "Loose Leaf Tea", href: "/collections" },
     { label: "New Arrivals", href: "/new-arrivals" },
+    { label: "Best Sellers", href: "/best-sellers" },
+    { label: "Assorted Collections", href: "/collections" },
+    { label: "Tea Blends Collections", href: "/tea-blends" },
+    { label: "Loose Leaf Tea", href: "/loose-leaf" },
+    { label: "Elegant Gifts", href: "/gifts" },
+    { label: "Sale Collections", href: "/sale" },
   ];
 
   const experienceLinks = [
-    { label: "Our Heritage", href: "/about" },
-    { label: "Tea Houses", href: "/tea-houses" },
-    { label: "Brewing Guide", href: "/brewing-guide" },
-    { label: "Sustainability", href: "/sustainability" },
-    { label: "Careers", href: "/careers" },
+    { label: "Our Story", href: "/story" },
+    { label: "Product Philosophy", href: "/philosophy" },
+    { label: "Global Presence", href: "/presence" },
+    { label: "The Journal", href: "/journal" },
+    { label: "Tea Rituals", href: "/rituals" },
+    { label: "Private Gifting", href: "/private-gifting" },
   ];
 
   const philosophyIcons = [
@@ -102,7 +105,7 @@ export default function Mainfooter() {
             <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-8">
               
               {/* Get Support Column */}
-            <div className="xl:col-span-1">
+              <div>
               <h3 className="font-['Bembo_Std'] font-medium text-gray-900 text-lg mb-4 uppercase tracking-wide">
                 GET SUPPORT
               </h3>
@@ -119,8 +122,10 @@ export default function Mainfooter() {
                 ))}
               </ul>
             </div>
-            <div className="xl:col-span-1">
-              <h3 className="font-bembo font-medium text-text-primary text-sm mb-4 uppercase">
+
+            {/* Explore Column */}
+            <div>
+              <h3 className="font-['Bembo_Std'] font-medium text-gray-900 text-lg mb-4 uppercase tracking-wide">
                 EXPLORE
               </h3>
               <ul className="space-y-2">
@@ -136,8 +141,10 @@ export default function Mainfooter() {
                 ))}
               </ul>
             </div>
-            <div className="xl:col-span-1 ">
-              <h3 className="font-bembo font-medium text-text-primary text-sm mb-4 uppercase">
+
+            {/* The Experience Column */}
+            <div>
+              <h3 className="font-['Bembo_Std'] font-medium text-stone-800 text-lg mb-4 uppercase tracking-wide">
                 THE EXPERIENCE
               </h3>
               <ul className="space-y-2">
