@@ -14,6 +14,7 @@
   --color-brand-3: rgba(185, 151, 91, 1);
   --color-brand-4: rgba(71, 55, 41, 1);
   --color-brand-5: rgba(33, 39, 33, 1);
+  --color-brand-6: rgba(245, 245, 240, 1);
   
   /* Font Families */
   --font-gotham: 'Gotham', Arial, Helvetica, sans-serif;
@@ -70,6 +71,7 @@
   --brand-color-3: rgba(185, 151, 91, 1);
   --brand-color-4: rgba(71, 55, 41, 1);
   --brand-color-5: rgba(33, 39, 33, 1);
+  --brand-color-6: rgba(245, 245, 240, 1);
   --font-gotham: 'Gotham', Arial, Helvetica, sans-serif;
   --font-bembo: 'Bembo Std', Georgia, serif;
 }
@@ -82,6 +84,7 @@
     --brand-color-3: rgba(185, 151, 91, 1);
     --brand-color-4: rgba(71, 55, 41, 1);
     --brand-color-5: rgba(33, 39, 33, 1);
+    --brand-color-6: rgba(245, 245, 240, 1);
   }
 }
 

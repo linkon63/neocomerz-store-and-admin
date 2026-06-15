@@ -1,77 +1,65 @@
-import { GiTeapotLeaves } from "react-icons/gi";
 import FooterNewsletter from "./ui/footer-newsletter";
 import FooterPayment from "./ui/footer-payment";
 import FooterLinks from "./ui/footer-links";
+import Link from "next/dist/client/link";
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaWhatsapp } from "react-icons/fa6";
 
 export default function Bottomfooter() {
-  const features = [
-    {
-      icon: <GiTeapotLeaves />,
-      title: "Sovereign Seal",
-    },
-    {
-      icon: <GiTeapotLeaves />,
-      title: "Grand Passage",
-    },
-    {
-      icon: <GiTeapotLeaves />,
-      title: "Noble Balance",
-    },
-    {
-      icon: <GiTeapotLeaves />,
-      title: "World Assembly",
-    },
-  ];
 
   return (
-    <section className="w-full">
-      <div className="bottom-footer-wrapper">
-        {/* Top Section with Background Image */}
-        <div
-          className="relative w-full h-120 bg-cover bg-center"
-          style={{ backgroundImage: "url('/images/footer/footerbanner.png')" }}
-        >
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-black/40"></div>
+    <section className="relative w-full h-full min-h-107.5 overflow-hidden flex items-end">
+      {/* YouTube Video Background */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden">
+        <iframe
+          src="https://www.youtube.com/embed/CFfP9DFeOog?autoplay=1&mute=1&loop=1&playlist=CFfP9DFeOog&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1"
+          allow="autoplay; encrypted-media"
+          className="absolute top-1/2 left-1/2 w-full h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          style={{
+            minWidth: '100vw',
+            minHeight: '100vh',
+          }}
+        />
+        <div className="absolute inset-0 bg-black/50 z-1"></div>
+      </div>
 
-          {/* Content - Positioned at Bottom */}
-          <div className="absolute bottom-0 left-0 right-0 pb-8">
-            <div className="container mx-auto px-4 sm:px-6">
-              {/* Features */}
-              <div className="flex flex-wrap justify-center gap-2 mb-6">
-                {features.map((feature, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-row items-center text-center gap-1"
-                  >
-                    <div className="text-3xl mb-2 text-white">
-                      {feature.icon}
-                    </div>
-                    <h3 className="font-bembo text-white text-xl uppercase">
-                      {feature.title}
-                    </h3>
-                  </div>
-                ))}
+      <div className="bottom-footer-wrapper relative z-10 w-full py-8">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end mb-8">
+            
+            <FooterPayment />
+
+            <div className="text-center space-y-6">
+              {/* Social Icons */}
+              <div className="flex items-center justify-center gap-2">
+                <p className="text-white text-sm font-['Gotham']">Follow Us on</p>
+                <div className="flex items-center justify-center gap-4">
+                  <Link href="https://facebook.com" target="_blank" className="text-white hover:text-brand-3 transition-colors">
+                    <FaFacebookF className="w-5 h-5" />
+                  </Link>
+                  <Link href="https://linkedin.com" target="_blank" className="text-white hover:text-brand-3 transition-colors">
+                    <FaLinkedinIn className="w-5 h-5" />
+                  </Link>
+                  <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-brand-3 transition-colors">
+                    <FaInstagram className="w-5 h-5" />
+                  </Link>
+                  <Link href="https://wa.me/+8801711992256" target="_blank" className="text-white hover:text-brand-3 transition-colors">
+                    <FaWhatsapp className="w-5 h-5" />
+                  </Link>
+                </div>
               </div>
 
-              {/* Description */}
-              <div className="max-w-6xl mx-auto text-center">
-                <p className="font-gotham text-white text-sm leading-relaxed">
-                  Rooted in the fertile landscapes of Sylhet, our teas stand beyond origin—carrying with them the character of place, time, and craft. Inspired by the ways of artisan farmers who prioritize every selection not as a commodity, but as a refined expression of nature and intention.
-                </p>
-              </div>
+              <FooterNewsletter />
             </div>
+            <div className="text-center md:text-right">
+              <p className="text-white text-sm font-['Gotham'] mb-1">Customer Service</p>
+              <p className="text-white text-lg font-['Gotham'] font-medium">Hours: M-F 9AM-5PM</p>
+            </div>
+
           </div>
+
+          <FooterLinks />
+
         </div>
-
-        {/* Middle Section - Newsletter */}
-        <FooterNewsletter />
-
-        {/* Payment Methods Section */}
-        <FooterPayment />
-
-        {/* Bottom Links Section */}
-        <FooterLinks />
       </div>
     </section>
   );

@@ -84,8 +84,6 @@ export default function ProductsPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      <TopHeader />
-      <Header />
 
       <main className="flex-grow w-full">
         <div className="w-full bg-white pt-16 pb-8">
@@ -338,9 +336,6 @@ export default function ProductsPage() {
 
         <RelatedCarousel />
       </main>
-
-      <Mainfooter />
-      <Bottomfooter />
     </div>
   );
 }
