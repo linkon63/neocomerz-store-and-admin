@@ -1,0 +1,87 @@
+{
+  "help": {
+    "text": "Help",
+    "phone": {
+      "full": "+8801536-879494",
+      "short": "+8801536-879494",
+      "label": "Helpline"
+    }
+  },
+  "slider": {
+    "slides": [
+      "Purveyar Of Direct Trade, Organic Teas From Off The Beaten Path",
+      "Handpicked Single-Origin Teas From Remote Mountain Gardens"
+    ],
+    "autoplayDelay": 3000,
+    "speed": 500
+  },
+  "selectors": {
+    "language": {
+      "options": [
+        { "value": "en", "label": "EN" },
+        { "value": "bn", "label": "BN" }
+      ],
+      "default": "en"
+    },
+    "currency": {
+      "options": [
+        { "value": "bd", "label": "BD" },
+        { "value": "usd", "label": "USD" }
+      ],
+      "default": "bd"
+    }
+  },
+
+  "products": {
+    "newArrivals": [
+      {
+        "id": "1",
+        "name": "Velvet Leaf Signature",
+        "price": 1999,
+        "originalPrice": 2499,
+        "image": "/images/products/Product-1.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "2",
+        "name": "Sylhet Imperial Noir",
+        "price": 1999,
+        "originalPrice": 2499,
+        "image": "/images/products/Product-2.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "3",
+        "name": "Emerald Garden Reserve",
+        "price": 1999,
+        "originalPrice": 2499,
+        "image": "/images/products/Product-3.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "4",
+        "name": "Golden Mist Elixir",
+        "price": 1999,
+        "originalPrice": 2499,
+        "image": "/images/products/Product-4.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "5",
+        "name": "White Aurora Collection",
+        "price": 1999,
+        "originalPrice": 2499,
+        "image": "/images/products/Product-5.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "6",
+        "name": "White Aurora Collection",
+        "price": 1999,
+        "originalPrice": 2499,
+        "image": "/images/products/Product-6.png",
+        "badge": "NEW"
+      }
+    ]
+  }
+}
