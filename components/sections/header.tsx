@@ -25,7 +25,7 @@ export default function Header() {
   return (
     <header className="w-full bg-[#212721] border-b border-zinc-800 text-white font-gotham relative">
       {/* Desktop Navigation Layout */}
-      <div className="hidden xl:flex flex-col items-center w-full max-w-[1440px] mx-auto px-5 py-3 gap-3">
+      <div className="hidden xl:flex flex-col items-center w-full max-w-360 mx-auto px-5 py-3 gap-3">
         {/* Top Row: Centered Logo */}
         <div className="flex justify-center items-center py-2">
           <Link href="/" className="flex items-center">
@@ -34,7 +34,7 @@ export default function Header() {
               alt="London Tea Exchange Logo"
               width={280}
               height={31}
-              className="h-[31px] w-auto"
+              className="h-7.75 w-auto"
               priority
             />
           </Link>
@@ -83,7 +83,7 @@ export default function Header() {
               aria-label="Shopping Cart"
             >
               <LuShoppingBag className="w-5 h-5" />
-              <div className="w-6 p-1 absolute left-[16px] top-0 bg-brand-primary rounded-[100px] inline-flex flex-col justify-center items-center gap-0.5">
+              <div className="w-6 p-1 absolute left-4 top-0 bg-brand-primary rounded-[100px] inline-flex flex-col justify-center items-center gap-0.5">
                 <span className="self-stretch text-center text-white text-xs font-medium leading-4">
                   1
                 </span>

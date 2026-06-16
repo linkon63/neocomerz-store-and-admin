@@ -9,7 +9,7 @@ export default function Button({
   const variantStyles = {
     primary: "bg-brand-primary text-white hover:bg-brand-4",
     secondary: "bg-text-secondary text-white hover:bg-opacity-90",
-    outline: "bg-transparent text-text-primary border-2 border-text-primary hover:bg-text-primary hover:text-white",
+    outline: "bg-transparent text-white border-2 border-white hover:bg-white hover:text-black",
   };
 
   return (
