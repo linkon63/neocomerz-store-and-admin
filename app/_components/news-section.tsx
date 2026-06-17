@@ -1,13 +1,15 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { useEffect, useState } from "react";
 import { getPublishedNews, resolveImageUrl, formatDate, type News } from "@/lib/admin-api";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 const newsImage =
   "https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=crop&w=1800&q=85";
 
 export default function NewsSection() {
+  const { t } = useI18n();
   const [items, setItems] = useState<News[] | null>(null);
 
   useEffect(() => {
@@ -48,16 +50,16 @@ export default function NewsSection() {
 
       {/* Content */}
       <div className="relative z-10 mx-auto pb-28 pt-14 container lg:pb-36 lg:pt-20">
-        <p className="text-[10px] font-bold uppercase tracking-[0.14em]">News &amp; Blog</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em]">{t("home.news.eyebrow")}</p>
         <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
           <h2 className="font-bembo text-3xl font-bold leading-tight text-black sm:text-5xl">
-            What&apos;s happening in the world of Humana Vintage
+            {t("home.news.heading")}
           </h2>
           <Link
             href="/news"
             className="text-xs font-bold uppercase tracking-[0.08em] text-neutral-900 underline-offset-4 hover:underline"
           >
-            View all →
+            {t("home.news.viewAll")} →
           </Link>
         </div>
 

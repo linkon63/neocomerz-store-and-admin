@@ -2,8 +2,10 @@
 import { contactFormValidation } from '@/utils/validation';
 import { useState } from 'react';
 import { ContactFormData, FormErrors } from '@/types/formData';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 export default function ContactForm() {
+    const { t } = useI18n();
     const [formData, setFormData] = useState<ContactFormData>({
         name: '',
         email: '',
@@ -36,14 +38,14 @@ export default function ContactForm() {
 
                     setFormData({ name: '', email: '', message: '' });
                     setStatusMessage({
-                        text: "Message sent successfully! We will get back to you soon.",
+                        text: t("contact.form.successMessage"),
                         type: 'success'
                     });
                 } else {
                     console.error('Failed to send message');
                 }
             } catch (error) {
-                setStatusMessage({ text: "Something went wrong. Please try again.", type: 'error' });
+                setStatusMessage({ text: t("contact.form.errorMessage"), type: 'error' });
             } finally {
                 setIsSubmitting(false);
             }
@@ -58,7 +60,7 @@ export default function ContactForm() {
                 <div>
                     <input
                         type="text"
-                        placeholder="Name *"
+                        placeholder={t("contact.form.namePlaceholder")}
                         className="w-full p-4 border-b-2 border-gray-200 focus:border-black outline-none transition"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -68,7 +70,7 @@ export default function ContactForm() {
                 <div>
                     <input
                         type="email"
-                        placeholder="Email *"
+                        placeholder={t("contact.form.emailPlaceholder")}
                         className="w-full p-4 border-b-2 border-gray-200 focus:border-black outline-none transition"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -80,7 +82,7 @@ export default function ContactForm() {
             <div>
                 <textarea
                     rows={4}
-                    placeholder="Message"
+                    placeholder={t("contact.form.messagePlaceholder")}
                     className="w-full p-4 border-b-2 border-gray-200 focus:border-black outline-none transition"
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
@@ -98,7 +100,7 @@ export default function ContactForm() {
                 disabled={isSubmitting}
                 className={`${isSubmitting ? 'bg-gray-500' : 'bg-black'} text-white px-10 py-3 mt-4 transition`}
             >
-                {isSubmitting ? 'Sending...' : 'Send'}
+                {isSubmitting ? t("contact.form.sending") : t("contact.form.send")}
             </button>
         </form>
     );

@@ -2,8 +2,10 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { newsletterEmailValidation } from '@/utils/validation';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 export default function Newsletter() {
+    const { t, locale } = useI18n();
     const [email, setEmail] = useState('');
     const [accepted, setAccepted] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -13,7 +15,7 @@ export default function Newsletter() {
 
         const validation = newsletterEmailValidation(email, accepted);
         if (!validation.isValid) {
-            const errorMsg = validation.errors.email || validation.errors.accepted || "Invalid input";
+            const errorMsg = validation.errors.email || validation.errors.accepted || t("newsletter.invalidInput");
             toast.error(errorMsg);
             return;
         }
@@ -21,23 +23,23 @@ export default function Newsletter() {
         setIsSubmitting(true);
 
         try {
-            const res = await fetch('/api/resend/newsletter', {
+            const res = await fetch(`/api/resend/newsletter?lang=${locale}`, {
                 method: 'POST',
                 body: JSON.stringify({ email }),
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json', 'Accept-Language': locale }
             });
 
             const data = await res.json();
 
             if (data.success) {
-                toast.success("Thanks for subscribing!");
+                toast.success(t("newsletter.success"));
                 setEmail('');
                 setAccepted(false);
             } else {
-                throw new Error(data.message || "Something went wrong");
+                throw new Error(data.message || t("newsletter.somethingWrong"));
             }
         } catch (error) {
-            toast.error("Failed to subscribe. Please try again.");
+            toast.error(t("newsletter.failed"));
         } finally {
             setIsSubmitting(false);
         }
@@ -48,10 +50,10 @@ export default function Newsletter() {
             <div className="mx-auto container grid gap-8 lg:grid-cols-[1fr_460px] lg:items-center">
                 <div>
                     <h2 className="font-bembo text-3xl font-bold leading-tight text-black sm:text-5xl">
-                        Subscribe to our newsletter
+                        {t("newsletter.heading")}
                     </h2>
                     <p className="mt-4 text-sm font-medium text-black sm:text-base">
-                        Stay updated and receive 10% off your first order.
+                        {t("newsletter.subheading")}
                     </p>
                 </div>
                 <div>
@@ -59,7 +61,7 @@ export default function Newsletter() {
                         <div className="flex w-full">
                             <input
                                 type="email"
-                                placeholder="Enter your email"
+                                placeholder={t("newsletter.emailPlaceholder")}
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="min-w-0 flex-1 bg-white px-4 py-3 text-sm font-medium text-neutral-900 outline-none placeholder:text-neutral-500"
@@ -69,7 +71,7 @@ export default function Newsletter() {
                                 disabled={isSubmitting}
                                 className="bg-[#120b16] px-5 py-3 text-xs font-bold uppercase tracking-[0.08em] text-white disabled:opacity-70 transition-opacity"
                             >
-                                {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+                                {isSubmitting ? t("newsletter.subscribing") : t("newsletter.subscribe")}
                             </button>
                         </div>
 
@@ -80,7 +82,7 @@ export default function Newsletter() {
                                 onChange={(e) => setAccepted(e.target.checked)}
                                 className="h-4 w-4 rounded border border-neutral-400 bg-white"
                             />
-                            <span>I have read and accept the terms and conditions</span>
+                            <span>{t("newsletter.terms")}</span>
                         </label>
                     </form>
                 </div>

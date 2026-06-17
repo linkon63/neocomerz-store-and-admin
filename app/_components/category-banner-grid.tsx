@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { useEffect, useState } from "react";
 import { resolveImageUrl } from "@/lib/admin-api";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 interface Category {
   id: string;
@@ -12,6 +13,7 @@ interface Category {
 }
 
 export default function CategoryBannerGrid() {
+  const { t, locale } = useI18n();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -20,8 +22,9 @@ export default function CategoryBannerGrid() {
 
     (async () => {
       try {
-        const res = await fetch("/api/v1/category", {
+        const res = await fetch(`/api/v1/category`, {
           signal: controller.signal,
+          headers: { "Accept-Language": locale },
         });
         if (!res.ok) throw new Error("Failed to fetch categories");
         const json = await res.json();
@@ -33,11 +36,11 @@ export default function CategoryBannerGrid() {
     })();
 
     return () => controller.abort();
-  }, []);
+  }, [locale]);
 
   if (isLoading) {
     return (
-      <section className="w-full">
+      <section className="w-full" aria-label={t("home.categories.aria")}>
         <div className="grid gap-2 pt-2 md:grid-cols-2">
           {Array.from({ length: 2 }).map((_, i) => (
             <div key={i} className="h-[520px] animate-pulse bg-neutral-100" />

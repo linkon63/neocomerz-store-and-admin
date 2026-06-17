@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { type HeroSlide } from "../../lib/type";
-import { resolveImageUrl } from "../shop/products";
+import { resolveImageUrl } from "@/app/_components/products";
 const FALLBACK_SLIDES: HeroSlide[] = [
   {
     image: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1800&q=85",

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import StorefrontChrome from "./_components/storefront-chrome";
 import "./globals.css";
 import { Toaster } from "sonner";
 
@@ -13,10 +12,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // `lang` defaults to the storefront default locale; the locale layout syncs
+  // it to the active locale (en/it). Admin routes keep this default.
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="it" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
-        <StorefrontChrome>{children}</StorefrontChrome>
+        {children}
         <Toaster richColors position="top-right" />
       </body>
     </html>
