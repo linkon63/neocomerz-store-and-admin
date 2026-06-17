@@ -1,31 +1,18 @@
 "use client";
 
 import Link from "@/components/LocaleLink";
-import { useEffect, useState } from "react";
 import { getPublishedNews, resolveImageUrl, formatDate, type News } from "@/lib/admin-api";
 import { useI18n } from "@/lib/i18n/I18nProvider";
+import { useSWRImmutable } from "@/lib/swr";
 
 const newsImage =
   "https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=crop&w=1800&q=85";
 
 export default function NewsSection() {
   const { t } = useI18n();
-  const [items, setItems] = useState<News[] | null>(null);
 
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const data = await getPublishedNews();
-        if (active) setItems(data);
-      } catch {
-        if (active) setItems([]);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, []);
+  // Locale-independent; cached so locale switches reuse it (no refetch).
+  const { data: items } = useSWRImmutable<News[]>("published-news", () => getPublishedNews());
 
   // Hide the entire section until we know there is published news to show.
   if (!items || items.length === 0) {

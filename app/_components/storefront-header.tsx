@@ -212,7 +212,6 @@ export default function StorefrontHeader() {
             <Link href="/shop">{t("nav.shop")}</Link>
             <Link href="/about">{t("nav.about")}</Link>
             <Link href="/contact">{t("nav.contact")}</Link>
-            <LanguageSwitcher className="ml-1" />
           </nav>
 
           <Link href="/" className="mx-auto lg:mx-0" aria-label={data?.shopName || "Store"}>
@@ -340,6 +339,8 @@ export default function StorefrontHeader() {
                 </Link>
               </div>
             </div>
+
+            <LanguageSwitcher className="ml-1" />
           </div>
 
           <div className="flex items-center gap-4 text-lg text-black lg:hidden">

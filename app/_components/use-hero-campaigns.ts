@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { type HeroSlide } from "../../lib/type";
 import { resolveImageUrl } from "@/app/_components/products";
+import { fetcher, useSWRImmutable } from "@/lib/swr";
 const FALLBACK_SLIDES: HeroSlide[] = [
   {
     image: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1800&q=85",
@@ -22,42 +23,29 @@ const FALLBACK_SLIDES: HeroSlide[] = [
 ];
 
 export function useHeroCampaigns() {
-  const [slides, setSlides] = useState<HeroSlide[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading, error } = useSWRImmutable<any[]>(
+    "/api/v1/campaigns",
+    fetcher,
+  );
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch("/api/v1/campaigns");
-        if (res.status != 200) throw new Error("Failed to fetch campaigns");
-        const campaigns = await res.json();
+  const slides = useMemo<HeroSlide[]>(() => {
+    if (error) return FALLBACK_SLIDES;
+    if (!data) return [];
 
-        const hero = (campaigns ?? []).filter(
-          (c: any) =>
-            c.status === "active" &&
-            c.section?.title === "Hero Campaign",
-        );
+    const hero = (data ?? []).filter(
+      (c: any) => c.status === "active" && c.section?.title === "Hero Campaign",
+    );
 
-        if (hero.length > 0) {
-          const mapped: HeroSlide[] = hero
-            .map((c: any) => ({
-              image: resolveImageUrl(c.images?.[0]?.images?.[0] ?? ""),
-              title: c.title,
-              copy: c.description ?? "",
-            }))
-            .filter((s: HeroSlide) => s.image);
+    const mapped: HeroSlide[] = hero
+      .map((c: any) => ({
+        image: resolveImageUrl(c.images?.[0]?.images?.[0] ?? ""),
+        title: c.title,
+        copy: c.description ?? "",
+      }))
+      .filter((s: HeroSlide) => s.image);
 
-          setSlides(mapped.length > 0 ? mapped : FALLBACK_SLIDES);
-        } else {
-          setSlides(FALLBACK_SLIDES);
-        }
-      } catch {
-        setSlides(FALLBACK_SLIDES);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+    return mapped.length > 0 ? mapped : FALLBACK_SLIDES;
+  }, [data, error]);
 
-  return { slides, loading };
+  return { slides, loading: isLoading };
 }
