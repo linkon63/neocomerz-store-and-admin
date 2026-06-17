@@ -33,7 +33,7 @@ export default function ProductCard({
       <div className="w-full h-full flex flex-col justify-start items-start">
         {/* Product Image */}
         {id ? (
-          <Link href={`/products/${id}`} className="self-stretch h-[290px] bg-white flex flex-col justify-center items-center relative overflow-hidden cursor-pointer w-full">
+          <Link href={`/products/${id}`} className="self-stretch h-[290px] flex flex-col justify-center items-center relative overflow-hidden cursor-pointer w-full">
             <Image
               src={image}
               alt={name}
@@ -43,7 +43,7 @@ export default function ProductCard({
             />
           </Link>
         ) : (
-          <div className="self-stretch h-[290px] bg-white flex flex-col justify-center items-center relative overflow-hidden w-full">
+          <div className="self-stretch h-[290px]  flex flex-col justify-center items-center relative overflow-hidden w-full">
             <Image
               src={image}
               alt={name}
@@ -55,7 +55,7 @@ export default function ProductCard({
         )}
 
         {/* Card Body */}
-        <div className="self-stretch px-9 pt-4 pb-9 bg-white flex flex-col justify-start items-start gap-1.5 z-20 w-full">
+        <div className="self-stretch px-9 pt-4 pb-9 flex flex-col justify-start items-start gap-1.5 z-20 w-full">
           {id ? (
             <Link href={`/products/${id}`} className="self-stretch justify-start cursor-pointer w-full">
               <h3 className="text-stone-800 hover:text-brand-3 transition-colors duration-200 text-xl font-normal font-gotham leading-6 line-clamp-2 min-h-12">
@@ -86,7 +86,7 @@ export default function ProductCard({
 
             {/* Gold Add to Cart Button (Round) */}
             <button className="pl-1 pr-3 py-1 bg-brand-3 hover:bg-opacity-95 text-white font-gotham text-[10px] font-semibold uppercase tracking-wider rounded-[100px] flex justify-start items-center gap-1.5 shadow-sm transition-all cursor-pointer z-30">
-              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shrink-0 relative shadow-inner">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 relative shadow-inner">
                 <Image
                   src="/images/products/Union.png"
                   alt="Union Icon"

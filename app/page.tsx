@@ -5,7 +5,7 @@ import Philosophy from '@/components/sections/philosophy';
 import OurStory from '@/components/sections/our-story';
 import Presence from '@/components/sections/presence';
 import Prestige from '@/components/sections/prestige';
-import NewArrivals from '@/components/sections/new-arrivals';
+import NewArrival from '@/components/sections/newarrival';
 import Brands from '@/components/sections/brands';
 import Instagram from '@/components/sections/instagram';
 import Testimonial from '@/components/sections/testimonial';
@@ -19,7 +19,7 @@ export default function Home() {
     <div>
       <Hero />
       <Invitation />
-      <NewArrivals />
+      <NewArrival />
       <Collection />
       <Philosophy />
       <WorldAssembly />
