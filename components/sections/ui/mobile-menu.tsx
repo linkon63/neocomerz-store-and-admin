@@ -18,17 +18,17 @@ export default function MobileMenu({
       <button
         aria-label="Menu"
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="text-white hover:text-brand-3 transition-colors cursor-pointer"
+        className="text-zinc-800 hover:text-brand-primary transition-colors cursor-pointer"
       >
         <HiOutlineBars3BottomRight className="w-6 h-6" />
       </button>
       {isMobileMenuOpen && (
-        <div className="absolute left-0 top-full w-full border-t border-zinc-800 bg-[#212721] shadow-lg z-50">
+        <div className="absolute left-0 top-full w-full border-t border-zinc-200 bg-white shadow-lg z-50">
           <nav className="py-2">
             {navItems.map((item) => (
               <div
                 key={item.label}
-                className="border-b border-zinc-800 last:border-0"
+                className="border-b border-zinc-100 last:border-0"
               >
                 {item.hasDropdown ? (
                   <>
@@ -36,9 +36,9 @@ export default function MobileMenu({
                       onClick={() =>
                         setMobileDropdownOpen(!mobileDropdownOpen)
                       }
-                      className="w-full flex items-center justify-between px-4 py-3 font-gotham text-sm text-white hover:bg-zinc-800/50 transition-colors"
+                      className="w-full flex items-center justify-between px-4 py-3 font-gotham text-sm text-zinc-800 hover:bg-zinc-50 hover:text-brand-primary transition-colors"
                     >
-                      <span>{item.label}</span>
+                      <span className="font-medium">{item.label}</span>
 
                       <IoChevronDownOutline
                         className={`w-4 h-4 transition-transform ${
@@ -48,7 +48,7 @@ export default function MobileMenu({
                     </button>
 
                     {mobileDropdownOpen && (
-                      <div className="bg-zinc-900/50 border-t border-zinc-800">
+                      <div className="bg-zinc-50 border-t border-zinc-150">
                         {sylhetiTeaItems.map((subItem) => (
                           <Link
                             key={subItem.label}
@@ -57,7 +57,7 @@ export default function MobileMenu({
                               setIsMobileMenuOpen(false);
                               setMobileDropdownOpen(false);
                             }}
-                            className="block pl-8 pr-4 py-2.5 font-gotham text-sm text-white hover:bg-brand-3 hover:text-white transition-colors border-b border-zinc-800 last:border-0"
+                            className="block pl-8 pr-4 py-2.5 font-gotham text-sm text-zinc-700 hover:bg-zinc-100 hover:text-brand-primary transition-colors border-b border-zinc-150 last:border-0"
                           >
                             {subItem.label}
                           </Link>
@@ -69,7 +69,7 @@ export default function MobileMenu({
                   <Link
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="block px-4 py-3 font-gotham text-sm text-white hover:bg-zinc-800/50 transition-colors"
+                    className="block px-4 py-3 font-gotham text-sm font-medium text-zinc-800 hover:bg-zinc-50 hover:text-brand-primary transition-colors"
                   >
                     {item.label}
                   </Link>
