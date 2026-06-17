@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FiCreditCard, FiShoppingBag, FiInfo } from "react-icons/fi";
-import { useCart } from "../../_components/cart-context";
-import { type ProductVariant, type VariantAttribute } from "../products";
+import { useCart } from "@/app/_components/cart-context";
+import { type ProductVariant, type VariantAttribute } from "@/app/_components/products";
 
 type ProductPurchasePanelProps = {
   productName: string;

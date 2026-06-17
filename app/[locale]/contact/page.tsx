@@ -2,6 +2,8 @@
 import ContactForm from "@/components/contacts/ContactForm";
 import ContactInfoCard from "@/components/contacts/ContactInfoCard";
 import Image from "next/image";
+import { getTranslator } from "@/lib/i18n/server";
+import type { Locale } from "@/lib/i18n/config";
 
 
 export const metadata = {
@@ -11,19 +13,26 @@ export const metadata = {
     description: process.env.SHOP_DESCRIPTION || "Discover our curated collection of unique products and treasures.",
 };
 
-export default function ContactPage() {
+export default async function ContactPage({
+    params,
+}: {
+    params: Promise<{ locale: string }>;
+}) {
+    const { locale } = await params;
+    const t = await getTranslator(locale as Locale);
+
     return (
         <div className="py-12 bg-white">
             {/* Banner */}
             <div className="relative w-full h-[300px] mb-12">
-                <Image src="/images/contacts/banner.webp" alt="Contact Banner" fill className="object-cover" />
+                <Image src="/images/contacts/banner.webp" alt={t("contact.bannerAlt")} fill className="object-cover" />
             </div>
 
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-20 px-6 ">
                 {/* Left Form */}
                 <div>
-                    <h1 className="text-3xl font-bold mb-2">Let's talk</h1>
-                    <p className="text-gray-500 mb-8">You're on the right page if you have questions, concerns, or would like to collaborate with us.</p>
+                    <h1 className="text-3xl font-bold mb-2">{t("contact.title")}</h1>
+                    <p className="text-gray-500 mb-8">{t("contact.subtitle")}</p>
                     <ContactForm />
                 </div>
 

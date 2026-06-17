@@ -1,37 +1,36 @@
 "use client";
 import { useFetchSettings } from "@/hooks/useFetchSettings";
-import Link from "next/link";
-import { useEffect } from "react";
+import Link from "@/components/LocaleLink";
 import { FaCcPaypal, FaCcVisa, FaFacebookF, FaInstagram, FaLinkedinIn, FaStripe, FaTiktok, FaYoutube } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 const footerGroups = [
 	{
-		title: "Customer Service",
+		titleKey: "footer.customerService",
 		links: [
-			{ id: "faq", label: "FAQ", href: "#" },
-			{ id: "wishlist", label: "Wishlist", href: "/wishlist" },
-			{ id: "delivery", label: "Shipping & Delivery", href: "#" },
-			{ id: "terms", label: "Terms & Conditions", href: "#" },
+			{ id: "faq", labelKey: "footer.links.faq", href: "#" },
+			{ id: "wishlist", labelKey: "footer.links.wishlist", href: "/wishlist" },
+			{ id: "delivery", labelKey: "footer.links.delivery", href: "#" },
+			{ id: "terms", labelKey: "footer.links.terms", href: "#" },
 		],
 	},
 	{
-		title: "Who We Are",
+		titleKey: "footer.whoWeAre",
 		links: [
-			{ id: "about-us", label: "About Us", href: "/about" },
-			{ id: "contacts", label: "Contacts", href: "/contact" },
-			{ id: "our-stores", label: "Our Stores", href: "/about" },
-			{ id: "news-blog", label: "News & Blog", href: "/news" },
+			{ id: "about-us", labelKey: "footer.links.about", href: "/about" },
+			{ id: "contacts", labelKey: "footer.links.contacts", href: "/contact" },
+			{ id: "our-stores", labelKey: "footer.links.ourStores", href: "/about" },
+			{ id: "news-blog", labelKey: "footer.links.newsBlog", href: "/news" },
 		],
 	},
 	{
-		title: "Policies",
+		titleKey: "footer.policies",
 		links: [
-			{ id: "refund", label: "Refund", href: "#" },
-			{ id: "return", label: "Return", href: "#" },
-			{ id: "cancellation", label: "Cacellation", href: "#" },
-			{ id: "privacy", label: "Privacy", href: "#" },
-
+			{ id: "refund", labelKey: "footer.links.refund", href: "#" },
+			{ id: "return", labelKey: "footer.links.return", href: "#" },
+			{ id: "cancellation", labelKey: "footer.links.cancellation", href: "#" },
+			{ id: "privacy", labelKey: "footer.links.privacy", href: "#" },
 		],
 	},
 ];
@@ -49,6 +48,7 @@ export default function StorefrontFooter({
 }) {
 
 	const { data, isLoading } = useFetchSettings();
+	const { t } = useI18n();
 
 	const socialIcons = {
 		facebook: FaFacebookF,
@@ -78,26 +78,26 @@ export default function StorefrontFooter({
 			<div className="mx-auto container">
 				<div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.2fr_1.2fr_1.2fr_1fr]">
 					{footerGroups.map((group) => (
-						<div key={group.title}>
+						<div key={group.titleKey}>
 							<h2 className="text-sm font-bold uppercase tracking-[0.02em] text-neutral-900">
-								{group.title}
+								{t(group.titleKey)}
 							</h2>
 							<ul className="mt-5 space-y-2">
 								{group.links.map((link) => (
-									<li key={link.label}>
+									<li key={link.id}>
 										{link.href === "#" ? (
 											<button
-												onClick={link.label === "FAQ" ? handleOpenFAQ : () => handleOpenPolicy(link.id, link.label)}
+												onClick={link.id === "faq" ? handleOpenFAQ : () => handleOpenPolicy(link.id, t(link.labelKey))}
 												className="text-sm font-medium uppercase leading-5 text-neutral-400 transition hover:text-neutral-900 sm:text-base text-left"
 											>
-												{link.label}
+												{t(link.labelKey)}
 											</button>
 										) : (
 											<Link
 												href={link.href}
 												className="text-sm font-medium uppercase leading-5 text-neutral-400 transition hover:text-neutral-900 sm:text-base"
 											>
-												{link.label}
+												{t(link.labelKey)}
 											</Link>
 										)}
 									</li>
@@ -111,7 +111,7 @@ export default function StorefrontFooter({
 							!isLoading && data?.socialContact && data?.socialContact.length !== 0 &&
 							<div>
 								<h2 className="text-sm font-bold uppercase tracking-[0.02em] text-neutral-900">
-									Social Media
+									{t("footer.socialMedia")}
 								</h2>
 								<div className="mt-5 flex gap-3">
 									{isLoading ? (
@@ -151,7 +151,7 @@ export default function StorefrontFooter({
 						}
 						<div>
 							<h2 className="mt-9 text-sm font-bold uppercase tracking-[0.02em] text-neutral-900">
-								Payment Methods
+								{t("footer.paymentMethods")}
 							</h2>
 							<div className="mt-4 flex flex-wrap gap-4 items-center">
 
@@ -168,7 +168,7 @@ export default function StorefrontFooter({
 					© {data?.copyrightYear} {data?.shopName}
 					{data?.parentCompany && (
 						<>
-							{" | Powered by "}
+							{` | ${t("footer.poweredBy")} `}
 							{data?.parentCompanyLink ? (
 								<Link
 									href={data.parentCompanyLink}

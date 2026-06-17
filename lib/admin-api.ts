@@ -621,6 +621,13 @@ type RequestOptions = RequestInit & {
   auth?: boolean;
 };
 
+// Active storefront locale, kept in sync by the i18n provider so customer-facing
+// API calls can request localized content. Defaults to the storefront default.
+let currentApiLocale = "it";
+export function setApiLocale(locale: string) {
+  currentApiLocale = locale;
+}
+
 // Customer API request helper (uses sessionStorage token)
 export async function customerApiRequest<T>(
   path: string,
@@ -633,6 +640,11 @@ export async function customerApiRequest<T>(
 
   if (auth && token) {
     requestHeaders.set("Authorization", `Bearer ${token}`);
+  }
+
+  // Tell the backend which language to return content in (when supported).
+  if (!requestHeaders.has("Accept-Language")) {
+    requestHeaders.set("Accept-Language", currentApiLocale);
   }
 
   try {

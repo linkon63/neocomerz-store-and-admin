@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FiHeart, FiLogOut, FiMenu, FiSearch, FiShoppingBag, FiUser, FiX } from "react-icons/fi";
 import humanaLogo from "../../references/logo.png";
@@ -9,14 +9,18 @@ import { useAuth } from "./auth-context";
 import { useCart } from "./cart-context";
 import { useWishlist } from "./wishlist-context";
 import { useProductSearch } from "./use-product-search";
-import { resolveImageUrl } from "../shop/products";
+import { resolveImageUrl } from "@/app/_components/products";
 import { useFetchSettings } from "@/hooks/useFetchSettings";
+import { useI18n } from "@/lib/i18n/I18nProvider";
+import { formatCurrency } from "@/lib/i18n/format";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function StorefrontHeader() {
   const { itemCount, items, subtotal } = useCart();
   const { itemCount: wishlistItemCount } = useWishlist();
   const { user, login, register, logout } = useAuth();
   const { data, isLoading } = useFetchSettings();
+  const { t, locale } = useI18n();
 
   const [authMode, setAuthMode] = useState<"login" | "register" | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -95,9 +99,9 @@ export default function StorefrontHeader() {
         className={`absolute top-full z-50 mt-3 border border-neutral-200 bg-white shadow-xl ${position}`}
       >
         {isSearching ? (
-          <p className="px-4 py-3 text-[11px] text-neutral-500">Searching&hellip;</p>
+          <p className="px-4 py-3 text-[11px] text-neutral-500">{t("search.searching")}</p>
         ) : searchResults.length === 0 ? (
-          <p className="px-4 py-3 text-[11px] text-neutral-500">No products found</p>
+          <p className="px-4 py-3 text-[11px] text-neutral-500">{t("search.noResults")}</p>
         ) : (
           <ul className="py-2">
             {searchResults.slice(0, 5).map((product) => {
@@ -141,7 +145,7 @@ export default function StorefrontHeader() {
                         {product.name}
                       </p>
                       <p className="mt-0.5 text-[11px] text-neutral-500">
-                        &euro;{Number(price).toFixed(2)}
+                        {formatCurrency(Number(price), locale)}
                       </p>
                     </div>
                   </Link>
@@ -159,11 +163,11 @@ export default function StorefrontHeader() {
     setFormError("");
 
     if (authMode === "register" && password !== confirmPassword) {
-      setFormError("Passwords do not match.");
+      setFormError(t("auth.passwordsNoMatch"));
       return;
     }
     if (password.length < 6) {
-      setFormError("Password must be at least 6 characters.");
+      setFormError(t("auth.passwordMin"));
       return;
     }
 
@@ -176,7 +180,7 @@ export default function StorefrontHeader() {
       }
       setAuthMode(null);
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Something went wrong. Try again.");
+      setFormError(err instanceof Error ? err.message : t("auth.genericError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -198,16 +202,17 @@ export default function StorefrontHeader() {
             type="button"
             onClick={() => setMobileMenuOpen(true)}
             className="flex items-center text-black lg:hidden"
-            aria-label="Open menu"
+            aria-label={t("account.openMenu")}
           >
             <FiMenu className="h-6 w-6" />
           </button>
 
           <nav className="hidden items-center gap-7 text-[11px] font-semibold uppercase tracking-[0.08em] lg:flex">
-            <Link href="/">Home</Link>
-            <Link href="/shop">Shop</Link>
-            <Link href="/about">About Us</Link>
-            <Link href="/contact">Contact</Link>
+            <Link href="/">{t("nav.home")}</Link>
+            <Link href="/shop">{t("nav.shop")}</Link>
+            <Link href="/about">{t("nav.about")}</Link>
+            <Link href="/contact">{t("nav.contact")}</Link>
+            <LanguageSwitcher className="ml-1" />
           </nav>
 
           <Link href="/" className="mx-auto lg:mx-0" aria-label={data?.shopName || "Store"}>
@@ -233,7 +238,7 @@ export default function StorefrontHeader() {
                   <input
                     ref={searchInputRef}
                     type="text"
-                    placeholder="Football jerseys"
+                    placeholder={t("search.placeholder")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === "Escape" && closeSearch()}
@@ -245,7 +250,7 @@ export default function StorefrontHeader() {
                   type="button"
                   onClick={() => setSearchOpen(true)}
                   className="flex w-full justify-end text-lg text-black"
-                  aria-label="Open search"
+                  aria-label={t("search.open")}
                 >
                   <FiSearch />
                 </button>
@@ -260,7 +265,7 @@ export default function StorefrontHeader() {
                 >
                   <button
                     type="button"
-                    aria-label="Account menu"
+                    aria-label={t("account.menu")}
                     className="flex items-center gap-1.5 text-sm font-bold"
                   >
                     <FiUser />
@@ -274,13 +279,13 @@ export default function StorefrontHeader() {
               <button
                 type="button"
                 onClick={() => setAuthMode("login")}
-                aria-label="Open login modal"
+                aria-label={t("account.openLogin")}
               >
                 <FiUser />
               </button>
             )}
 
-            <Link href="/wishlist" aria-label="Wishlist" className="relative block">
+            <Link href="/wishlist" aria-label={t("wishlist.label")} className="relative block">
               <FiHeart />
               {mounted && wishlistItemCount > 0 && (
                 <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[10px] font-bold text-white">
@@ -290,7 +295,7 @@ export default function StorefrontHeader() {
             </Link>
 
             <div className="group relative">
-              <Link href="/cart" aria-label="Cart" className="relative block">
+              <Link href="/cart" aria-label={t("cart.title")} className="relative block">
                 <FiShoppingBag />
                 <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
                   {mounted ? itemCount : 0}
@@ -298,9 +303,9 @@ export default function StorefrontHeader() {
               </Link>
 
               <div className="invisible absolute right-0 top-full w-80 translate-y-3 border border-neutral-200 bg-white p-4 opacity-0 shadow-xl transition group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-                <h2 className="text-xs font-black uppercase tracking-[0.12em]">Cart Overview</h2>
+                <h2 className="text-xs font-black uppercase tracking-[0.12em]">{t("cart.overview")}</h2>
                 {items.length === 0 ? (
-                  <p className="mt-4 text-sm text-neutral-500">Your cart is empty.</p>
+                  <p className="mt-4 text-sm text-neutral-500">{t("cart.empty")}</p>
                 ) : (
                   <div className="mt-4 space-y-4">
                     {items.slice(0, 3).map((item) => (
@@ -317,13 +322,13 @@ export default function StorefrontHeader() {
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-xs font-black uppercase">{item.name}</p>
                           <p className="mt-1 text-xs text-neutral-500">
-                            Qty {item.quantity} · €{item.price.toFixed(2)}
+                            {t("cart.qty")} {item.quantity} · {formatCurrency(item.price, locale)}
                           </p>
                         </div>
                       </div>
                     ))}
                     <div className="border-t border-neutral-200 pt-3 text-sm font-black">
-                      Subtotal: €{subtotal.toFixed(2)}
+                      {t("cart.subtotal")}: {formatCurrency(subtotal, locale)}
                     </div>
                   </div>
                 )}
@@ -331,14 +336,14 @@ export default function StorefrontHeader() {
                   href="/cart"
                   className="mt-4 block bg-black px-4 py-3 text-center text-xs font-black uppercase tracking-[0.12em] text-white"
                 >
-                  View Cart
+                  {t("cart.viewCart")}
                 </Link>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-4 text-lg text-black lg:hidden">
-            <Link href="/wishlist" aria-label="Wishlist" className="relative block">
+            <Link href="/wishlist" aria-label={t("wishlist.label")} className="relative block">
               <FiHeart />
               {mounted && wishlistItemCount > 0 && (
                 <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[10px] font-bold text-white">
@@ -347,7 +352,7 @@ export default function StorefrontHeader() {
               )}
             </Link>
 
-            <Link href="/cart" aria-label="Cart" className="relative block">
+            <Link href="/cart" aria-label={t("cart.title")} className="relative block">
               <FiShoppingBag />
               <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
                 {mounted ? itemCount : 0}
@@ -396,13 +401,13 @@ export default function StorefrontHeader() {
           <div ref={modalRef} className="w-full max-w-md bg-white p-6 shadow-2xl">
             <div className="flex items-center justify-between">
               <h2 className="text-3xl font-bold">
-                {authMode === "login" ? "Log in" : "Create account"}
+                {authMode === "login" ? t("auth.logIn") : t("auth.createAccount")}
               </h2>
               <button
                 type="button"
                 className="text-2xl leading-none"
                 onClick={() => setAuthMode(null)}
-                aria-label="Close"
+                aria-label={t("common.close")}
               >
                 ×
               </button>
@@ -415,7 +420,7 @@ export default function StorefrontHeader() {
                 className={`px-4 py-3 transition ${authMode === "login" ? "bg-black text-white" : "bg-white text-black hover:bg-neutral-50"
                   }`}
               >
-                Login
+                {t("auth.loginTab")}
               </button>
               <button
                 type="button"
@@ -423,7 +428,7 @@ export default function StorefrontHeader() {
                 className={`px-4 py-3 transition ${authMode === "register" ? "bg-black text-white" : "bg-white text-black hover:bg-neutral-50"
                   }`}
               >
-                Register
+                {t("auth.registerTab")}
               </button>
             </div>
 
@@ -437,7 +442,7 @@ export default function StorefrontHeader() {
               {authMode === "register" && (
                 <input
                   type="text"
-                  placeholder="Full name *"
+                  placeholder={t("auth.fullName")}
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -446,7 +451,7 @@ export default function StorefrontHeader() {
               )}
               <input
                 type="email"
-                placeholder="Email address *"
+                placeholder={t("auth.email")}
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -454,7 +459,7 @@ export default function StorefrontHeader() {
               />
               <input
                 type="password"
-                placeholder="Password *"
+                placeholder={t("auth.password")}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -463,7 +468,7 @@ export default function StorefrontHeader() {
               {authMode === "register" && (
                 <input
                   type="password"
-                  placeholder="Confirm password *"
+                  placeholder={t("auth.confirmPassword")}
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -478,23 +483,23 @@ export default function StorefrontHeader() {
               >
                 {isSubmitting
                   ? authMode === "login"
-                    ? "Logging in…"
-                    : "Creating account…"
+                    ? t("auth.loggingIn")
+                    : t("auth.creatingAccount")
                   : authMode === "login"
-                    ? "Log in"
-                    : "Register"}
+                    ? t("auth.logIn")
+                    : t("auth.register")}
               </button>
             </form>
 
             {authMode === "login" && (
               <p className="mt-4 text-center text-xs text-neutral-500">
-                Don&apos;t have an account?{" "}
+                {t("auth.noAccount")}{" "}
                 <button
                   type="button"
                   onClick={() => setAuthMode("register")}
                   className="font-bold underline hover:text-black"
                 >
-                  Create one
+                  {t("auth.createOne")}
                 </button>
               </p>
             )}
@@ -513,7 +518,7 @@ export default function StorefrontHeader() {
             <Link
               href="/"
               onClick={() => setMobileMenuOpen(false)}
-              aria-label="Humana Vintage home"
+              aria-label={t("account.homeAria")}
             >
               <Image
                 src={humanaLogo}
@@ -526,7 +531,7 @@ export default function StorefrontHeader() {
               type="button"
               className="text-2xl text-black hover:text-neutral-600 focus:outline-none transition-transform duration-200 hover:rotate-90"
               onClick={() => setMobileMenuOpen(false)}
-              aria-label="Close menu"
+              aria-label={t("account.closeMenu")}
             >
               <FiX />
             </button>
@@ -538,29 +543,30 @@ export default function StorefrontHeader() {
               onClick={() => setMobileMenuOpen(false)}
               className="transition-all duration-200 hover:text-neutral-500 hover:pl-2"
             >
-              Home
+              {t("nav.home")}
             </Link>
             <Link
               href="/shop"
               onClick={() => setMobileMenuOpen(false)}
               className="transition-all duration-200 hover:text-neutral-500 hover:pl-2"
             >
-              Shop
+              {t("nav.shop")}
             </Link>
             <Link
               href="/about"
               onClick={() => setMobileMenuOpen(false)}
               className="transition-all duration-200 hover:text-neutral-500 hover:pl-2"
             >
-              About Us
+              {t("nav.about")}
             </Link>
             <Link
               href="/contact"
               onClick={() => setMobileMenuOpen(false)}
               className="transition-all duration-200 hover:text-neutral-500 hover:pl-2"
             >
-              Contact
+              {t("nav.contact")}
             </Link>
+            <LanguageSwitcher className="pt-2" />
           </nav>
 
           <div className="mt-auto border-t border-neutral-100 pt-6">
@@ -569,7 +575,7 @@ export default function StorefrontHeader() {
                 <div className="flex items-center gap-3">
                   <FiUser className="text-lg text-black shrink-0" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[10px] uppercase tracking-[0.06em] text-neutral-500">Logged in as</p>
+                    <p className="text-[10px] uppercase tracking-[0.06em] text-neutral-500">{t("account.loggedInAs")}</p>
                     <p className="text-xs font-bold uppercase tracking-[0.06em] text-black truncate">
                       {user.name}
                     </p>
@@ -581,7 +587,7 @@ export default function StorefrontHeader() {
                     onClick={() => setMobileMenuOpen(false)}
                     className="block border border-black bg-white px-3 py-2 text-center text-[10px] font-bold uppercase tracking-[0.08em] text-black hover:bg-neutral-50 transition"
                   >
-                    Profile
+                    {t("account.profile")}
                   </Link>
                   <button
                     type="button"
@@ -592,7 +598,7 @@ export default function StorefrontHeader() {
                     className="flex items-center justify-center gap-1.5 border border-red-200 bg-red-50 px-3 py-2 text-center text-[10px] font-bold uppercase tracking-[0.08em] text-red-600 hover:bg-red-100 transition"
                   >
                     <FiLogOut className="text-xs" />
-                    Sign Out
+                    {t("account.signOut")}
                   </button>
                 </div>
               </div>
@@ -606,7 +612,7 @@ export default function StorefrontHeader() {
                 className="flex w-full items-center justify-center gap-2 border border-black bg-black px-4 py-3 text-xs font-black uppercase tracking-[0.12em] text-white hover:bg-neutral-800 transition"
               >
                 <FiUser className="text-sm" />
-                Sign In / Register
+                {t("account.signInRegister")}
               </button>
             )}
           </div>

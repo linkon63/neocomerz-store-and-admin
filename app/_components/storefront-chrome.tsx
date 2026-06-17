@@ -10,6 +10,7 @@ import { WishlistProvider } from "./wishlist-context";
 import FAQModal from "@/components/FAQModal";
 import PolicyModal from "@/components/PolicyModal";
 import { PolicyKey } from "@/types/policy";
+import { stripLocale } from "@/lib/i18n/navigation";
 
 export default function StorefrontChrome({
 	children,
@@ -17,8 +18,8 @@ export default function StorefrontChrome({
 	children: React.ReactNode;
 }) {
 	const pathname = usePathname();
-	const isAdminRoute = pathname.startsWith("/admin");
-	const isProfileRoute = pathname.startsWith("/profile");
+	// Paths are locale-prefixed (e.g. /it/profile); compare on the unprefixed path.
+	const isProfileRoute = stripLocale(pathname).startsWith("/profile");
 
 	const [footerHeight, setFooterHeight] = useState(450);
 	const footerRef = useRef<HTMLElement>(null);
@@ -46,11 +47,7 @@ export default function StorefrontChrome({
 			observer.disconnect();
 			isDesktop.removeEventListener("change", updateFooterHeight);
 		};
-	}, [isAdminRoute, isProfileRoute]);
-
-	if (isAdminRoute) {
-		return children;
-	}
+	}, [isProfileRoute]);
 
 	if (isProfileRoute) {
 		return (

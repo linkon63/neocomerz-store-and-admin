@@ -1,10 +1,15 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { useEffect, useState } from "react";
-import { getPublishedNews, resolveImageUrl, formatDate, type News } from "@/lib/admin-api";
+import { resolveImageUrl, type News } from "@/lib/admin-api";
+import { useI18n } from "@/lib/i18n/I18nProvider";
+import { formatDate } from "@/lib/i18n/format";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/v1";
 
 export default function NewsList() {
+  const { t, locale } = useI18n();
   const [items, setItems] = useState<News[] | null>(null);
   const [error, setError] = useState(false);
 
@@ -12,7 +17,11 @@ export default function NewsList() {
     let active = true;
     (async () => {
       try {
-        const data = await getPublishedNews();
+        const res = await fetch(`${API_BASE_URL}/news`, {
+          headers: { "Accept-Language": locale },
+        });
+        if (!res.ok) throw new Error("Failed to load news");
+        const data: News[] = await res.json();
         if (active) setItems(data);
       } catch {
         if (active) {
@@ -24,16 +33,16 @@ export default function NewsList() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [locale]);
 
   return (
     <section className="w-full py-12 md:py-16 lg:py-20">
       <div className="container">
         <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-neutral-500">
-          News &amp; Blog
+          {t("news.eyebrow")}
         </p>
         <h1 className="mt-3 font-bembo text-3xl font-bold leading-tight sm:text-5xl">
-          Stories from Humana Vintage
+          {t("news.listTitle")}
         </h1>
 
         {items === null ? (
@@ -53,8 +62,8 @@ export default function NewsList() {
           <div className="mt-12 rounded-lg border-2 border-dashed border-neutral-200 px-6 py-20 text-center">
             <p className="font-medium italic text-neutral-500">
               {error
-                ? "Unable to load news right now. Please try again later."
-                : "No news or blog posts have been published yet."}
+                ? t("news.loadError")
+                : t("news.empty")}
             </p>
           </div>
         ) : (
@@ -85,7 +94,7 @@ export default function NewsList() {
                 </div>
                 <div className="flex flex-1 flex-col p-5">
                   <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-neutral-400">
-                    {news.publishedAt ? formatDate(news.publishedAt) : formatDate(news.createdAt)}
+                    {news.publishedAt ? formatDate(news.publishedAt, locale) : formatDate(news.createdAt, locale)}
                     {news.author ? ` · ${news.author}` : ""}
                   </p>
                   <h2 className="mt-2 font-bembo text-xl font-bold leading-snug">
@@ -97,7 +106,7 @@ export default function NewsList() {
                     </p>
                   )}
                   <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold uppercase tracking-[0.08em] text-neutral-900 group-hover:underline">
-                    Read more →
+                    {t("news.readMore")}
                   </span>
                 </div>
               </Link>

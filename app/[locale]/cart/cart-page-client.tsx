@@ -15,8 +15,8 @@ import { useI18n } from "@/lib/i18n/I18nProvider";
 import { formatCurrency } from "@/lib/i18n/format";
 import type { Translator } from "@/lib/i18n/translate";
 import type { Locale } from "@/lib/i18n/config";
-import { useAuth } from "../_components/auth-context";
-import { useCart } from "../_components/cart-context";
+import { useAuth } from "@/app/_components/auth-context";
+import { useCart } from "@/app/_components/cart-context";
 import {
   type Address,
   type Order,
@@ -24,7 +24,7 @@ import {
   type ProductMedia,
   type ProductVariant,
   resolveImageUrl,
-} from "../shop/products";
+} from "@/app/_components/products";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5010/api/v1";
 
@@ -96,7 +96,7 @@ export default function CartPageClient() {
     setIsApplyingCoupon(true);
     setCouponError("");
     try {
-      const res = await fetch(`${BASE_URL}/coupons/apply?lang=${locale}`, {
+      const res = await fetch(`${BASE_URL}/coupons/apply`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept-Language": locale },
         body: JSON.stringify({ code, subtotal }),
@@ -136,7 +136,7 @@ export default function CartPageClient() {
 
     async function loadAddresses() {
       try {
-        const res = await fetch(`${BASE_URL}/addresses?lang=${locale}`, {
+        const res = await fetch(`${BASE_URL}/addresses`, {
           headers: { Authorization: `Bearer ${token}`, "Accept-Language": locale },
         });
         if (!res.ok) return;
@@ -180,7 +180,7 @@ export default function CartPageClient() {
         throw new Error(t("cartPage.errorRequiredFields"));
       }
 
-      const res = await fetch(`${BASE_URL}/addresses?lang=${locale}`, {
+      const res = await fetch(`${BASE_URL}/addresses`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -209,7 +209,7 @@ export default function CartPageClient() {
       throw new Error(t("cartPage.errorSelectAddress"));
     }
 
-    const res = await fetch(`${BASE_URL}/orders?lang=${locale}`, {
+    const res = await fetch(`${BASE_URL}/orders`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -251,7 +251,7 @@ export default function CartPageClient() {
       quantity: item.quantity,
     }));
 
-    const res = await fetch(`${BASE_URL}/orders/guest?lang=${locale}`, {
+    const res = await fetch(`${BASE_URL}/orders/guest`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Accept-Language": locale },
       body: JSON.stringify({

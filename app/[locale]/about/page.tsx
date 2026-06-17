@@ -1,5 +1,7 @@
 import AboutBottomSlide from "@/components/about/AboutBottomSlide";
 import Image from "next/image";
+import { getTranslator } from "@/lib/i18n/server";
+import type { Locale } from "@/lib/i18n/config";
 
 export const metadata = {
     title: process.env.SHOP_NAME
@@ -8,48 +10,55 @@ export const metadata = {
     description: process.env.SHOP_DESCRIPTION || "Discover our curated collection of unique products and treasures.",
 };
 
-const sectionsData = [
-    {
-        id: 1,
-        title: "Who We Are",
-        description: "We are an international non-profit dedicated to driving sustainable growth within the global textile industry. For over two decades, our mission has been to turn pre-loved clothing into powerful tools for change. By collecting and responsibly managing garments, we fund vital social initiatives—from local community support in Italy to large-scale humanitarian programs across education and agriculture in 45 countries. We bridge the gap between ethical fashion and global impact.",
-        image: "/images/about/img4.webp"
-    },
-    {
-        id: 2,
-        title: "Our Core Vision",
-        description: "We believe that progress isn't built on big promises, but on consistent, small actions. Our approach is purely practical: we empower individuals to take control of their future through community-driven support. We don't focus on abstract theories; instead, we focus on the tangible difference each person can make. When we join forces, those small individual steps combine to create a lasting, positive shift for our planet and its people.",
-        image: "/images/about/img5.webp"
-    },
-    {
-        id: 3,
-        title: "Where Style Meets Values",
-        description: "Our vintage boutiques are designed to honor the history of every garment we rescue. We hand-pick authentic pieces from the 60s through the 90s, giving them a new chapter in their life story. We hold the firm belief that ethical choices should be beautiful and affordable. By launching this online platform, we are making sustainable fashion reachable to everyone, everywhere. Since every item in our collection is one-of-a-kind, our online finds are distinct from what you'll see in our physical shops.",
-        image: "/images/about/img6.webp"
-    }
-];
+export default async function AboutPage({
+    params,
+}: {
+    params: Promise<{ locale: string }>;
+}) {
+    const { locale } = await params;
+    const t = await getTranslator(locale as Locale);
 
-const statsData = [
-    { count: "29", label: "Organizations" },
-    { count: "535", label: "Stores in Europe" },
-    { count: "1238", label: "Social projects" },
-    { count: "9.6 million", label: "Beneficiaries" },
-];
+    const sectionsData = [
+        {
+            id: 1,
+            title: t("about.section1Title"),
+            description: t("about.section1Description"),
+            image: "/images/about/img4.webp"
+        },
+        {
+            id: 2,
+            title: t("about.section2Title"),
+            description: t("about.section2Description"),
+            image: "/images/about/img5.webp"
+        },
+        {
+            id: 3,
+            title: t("about.section3Title"),
+            description: t("about.section3Description"),
+            image: "/images/about/img6.webp"
+        }
+    ];
 
-export default function AboutPage() {
+    const statsData = [
+        { count: "29", label: t("about.statOrganizations") },
+        { count: "535", label: t("about.statStores") },
+        { count: "1238", label: t("about.statProjects") },
+        { count: "9.6 million", label: t("about.statBeneficiaries") },
+    ];
+
     return (
         <div className="space-y-20 md:space-y-32 pb-20 bg-white">
 
             {/* Hero Section */}
             <section className="bg-[#FFD7FC] px-6 py-20 md:py-32 flex flex-col items-center text-center">
                 <h3 className="text-xs md:text-sm font-bold tracking-[0.2em] text-gray-800 uppercase mb-6">
-                    Our Mission
+                    {t("about.heroEyebrow")}
                 </h3>
                 <h1 className="text-3xl md:text-5xl font-serif text-gray-900 mb-8 max-w-3xl leading-tight">
-                    A single thread connecting the world
+                    {t("about.heroTitle")}
                 </h1>
                 <p className="text-base md:text-lg text-gray-700 max-w-3xl leading-relaxed">
-                    Our reach extends across continents, driven by a shared vision to reshape the fabric of our communities. We believe in the power of transparency and the strength of genuine connections.
+                    {t("about.heroSubtitle")}
                 </p>
             </section>
 
@@ -89,10 +98,10 @@ export default function AboutPage() {
             {/* Bottom Stat */}
             <section className="px-6 py-20 bg-[#F4F4F2] text-center">
                 <h4 className="text-xs md:text-sm font-bold uppercase tracking-[0.2em] text-gray-800 mb-4">
-                    The Federation
+                    {t("about.federationEyebrow")}
                 </h4>
                 <h2 className="text-3xl md:text-5xl font-serif text-gray-900 mb-16">
-                    An International Network
+                    {t("about.federationTitle")}
                 </h2>
 
                 <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">

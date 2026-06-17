@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "./auth-context";
-import { type DBProduct, type ProductVariant, type ProductMedia, resolveImageUrl } from "../shop/products";
+import { type DBProduct, type ProductVariant, type ProductMedia, resolveImageUrl } from "@/app/_components/products";
 
 export type CartItem = {
   slug: string;

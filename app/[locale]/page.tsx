@@ -1,10 +1,10 @@
-import CategoryBannerGrid from "./_components/category-banner-grid";
-import HeroSlider from "./_components/hero-slider";
+import CategoryBannerGrid from "@/app/_components/category-banner-grid";
+import HeroSlider from "@/app/_components/hero-slider";
 import Newsletter from "@/components/Newsletter";
-import ProductGrid from "./_components/product-grid";
-import TheBrand from "./_components/the-brand";
-import JournalParallax from "./_components/journal-parallax";
-import NewsSection from "./_components/news-section";
+import ProductGrid from "@/app/_components/product-grid";
+import TheBrand from "@/app/_components/the-brand";
+import JournalParallax from "@/app/_components/journal-parallax";
+import NewsSection from "@/app/_components/news-section";
 
 const editorialImages = [
   {

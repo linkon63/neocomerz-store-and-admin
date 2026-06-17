@@ -1,8 +1,8 @@
 "use client";
 
 import { FiHeart } from "react-icons/fi";
-import { useWishlist } from "../../_components/wishlist-context";
-import { type ShopProduct } from "../products";
+import { useWishlist } from "@/app/_components/wishlist-context";
+import { type ShopProduct } from "@/app/_components/products";
 
 export default function WishlistButton({ product }: { product: ShopProduct }) {
   const { toggleWishlist, isInWishlist } = useWishlist();

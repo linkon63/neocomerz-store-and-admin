@@ -13,7 +13,7 @@ import {
   type DBProduct,
   type ProductVariant,
   type ProductMedia,
-} from "../products";
+} from "@/app/_components/products";
 import ProductPurchasePanel from "./product-purchase-panel";
 import ProductImageGallery from "./product-image-gallery";
 import WishlistButton from "./wishlist-button";
@@ -47,7 +47,7 @@ export default async function ProductDetailsPage({
   // ── Fetch product ─────────────────────────────────────────────────────────
   let dbProduct: DBProduct | null = null;
   try {
-    const res = await fetch(`${BASE_URL}/products/slug/${slug}?lang=${locale}`, {
+    const res = await fetch(`${BASE_URL}/products/slug/${slug}`, {
       cache: "no-store",
       headers: { "Accept-Language": locale },
     });
@@ -155,7 +155,7 @@ export default async function ProductDetailsPage({
   // ── Fetch approved reviews ────────────────────────────────────────────────
   let reviews: ReviewFromAPI[] = [];
   try {
-    const res = await fetch(`${BASE_URL}/products/${dbProduct.id}/reviews?lang=${locale}`, {
+    const res = await fetch(`${BASE_URL}/products/${dbProduct.id}/reviews`, {
       cache: "no-store",
       headers: { "Accept-Language": locale },
     });

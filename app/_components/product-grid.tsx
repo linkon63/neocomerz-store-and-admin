@@ -1,11 +1,13 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { useEffect, useState } from "react";
 import { FiHeart, FiShoppingBag } from "react-icons/fi";
 import { useCart } from "./cart-context";
 import { useWishlist } from "./wishlist-context";
-import { resolveImageUrl, type ShopProduct } from "../shop/products";
+import { resolveImageUrl, type ShopProduct } from "@/app/_components/products";
+import { useI18n } from "@/lib/i18n/I18nProvider";
+import { formatCurrency } from "@/lib/i18n/format";
 
 interface ProductMedia {
   isFeatured: boolean;
@@ -29,6 +31,7 @@ interface Product {
 export default function ProductGrid() {
   const { items, addItem } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { t, locale } = useI18n();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -38,8 +41,9 @@ export default function ProductGrid() {
 
     (async () => {
       try {
-        const res = await fetch("/api/v1/products?limit=20&page=1", {
+        const res = await fetch(`/api/v1/products?limit=20&page=1`, {
           signal: controller.signal,
+          headers: { "Accept-Language": locale },
         });
         if (!res.ok) throw new Error("Failed to fetch products");
         const json = await res.json();
@@ -52,14 +56,14 @@ export default function ProductGrid() {
     })();
 
     return () => controller.abort();
-  }, []);
+  }, [locale]);
 
   if (isLoading) {
     return (
       <section className="w-full my-16 md:my-24 lg:my-32">
         <div className="container">
           <h1 className="font-bembo text-2xl font-bold sm:text-3xl">
-            Thousands of different stories
+            {t("product.storiesHeading")}
           </h1>
           <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-5">
             {Array.from({ length: 10 }).map((_, i) => (
@@ -83,12 +87,12 @@ export default function ProductGrid() {
       <section className="w-full my-16 md:my-24 lg:my-32">
         <div className="container">
           <h1 className="font-bembo text-2xl font-bold sm:text-3xl">
-            Thousands of different stories
+            {t("product.storiesHeading")}
           </h1>
           <p className="mt-10 text-sm text-neutral-500">
             {error
-              ? "Failed to load products. Please try again later."
-              : "No products available."}
+              ? t("product.loadError")
+              : t("product.none")}
           </p>
         </div>
       </section>
@@ -99,7 +103,7 @@ export default function ProductGrid() {
     <section className="w-full my-16 md:my-24 lg:my-32">
       <div className=" container ">
         <h1 className="font-bembo text-2xl font-bold sm:text-3xl">
-          Thousands of different stories
+          {t("product.storiesHeading")}
         </h1>
         <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-5">
           {products.map((product) => {
@@ -175,24 +179,24 @@ export default function ProductGrid() {
                       ? "translate-y-0 bg-amber-400 text-white opacity-100"
                       : "translate-y-2 bg-white text-black opacity-0"
                       }`}
-                    aria-label={inCart ? "Added to cart" : "Add to cart"}
+                    aria-label={inCart ? t("product.added") : t("product.addToCart")}
                   >
                     <FiShoppingBag className="text-sm" />
                   </button>
                 </div>
                 <div className="mt-4 flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase leading-4 tracking-[0.08em]">
+                  <div className="min-w-0">
+                    <p className="truncate text-[10px] font-semibold uppercase leading-4 tracking-[0.08em]">
                       {product.name}
                     </p>
-                    <p className="mt-2 text-xs font-semibold flex items-center gap-2">
+                    <p className="mt-2 text-xs font-semibold">
                       {discountedPrice != null && discountedPrice < Number(price) ? (
                         <>
-                          <span className="text-red-650">€{Number(discountedPrice).toFixed(2)}</span>
-                          <span className="text-neutral-400 line-through">€{Number(price).toFixed(2)}</span>
+                          <span className="text-red-650">{formatCurrency(Number(discountedPrice), locale)}</span>{" "}
+                          <span className="text-neutral-400 line-through">{formatCurrency(Number(price), locale)}</span>
                         </>
                       ) : (
-                        price != null ? `€${Number(price).toFixed(2)}` : ""
+                        price != null ? formatCurrency(Number(price), locale) : ""
                       )}
                     </p>
                   </div>
@@ -204,7 +208,7 @@ export default function ProductGrid() {
                       void toggleWishlist(wishlistProduct);
                     }}
                     className="mt-0.5 shrink-0 text-sm transition-colors hover:text-red-500"
-                    aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                    aria-label={inWishlist ? t("wishlist.remove") : t("wishlist.add")}
                   >
                     <FiHeart className={inWishlist ? "fill-red-500 text-red-500" : "text-neutral-600"} />
                   </button>

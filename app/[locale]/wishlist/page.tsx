@@ -6,9 +6,9 @@ import { useEffect, useState } from "react";
 import { FiHeart, FiShoppingBag, FiTrash2 } from "react-icons/fi";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { formatCurrency } from "@/lib/i18n/format";
-import { useWishlist } from "../_components/wishlist-context";
-import { useCart } from "../_components/cart-context";
-import { productSlug } from "../shop/products";
+import { useWishlist } from "@/app/_components/wishlist-context";
+import { useCart } from "@/app/_components/cart-context";
+import { productSlug } from "@/app/_components/products";
 
 export default function WishlistPage() {
   const { t, locale } = useI18n();

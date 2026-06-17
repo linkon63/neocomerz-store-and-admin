@@ -1,12 +1,14 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { useEffect, useState } from "react";
 import { useHeroCampaigns } from "./use-hero-campaigns";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 export default function HeroSlider() {
   const { slides, loading } = useHeroCampaigns();
   const [activeSlide, setActiveSlide] = useState(0);
+  const { t } = useI18n();
 
   useEffect(() => {
     if (slides.length === 0) return;
@@ -44,7 +46,7 @@ export default function HeroSlider() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
 
         <div className="absolute inset-x-0 bottom-0 pb-12 text-white sm:pb-16 max-w-434 px-4 md:px-6 mx-auto">
-          <p className="text-xs font-bold uppercase tracking-[0.18em]">Humana Vintage</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em]">{t("hero.brand")}</p>
           <h1 className="mt-4 max-w-3xl font-bembo text-5xl font-bold leading-none sm:text-7xl">
             {slides[activeSlide].title}
           </h1>
@@ -55,7 +57,7 @@ export default function HeroSlider() {
             href="/shop"
             className="mt-8 inline-flex bg-white px-8 py-4 text-sm font-bold uppercase tracking-[0.12em] text-black transition hover:bg-black hover:text-white"
           >
-            Shop Now
+            {t("hero.shopNow")}
           </Link>
         </div>
 
@@ -67,7 +69,7 @@ export default function HeroSlider() {
               onClick={() => setActiveSlide(index)}
               className={`h-2.5 rounded-full transition-all ${activeSlide === index ? "w-8 bg-white" : "w-2.5 bg-white/55"
                 }`}
-              aria-label={`Show slide ${index + 1}`}
+              aria-label={t("hero.showSlide", { n: index + 1 })}
             />
           ))}
         </div>

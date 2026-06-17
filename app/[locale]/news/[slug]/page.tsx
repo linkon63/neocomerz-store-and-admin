@@ -1,7 +1,10 @@
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { notFound } from "next/navigation";
 import { FiArrowLeft } from "react-icons/fi";
-import { resolveImageUrl, formatDate, type News } from "@/lib/admin-api";
+import { resolveImageUrl, type News } from "@/lib/admin-api";
+import { formatDate } from "@/lib/i18n/format";
+import { getTranslator } from "@/lib/i18n/server";
+import type { Locale } from "@/lib/i18n/config";
 
 export const metadata = {
   title: process.env.SHOP_NAME ? `News & Blog | ${process.env.SHOP_NAME}` : "News & Blog",
@@ -15,13 +18,17 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5010/
 export default async function NewsDetailPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; locale: string }>;
 }) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
+  const t = await getTranslator(locale as Locale);
 
   let news: News | null = null;
   try {
-    const res = await fetch(`${BASE_URL}/news/slug/${slug}`, { cache: "no-store" });
+    const res = await fetch(`${BASE_URL}/news/slug/${slug}`, {
+      cache: "no-store",
+      headers: { "Accept-Language": locale },
+    });
     if (res.ok) {
       news = await res.json();
     }
@@ -43,11 +50,11 @@ export default async function NewsDetailPage({
             href="/news"
             className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.08em] text-neutral-500 transition hover:text-neutral-900"
           >
-            <FiArrowLeft /> Back to News &amp; Blog
+            <FiArrowLeft /> {t("news.backToList")}
           </Link>
 
           <p className="mt-8 text-[10px] font-bold uppercase tracking-[0.14em] text-neutral-400">
-            {news.publishedAt ? formatDate(news.publishedAt) : formatDate(news.createdAt)}
+            {news.publishedAt ? formatDate(news.publishedAt, locale as Locale) : formatDate(news.createdAt, locale as Locale)}
             {news.author ? ` · ${news.author}` : ""}
           </p>
           <h1 className="mt-3 font-bembo text-3xl font-bold leading-tight sm:text-5xl">

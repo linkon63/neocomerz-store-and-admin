@@ -4,11 +4,11 @@ import Image from "next/image";
 import Link from "@/components/LocaleLink";
 import { useEffect, useMemo, useState } from "react";
 import { FiChevronDown, FiGrid, FiHeart, FiList, FiSearch, FiShoppingBag, FiFilter, FiX } from "react-icons/fi";
-import { useCart } from "../_components/cart-context";
-import { useWishlist } from "../_components/wishlist-context";
+import { useCart } from "@/app/_components/cart-context";
+import { useWishlist } from "@/app/_components/wishlist-context";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { formatCurrency } from "@/lib/i18n/format";
-import { productSlug, resolveImageUrl, type ShopProduct, type DBProduct, type ProductVariant, type ProductMedia, type VariantAttribute } from "./products";
+import { productSlug, resolveImageUrl, type ShopProduct, type DBProduct, type ProductVariant, type ProductMedia, type VariantAttribute } from "@/app/_components/products";
 
 
 
@@ -49,7 +49,7 @@ export default function ShopCatalog() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch(`${BASE_URL}/products?limit=100&lang=${locale}`, {
+        const response = await fetch(`${BASE_URL}/products?limit=100`, {
           headers: { "Accept-Language": locale },
         });
         if (!response.ok) {

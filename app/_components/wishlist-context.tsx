@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useAuth } from "./auth-context";
-import { type ShopProduct, type DBProduct, type ProductVariant, type ProductMedia, resolveImageUrl } from "../shop/products";
+import { type ShopProduct, type DBProduct, type ProductVariant, type ProductMedia, resolveImageUrl } from "@/app/_components/products";
 
 type WishlistContextValue = {
   wishlistItems: ShopProduct[];
