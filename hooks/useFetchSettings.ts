@@ -1,26 +1,15 @@
-import { useState, useEffect } from 'react';
+"use client";
 
+import { fetcher, useSWRImmutable } from "@/lib/swr";
+
+// Settings are locale-independent and used by both header and footer. SWR keys
+// by URL, so the two consumers share one request and it survives remounts
+// (locale switches) from cache — no refetch, no flicker.
 export const useFetchSettings = () => {
-    const [data, setData] = useState<any>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const { data, isLoading, error } = useSWRImmutable<any>(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/settings`,
+        fetcher,
+    );
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/settings`);
-                if (!response.ok) throw new Error('Failed to fetch');
-                const result = await response.json();
-                setData(result);
-            } catch (err:any) {
-                setError(err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
-
-    return { data, isLoading, error };
+    return { data: data ?? null, isLoading, error: error ?? null };
 };

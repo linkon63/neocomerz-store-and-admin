@@ -3,31 +3,12 @@ import { LOCALE_COOKIE, defaultLocale, isLocale } from "@/lib/i18n/config";
 
 const LOCALE_MAX_AGE = 60 * 60 * 24 * 365;
 
-// Negotiate a locale from the Accept-Language header against our supported set.
-function localeFromAcceptLanguage(header: string | null): string | undefined {
-  if (!header) return undefined;
-  const accepted = header
-    .split(",")
-    .map((part) => {
-      const [tag, q] = part.trim().split(";q=");
-      return { tag: tag.toLowerCase(), q: q ? Number(q) : 1 };
-    })
-    .sort((a, b) => b.q - a.q);
-
-  for (const { tag } of accepted) {
-    const base = tag.split("-")[0];
-    if (isLocale(base)) return base;
-  }
-  return undefined;
-}
-
+// Cookieless visitors default to the store's default locale (Italian). We do
+// NOT negotiate Accept-Language — this is an Italian-first store, so an English
+// browser still lands on `it` until the visitor switches (which sets the cookie).
 function detectLocale(request: NextRequest): string {
   const cookieLocale = request.cookies.get(LOCALE_COOKIE)?.value;
   if (isLocale(cookieLocale)) return cookieLocale;
-
-  const headerLocale = localeFromAcceptLanguage(request.headers.get("accept-language"));
-  if (headerLocale) return headerLocale;
-
   return defaultLocale;
 }
 

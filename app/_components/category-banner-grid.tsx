@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "@/components/LocaleLink";
-import { useEffect, useState } from "react";
 import { resolveImageUrl } from "@/lib/admin-api";
 import { useI18n } from "@/lib/i18n/I18nProvider";
+import { fetcher, useSWRImmutable } from "@/lib/swr";
 
 interface Category {
   id: string;
@@ -13,30 +13,11 @@ interface Category {
 }
 
 export default function CategoryBannerGrid() {
-  const { t, locale } = useI18n();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { t } = useI18n();
 
-  useEffect(() => {
-    const controller = new AbortController();
-
-    (async () => {
-      try {
-        const res = await fetch(`/api/v1/category`, {
-          signal: controller.signal,
-          headers: { "Accept-Language": locale },
-        });
-        if (!res.ok) throw new Error("Failed to fetch categories");
-        const json = await res.json();
-        setCategories((json ?? []).slice(0, 2));
-      } catch {
-      } finally {
-        if (!controller.signal.aborted) setIsLoading(false);
-      }
-    })();
-
-    return () => controller.abort();
-  }, [locale]);
+  // Locale-independent; cached by URL so locale switches reuse it (no refetch).
+  const { data, isLoading } = useSWRImmutable<Category[]>("/api/v1/category", fetcher);
+  const categories = (data ?? []).slice(0, 2);
 
   if (isLoading) {
     return (

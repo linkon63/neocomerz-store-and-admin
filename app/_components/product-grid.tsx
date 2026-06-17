@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "@/components/LocaleLink";
-import { useEffect, useState } from "react";
 import { FiHeart, FiShoppingBag } from "react-icons/fi";
 import { useCart } from "./cart-context";
 import { useWishlist } from "./wishlist-context";
 import { resolveImageUrl, type ShopProduct } from "@/app/_components/products";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { formatCurrency } from "@/lib/i18n/format";
+import { fetcher, useSWRImmutable } from "@/lib/swr";
 
 interface ProductMedia {
   isFeatured: boolean;
@@ -32,31 +32,13 @@ export default function ProductGrid() {
   const { items, addItem } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { t, locale } = useI18n();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(false);
 
-  useEffect(() => {
-    const controller = new AbortController();
-
-    (async () => {
-      try {
-        const res = await fetch(`/api/v1/products?limit=20&page=1`, {
-          signal: controller.signal,
-          headers: { "Accept-Language": locale },
-        });
-        if (!res.ok) throw new Error("Failed to fetch products");
-        const json = await res.json();
-        setProducts(json.data ?? []);
-      } catch {
-        if (!controller.signal.aborted) setError(true);
-      } finally {
-        if (!controller.signal.aborted) setIsLoading(false);
-      }
-    })();
-
-    return () => controller.abort();
-  }, [locale]);
+  // Locale-independent; cached by URL so locale switches reuse it (no refetch).
+  const { data, isLoading, error } = useSWRImmutable<{ data: Product[] }>(
+    "/api/v1/products?limit=20&page=1",
+    fetcher,
+  );
+  const products = data?.data ?? [];
 
   if (isLoading) {
     return (

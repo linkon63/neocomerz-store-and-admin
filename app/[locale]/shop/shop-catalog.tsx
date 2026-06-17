@@ -2,12 +2,13 @@
 
 import Image from "next/image";
 import Link from "@/components/LocaleLink";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { FiChevronDown, FiGrid, FiHeart, FiList, FiSearch, FiShoppingBag, FiFilter, FiX } from "react-icons/fi";
 import { useCart } from "@/app/_components/cart-context";
 import { useWishlist } from "@/app/_components/wishlist-context";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { formatCurrency } from "@/lib/i18n/format";
+import { fetcher, useSWRImmutable } from "@/lib/swr";
 import { productSlug, resolveImageUrl, type ShopProduct, type DBProduct, type ProductVariant, type ProductMedia, type VariantAttribute } from "@/app/_components/products";
 
 
@@ -21,9 +22,12 @@ type ViewMode = "grid" | "list";
 
 export default function ShopCatalog() {
   const { t, locale } = useI18n();
-  const [products, setProducts] = useState<ShopProduct[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  // Locale-independent; cached by URL so locale switches reuse it (no refetch).
+  const { data: rawProducts, isLoading, error: swrError } = useSWRImmutable<{ data: DBProduct[] }>(
+    `${BASE_URL}/products?limit=100`,
+    fetcher,
+  );
+  const error = swrError ? t("shop.loadError") : "";
   const [selectedCategory, setSelectedCategory] = useState("");
   const { addItem } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -46,19 +50,10 @@ export default function ShopCatalog() {
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
-  useEffect(() => {
-    async function fetchProducts() {
-      try {
-        const response = await fetch(`${BASE_URL}/products?limit=100`, {
-          headers: { "Accept-Language": locale },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch products");
-        }
-        const result = await response.json();
-        const dbProducts: DBProduct[] = result.data || [];
-        const activeDbProducts = dbProducts.filter((p: DBProduct) => p.status === "active");
-        const mapped = activeDbProducts.map((p: DBProduct) => {
+  const products = useMemo<ShopProduct[]>(() => {
+    const dbProducts: DBProduct[] = rawProducts?.data ?? [];
+    const activeDbProducts = dbProducts.filter((p: DBProduct) => p.status === "active");
+    return activeDbProducts.map((p: DBProduct) => {
           const defaultVariant = p.variants?.find((v: ProductVariant) => v.isDefault) || p.variants?.[0];
           const price = defaultVariant ? Number(defaultVariant.price) : 0;
           const discountedPrice = defaultVariant && (defaultVariant as any).discountedPrice != null
@@ -121,16 +116,7 @@ export default function ShopCatalog() {
             }))
           };
         });
-        setProducts(mapped);
-      } catch (err) {
-        console.error(err);
-        setError(t("shop.loadError"));
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchProducts();
-  }, [locale, t]);
+  }, [rawProducts]);
 
   const categoryOptions = useMemo(() => {
     return Array.from(new Set(products.map((product) => product.category)));

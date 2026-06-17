@@ -19,7 +19,8 @@
     "recharts": "^3.8.1",
     "resend": "^6.12.4",
     "sonner": "^2.0.7",
-    "swiper": "^12.1.4"
+    "swiper": "^12.1.4",
+    "swr": "^2.4.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
