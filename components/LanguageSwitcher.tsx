@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { locales, type Locale } from "@/lib/i18n/config";
 import { useLocale } from "@/lib/i18n/I18nProvider";
 import { localizeHref, setLocaleCookie, stripLocale } from "@/lib/i18n/navigation";
@@ -8,14 +8,15 @@ import { localizeHref, setLocaleCookie, stripLocale } from "@/lib/i18n/navigatio
 export default function LanguageSwitcher({ className = "" }: { className?: string }) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const active = useLocale();
 
   function switchTo(locale: Locale) {
     if (locale === active) return;
     setLocaleCookie(locale);
-    const query = searchParams.toString();
-    const target = localizeHref(stripLocale(pathname), locale) + (query ? `?${query}` : "");
+    // Read the query string here (click is browser-only) rather than via
+    // useSearchParams(), which would force every page into client rendering.
+    const query = window.location.search;
+    const target = localizeHref(stripLocale(pathname), locale) + query;
     router.replace(target);
   }
 
