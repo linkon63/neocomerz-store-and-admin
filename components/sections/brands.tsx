@@ -17,7 +17,7 @@ export default function Brands() {
   return (
     <section className="w-full py-12 px-6 md:px-12 lg:py-16">
       <div className="mx-auto">
-        <div className="flex flex-col items-center justify-between gap-8 lg:flex-row lg:gap-12">
+        <div className="flex flex-col items-center justify-between gap-8 lg:flex-row lg:gap-12 flex-wrap">
           <div className="shrink-0 text-center lg:text-left">
             <h2 className="font-family-bembo text-lg font-medium uppercase tracking-wide text-brand-3">
               Trusted Across

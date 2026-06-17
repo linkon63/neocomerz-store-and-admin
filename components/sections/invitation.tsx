@@ -3,15 +3,15 @@ import Image from "next/image";
 export default function Invitation() {
   const features = [
     {
-      icon: "/images/invitation/Invitation-1.png",
+      icon: "/images/invitation/Invitation-1.svg",
       description: "Single-Origin Leaves — Sourced with precision from the gardens of Sylhet",
     },
     {
-      icon: "/images/invitation/Invitation-2.png",
+      icon: "/images/invitation/Invitation-2.svg",
       description: "Limited Harvests — No mass production, only moments captured in season",
     },
     {
-      icon: "/images/invitation/Invitation-3.png",
+      icon: "/images/invitation/Invitation-3.svg",
       description: "Refined Craft — Curated with the philosophy of London Tea Exchange",
     },
   ];
