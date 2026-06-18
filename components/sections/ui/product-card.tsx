@@ -1,13 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-
-export interface ProductCardProps {
-  id?: string;
-  name: string;
-  price: string;
-  originalPrice: string;
-  image: string;
-}
+import type { ProductCardProps } from '@/data/types';
 
 export default function ProductCard({
   id,
@@ -17,7 +10,7 @@ export default function ProductCard({
   image,
 }: ProductCardProps) {
   return (
-    <div className="relative w-full max-w-[453px] h-[453px] bg-white border border-stone-100 overflow-hidden flex flex-col justify-start items-start group shadow-sm hover:shadow-md transition-shadow duration-300 mx-auto">
+    <div className="relative w-full bg-white border border-stone-100 gap-8 overflow-hidden flex flex-col justify-start items-start group shadow-sm hover:shadow-md transition-shadow duration-300 mx-auto">
       {/* Decorative Border Frame PNG Overlay */}
       <div className="absolute inset-0 pointer-events-none z-10">
         <Image
@@ -33,17 +26,17 @@ export default function ProductCard({
       <div className="w-full h-full flex flex-col justify-start items-start">
         {/* Product Image */}
         {id ? (
-          <Link href={`/products/${id}`} className="self-stretch h-[290px] bg-white flex flex-col justify-center items-center relative overflow-hidden cursor-pointer w-full">
+          <Link href={`/products/${id}`} className="self-stretch h-[290px] flex flex-col justify-center items-center relative overflow-hidden cursor-pointer w-full">
             <Image
               src={image}
               alt={name}
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              className="object-contain group-hover:scale-105 transition-transform duration-300"
             />
           </Link>
         ) : (
-          <div className="self-stretch h-[290px] bg-white flex flex-col justify-center items-center relative overflow-hidden w-full">
+          <div className="self-stretch h-[290px]  flex flex-col justify-center items-center relative overflow-hidden w-full">
             <Image
               src={image}
               alt={name}
@@ -55,48 +48,47 @@ export default function ProductCard({
         )}
 
         {/* Card Body */}
-        <div className="self-stretch px-9 pt-4 pb-9 bg-white flex flex-col justify-start items-start gap-1.5 z-20 w-full">
-          {id ? (
-            <Link href={`/products/${id}`} className="self-stretch justify-start cursor-pointer w-full">
-              <h3 className="text-stone-800 hover:text-brand-3 transition-colors duration-200 text-xl font-normal font-gotham leading-6 line-clamp-2 min-h-12">
-                {name}
-              </h3>
-            </Link>
-          ) : (
-            <h3 className="self-stretch justify-start text-stone-800 text-xl font-normal font-gotham leading-6 line-clamp-2 min-h-12">
-              {name}
-            </h3>
-          )}
+        <div className="self-stretch px-6 md:px-9 pt-4 pb-6 md:pb-9 flex flex-col justify-between z-20 w-full relative">
+          {/* Heart Icon - Top Right */}
+          <div className="absolute top-4 right-6 md:right-9">
+            <button className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-md hover:shadow-lg hover:scale-110 transition-all">
+              <svg className="w-5 h-5 text-gray-600 hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </button>
+          </div>
 
-          <div className="self-stretch inline-flex justify-between items-center gap-1.5">
-            {/* Pricing */}
-            <div className="flex-grow flex flex-col justify-start items-start">
-              <div className="size- inline-flex justify-start items-baseline gap-1">
-                <span className="justify-start text-stone-800 text-lg font-normal font-bembo uppercase leading-6">
+          {/* Bottom Section - Title and Price */}
+          <div className="w-full flex justify-between items-end gap-4 mt-8">
+            {/* Product Title - Bottom Left */}
+            <div className="flex-1">
+              {id ? (
+                <Link href={`/products/${id}`} className="cursor-pointer">
+                  <h3 className="text-stone-800 hover:text-brand-3 transition-colors duration-200 text-lg md:text-xl lg:text-2xl font-normal font-gotham leading-tight">
+                    {name}
+                  </h3>
+                </Link>
+              ) : (
+                <h3 className="text-stone-800 text-lg md:text-xl lg:text-2xl font-normal font-gotham leading-tight">
+                  {name}
+                </h3>
+              )}
+            </div>
+
+            {/* Pricing and VAT - Bottom Right */}
+            <div className="flex flex-col items-end gap-1 shrink-0">
+              <div className="flex justify-end items-baseline gap-2">
+                <span className="text-stone-800 text-lg md:text-xl font-semibold font-gotham whitespace-nowrap">
                   {price}
                 </span>
-                <span className="justify-start text-stone-400 text-lg font-normal font-bembo line-through uppercase leading-6">
+                <span className="text-stone-400 text-sm md:text-base font-normal font-gotham line-through whitespace-nowrap">
                   {originalPrice}
                 </span>
               </div>
-              <span className="text-center justify-start text-stone-400 text-xs font-medium font-gotham leading-4 line-clamp-1">
+              <span className="text-stone-400 text-xs font-medium font-gotham whitespace-nowrap">
                 VAT Included
               </span>
             </div>
-
-            {/* Gold Add to Cart Button (Round) */}
-            <button className="pl-1 pr-3 py-1 bg-brand-3 hover:bg-opacity-95 text-white font-gotham text-[10px] font-semibold uppercase tracking-wider rounded-[100px] flex justify-start items-center gap-1.5 shadow-sm transition-all cursor-pointer z-30">
-              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shrink-0 relative shadow-inner">
-                <Image
-                  src="/images/products/Union.png"
-                  alt="Union Icon"
-                  width={20}
-                  height={20}
-                  className="object-contain"
-                />
-              </div>
-              <span>ADD TO CART</span>
-            </button>
           </div>
         </div>
       </div>

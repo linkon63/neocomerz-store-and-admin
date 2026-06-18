@@ -1,7 +1,5 @@
 "use client";
 
-import { IoChevronBack, IoChevronForward } from "react-icons/io5";
-
 interface CarouselHeaderProps {
   title: string;
   onPrevious: () => void;
@@ -10,26 +8,30 @@ interface CarouselHeaderProps {
 
 export default function CarouselHeader({ title, onPrevious, onNext }: CarouselHeaderProps) {
   return (
-    <div className="flex items-center justify-center gap-4 mb-8 md:mb-12">
-      <button
-        onClick={onPrevious}
-        className="font-gotham text-text-primary text-xs sm:text-sm uppercase tracking-wider hover:text-brand-3 transition-colors flex items-center gap-1 cursor-pointer"
-      >
-        <IoChevronBack className="w-4 h-4" />
-        PREVIOUS
-      </button>
+    <div className="container mx-auto px-4 sm:px-6 mb-8 md:mb-12">
+      <div className="flex items-center justify-between max-w-6xl mx-auto">
+        <button
+          onClick={onPrevious}
+          className="flex items-center gap-2 text-xs sm:text-sm uppercase tracking-wider text-gray-600 hover:text-[#B9975B] transition-colors duration-300 cursor-pointer"
+          aria-label="Previous"
+        >
+          <span className="text-lg">&lt;</span>
+          <span>Previous</span>
+        </button>
 
-      <h2 className="font-bembo text-brand-3 text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center">
-        {title}
-      </h2>
+        <h2 className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-['Bembo_Std'] text-[#B9975B]">
+          {title}
+        </h2>
 
-      <button
-        onClick={onNext}
-        className="font-gotham text-text-primary text-xs sm:text-sm uppercase tracking-wider hover:text-brand-3 transition-colors flex items-center gap-1 cursor-pointer"
-      >
-        NEXT
-        <IoChevronForward className="w-4 h-4" />
-      </button>
+        <button
+          onClick={onNext}
+          className="flex items-center gap-2 text-xs sm:text-sm uppercase tracking-wider text-gray-600 hover:text-[#B9975B] transition-colors duration-300 cursor-pointer"
+          aria-label="Next"
+        >
+          <span>Next</span>
+          <span className="text-lg">&gt;</span>
+        </button>
+      </div>
     </div>
   );
 }
