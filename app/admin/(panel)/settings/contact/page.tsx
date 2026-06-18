@@ -9,6 +9,7 @@ import {
   FaLinkedinIn,
   FaYoutube,
 } from "react-icons/fa6";
+import { toast } from "sonner";
 import { AdminIcon, PageHeader } from "../../../_components/admin-shell";
 import {
   apiRequest,
@@ -22,8 +23,6 @@ import {
   FieldLabel,
   Input,
   SaveButton,
-  ErrorBanner,
-  SuccessBanner,
 } from "../_components/settings-ui";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -56,8 +55,6 @@ export default function ContactPage() {
   const [social, setSocial] = useState<AppSettings["socialContact"]>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   // ── Load ──────────────────────────────────────────────────────────────────
 
@@ -107,8 +104,6 @@ export default function ContactPage() {
 
   async function save() {
     setSaving(true);
-    setError("");
-    setSuccess("");
     try {
       await apiRequest("/settings", {
         method: "PATCH",
@@ -119,10 +114,9 @@ export default function ContactPage() {
           socialContact: social,
         }),
       });
-      setSuccess("Contact settings saved successfully.");
-      setTimeout(() => setSuccess(""), 3000);
+      toast.success("Contact settings saved successfully.");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save settings");
+      toast.error(err instanceof Error ? err.message : "Failed to save settings");
     } finally {
       setSaving(false);
     }
@@ -135,6 +129,11 @@ export default function ContactPage() {
       <PageHeader
         title="Contact & Social Media"
         description="Manage & customize your website content & interface."
+        action={
+          <SaveButton onClick={save} saving={saving}>
+            Save Contact
+          </SaveButton>
+        }
       />
 
       {loading ? (
@@ -289,14 +288,7 @@ export default function ContactPage() {
             </div>
           </SettingsCard>
 
-          {/* ── Feedback + Save ── */}
-          {error && <ErrorBanner message={error} />}
-          {success && <SuccessBanner message={success} />}
-          <div className="flex justify-end">
-            <SaveButton onClick={save} saving={saving}>
-              Save Contact Settings
-            </SaveButton>
-          </div>
+          <div className="border-t border-slate-100 pt-2" />
 
         </div>
       )}

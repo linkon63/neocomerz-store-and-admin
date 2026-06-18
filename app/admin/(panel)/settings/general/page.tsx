@@ -1,14 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { AdminIcon, PageHeader } from "../../../_components/admin-shell";
 import { apiRequest, resolveImageUrl, type AppSettings } from "../../../../../lib/admin-api";
 import {
   FieldLabel,
   Input,
+  SaveButton,
   StatusToggle,
-  ErrorBanner,
-  SuccessBanner,
 } from "../_components/settings-ui";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -110,8 +110,6 @@ export default function GeneralSettingsPage() {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   // Logo upload state
   const [logoTab, setLogoTab] = useState<"icon" | "icon+text" | "favicon">("icon");
@@ -213,8 +211,6 @@ export default function GeneralSettingsPage() {
 
   async function save() {
     setSaving(true);
-    setError("");
-    setSuccess("");
     try {
       let iconUrl = settings.icon;
       let logoUrl = settings.logo;
@@ -264,11 +260,10 @@ export default function GeneralSettingsPage() {
         }),
       });
 
-      setSuccess("Settings saved successfully.");
-      setTimeout(() => setSuccess(""), 3000);
+      toast.success("Settings saved successfully.");
       await loadSettings();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save settings");
+      toast.error(err instanceof Error ? err.message : "Failed to save settings");
     } finally {
       setSaving(false);
     }
@@ -288,24 +283,10 @@ export default function GeneralSettingsPage() {
         title="General"
         description="Manage & customize your website content & interface."
         action={
-          <div className="flex gap-3">
-            <button
-              className="h-11 rounded-md border border-slate-200 bg-white px-5 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
-              disabled={saving}
-              onClick={loadSettings}
-              type="button"
-            >
-              Cancel
-            </button>
-            <button
-              className="inline-flex h-11 items-center gap-2 rounded-md bg-slate-900 px-6 text-sm font-black text-white transition hover:bg-slate-800 disabled:opacity-60"
-              disabled={saving || loading}
-              onClick={save}
-              type="button"
-            >
-              {saving ? "Saving..." : "Update"}
-            </button>
-          </div>
+          
+          <SaveButton onClick={save} saving={saving}>
+            {saving ? "Saving..." : "Update"}
+          </SaveButton>
         }
       />
 
@@ -557,30 +538,7 @@ export default function GeneralSettingsPage() {
             </SettingsRow>
           </div>
 
-          {/* ── Feedback + Save ── */}
-          <div className="px-6 py-6 sm:px-8">
-            {error && <div className="mb-4"><ErrorBanner message={error} /></div>}
-            {success && <div className="mb-4"><SuccessBanner message={success} /></div>}
-            <div className="flex justify-end gap-3">
-              <button
-                className="h-11 rounded-md border border-slate-200 bg-white px-5 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
-                disabled={saving}
-                onClick={loadSettings}
-                type="button"
-              >
-                Cancel
-              </button>
-              <button
-                className="inline-flex h-11 items-center gap-2 rounded-md bg-slate-900 px-6 text-sm font-black text-white transition hover:bg-slate-800 disabled:opacity-60"
-                disabled={saving || loading}
-                onClick={save}
-                type="button"
-              >
-                <AdminIcon className="h-4 w-4" name="check" />
-                {saving ? "Saving..." : "Update"}
-              </button>
-            </div>
-          </div>
+          <div className="px-6 py-6 sm:px-8" />
 
         </div>
       )}

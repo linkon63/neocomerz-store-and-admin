@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Toaster } from "sonner";
 import { AdminIcon, type AdminIconName } from "../../_components/admin-shell";
 
 const NAV_ITEMS: { label: string; href: string; icon: AdminIconName }[] = [
@@ -51,7 +52,10 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Content slot */}
-      <div className="flex-1 min-w-0 overflow-y-auto">{children}</div>
+      <div className="flex-1 min-w-0 overflow-y-auto">
+        <Toaster richColors position="top-right" />
+        {children}
+      </div>
     </div>
   );
 }

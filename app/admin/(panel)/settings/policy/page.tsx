@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { PageHeader } from "../../../_components/admin-shell";
 import { apiRequest, type AppPolicies } from "../../../../../lib/admin-api";
 import {
@@ -8,8 +9,6 @@ import {
   FieldLabel,
   Input,
   SaveButton,
-  ErrorBanner,
-  SuccessBanner,
 } from "../_components/settings-ui";
 
 const POLICY_TABS = [
@@ -47,8 +46,6 @@ export default function PolicyPage() {
   const [activeTab, setActiveTab] = useState<PolicyKey>("delivery");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const loadPolicies = useCallback(async () => {
     setLoading(true);
@@ -68,8 +65,6 @@ export default function PolicyPage() {
 
   async function save() {
     setSaving(true);
-    setError("");
-    setSuccess("");
     try {
       const { id: _id, createdAt: _ca, updatedAt: _ua, ...payload } = policies;
       await apiRequest("/policies", {
@@ -77,10 +72,9 @@ export default function PolicyPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      setSuccess("Policies saved successfully.");
-      setTimeout(() => setSuccess(""), 3000);
+      toast.success("Policies saved successfully.");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save policies");
+      toast.error(err instanceof Error ? err.message : "Failed to save policies");
     } finally {
       setSaving(false);
     }
@@ -103,6 +97,11 @@ export default function PolicyPage() {
       <PageHeader
         title="Manage Policy"
         description="Manage & customize your website content & interface."
+        action={
+          <SaveButton onClick={save} saving={saving}>
+            Save Policy
+          </SaveButton>
+        }
       />
 
       <SettingsCard title="Policies">
@@ -176,14 +175,7 @@ export default function PolicyPage() {
               />
             </div>
 
-            {error && <ErrorBanner message={error} />}
-            {success && <SuccessBanner message={success} />}
-
-            <div className="flex justify-end">
-              <SaveButton onClick={save} saving={saving}>
-                Save Policy
-              </SaveButton>
-            </div>
+            <div className="border-t border-slate-100 pt-2" />
           </div>
         )}
       </SettingsCard>
