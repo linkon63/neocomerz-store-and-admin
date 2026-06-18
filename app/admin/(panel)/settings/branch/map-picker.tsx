@@ -7,9 +7,9 @@ import "leaflet/dist/leaflet.css";
 // Fix default marker icons (Leaflet's default icon paths break in bundlers)
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconRetinaUrl: "/images/leaflet/marker-icon-2x.png",
+  iconUrl: "/images/leaflet/marker-icon.png",
+  shadowUrl: "/images/leaflet/marker-shadow.png",
 });
 
 const DHAKA: [number, number] = [23.8103, 90.4125];
@@ -26,6 +26,7 @@ export default function MapPicker({
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
+  const observerRef = useRef<ResizeObserver | null>(null);
 
   useEffect(() => {
     if (!mapRef.current || mapInstance.current) return;
@@ -58,13 +59,19 @@ export default function MapPicker({
     mapInstance.current = map;
     markerRef.current = marker;
 
-    // Invalidate size after mount to avoid rendering glitch
-    setTimeout(() => map.invalidateSize(), 100);
+    // Keep map bounds correct when container resizes
+    const observer = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+    observer.observe(mapRef.current);
+    observerRef.current = observer;
 
     return () => {
+      observer.disconnect();
       map.remove();
       mapInstance.current = null;
       markerRef.current = null;
+      observerRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
