@@ -8,12 +8,12 @@ export default function Button({
 }: ButtonProps) {
   const variantStyles = {
     primary: "bg-brand-primary text-white hover:bg-brand-4",
-    secondary: "bg-text-secondary text-white hover:bg-opacity-90",
-    outline: "bg-transparent text-white border-2 border-white hover:bg-white hover:text-black",
+    secondary: "bg-black text-white hover:bg-opacity-90",
+    outline: "bg-transparent text-[#B9975B] border-2 border-[#B9975B] hover:bg-[#B9975B] hover:text-white",
   };
 
   return (
-    <div className="flex">
+    <div className="flex justify-center pt-6 md:pt-12">
       <Link
         href={href}
         className={`${variantStyles[variant]} font-gotham text-xs sm:text-sm uppercase tracking-wider px-8 py-3 rounded-full transition-colors`}

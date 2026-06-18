@@ -76,11 +76,123 @@
       },
       {
         "id": "6",
-        "name": "White Aurora Collection",
+        "name": "Moonlight Oolong Essence",
         "price": 1999,
         "originalPrice": 2499,
         "image": "/images/products/Product-6.png",
         "badge": "NEW"
+      },
+      {
+        "id": "7",
+        "name": "Heritage Black Tea",
+        "price": 2199,
+        "originalPrice": 2699,
+        "image": "/images/products/Product-1.png",
+        "badge": "POPULAR"
+      },
+      {
+        "id": "8",
+        "name": "Jasmine Pearl Delight",
+        "price": 2399,
+        "originalPrice": 2899,
+        "image": "/images/products/Product-2.png",
+        "badge": "POPULAR"
+      },
+      {
+        "id": "9",
+        "name": "Royal Assam Blend",
+        "price": 1799,
+        "originalPrice": 2199,
+        "image": "/images/products/Product-3.png",
+        "badge": "SALE"
+      },
+      {
+        "id": "10",
+        "name": "Darjeeling First Flush",
+        "price": 2599,
+        "originalPrice": 3099,
+        "image": "/images/products/Product-4.png",
+        "badge": "PREMIUM"
+      },
+      {
+        "id": "11",
+        "name": "Organic Green Sencha",
+        "price": 1899,
+        "originalPrice": 2399,
+        "image": "/images/products/Product-5.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "12",
+        "name": "Chamomile Sunset",
+        "price": 1699,
+        "originalPrice": 2099,
+        "image": "/images/products/Product-6.png",
+        "badge": "SALE"
+      },
+      {
+        "id": "13",
+        "name": "Earl Grey Supreme",
+        "price": 2099,
+        "originalPrice": 2599,
+        "image": "/images/products/Product-1.png",
+        "badge": "POPULAR"
+      },
+      {
+        "id": "14",
+        "name": "Peppermint Paradise",
+        "price": 1599,
+        "originalPrice": 1999,
+        "image": "/images/products/Product-2.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "15",
+        "name": "Matcha Grand Reserve",
+        "price": 2999,
+        "originalPrice": 3499,
+        "image": "/images/products/Product-3.png",
+        "badge": "PREMIUM"
+      },
+      {
+        "id": "16",
+        "name": "Rooibos Vanilla Dream",
+        "price": 1799,
+        "originalPrice": 2199,
+        "image": "/images/products/Product-4.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "17",
+        "name": "Silver Needle White Tea",
+        "price": 3299,
+        "originalPrice": 3799,
+        "image": "/images/products/Product-5.png",
+        "badge": "PREMIUM"
+      },
+      {
+        "id": "18",
+        "name": "Lavender Bliss Infusion",
+        "price": 1899,
+        "originalPrice": 2299,
+        "image": "/images/products/Product-6.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "19",
+        "name": "Pu-erh Aged Collection",
+        "price": 3599,
+        "originalPrice": 4099,
+        "image": "/images/products/Product-1.png",
+        "badge": "PREMIUM"
+      },
+      {
+        "id": "20",
+        "name": "Hibiscus Rose Garden",
+        "price": 1699,
+        "originalPrice": 2099,
+        "image": "/images/products/Product-2.png",
+        "badge": "SALE"
       }
     ]
   }

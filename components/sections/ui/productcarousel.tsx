@@ -1,133 +1,92 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import type { Swiper as SwiperType } from 'swiper';
-import { Navigation, Autoplay } from 'swiper/modules';
+import { Navigation, Autoplay, Grid, Pagination } from 'swiper/modules';
 import ProductCard from './product-card';
+import type { ExtendedProductCarouselProps } from '@/data/types';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
+import 'swiper/css/grid';
+import 'swiper/css/pagination';
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  originalPrice: number;
-  image: string;
-  badge?: string;
-}
-
-interface ProductCarouselProps {
-  products: Product[];
-  title: string;
-}
-
-export default function ProductCarousel({ products, title }: ProductCarouselProps) {
-  const [swiperRef, setSwiperRef] = useState<SwiperType | null>(null);
-  const [activeIndex, setActiveIndex] = useState(2);
-
-  // Duplicate the list of products to ensure Swiper loop mode works without empty space glitches or warnings.
-  const displayProducts = [
-    ...products,
-    ...products.map((product) => ({
-      ...product,
-      id: product.id + '-dup',
-    })),
-  ];
-
+export default function ProductCarousel({ products, title }: ExtendedProductCarouselProps) {
   return (
-    <section className="w-full py-16 sm:py-24 border-t border-stone-100 overflow-hidden">
-      {/* Centered Header with Navigation Controls */}
-      <div className="container mx-auto px-4 sm:px-6">
-        <div className="flex flex-col items-center justify-center gap-2 mb-8">
+    <section className="w-full overflow-hidden">
+      {/* Navigation and Title */}
+      <div className="container mx-auto px-4 sm:px-6 mb-8 md:mb-12">
+        <div className="flex flex-col items-center justify-center gap-4">
           <div className="flex items-center justify-center gap-8 sm:gap-12 md:gap-16">
             <button
-              className="related-prev flex items-center gap-2 text-stone-850 hover:text-brand-3 transition-colors text-xs font-semibold uppercase tracking-wider cursor-pointer select-none"
-              aria-label="Previous products"
+              className="product-carousel-prev flex items-center gap-2 text-stone-850 hover:text-[#B9975B] transition-colors text-xs font-semibold uppercase tracking-wider cursor-pointer select-none"
+              aria-label="Previous"
             >
-              <span className="text-brand-3 text-base font-normal">&lt;</span>
-              <span className="font-gotham font-medium text-[11px] tracking-[0.2em] text-stone-850">PREVIOUS</span>
+              <span className="text-[#B9975B] text-lg font-normal">&lt;</span>
+              <span className="font-gotham font-medium text-[11px] tracking-[0.2em]">PREVIOUS</span>
             </button>
 
-            <h2 className="font-bembo text-3xl sm:text-4xl text-brand-3 font-normal tracking-wide">
+            <h2 className="font-['Bembo_Std'] text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-[#B9975B] font-normal text-center">
               {title}
             </h2>
 
             <button
-              className="related-next flex items-center gap-2 text-stone-850 hover:text-brand-3 transition-colors text-xs font-semibold uppercase tracking-wider cursor-pointer select-none"
-              aria-label="Next products"
+              className="product-carousel-next flex items-center gap-2 text-stone-850 hover:text-[#B9975B] transition-colors text-xs font-semibold uppercase tracking-wider cursor-pointer select-none"
+              aria-label="Next"
             >
-              <span className="font-gotham font-medium text-[11px] tracking-[0.2em] text-stone-850">NEXT</span>
-              <span className="text-brand-3 text-base font-normal">&gt;</span>
+              <span className="font-gotham font-medium text-[11px] tracking-[0.2em]">NEXT</span>
+              <span className="text-[#B9975B] text-lg font-normal">&gt;</span>
             </button>
           </div>
 
-          {/* Custom 3-Dot Pagination (Centered below title) */}
-          <div className="flex justify-center items-center gap-2 mt-2 h-4">
-            {[0, 1, 2].map((i) => {
-              // Map loop index to 3 dot segments
-              const relativeIndex = activeIndex % products.length;
-              const segmentSize = Math.ceil(products.length / 3);
-              const isActive = Math.floor(relativeIndex / segmentSize) === i;
-              return (
-                <button
-                  key={i}
-                  onClick={() => {
-                    if (swiperRef) {
-                      swiperRef.slideToLoop(i * segmentSize);
-                    }
-                  }}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                    isActive
-                      ? 'bg-brand-3 scale-110'
-                      : 'bg-stone-300 hover:bg-stone-400'
-                  }`}
-                  aria-label={`Go to slide group ${i + 1}`}
-                />
-              );
-            })}
-          </div>
+          {/* Pagination Dots */}
+          <div className="swiper-pagination-product flex justify-center items-center gap-2 h-4"></div>
         </div>
       </div>
 
-      {/* Full-width Swiper Carousel Slider (No side padding on desktop or mobile) */}
-      <div className="w-full px-0">
+      {/* Full-width Swiper Carousel Slider with Grid */}
+      <div className="w-full px-4 sm:px-6">
         <Swiper
-          modules={[Navigation, Autoplay]}
-          onSwiper={setSwiperRef}
-          onSlideChange={(swiper) => {
-            setActiveIndex(swiper.realIndex);
+          modules={[Grid, Pagination, Navigation, Autoplay]}
+          slidesPerView={1}
+          grid={{
+            rows: 2,
+            fill: 'row',
           }}
+          spaceBetween={30}
           navigation={{
-            prevEl: '.related-prev',
-            nextEl: '.related-next',
+            prevEl: '.product-carousel-prev',
+            nextEl: '.product-carousel-next',
+          }}
+          pagination={{
+            el: '.swiper-pagination-product',
+            clickable: true,
+            bulletClass: 'inline-block w-2 h-2 bg-gray-300 rounded-full cursor-pointer transition-all duration-300 mx-1',
+            bulletActiveClass: '!bg-[#B9975B] scale-110',
           }}
           autoplay={{
             delay: 3500,
             disableOnInteraction: false,
             pauseOnMouseEnter: true,
           }}
-          spaceBetween={24}
-          slidesPerView={1.2}
-          centeredSlides={true}
-          initialSlide={2}
-          loop={true}
           breakpoints={{
-            480: { slidesPerView: 1, spaceBetween: 20 },
-            768: { slidesPerView: 2, spaceBetween: 24 },
-            1024: { slidesPerView: 3, spaceBetween: 24 },
+            640: { 
+              slidesPerView: 2,
+              spaceBetween: 20,
+            },
+            1024: { 
+              slidesPerView: 3,
+              spaceBetween: 30,
+            },
           }}
-          className="related-swiper pb-12 w-full"
+          className="mySwiper pb-12"
         >
-          {displayProducts.map((product) => (
+          {products.map((product) => (
             <SwiperSlide key={product.id}>
               <ProductCard
-                id={product.id.replace('-dup', '')}
+                id={product.id}
                 name={product.name}
                 price={`৳${product.price.toLocaleString()}`}
-                originalPrice={`৳${product.originalPrice.toLocaleString()}`}
+                originalPrice={`৳${(product.originalPrice || product.price).toLocaleString()}`}
                 image={product.image}
               />
             </SwiperSlide>

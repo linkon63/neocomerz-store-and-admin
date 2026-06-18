@@ -2,7 +2,6 @@ import Collection from '@/components/sections/collection';
 import Hero from '@/components/sections/hero';
 import Invitation from '@/components/sections/invitation';
 import Philosophy from '@/components/sections/philosophy';
-import OurStory from '@/components/sections/our-story';
 import Presence from '@/components/sections/presence';
 import Prestige from '@/components/sections/prestige';
 import NewArrival from '@/components/sections/newarrival';
@@ -13,12 +12,16 @@ import TeaCollection from '@/components/sections/ui/tea-collection';
 import PresenceImage from '@/components/sections/ui/presence-image';
 import NobleBalance from '@/components/sections/ui/noble-balance';
 import WorldAssembly from '@/components/sections/ui/world-assembly';
+import Subtract from '@/components/sections/subtract';
+import LooseTea from '@/components/sections/ui/loose-tea';
 
 export default function Home() {
   return (
     <div>
       <Hero />
       <Invitation />
+      <LooseTea />
+      <Subtract />
       <NewArrival />
       <Collection />
       <Philosophy />

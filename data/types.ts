@@ -37,7 +37,8 @@ export interface ProductCarouselProps {
   products: Product[];
 }
 
-export interface ExtendedProductCarouselProps extends ProductCarouselProps {
+export interface ExtendedProductCarouselProps {
+  products: Product[];
   title: string;
 }
 
@@ -45,4 +46,12 @@ export interface ButtonProps {
   href: string;
   label?: string;
   variant?: "primary" | "secondary" | "outline";
+}
+
+export interface ProductCardProps {
+  id?: string;
+  name: string;
+  price: string;
+  originalPrice: string;
+  image: string;
 }
