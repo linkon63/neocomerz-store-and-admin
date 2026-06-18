@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiRequest, setAdminSession, type AdminUser } from "../../../lib/admin-api";
+import { canEnterAdminPanel } from "../../../lib/admin-sections";
 
 type LoginResponse = {
   accessToken: string;
@@ -30,8 +31,8 @@ export default function AdminLoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      if (response.user.role?.name !== "admin") {
-        throw new Error("Only admin users can access the admin panel.");
+      if (!canEnterAdminPanel(response.user)) {
+        throw new Error("This account does not have admin panel access.");
       }
 
       setAdminSession(response.accessToken, response.user);
