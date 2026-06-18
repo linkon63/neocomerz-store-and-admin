@@ -284,6 +284,7 @@ export type AppSettings = {
   shopName?: string;
   logo?: string | null;
   icon?: string | null;
+  favicon?: string | null;
   slogan?: string | null;
   isTopBarVisible?: boolean;
   hideOutOfStock?: boolean;

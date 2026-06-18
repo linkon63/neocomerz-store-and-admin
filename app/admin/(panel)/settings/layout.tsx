@@ -17,9 +17,9 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)]">
+    <div className="flex gap-4 h-screen overflow-hidden">
       {/* Sidebar */}
-      <aside className="h-fit rounded-lg border border-slate-200 bg-white p-3 shadow-sm xl:sticky xl:top-6">
+      <aside className="sticky top-0 h-full w-[260px] shrink-0 self-start rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
         <p className="px-3 pb-2 pt-1 text-xs font-black uppercase tracking-[0.18em] text-slate-400">
           WEBSITE
         </p>
@@ -51,7 +51,7 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Content slot */}
-      <div className="min-w-0">{children}</div>
+      <div className="flex-1 min-w-0 overflow-y-auto">{children}</div>
     </div>
   );
 }

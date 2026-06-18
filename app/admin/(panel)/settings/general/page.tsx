@@ -114,13 +114,16 @@ export default function GeneralSettingsPage() {
   const [success, setSuccess] = useState("");
 
   // Logo upload state
-  const [logoTab, setLogoTab] = useState<"icon" | "icon+text">("icon");
+  const [logoTab, setLogoTab] = useState<"icon" | "icon+text" | "favicon">("icon");
   const [iconFile, setIconFile] = useState<File | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [faviconFile, setFaviconFile] = useState<File | null>(null);
   const [iconPreview, setIconPreview] = useState<string | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [faviconPreview, setFaviconPreview] = useState<string | null>(null);
   const iconInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const faviconInputRef = useRef<HTMLInputElement>(null);
 
   // ── Load ──────────────────────────────────────────────────────────────────
 
@@ -145,8 +148,9 @@ export default function GeneralSettingsPage() {
     return () => {
       if (iconPreview) URL.revokeObjectURL(iconPreview);
       if (logoPreview) URL.revokeObjectURL(logoPreview);
+      if (faviconPreview) URL.revokeObjectURL(faviconPreview);
     };
-  }, [iconPreview, logoPreview]);
+  }, [iconPreview, logoPreview, faviconPreview]);
 
   // ── File pickers ───────────────────────────────────────────────────────────
 
@@ -178,6 +182,20 @@ export default function GeneralSettingsPage() {
     if (logoInputRef.current) logoInputRef.current.value = "";
   }
 
+  function pickFavicon(file: File) {
+    if (faviconPreview) URL.revokeObjectURL(faviconPreview);
+    setFaviconFile(file);
+    setFaviconPreview(URL.createObjectURL(file));
+  }
+
+  function removeFavicon() {
+    if (faviconPreview) URL.revokeObjectURL(faviconPreview);
+    setFaviconFile(null);
+    setFaviconPreview(null);
+    setSettings((p) => ({ ...p, favicon: "" }));
+    if (faviconInputRef.current) faviconInputRef.current.value = "";
+  }
+
   // ── Upload helper ──────────────────────────────────────────────────────────
 
   async function uploadImage(file: File, folder: string): Promise<string> {
@@ -200,6 +218,7 @@ export default function GeneralSettingsPage() {
     try {
       let iconUrl = settings.icon;
       let logoUrl = settings.logo;
+      let faviconUrl = settings.favicon;
 
       // Upload new files if picked
       if (iconFile) {
@@ -216,6 +235,13 @@ export default function GeneralSettingsPage() {
           // same fallback
         }
       }
+      if (faviconFile) {
+        try {
+          faviconUrl = await uploadImage(faviconFile, "settings");
+        } catch {
+          // same fallback
+        }
+      }
 
       await apiRequest("/settings", {
         method: "PATCH",
@@ -224,7 +250,6 @@ export default function GeneralSettingsPage() {
           shopName: settings.shopName,
           currency: settings.currency,
           language: settings.language,
-          copyrightYear: settings.copyrightYear,
           parentCompany: settings.parentCompany,
           parentCompanyLink: settings.parentCompanyLink,
           slogan: settings.slogan,
@@ -235,6 +260,7 @@ export default function GeneralSettingsPage() {
           deliveryChargeNearCity: Number(settings.deliveryChargeNearCity ?? 0),
           ...(iconUrl !== undefined && { icon: iconUrl }),
           ...(logoUrl !== undefined && { logo: logoUrl }),
+          ...(faviconUrl !== undefined && { favicon: faviconUrl }),
         }),
       });
 
@@ -252,6 +278,7 @@ export default function GeneralSettingsPage() {
 
   const iconDisplayUrl = iconPreview ?? (settings.icon ? resolveImageUrl(settings.icon) : null);
   const logoDisplayUrl = logoPreview ?? (settings.logo ? resolveImageUrl(settings.logo) : null);
+  const faviconDisplayUrl = faviconPreview ?? (settings.favicon ? resolveImageUrl(settings.favicon) : null);
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -333,7 +360,7 @@ export default function GeneralSettingsPage() {
                 </div>
 
                 {/* Choose Template — placeholder */}
-                <div className="mt-2">
+                {/* <div className="mt-2">
                   <p className="text-sm font-black text-slate-800">Choose Template</p>
                   <p className="mt-0.5 text-xs font-medium text-slate-500">
                     Select a storefront template for your shop.
@@ -343,7 +370,7 @@ export default function GeneralSettingsPage() {
                       No templates available. Please ask the central admin to add templates.
                     </p>
                   </div>
-                </div>
+                </div> */}
               </div>
             </SettingsRow>
           </div>
@@ -355,9 +382,9 @@ export default function GeneralSettingsPage() {
               hint="Add your logos as instructed to manage your website better."
               separator={false}
             >
-              {/* Icon / Icon + Text tabs */}
+              {/* Icon / Icon + Text / Favicon tabs */}
               <div className="mb-5 flex gap-0 border-b border-slate-200">
-                {(["icon", "icon+text"] as const).map((tab) => (
+                {(["icon", "icon+text", "favicon"] as const).map((tab) => (
                   <button
                     className={`border-b-2 px-4 pb-3 pt-1 text-sm font-black transition ${
                       logoTab === tab
@@ -368,7 +395,7 @@ export default function GeneralSettingsPage() {
                     onClick={() => setLogoTab(tab)}
                     type="button"
                   >
-                    {tab === "icon" ? "Icon" : "Icon + Text"}
+                    {tab === "icon" ? "Icon" : tab === "icon+text" ? "Icon + Text" : "Favicon"}
                   </button>
                 ))}
               </div>
@@ -384,7 +411,7 @@ export default function GeneralSettingsPage() {
                     onRemove={removeIcon}
                     url={iconDisplayUrl ?? undefined}
                   />
-                ) : (
+                ) : logoTab === "icon+text" ? (
                   /* Icon + Text slot (logo) */
                   <LogoSlot
                     hint="Full logo with text used in the header."
@@ -392,6 +419,15 @@ export default function GeneralSettingsPage() {
                     onPick={() => logoInputRef.current?.click()}
                     onRemove={removeLogo}
                     url={logoDisplayUrl ?? undefined}
+                  />
+                ) : (
+                  /* Favicon slot */
+                  <LogoSlot
+                    hint="Small icon displayed in the browser tab."
+                    label="Favicon"
+                    onPick={() => faviconInputRef.current?.click()}
+                    onRemove={removeFavicon}
+                    url={faviconDisplayUrl ?? undefined}
                   />
                 )}
               </div>
@@ -417,6 +453,16 @@ export default function GeneralSettingsPage() {
                 ref={logoInputRef}
                 type="file"
               />
+              <input
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) pickFavicon(f);
+                }}
+                ref={faviconInputRef}
+                type="file"
+              />
             </SettingsRow>
           </div>
 
@@ -428,7 +474,7 @@ export default function GeneralSettingsPage() {
               separator={false}
             >
               <div className="space-y-4">
-                <div className="flex items-center justify-between rounded-md border border-slate-200 bg-slate-50 px-5 py-4">
+                {/* <div className="flex items-center justify-between rounded-md border border-slate-200 bg-slate-50 px-5 py-4">
                   <div>
                     <p className="text-sm font-black text-slate-800">Display Top bar</p>
                     <p className="mt-0.5 text-xs font-medium text-slate-500">
@@ -439,7 +485,7 @@ export default function GeneralSettingsPage() {
                     active={settings.isTopBarVisible ?? false}
                     onChange={(v) => setSettings((p) => ({ ...p, isTopBarVisible: v }))}
                   />
-                </div>
+                </div> */}
                 <div>
                   <FieldLabel required>Top bar Slogan</FieldLabel>
                   <Input
@@ -453,7 +499,7 @@ export default function GeneralSettingsPage() {
           </div>
 
           {/* ── Product Setting ── */}
-          <div className="px-6 py-7 sm:px-8">
+          {/* <div className="px-6 py-7 sm:px-8">
             <SettingsRow
               label="Product Setting"
               hint="Manage your out of stock product in website."
@@ -472,7 +518,7 @@ export default function GeneralSettingsPage() {
                 />
               </div>
             </SettingsRow>
-          </div>
+          </div> */}
 
           {/* ── Copyright & Company ── */}
           <div className="px-6 py-7 sm:px-8">
@@ -485,11 +531,9 @@ export default function GeneralSettingsPage() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <FieldLabel>Copyright Year</FieldLabel>
-                    <Input
-                      onChange={(v) => setSettings((p) => ({ ...p, copyrightYear: v }))}
-                      placeholder="2026"
-                      value={settings.copyrightYear ?? ""}
-                    />
+                    <div className="flex h-12 items-center rounded-md border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-500">
+                      {new Date().getFullYear()}
+                    </div>
                   </div>
                   <div>
                     <FieldLabel>Parent Company</FieldLabel>
