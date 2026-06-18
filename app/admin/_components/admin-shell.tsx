@@ -354,6 +354,7 @@ const menuGroups: {
           { label: "Reviews", href: "/admin/reviews", icon: "reviews" },
         ],
       },
+      { label: "News & Blog", href: "/admin/news", icon: "report" },
     ],
   },
   {
