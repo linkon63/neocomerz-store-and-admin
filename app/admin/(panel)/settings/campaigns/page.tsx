@@ -258,6 +258,7 @@ export default function CampaignsPage() {
                           className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-50"
                           onClick={() => openEdit(c)}
                           type="button"
+                          title="Edit campaign"
                         >
                           <AdminIcon className="h-4 w-4" name="edit" />
                         </button>
@@ -265,8 +266,9 @@ export default function CampaignsPage() {
                           className="grid h-9 w-9 place-items-center rounded-lg bg-red-50 text-red-600 transition hover:bg-red-100"
                           onClick={() => setDeleteModal({ open: true, campaign: c })}
                           type="button"
+                          title="Delete campaign"
                         >
-                          <AdminIcon className="h-4 w-4" name="x" />
+                          <AdminIcon className="h-4 w-4" name="trash" />
                         </button>
                       </div>
                     </td>
@@ -281,16 +283,16 @@ export default function CampaignsPage() {
       {/* Campaign Modal */}
       {modalOpen && (
         <div
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6"
+          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6 modal-backdrop"
           role="dialog"
           aria-modal="true"
           aria-labelledby="campaign-modal-title"
         >
           <form
-            className="w-full max-w-2xl rounded-lg border border-slate-200 bg-white p-6 shadow-2xl"
+            className="modal-panel flex w-full max-w-2xl flex-col rounded-xl border border-slate-200 bg-white shadow-2xl min-h-[480px] max-h-[calc(100vh-3rem)]"
             onSubmit={handleSubmit}
           >
-            <div className="mb-5 flex items-start justify-between gap-4">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 pt-6 pb-5 shrink-0">
               <div>
                 <h2 className="text-2xl font-black" id="campaign-modal-title">
                   {form.id ? "Edit Campaign" : "Add Campaign"}
@@ -309,6 +311,7 @@ export default function CampaignsPage() {
               </button>
             </div>
 
+            <div className="flex-1 modal-body px-6 py-5">
             <div className="space-y-4">
               {/* Campaign Name (section select) + Status */}
               <div className="grid gap-4 sm:grid-cols-2">
@@ -511,8 +514,10 @@ export default function CampaignsPage() {
               )}
 
               {formError && <ErrorBanner message={formError} />}
+            </div>
+            </div>
 
-              <div className="flex justify-end gap-3 pt-2">
+            <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4 shrink-0">
                 <button
                   className="h-12 rounded-md border border-slate-300 bg-white px-5 font-black text-slate-700 hover:bg-slate-50 transition"
                   disabled={saving}
@@ -529,7 +534,6 @@ export default function CampaignsPage() {
                   <AdminIcon className="h-5 w-5" name={form.id ? "check" : "plus"} />
                   {saving ? "Saving..." : form.id ? "Update Campaign" : "Add Campaign"}
                 </button>
-              </div>
             </div>
           </form>
         </div>

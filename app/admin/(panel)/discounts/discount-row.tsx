@@ -59,20 +59,20 @@ export function DiscountRow({ discount, onToggleStatus, onEdit, onDelete }: Disc
       <td className="px-5 py-4">
         <div className="flex gap-2">
           <button
-            className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-black"
+            className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
             onClick={() => onEdit(discount)}
             type="button"
+            title="Edit discount"
           >
             <AdminIcon className="h-4 w-4" name="edit" />
-            Edit
           </button>
           <button
-            className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-black text-red-700"
+            className="grid h-8 w-8 place-items-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
             onClick={() => onDelete(discount)}
             type="button"
+            title="Delete discount"
           >
-            <AdminIcon className="h-4 w-4" name="x" />
-            Delete
+            <AdminIcon className="h-4 w-4" name="trash" />
           </button>
         </div>
       </td>

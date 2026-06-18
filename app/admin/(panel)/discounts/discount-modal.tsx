@@ -52,13 +52,13 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
 
   return (
     <div
-      className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6"
+      className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6 modal-backdrop"
       role="dialog"
       aria-modal="true"
       aria-labelledby="discount-modal-title"
     >
       <form
-        className="flex w-full max-w-2xl flex-col rounded-xl border border-slate-200 bg-white shadow-2xl"
+        className="modal-panel flex w-full max-w-2xl flex-col rounded-xl border border-slate-200 bg-white shadow-2xl min-h-[480px]"
         onSubmit={handleSubmit}
         style={{ maxHeight: "90vh" }}
       >
@@ -83,7 +83,7 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 modal-body p-6">
           <div className="space-y-4">
             <label className="block">
               <span className="mb-2 block text-sm font-black text-slate-700">Name</span>

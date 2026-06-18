@@ -31,6 +31,7 @@ export default function VariantOptionsPage() {
   const [variantOptions, setVariantOptions] = useState<Attribute[]>([]);
   const [form, setForm] = useState<VariantOptionForm>(emptyForm);
   const [search, setSearch] = useState("");
+  const [showSearchInput, setShowSearchInput] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -64,7 +65,10 @@ export default function VariantOptionsPage() {
   }
 
   useEffect(() => {
-    loadVariantOptions();
+    const timeoutId = window.setTimeout(() => {
+      void loadVariantOptions();
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   function openAddModal() {
@@ -217,6 +221,7 @@ export default function VariantOptionsPage() {
   function cancelDelete() {
     setDeleteModalOpen(false);
     setOptionToDelete(null);
+    setError("");
   }
 
   return (
@@ -225,16 +230,41 @@ export default function VariantOptionsPage() {
         title="Variant Options"
         description="Create, update, and remove product variant groups like color, size, fit, and material."
         action={
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-center">
+            {showSearchInput ? (
+              <div className="relative flex h-11 w-64 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+                <AdminIcon className="h-5 w-5 text-slate-400" name="search" />
+                <input
+                  className="w-full bg-transparent text-sm font-medium outline-none placeholder:text-slate-400 text-slate-800"
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Search variant options..."
+                  value={search}
+                  autoFocus
+                />
+                <button
+                  onClick={() => {
+                    setSearch("");
+                    setShowSearchInput(false);
+                  }}
+                  className="grid h-6 w-6 place-items-center rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-all"
+                  title="Close search"
+                  type="button"
+                >
+                  <AdminIcon className="h-4 w-4" name="x" />
+                </button>
+              </div>
+            ) : (
+              <button
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm"
+                onClick={() => setShowSearchInput(true)}
+                type="button"
+                title="Search variant options"
+              >
+                <AdminIcon className="h-5 w-5 text-slate-600" name="search" />
+              </button>
+            )}
             <button
-              className="grid h-14 w-14 place-items-center rounded-lg border border-slate-300 bg-white font-black"
-              onClick={loadVariantOptions}
-              type="button"
-            >
-              <AdminIcon className="h-5 w-5" name="refresh" />
-            </button>
-            <button
-              className="inline-flex h-14 items-center gap-2 rounded-md bg-slate-900 px-6 font-black text-white shadow-lg shadow-slate-900/15 hover:bg-slate-800 transition"
+              className="inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-5 text-[14px] font-semibold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 shrink-0 whitespace-nowrap"
               onClick={openAddModal}
               type="button"
             >
@@ -246,30 +276,18 @@ export default function VariantOptionsPage() {
       />
 
       <section>
-        <div className="overflow-hidden rounded-lg bg-white shadow-sm">
-          <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-2xl font-black">Variant options list</h2>
-              <p className="font-medium text-slate-600">
-                Displaying {filteredOptions.length} option groups
-              </p>
-            </div>
-            <label className="flex h-12 w-full max-w-md items-center gap-3 rounded-md border border-slate-300 px-4">
-              <AdminIcon className="h-5 w-5 text-slate-400" name="search" />
-              <input
-                className="w-full bg-transparent font-medium outline-none"
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search variant options"
-                value={search}
-              />
-            </label>
+        <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
+            <p className="text-sm font-medium text-slate-500">
+              {filteredOptions.length} {filteredOptions.length === 1 ? "option group" : "option groups"}
+            </p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[860px] text-left">
               <thead className="bg-slate-50">
                 <tr>
                   {["Name", "Values", "Count", "Actions"].map((heading) => (
-                    <th className="px-5 py-4 font-black" key={heading}>
+                    <th className="px-5 py-4 text-sm font-semibold text-slate-700" key={heading}>
                       {heading}
                     </th>
                   ))}
@@ -279,7 +297,7 @@ export default function VariantOptionsPage() {
                 {isLoading ? (
                   <tr>
                     <td
-                      className="px-5 py-8 font-bold text-slate-500"
+                      className="px-5 py-8 text-slate-500"
                       colSpan={4}
                     >
                       Loading variant options...
@@ -291,7 +309,7 @@ export default function VariantOptionsPage() {
                       className="odd:bg-white even:bg-slate-50/70"
                       key={option.id}
                     >
-                      <td className="px-5 py-4 font-bold text-slate-800">
+                      <td className="px-5 py-4 text-sm text-slate-800">
                         {option.name}
                       </td>
                       <td className="px-5 py-4">
@@ -299,39 +317,39 @@ export default function VariantOptionsPage() {
                           {(option.values ?? []).length > 0 ? (
                             option.values?.map((item) => (
                               <span
-                                className="rounded-md bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700"
+                                className="rounded-md border border-slate-200/50 bg-slate-50 px-2 py-0.5 text-xs text-slate-600 font-normal"
                                 key={item.id}
                               >
                                 {item.value}
                               </span>
                             ))
                           ) : (
-                            <span className="font-medium text-slate-500">
+                            <span className="text-xs text-slate-400">
                               No values
                             </span>
                           )}
                         </div>
                       </td>
-                      <td className="px-5 py-4 font-medium text-slate-700">
+                      <td className="px-5 py-4 text-sm text-slate-600">
                         {option.values?.length ?? 0} values
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex gap-2">
                           <button
-                            className="inline-flex items-center gap-2 rounded-md border border-slate-300 px-3 py-2 text-sm font-black"
                             onClick={() => openEditModal(option)}
+                            className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors"
                             type="button"
+                            title="Edit variant option"
                           >
                             <AdminIcon className="h-4 w-4" name="edit" />
-                            Edit
                           </button>
                           <button
-                            className="inline-flex items-center gap-2 rounded-md bg-red-50 px-3 py-2 text-sm font-black text-red-700"
                             onClick={() => deleteVariantOption(option)}
+                            className="grid h-8 w-8 place-items-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors"
                             type="button"
+                            title="Delete variant option"
                           >
-                            <AdminIcon className="h-4 w-4" name="x" />
-                            Delete
+                            <AdminIcon className="h-4 w-4" name="trash" />
                           </button>
                         </div>
                       </td>
@@ -340,7 +358,7 @@ export default function VariantOptionsPage() {
                 ) : (
                   <tr>
                     <td
-                      className="px-5 py-8 font-bold text-slate-500"
+                      className="px-5 py-8 text-slate-500"
                       colSpan={4}
                     >
                       No variant options found.
@@ -357,42 +375,42 @@ export default function VariantOptionsPage() {
         <div
           aria-labelledby="variant-option-modal-title"
           aria-modal="true"
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6"
+          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6 modal-backdrop"
           role="dialog"
         >
           <form
-            className="max-h-[calc(100vh-3rem)] w-full max-w-lg overflow-y-auto rounded-lg border border-slate-200 bg-white p-6 shadow-2xl"
+            className="modal-panel flex w-full max-w-lg flex-col rounded-xl border border-slate-200 bg-white shadow-2xl h-[520px] max-h-[calc(100vh-3rem)]"
             onSubmit={handleSubmit}
           >
-            <div className="mb-5 flex items-start justify-between gap-4">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 pt-6 pb-5 shrink-0">
               <div>
-                <h2
-                  className="text-2xl font-black"
+                <h3
+                  className="text-base font-semibold text-slate-900"
                   id="variant-option-modal-title"
                 >
-                  {form.id ? "Edit variant option" : "Add variant option"}
-                </h2>
-                <p className="mt-1 font-medium text-slate-600">
+                  {form.id ? "Edit Variant Option" : "Add Variant Option"}
+                </h3>
+                <p className="mt-1 text-xs text-slate-500">
                   Set the option group and the values customers can select.
                 </p>
               </div>
               <button
-                className="grid h-10 w-10 place-items-center rounded-md border border-slate-300 text-xl font-black text-slate-600"
+                className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600"
                 disabled={isSaving}
                 onClick={closeModal}
                 type="button"
               >
-                <AdminIcon className="h-5 w-5" name="x" />
+                <AdminIcon className="h-4 w-4" name="x" />
               </button>
             </div>
-            <div className="space-y-4">
-              <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+            <div className="flex min-h-0 flex-1 flex-col px-6 py-5">
+              <label className="mb-4 block shrink-0">
+                <span className="mb-2 block text-sm font-medium text-slate-700">
                   Name
                 </span>
                 <input
                   autoFocus
-                  className="h-12 w-full rounded-md border border-slate-300 px-4 font-medium outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
@@ -404,52 +422,55 @@ export default function VariantOptionsPage() {
                   value={form.name}
                 />
               </label>
-              <div>
-                <div className="mb-2 flex items-center justify-between gap-3">
-                  <span className="block text-sm font-black text-slate-700">
+              <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-slate-200">
+                <div className="flex shrink-0 items-center justify-between gap-3 rounded-t-lg border-b border-slate-200 bg-white px-3 py-2">
+                  <span className="block text-sm font-medium text-slate-700">
                     Values
                   </span>
                   <button
-                    className="inline-flex h-9 items-center gap-2 rounded-md border border-slate-300 px-3 text-sm font-black"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-medium hover:bg-slate-100 transition-colors"
                     disabled={isSaving}
                     onClick={addValueInput}
                     type="button"
                   >
-                    <AdminIcon className="h-4 w-4" name="plus" />
+                    <AdminIcon className="h-3.5 w-3.5" name="plus" />
                     Add Value
                   </button>
                 </div>
-                <div className="space-y-2">
-                  {form.values.map((item, index) => (
-                    <div className="flex gap-2" key={item.id ?? index}>
-                      <input
-                        className="h-12 min-w-0 flex-1 rounded-md border border-slate-300 px-4 font-medium outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
-                        onChange={(event) =>
-                          updateValue(index, event.target.value)
-                        }
-                        placeholder={index === 0 ? "Black" : "Value"}
-                        value={item.value}
-                      />
-                      <button
-                        className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-red-50 text-red-700 disabled:opacity-50"
-                        disabled={isSaving || form.values.length === 1}
-                        onClick={() => removeValueInput(index)}
-                        type="button"
-                      >
-                        <AdminIcon className="h-5 w-5" name="x" />
-                      </button>
-                    </div>
-                  ))}
+                <div className="flex-1 overflow-y-auto p-3">
+                  <div className="space-y-2">
+                    {form.values.map((item, index) => (
+                      <div className="flex gap-2" key={item.id ?? index}>
+                        <input
+                          className="h-10 min-w-0 flex-1 rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
+                          onChange={(event) =>
+                            updateValue(index, event.target.value)
+                          }
+                          placeholder={index === 0 ? "Black" : "Value"}
+                          value={item.value}
+                        />
+                        <button
+                          className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-red-100 bg-red-50/50 hover:bg-red-50 text-red-500 hover:border-red-200 transition-colors disabled:opacity-50"
+                          disabled={isSaving || form.values.length === 1}
+                          onClick={() => removeValueInput(index)}
+                          type="button"
+                        >
+                          <AdminIcon className="h-4 w-4" name="trash" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
               {error && (
-                <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+                <p className="mt-4 shrink-0 rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
                   {error}
                 </p>
               )}
-              <div className="flex justify-end gap-3 pt-2">
+            </div>
+            <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4 shrink-0">
                 <button
-                  className="h-12 rounded-md border border-slate-300 bg-white px-5 font-black text-slate-700 hover:bg-slate-50 transition"
+                  className="h-10 rounded-lg border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
                   disabled={isSaving}
                   onClick={closeModal}
                   type="button"
@@ -457,12 +478,12 @@ export default function VariantOptionsPage() {
                   Cancel
                 </button>
                 <button
-                  className="inline-flex h-12 items-center gap-2 rounded-md bg-slate-900 hover:bg-slate-800 px-5 font-black text-white transition disabled:bg-slate-400"
+                  className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white disabled:bg-slate-400 hover:bg-blue-700 transition-colors"
                   disabled={isSaving}
                   type="submit"
                 >
                   <AdminIcon
-                    className="h-5 w-5"
+                    className="h-4 w-4"
                     name={form.id ? "check" : "plus"}
                   />
                   {isSaving
@@ -471,7 +492,6 @@ export default function VariantOptionsPage() {
                       ? "Update Option"
                       : "Add Option"}
                 </button>
-              </div>
             </div>
           </form>
         </div>
@@ -486,6 +506,7 @@ export default function VariantOptionsPage() {
         onClose={cancelDelete}
         onConfirm={confirmDelete}
         title="Delete Variant Option"
+        error={error}
       />
     </>
   );
