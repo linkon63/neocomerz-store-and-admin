@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { toast } from "sonner";
 import { PageHeader } from "../../../_components/admin-shell";
-import { apiRequest, type AppSettings } from "../../../../../lib/admin-api";
+import { type AppSettings } from "../../../../../lib/admin-api";
+import { useSettingsSaving, useSettingsLoading } from "../../../_hooks/use-settings";
 import {
   SettingsCard,
   FieldLabel,
@@ -22,43 +22,26 @@ function toNum(v: number | string | null | undefined): string {
 
 export default function BranchPage() {
   const [settings, setSettings] = useState<AppSettings>({});
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const { saving, saveSettings } = useSettingsSaving();
+  const { loading, loadSettings: loadData } = useSettingsLoading();
 
   const loadSettings = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await apiRequest<AppSettings>("/settings");
-      if (data) setSettings(data);
-    } catch {
-      // ok on first run
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    const data = await loadData();
+    if (data) setSettings(data);
+  }, [loadData]);
 
   useEffect(() => { loadSettings(); }, [loadSettings]);
 
   async function save() {
-    setSaving(true);
-    try {
-      await apiRequest("/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          branchName: settings.branchName ?? null,
-          branchAddress: settings.branchAddress ?? null,
-          branchLat: settings.branchLat ?? null,
-          branchLng: settings.branchLng ?? null,
-        }),
-      });
-      toast.success("Branch settings saved successfully.");
-      await loadSettings();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save settings");
-    } finally {
-      setSaving(false);
-    }
+    await saveSettings("/settings", {
+      branchName: settings.branchName ?? null,
+      branchAddress: settings.branchAddress ?? null,
+      branchLat: settings.branchLat ?? null,
+      branchLng: settings.branchLng ?? null,
+    }, {
+      successMessage: "Branch settings saved successfully.",
+      onSuccess: loadSettings,
+    });
   }
 
   return (

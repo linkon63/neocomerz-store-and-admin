@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
 import { PageHeader } from "../../../_components/admin-shell";
 import { apiRequest, type AppPolicies } from "../../../../../lib/admin-api";
+import { useSettingsSaving } from "../../../_hooks/use-settings";
 import {
   SettingsCard,
   FieldLabel,
@@ -44,8 +44,8 @@ const MAX_TITLE_LENGTH = 128;
 export default function PolicyPage() {
   const [policies, setPolicies] = useState<AppPolicies>({});
   const [activeTab, setActiveTab] = useState<PolicyKey>("delivery");
+  const { saving, saveSettings } = useSettingsSaving();
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
 
   const loadPolicies = useCallback(async () => {
     setLoading(true);
@@ -64,20 +64,10 @@ export default function PolicyPage() {
   }, [loadPolicies]);
 
   async function save() {
-    setSaving(true);
-    try {
-      const { id: _id, createdAt: _ca, updatedAt: _ua, ...payload } = policies;
-      await apiRequest("/policies", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      toast.success("Policies saved successfully.");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save policies");
-    } finally {
-      setSaving(false);
-    }
+    const { id: _id, createdAt: _ca, updatedAt: _ua, ...payload } = policies;
+    await saveSettings("/policies", payload, {
+      successMessage: "Policies saved successfully.",
+    });
   }
 
   function updateField(field: "title" | "content", value: string) {

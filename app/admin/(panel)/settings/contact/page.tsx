@@ -9,15 +9,14 @@ import {
   FaLinkedinIn,
   FaYoutube,
 } from "react-icons/fa6";
-import { toast } from "sonner";
 import { AdminIcon, PageHeader } from "../../../_components/admin-shell";
 import {
-  apiRequest,
   getContactEntries,
   packContactEntries,
   type AppSettings,
   type SettingsContactEntry,
 } from "../../../../../lib/admin-api";
+import { useSettingsSaving, useSettingsLoading } from "../../../_hooks/use-settings";
 import {
   SettingsCard,
   FieldLabel,
@@ -53,26 +52,19 @@ export default function ContactPage() {
   const [emails, setEmails] = useState<SettingsContactEntry[]>([{ title: "", value: "" }]);
   const [contacts, setContacts] = useState<SettingsContactEntry[]>([{ title: "", value: "" }]);
   const [social, setSocial] = useState<AppSettings["socialContact"]>({});
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const { saving, saveSettings } = useSettingsSaving();
+  const { loading, loadSettings: loadData } = useSettingsLoading();
 
   // ── Load ──────────────────────────────────────────────────────────────────
 
   const loadSettings = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await apiRequest<AppSettings>("/settings");
-      if (data) {
-        setEmails(getContactEntries(data.email));
-        setContacts(getContactEntries(data.contactNumber));
-        setSocial(data.socialContact ?? {});
-      }
-    } catch {
-      // empty on first run
-    } finally {
-      setLoading(false);
+    const data = await loadData();
+    if (data) {
+      setEmails(getContactEntries(data.email));
+      setContacts(getContactEntries(data.contactNumber));
+      setSocial(data.socialContact ?? {});
     }
-  }, []);
+  }, [loadData]);
 
   useEffect(() => { loadSettings(); }, [loadSettings]);
 
@@ -103,23 +95,13 @@ export default function ContactPage() {
   // ── Save ───────────────────────────────────────────────────────────────────
 
   async function save() {
-    setSaving(true);
-    try {
-      await apiRequest("/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: packContactEntries(emails),
-          contactNumber: packContactEntries(contacts),
-          socialContact: social,
-        }),
-      });
-      toast.success("Contact settings saved successfully.");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save settings");
-    } finally {
-      setSaving(false);
-    }
+    await saveSettings("/settings", {
+      email: packContactEntries(emails),
+      contactNumber: packContactEntries(contacts),
+      socialContact: social,
+    }, {
+      successMessage: "Contact settings saved successfully.",
+    });
   }
 
   // ── Render ────────────────────────────────────────────────────────────────

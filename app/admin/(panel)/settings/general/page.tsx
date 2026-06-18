@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 import { AdminIcon, PageHeader } from "../../../_components/admin-shell";
 import { apiRequest, resolveImageUrl, type AppSettings } from "../../../../../lib/admin-api";
+import { useSettingsSaving, useSettingsLoading } from "../../../_hooks/use-settings";
 import {
   FieldLabel,
   Input,
@@ -108,8 +108,8 @@ export default function GeneralSettingsPage() {
     currency: "BDT",
     language: "en",
   });
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const { saving, saveSettings } = useSettingsSaving();
+  const { loading, loadSettings: loadData } = useSettingsLoading();
 
   // Logo upload state
   const [logoTab, setLogoTab] = useState<"icon" | "icon+text" | "favicon">("icon");
@@ -126,16 +126,9 @@ export default function GeneralSettingsPage() {
   // ── Load ──────────────────────────────────────────────────────────────────
 
   const loadSettings = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await apiRequest<AppSettings>("/settings");
-      if (data) setSettings(data);
-    } catch {
-      // first run with no settings — fine
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    const data = await loadData();
+    if (data) setSettings(data);
+  }, [loadData]);
 
   useEffect(() => {
     loadSettings();
@@ -210,63 +203,52 @@ export default function GeneralSettingsPage() {
   // ── Save ──────────────────────────────────────────────────────────────────
 
   async function save() {
-    setSaving(true);
-    try {
-      let iconUrl = settings.icon;
-      let logoUrl = settings.logo;
-      let faviconUrl = settings.favicon;
+    let iconUrl = settings.icon;
+    let logoUrl = settings.logo;
+    let faviconUrl = settings.favicon;
 
-      // Upload new files if picked
-      if (iconFile) {
-        try {
-          iconUrl = await uploadImage(iconFile, "settings");
-        } catch {
-          // fallback: keep as blob preview — server may not have upload endpoint
-        }
+    // Upload new files if picked
+    if (iconFile) {
+      try {
+        iconUrl = await uploadImage(iconFile, "settings");
+      } catch {
+        // fallback: keep as blob preview — server may not have upload endpoint
       }
-      if (logoFile) {
-        try {
-          logoUrl = await uploadImage(logoFile, "settings");
-        } catch {
-          // same fallback
-        }
-      }
-      if (faviconFile) {
-        try {
-          faviconUrl = await uploadImage(faviconFile, "settings");
-        } catch {
-          // same fallback
-        }
-      }
-
-      await apiRequest("/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          shopName: settings.shopName,
-          currency: settings.currency,
-          language: settings.language,
-          parentCompany: settings.parentCompany,
-          parentCompanyLink: settings.parentCompanyLink,
-          slogan: settings.slogan,
-          isTopBarVisible: settings.isTopBarVisible,
-          hideOutOfStock: settings.hideOutOfStock,
-          deliveryChargeInside: Number(settings.deliveryChargeInside ?? 0),
-          deliveryChargeOutside: Number(settings.deliveryChargeOutside ?? 0),
-          deliveryChargeNearCity: Number(settings.deliveryChargeNearCity ?? 0),
-          ...(iconUrl !== undefined && { icon: iconUrl }),
-          ...(logoUrl !== undefined && { logo: logoUrl }),
-          ...(faviconUrl !== undefined && { favicon: faviconUrl }),
-        }),
-      });
-
-      toast.success("Settings saved successfully.");
-      await loadSettings();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save settings");
-    } finally {
-      setSaving(false);
     }
+    if (logoFile) {
+      try {
+        logoUrl = await uploadImage(logoFile, "settings");
+      } catch {
+        // same fallback
+      }
+    }
+    if (faviconFile) {
+      try {
+        faviconUrl = await uploadImage(faviconFile, "settings");
+      } catch {
+        // same fallback
+      }
+    }
+
+    await saveSettings("/settings", {
+      shopName: settings.shopName,
+      currency: settings.currency,
+      language: settings.language,
+      parentCompany: settings.parentCompany,
+      parentCompanyLink: settings.parentCompanyLink,
+      slogan: settings.slogan,
+      isTopBarVisible: settings.isTopBarVisible,
+      hideOutOfStock: settings.hideOutOfStock,
+      deliveryChargeInside: Number(settings.deliveryChargeInside ?? 0),
+      deliveryChargeOutside: Number(settings.deliveryChargeOutside ?? 0),
+      deliveryChargeNearCity: Number(settings.deliveryChargeNearCity ?? 0),
+      ...(iconUrl !== undefined && { icon: iconUrl }),
+      ...(logoUrl !== undefined && { logo: logoUrl }),
+      ...(faviconUrl !== undefined && { favicon: faviconUrl }),
+    }, {
+      successMessage: "Settings saved successfully.",
+      onSuccess: loadSettings,
+    });
   }
 
   // ── Derived ───────────────────────────────────────────────────────────────
