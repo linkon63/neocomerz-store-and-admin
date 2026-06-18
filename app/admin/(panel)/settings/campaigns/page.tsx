@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { AdminIcon, PageHeader } from "../../../_components/admin-shell";
 import { ConfirmModal } from "../../../_components/confirm-modal";
 import { useDiscounts } from "../../../_hooks/use-discounts";
@@ -12,7 +13,7 @@ import {
   Input,
   Textarea,
   StatusToggle,
-  ErrorBanner,
+  SaveButton,
 } from "../_components/settings-ui";
 
 type CampaignForm = {
@@ -51,7 +52,7 @@ export default function CampaignsPage() {
 
   const { discounts } = useDiscounts();
   const { sections } = useSections();
-  const [formError, setFormError] = useState("");
+  
 
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; campaign: Campaign | null }>({
     open: false,
@@ -75,13 +76,11 @@ export default function CampaignsPage() {
   }, [loadCampaigns]);
 
   function openAdd() {
-    setFormError("");
     setForm(EMPTY_FORM);
     setModalOpen(true);
   }
 
   function openEdit(c: Campaign) {
-    setFormError("");
     setForm({
       id: c.id,
       title: c.title,
@@ -100,9 +99,8 @@ export default function CampaignsPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setSaving(true);
-    setFormError("");
     if (form.images.length === 0 && form.existingImages.length === 0) {
-      setFormError("At least one campaign image is required.");
+      toast.error("At least one campaign image is required.");
       setSaving(false);
       return;
     }
@@ -128,7 +126,7 @@ export default function CampaignsPage() {
       setModalOpen(false);
       await loadCampaigns();
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Failed to save campaign");
+      toast.error(err instanceof Error ? err.message : "Failed to save campaign");
     } finally {
       setSaving(false);
     }
@@ -175,23 +173,9 @@ export default function CampaignsPage() {
         title="Campaigns List"
         description="Manage & customize your website content & interface."
         action={
-          <div className="flex gap-3">
-            <button
-              className="grid h-14 w-14 place-items-center rounded-lg border border-slate-300 bg-white font-black"
-              onClick={loadCampaigns}
-              type="button"
-            >
-              <AdminIcon className="h-5 w-5" name="refresh" />
-            </button>
-            <button
-              className="inline-flex h-14 items-center gap-2 rounded-md bg-slate-900 px-6 font-black text-white shadow-lg shadow-slate-900/15 hover:bg-slate-800 transition"
-              onClick={openAdd}
-              type="button"
-            >
-              <AdminIcon className="h-5 w-5" name="plus" />
-              Add Campaign
-            </button>
-          </div>
+          <SaveButton onClick={openAdd}>
+            Add Campaign
+          </SaveButton>
         }
       />
 
@@ -510,8 +494,6 @@ export default function CampaignsPage() {
                 </div>
               )}
 
-              {formError && <ErrorBanner message={formError} />}
-
               <div className="flex justify-end gap-3 pt-2">
                 <button
                   className="h-12 rounded-md border border-slate-300 bg-white px-5 font-black text-slate-700 hover:bg-slate-50 transition"
@@ -522,7 +504,7 @@ export default function CampaignsPage() {
                   Cancel
                 </button>
                 <button
-                  className="inline-flex h-12 items-center gap-2 rounded-md bg-slate-900 px-5 font-black text-white hover:bg-slate-800 transition disabled:opacity-60"
+                  className="inline-flex h-12 items-center gap-1.5 rounded-md px-5 text-sm font-semibold text-white disabled:opacity-60 shadow-xs transition bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 cursor-pointer disabled:cursor-not-allowed"
                   disabled={saving}
                   type="submit"
                 >

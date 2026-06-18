@@ -284,11 +284,14 @@ export type AppSettings = {
   shopName?: string;
   logo?: string | null;
   icon?: string | null;
+  favicon?: string | null;
   slogan?: string | null;
   isTopBarVisible?: boolean;
   hideOutOfStock?: boolean;
   branchName?: string | null;
   branchAddress?: string | null;
+  branchLat?: number | null;
+  branchLng?: number | null;
   /** Raw JSON from API — { entries: [...] } */
   contactNumber?: SettingsContactJson | null;
   /** Raw JSON from API — { entries: [...] } */

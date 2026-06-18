@@ -577,7 +577,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
       <div className="lg:pl-[312px]">
-        <main className="mx-auto w-full max-w-[1720px] px-5 py-7 sm:px-8 lg:px-10">
+        <main className="mx-auto w-full max-w-[1720px] px-2 sm:px-4">
           {children}
         </main>
       </div>
