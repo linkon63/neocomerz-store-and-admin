@@ -121,7 +121,7 @@ export function StatusToggle({
     <button
       aria-checked={active}
       className={`inline-flex h-7 w-12 items-center rounded-full p-1 transition-colors ${
-        active ? "bg-slate-900" : "bg-slate-200"
+        active ? "bg-blue-600" : "bg-slate-200"
       }`}
       onClick={() => onChange?.(!active)}
       role="switch"
@@ -149,7 +149,7 @@ export function SaveButton({
 }) {
   return (
     <button
-      className="inline-flex h-11 items-center gap-2 rounded-md bg-slate-900 px-6 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60 cursor-pointer"
+      className="inline-flex h-14 items-center gap-2 rounded-lg bg-blue-600 px-6 font-black text-white shadow-sm transition hover:bg-blue-700 disabled:bg-blue-400 cursor-pointer disabled:cursor-not-allowed"
       disabled={saving}
       onClick={onClick}
       type={onClick ? "button" : "submit"}
