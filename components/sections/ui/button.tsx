@@ -13,7 +13,7 @@ export default function Button({
   };
 
   return (
-    <div className="flex justify-center pt-6 md:pt-12">
+    <div className="flex justify-center">
       <Link
         href={href}
         className={`${variantStyles[variant]} font-gotham text-xs sm:text-sm uppercase tracking-wider px-8 py-3 rounded-full transition-colors`}

@@ -4,9 +4,11 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import { useRef, useEffect } from 'react';
 import type { Swiper as SwiperType } from 'swiper';
+import Image from 'next/image';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import { HeroSliderProps } from '@/data/types';
+import Button from './button';
 export default function HeroSlider({ slides }: HeroSliderProps) {
   const swiperRef = useRef<SwiperType | null>(null);
   useEffect(() => {
@@ -50,15 +52,31 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                 title={`Hero video ${index + 1}`}
               />
             </div>
-            <div className="absolute bg-black/50 z-10"></div>
-              <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex flex-col items-center justify-center px-4 sm:px-6 z-20 w-full max-w-7xl">
-                <h1 className="font-family-bembo text-white text-3xl md:text-5xl text-center mb-4 truncate w-full">
-                  {slide.title}
-                </h1>
-                <p className="font-family-bembo text-white text-xs md:text-lg text-center truncate w-full">
-                  {slide.subtitle}
-                </p>
+            <div className="absolute inset-0 bg-black/40 z-10"></div>
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-20 px-4">
+              {/* Content */}
+              <h1 className="font-['Snell_Roundhand_LT_Std'] italic text-white text-4xl md:text-6xl lg:text-7xl text-center mb-4 font-normal leading-tight">
+                {slide.title}
+              </h1>
+              <p className="font-['Bembo_Std'] text-white text-xs md:text-sm lg:text-base text-center mb-8 tracking-wider uppercase max-w-2xl">
+                {slide.subtitle}
+              </p>
+               {/* Icon */}
+              <div className="relative w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 mb-6">
+                <Image
+                  src="/images/icons/icon-3.svg"
+                  alt="Hero Icon"
+                  fill
+                  className="object-contain"
+                />
               </div>
+              {/* Shop Now Button */}
+              <Button 
+                href="/products" 
+                label="SHOP NOW"
+                variant="primary"
+              />
+            </div>
           </div>
         </SwiperSlide>
       ))}

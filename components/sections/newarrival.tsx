@@ -13,8 +13,10 @@ export default function NewArrival() {
     >
       <div className="w-full mx-auto px-4 sm:px-6">
         <ProductCarousel products={products} title="NEW ARRIVALS" />
-        <DiscoverMoreButton href="/products" variant="outline" />
-      </div>
+        <div className="pt-6 md:pt-12">
+          <DiscoverMoreButton href="/products" label="DISCOVER MORE" variant="outline" />
+        </div>
+\      </div>
     </section>
   );
 }

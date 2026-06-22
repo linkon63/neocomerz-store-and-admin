@@ -17,8 +17,18 @@ export default function Invitation() {
   ];
 
   return (
-    <section className="w-full bg-white py-12 md:py-16 lg:py-28">
-      <div className="container mx-auto px-6 sm:px-12">
+    <section className="relative w-full bg-white py-12 md:py-16 lg:py-28 overflow-hidden">
+      {/* Pattern Background Layer with blend mode */}
+      <div 
+        className="absolute inset-0 z-0 opacity-10"
+        style={{
+          backgroundImage: "url('/images/pattern/pattern.png')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "150px 150px",
+        }}
+      ></div>
+
+      <div className="relative z-10 container mx-auto px-6 sm:px-12">
         {/* Header */}
         <div className="text-center mb-8 md:mb-12">
           <p className="font-gotham text-text-primary text-xs sm:text-sm tracking-widest uppercase mb-4">

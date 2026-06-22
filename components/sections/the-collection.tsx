@@ -3,8 +3,18 @@ import Link from "next/link";
 
 export default function TheCollection() {
   return (
-    <section className="w-full py-16 md:py-20 lg:py-24 bg-white">
-      <div className="container mx-auto px-4 sm:px-6">
+    <section className="relative w-full py-16 md:py-20 lg:py-24 bg-white overflow-hidden">
+      {/* Pattern Background Layer with blend mode */}
+      <div 
+        className="absolute inset-0 z-0 opacity-10"
+        style={{
+          backgroundImage: "url('/images/pattern/pattern.png')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "150px 150px",
+        }}
+      ></div>
+
+      <div className="relative z-10 container mx-auto px-4 sm:px-6">
         {/* Title Section */}
         <div className="text-center mb-6 md:mb-8">
           <h2 className="font-['Bembo_Std'] text-4xl md:text-5xl lg:text-6xl mb-3">
@@ -68,7 +78,7 @@ export default function TheCollection() {
         </div>
 
         {/* Image Section */}
-        <div className="relative w-full aspect-video md:aspect-[21/9] overflow-hidden rounded-lg shadow-2xl">
+        <div className="relative w-full aspect-video md:aspect-21/9 overflow-hidden rounded-lg shadow-2xl">
           <Image
             src="/images/footer/footerright.png"
             alt="Tea Collections"
