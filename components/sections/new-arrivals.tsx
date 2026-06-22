@@ -6,7 +6,9 @@ export default function NewArrivals() {
   const products = data.products.newArrivals;
 
   return (
-    <section className="w-full bg-brand-2 py-12 md:py-16 lg:py-20">
+    <section className="w-full bg-brand-2 py-12 md:py-16 lg:py-20" style={{
+          clipPath: "ellipse(95% 100% at 50% 0%)",
+        }}>
       <div className="w-full mx-auto px-4 sm:px-6">
         <ProductCarousel products={products} title="NEW ARRIVALS" />
         <DiscoverMoreButton href="/products" />

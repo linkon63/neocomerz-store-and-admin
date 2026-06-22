@@ -24,8 +24,18 @@ export default function Testimonial() {
   ];
 
   return (
-    <section className="bg-[#473729] py-16 lg:py-24 overflow-hidden">
-      <div className="container mx-auto px-4">
+    <section className="relative bg-[#473729] py-16 lg:py-24 overflow-hidden">
+      {/* Pattern Background Layer with blend mode */}
+      <div 
+        className="absolute inset-0 z-0 opacity-20"
+        style={{
+          backgroundImage: "url('/images/pattern/pattern.png')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "150px 150px",
+        }}
+      ></div>
+
+      <div className="relative z-10 container mx-auto px-4">
         <div
           className="relative mx-auto w-full max-w-312.5 bg-[#D9D9D9]"
           style={{

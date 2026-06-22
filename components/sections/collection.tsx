@@ -6,7 +6,7 @@ export default function Collection() {
     <section className="w-full py-0">
       <div className="collection-wrapper">
         <div className="container mx-auto">
-          <div className="relative w-full min-h-[850px] overflow-hidden shadow-xl">
+          <div className="relative w-full min-h-212.5 overflow-hidden shadow-xl">
             <Image
               src="/images/footer/footerright.png"
               alt="Tea Collections"

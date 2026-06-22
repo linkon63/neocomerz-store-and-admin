@@ -71,7 +71,7 @@ export default function LooseTea() {
           })}
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex justify-center mt-6 md:mt-12">
           <DiscoverMoreButton href="/products" variant="primary" />
         </div>
       </div>
