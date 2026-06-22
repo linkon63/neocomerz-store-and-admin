@@ -760,9 +760,20 @@ export default function ProductsPage() {
   }
 
   function updateImages(files: FileList | null) {
+    if (!files) return;
     setForm((current) => ({
       ...current,
-      images: files ? Array.from(files) : [],
+      images: [...current.images, ...Array.from(files)],
+    }));
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
+  }
+
+  function removeNewImage(index: number) {
+    setForm((current) => ({
+      ...current,
+      images: current.images.filter((_, idx) => idx !== index),
     }));
   }
 
@@ -2183,6 +2194,16 @@ export default function ProductsPage() {
                       className="h-24 w-24 rounded-lg border border-slate-200 object-cover"
                       src={url}
                     />
+                    <button
+                      className="absolute -right-2 -top-2 grid h-6 w-6 place-items-center rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors"
+                      disabled={isSaving}
+                      onClick={() => removeNewImage(index)}
+                      type="button"
+                    >
+                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
                   </div>
                 ))}
 
