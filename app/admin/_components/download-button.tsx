@@ -8,19 +8,19 @@ export function DownloadButton({
   dateValue,
 }: {
   endpoint: string;
-  dateValue: { startDate: Date | string | null; endDate: Date | string | null };
+  dateValue: null | { startDate: Date | string | null; endDate: Date | string | null };
 }) {
   const [open, setOpen] = useState(false);
 
   function buildParams() {
     const params: Record<string, string> = {};
-    if (dateValue.startDate) {
+    if (dateValue?.startDate) {
       params.startDate =
         typeof dateValue.startDate === "string"
           ? dateValue.startDate
           : dateValue.startDate.toISOString().split("T")[0];
     }
-    if (dateValue.endDate) {
+    if (dateValue?.endDate) {
       params.endDate =
         typeof dateValue.endDate === "string"
           ? dateValue.endDate
