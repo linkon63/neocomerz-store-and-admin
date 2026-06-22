@@ -3,6 +3,7 @@
 import Datepicker from "react-tailwindcss-datepicker";
 import { AdminIcon } from "../../../_components/admin-shell";
 import { PageHeader } from "../../../_components/page-header";
+import { DownloadButton } from "../../../_components/download-button";
 import {
   formatDate,
   formatMoney,
@@ -24,33 +25,36 @@ export default function DiscountReportPage() {
         title="Discount Report"
         description="Analysis of discounts, promotions and voucher usage"
         action={
-          <div className="w-72">
-            <Datepicker
-              containerClassName="relative rounded-lg border border-slate-300 text-sm font-black shadow-sm"
-              displayFormat="MMM DD, YYYY"
-              inputClassName="w-full rounded-lg bg-transparent px-4 py-3 font-black text-slate-600 placeholder:text-slate-400 focus:outline-none"
-              maxDate={new Date()}
-              onChange={(value) => {
-                if (value?.startDate && value?.endDate) {
-                  setDateValue(value);
-                } else {
-                  const year = new Date().getFullYear();
-                  setDateValue({
-                    startDate: new Date(year, 0, 1),
-                    endDate: new Date(year, 11, 31),
-                  });
-                }
-              }}
-              placeholder="Select date range"
-              popoverDirection="down"
-              primaryColor="blue"
-              separator="→"
-              showFooter
-              showShortcuts
-              useRange
-              value={dateValue}
-              popupClassName={(defaults) => `${defaults ?? ""} opacity-100!`}
-            />
+          <div className="flex items-center gap-3">
+            <DownloadButton endpoint="discounts" dateValue={dateValue} />
+            <div className="w-72">
+              <Datepicker
+                containerClassName="relative rounded-lg border border-slate-300 text-sm font-black shadow-sm"
+                displayFormat="MMM DD, YYYY"
+                inputClassName="w-full rounded-lg bg-transparent px-4 py-3 font-black text-slate-600 placeholder:text-slate-400 focus:outline-none"
+                maxDate={new Date()}
+                onChange={(value) => {
+                  if (value?.startDate && value?.endDate) {
+                    setDateValue(value);
+                  } else {
+                    const year = new Date().getFullYear();
+                    setDateValue({
+                      startDate: new Date(year, 0, 1),
+                      endDate: new Date(year, 11, 31),
+                    });
+                  }
+                }}
+                placeholder="Select date range"
+                popoverDirection="down"
+                primaryColor="blue"
+                separator="→"
+                showFooter
+                showShortcuts
+                useRange
+                value={dateValue}
+                popupClassName={(defaults) => `${defaults ?? ""} opacity-100!`}
+              />
+            </div>
           </div>
         }
       />
@@ -182,7 +186,7 @@ export default function DiscountReportPage() {
               <div className="h-12 animate-pulse rounded bg-slate-100" key={i} />
             ))}
           </div>
-        ) : report?.discountedOrders.length === 0 ? (
+        ) : report?.discountedOrders.items.length === 0 ? (
           <div className="p-6 text-center font-medium text-slate-400">
             No discounted orders in this period.
           </div>
@@ -199,7 +203,7 @@ export default function DiscountReportPage() {
                 </tr>
               </thead>
               <tbody>
-                {report?.discountedOrders.map((order) => (
+                {report?.discountedOrders.items.map((order) => (
                   <tr
                     className="border-b border-slate-50 font-black transition hover:bg-slate-50/50"
                     key={order.orderId}

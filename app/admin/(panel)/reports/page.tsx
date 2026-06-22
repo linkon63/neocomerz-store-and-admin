@@ -3,6 +3,7 @@
 import Datepicker from "react-tailwindcss-datepicker";
 import { AdminIcon } from "../../_components/admin-shell";
 import { PageHeader } from "../../_components/page-header";
+import { DownloadButton } from "../../_components/download-button";
 import { formatMoney } from "../../../../lib/admin-api";
 import { useReportsOverview } from "../../_hooks/use-reports-overview";
 
@@ -66,33 +67,36 @@ export default function ReportsOverviewPage() {
         title="Report Overview"
         description="Consolidated view of sales, customers, discounts, inventory, and purchases"
         action={
-          <div className="w-72">
-            <Datepicker
-              containerClassName="relative rounded-lg border border-slate-300 text-sm font-black shadow-sm"
-              displayFormat="MMM DD, YYYY"
-              inputClassName="w-full rounded-lg bg-transparent px-4 py-3 font-black text-slate-600 placeholder:text-slate-400 focus:outline-none"
-              maxDate={new Date()}
-              onChange={(value) => {
-                if (value?.startDate && value?.endDate) {
-                  setDateValue(value);
-                } else {
-                  const year = new Date().getFullYear();
-                  setDateValue({
-                    startDate: new Date(year, 0, 1),
-                    endDate: new Date(year, 11, 31),
-                  });
-                }
-              }}
-              placeholder="Select date range"
-              popoverDirection="down"
-              primaryColor="blue"
-              separator="→"
-              showFooter
-              showShortcuts
-              useRange
-              value={dateValue}
-              popupClassName={(defaults) => `${defaults ?? ""} opacity-100!`}
-            />
+          <div className="flex items-center gap-3">
+            <DownloadButton endpoint="overview" dateValue={dateValue} />
+            <div className="w-72">
+              <Datepicker
+                containerClassName="relative rounded-lg border border-slate-300 text-sm font-black shadow-sm"
+                displayFormat="MMM DD, YYYY"
+                inputClassName="w-full rounded-lg bg-transparent px-4 py-3 font-black text-slate-600 placeholder:text-slate-400 focus:outline-none"
+                maxDate={new Date()}
+                onChange={(value) => {
+                  if (value?.startDate && value?.endDate) {
+                    setDateValue(value);
+                  } else {
+                    const year = new Date().getFullYear();
+                    setDateValue({
+                      startDate: new Date(year, 0, 1),
+                      endDate: new Date(year, 11, 31),
+                    });
+                  }
+                }}
+                placeholder="Select date range"
+                popoverDirection="down"
+                primaryColor="blue"
+                separator="→"
+                showFooter
+                showShortcuts
+                useRange
+                value={dateValue}
+                popupClassName={(defaults) => `${defaults ?? ""} opacity-100!`}
+              />
+            </div>
           </div>
         }
       />

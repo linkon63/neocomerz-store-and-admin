@@ -3,6 +3,7 @@
 import Datepicker from "react-tailwindcss-datepicker";
 import { AdminIcon } from "../../../_components/admin-shell";
 import { PageHeader } from "../../../_components/page-header";
+import { DownloadButton } from "../../../_components/download-button";
 import { formatDate } from "../../../../../lib/admin-api";
 import { useCustomerReport } from "../../../_hooks/use-customer-report";
 
@@ -15,33 +16,36 @@ export default function CustomerReportPage() {
         title="Customer Report"
         description="Insights into customer registrations"
         action={
-          <div className="w-72">
-            <Datepicker
-              containerClassName="relative rounded-lg border border-slate-300 text-sm font-black shadow-sm"
-              displayFormat="MMM DD, YYYY"
-              inputClassName="w-full rounded-lg bg-transparent px-4 py-3 font-black text-slate-600 placeholder:text-slate-400 focus:outline-none"
-              maxDate={new Date()}
-              onChange={(value) => {
-                if (value?.startDate && value?.endDate) {
-                  setDateValue(value);
-                } else {
-                  const year = new Date().getFullYear();
-                  setDateValue({
-                    startDate: new Date(year, 0, 1),
-                    endDate: new Date(year, 11, 31),
-                  });
-                }
-              }}
-              placeholder="Select date range"
-              popoverDirection="down"
-              primaryColor="blue"
-              separator="→"
-              showFooter
-              showShortcuts
-              useRange
-              value={dateValue}
-              popupClassName={(defaults) => `${defaults ?? ""} opacity-100!`}
-            />
+          <div className="flex items-center gap-3">
+            <DownloadButton endpoint="users" dateValue={dateValue} />
+            <div className="w-72">
+              <Datepicker
+                containerClassName="relative rounded-lg border border-slate-300 text-sm font-black shadow-sm"
+                displayFormat="MMM DD, YYYY"
+                inputClassName="w-full rounded-lg bg-transparent px-4 py-3 font-black text-slate-600 placeholder:text-slate-400 focus:outline-none"
+                maxDate={new Date()}
+                onChange={(value) => {
+                  if (value?.startDate && value?.endDate) {
+                    setDateValue(value);
+                  } else {
+                    const year = new Date().getFullYear();
+                    setDateValue({
+                      startDate: new Date(year, 0, 1),
+                      endDate: new Date(year, 11, 31),
+                    });
+                  }
+                }}
+                placeholder="Select date range"
+                popoverDirection="down"
+                primaryColor="blue"
+                separator="→"
+                showFooter
+                showShortcuts
+                useRange
+                value={dateValue}
+                popupClassName={(defaults) => `${defaults ?? ""} opacity-100!`}
+              />
+            </div>
           </div>
         }
       />
@@ -101,7 +105,7 @@ export default function CustomerReportPage() {
               <div className="h-12 animate-pulse rounded bg-slate-100" key={i} />
             ))}
           </div>
-        ) : report?.users.length === 0 ? (
+        ) : report?.users.items.length === 0 ? (
           <div className="p-6 text-center font-medium text-slate-400">
             No users registered in this period.
           </div>
@@ -118,7 +122,7 @@ export default function CustomerReportPage() {
                 </tr>
               </thead>
               <tbody>
-                {report?.users.map((user) => (
+                {report?.users.items.map((user) => (
                   <tr
                     className="border-b border-slate-50 font-black transition hover:bg-slate-50/50"
                     key={user.id}
