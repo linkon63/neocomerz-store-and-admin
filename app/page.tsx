@@ -1,7 +1,5 @@
-import Collection from '@/components/sections/collection';
 import Hero from '@/components/sections/hero';
 import Invitation from '@/components/sections/invitation';
-import Philosophy from '@/components/sections/philosophy';
 import Presence from '@/components/sections/presence';
 import Prestige from '@/components/sections/prestige';
 import NewArrival from '@/components/sections/newarrival';
@@ -14,17 +12,21 @@ import NobleBalance from '@/components/sections/ui/noble-balance';
 import WorldAssembly from '@/components/sections/ui/world-assembly';
 import Subtract from '@/components/sections/subtract';
 import LooseTea from '@/components/sections/ui/loose-tea';
+import GiftItem from '@/components/sections/gift-item';
+import MostPopuler from '@/components/sections/most-populer';
+import TheCollection from '@/components/sections/the-collection';
 
 export default function Home() {
   return (
     <div>
       <Hero />
       <Invitation />
+      <TheCollection />
+      <NewArrival />
       <LooseTea />
       <Subtract />
-      <NewArrival />
-      <Collection />
-      <Philosophy />
+      <MostPopuler />
+      <GiftItem />
       <WorldAssembly />
       <NobleBalance />
       <PresenceImage />
