@@ -406,10 +406,16 @@ export type SalesReportOrder = {
   }[];
 };
 
+export type PaginationMeta = {
+  page: number;
+  limit: number;
+  total: number;
+};
+
 export type SalesReport = {
   summary: SalesReportSummary;
   productBreakdown: ProductBreakdown[];
-  orders: SalesReportOrder[];
+  orders: { items: SalesReportOrder[]; meta: PaginationMeta };
 };
 
 export type UserReportUser = {
@@ -428,7 +434,7 @@ export type UserReport = {
     newCustomersThisWeek: number;
     period: { start: string; end: string };
   };
-  users: UserReportUser[];
+  users: { items: UserReportUser[]; meta: PaginationMeta };
 };
 
 export type CouponBreakdown = {
@@ -450,6 +456,22 @@ export type DiscountedOrder = {
   placedAt: string;
 };
 
+export type ProductDiscountBreakdown = {
+  discountId: string;
+  discountName: string;
+  type: string;
+  value: number;
+  status: string;
+  startDate: string | null;
+  endDate: string | null;
+  products: {
+    productId: string;
+    productName: string;
+    totalSold: number;
+    revenue: number;
+  }[];
+};
+
 export type DiscountReport = {
   summary: {
     totalDiscountGiven: number;
@@ -458,7 +480,8 @@ export type DiscountReport = {
     period: { start: string; end: string };
   };
   couponBreakdown: CouponBreakdown[];
-  discountedOrders: DiscountedOrder[];
+  discountedOrders: { items: DiscountedOrder[]; meta: PaginationMeta };
+  productDiscountBreakdown: ProductDiscountBreakdown[];
 };
 
 export type ReportOverviewSales = {
@@ -624,6 +647,53 @@ export async function apiRequest<T>(
   } finally {
     window.clearTimeout(timeout);
   }
+}
+
+export async function apiRequestRaw(
+  path: string,
+  { auth = true, ...options }: RequestOptions = {},
+): Promise<Response> {
+  const token = getAdminToken();
+  const requestHeaders = new Headers(options.headers);
+
+  if (auth && token) {
+    requestHeaders.set("Authorization", `Bearer ${token}`);
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers: requestHeaders,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Download failed with status ${response.status}`);
+  }
+
+  return response;
+}
+
+export enum ReportFormat {
+  JSON = "json",
+  CSV = "csv",
+  PDF = "pdf",
+}
+
+export async function downloadReport(
+  endpoint: string,
+  format: "csv" | "pdf",
+  params: Record<string, string>,
+) {
+  const searchParams = new URLSearchParams({ ...params, format });
+  const res = await apiRequestRaw(`/reports/${endpoint}?${searchParams}`);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${endpoint}-report.${format}`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 export function slugify(value: string) {

@@ -4,6 +4,7 @@ import { Fragment } from "react";
 import Datepicker from "react-tailwindcss-datepicker";
 import { AdminIcon } from "../../../_components/admin-shell";
 import { PageHeader } from "../../../_components/page-header";
+import { DownloadButton } from "../../../_components/download-button";
 import {
   formatDate,
   formatMoney,
@@ -30,8 +31,10 @@ export default function SalesReportPage() {
         title="Sales Report"
         description="Overview of all sales transactions and revenue"
         action={
-          <div className="w-72">
-            <Datepicker
+          <div className="flex items-center gap-3">
+            <DownloadButton endpoint="sales" dateValue={dateValue} />
+            <div className="w-72">
+              <Datepicker
               containerClassName="relative rounded-lg border border-slate-300 text-sm font-black shadow-sm"
               displayFormat="MMM DD, YYYY"
               inputClassName="w-full rounded-lg bg-transparent px-4 py-3 font-black text-slate-600 placeholder:text-slate-400 focus:outline-none"
@@ -57,8 +60,9 @@ export default function SalesReportPage() {
               value={dateValue}
               popupClassName={(defaults) => `${defaults ?? ""} opacity-100!`}
             />
-          </div>
-        }
+            </div>
+            </div>
+          }
       />
 
       {error && (
@@ -123,7 +127,7 @@ export default function SalesReportPage() {
               <div className="h-12 animate-pulse rounded bg-slate-100" key={i} />
             ))}
           </div>
-        ) : report?.orders.length === 0 ? (
+        ) : report?.orders.items.length === 0 ? (
           <div className="p-6 text-center font-medium text-slate-400">
             No orders in this period.
           </div>
@@ -141,7 +145,7 @@ export default function SalesReportPage() {
                 </tr>
               </thead>
               <tbody>
-                {report?.orders.map((order) => (
+                {report?.orders.items.map((order) => (
                   <Fragment key={order.orderId}>
                     <tr
                       className="cursor-pointer border-b border-slate-50 font-black transition hover:bg-slate-50/50"
