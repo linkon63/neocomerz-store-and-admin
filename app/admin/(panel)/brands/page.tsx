@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AdminIcon, PageHeader } from "../../_components/admin-shell";
 import { ConfirmModal } from "../../_components/confirm-modal";
-import { apiRequest, formatDate, slugify, type Brand } from "../../../../lib/admin-api";
+import { apiRequest, formatDate, slugify, resolveImageUrl, type Brand } from "../../../../lib/admin-api";
 
 type BrandForm = {
   id?: string;
@@ -15,25 +15,85 @@ type BrandForm = {
 };
 
 const emptyForm: BrandForm = { name: "", slug: "", logo: null, logoUrl: null, removeLogo: false };
+const PAGE_SIZE = 10;
 
 export default function BrandsPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [form, setForm] = useState<BrandForm>(emptyForm);
   const [search, setSearch] = useState("");
   const [showSearchInput, setShowSearchInput] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const observerTarget = useRef<HTMLDivElement>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [brandToDelete, setBrandToDelete] = useState<Brand | null>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!form.logo) {
+      setLogoPreviewUrl(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(form.logo);
+    setLogoPreviewUrl(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [form.logo]);
 
   const filteredBrands = useMemo(
     () => brands.filter((b) => `${b.name} ${b.slug}`.toLowerCase().includes(search.toLowerCase())),
     [brands, search]
   );
 
-  const logoPreview = form.removeLogo ? null : (form.logo ? URL.createObjectURL(form.logo) : form.logoUrl ?? null);
+  // Reset visibleCount when search changes
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [search]);
+
+  const paginatedBrands = useMemo(() => {
+    return filteredBrands.slice(0, visibleCount);
+  }, [filteredBrands, visibleCount]);
+
+  function handleLoadMore() {
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount((prev) => prev + PAGE_SIZE);
+      setIsLoadingMore(false);
+    }, 300);
+  }
+
+  useEffect(() => {
+    if (isLoadingMore || paginatedBrands.length >= filteredBrands.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMore) {
+          handleLoadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: "100px" }
+    );
+
+    const target = observerTarget.current;
+    if (target) {
+      observer.observe(target);
+    }
+
+    return () => {
+      if (target) {
+        observer.unobserve(target);
+      }
+    };
+  }, [isLoadingMore, paginatedBrands.length, filteredBrands.length]);
+
+  const visibleLogoPreview = logoPreviewUrl ?? (form.removeLogo ? null : (form.logoUrl ? resolveImageUrl(form.logoUrl) : null));
 
   async function loadBrands() {
     setError("");
@@ -177,13 +237,13 @@ export default function BrandsPage() {
               ) : filteredBrands.length === 0 ? (
                 <tr><td colSpan={6} className="px-5 py-8 text-center font-medium text-slate-400">No brands found.</td></tr>
               ) : (
-                filteredBrands.map((brand) => (
+                paginatedBrands.map((brand) => (
                   <tr key={brand.id} className="odd:bg-white even:bg-slate-50/70">
                     <td className="px-5 py-4 text-sm text-slate-800">{brand.name}</td>
                     <td className="px-5 py-4">
                       {brand.logoUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={brand.logoUrl} alt="" className="h-12 w-12 rounded-lg border border-slate-200 object-cover" />
+                        <img src={resolveImageUrl(brand.logoUrl)} alt="" className="h-12 w-12 rounded-lg border border-slate-200 object-cover" />
                       ) : (
                         <div className="grid h-12 w-12 place-items-center rounded-lg border border-slate-200 bg-white">
                           <AdminIcon className="h-5 w-5 text-slate-400" name="brand" />
@@ -191,7 +251,7 @@ export default function BrandsPage() {
                       )}
                     </td>
                     <td className="px-5 py-4 text-sm text-slate-600">{brand.slug}</td>
-                    <td className="px-5 py-4 text-sm text-slate-600">{brand.products?.length ?? 0}</td>
+                    <td className="px-5 py-4 text-sm text-slate-600">{(brand as any)._count?.products ?? brand.products?.length ?? 0}</td>
                     <td className="px-5 py-4 text-sm text-slate-600">{formatDate(brand.createdAt)}</td>
                     <td className="px-5 py-4">
                       <div className="flex gap-2">
@@ -219,6 +279,39 @@ export default function BrandsPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Lazy Loading */}
+        {!isLoading && filteredBrands.length > 0 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100 px-5 py-4 bg-gradient-to-r from-slate-50 to-white">
+            <div className="flex flex-col items-start gap-1.5">
+              <p className="text-sm font-medium text-slate-500">
+                Showing <span className="font-bold text-slate-800">{paginatedBrands.length}</span> of{" "}
+                <span className="font-bold text-slate-800">{filteredBrands.length}</span> brands
+              </p>
+              <div className="h-1.5 w-48 overflow-hidden rounded bg-slate-200">
+                <div
+                  className="h-full bg-blue-600 transition-all duration-300 ease-out"
+                  style={{ width: `${Math.min(100, (paginatedBrands.length / filteredBrands.length) * 100)}%` }}
+                />
+              </div>
+            </div>
+
+            {paginatedBrands.length < filteredBrands.length ? (
+              <div
+                ref={observerTarget}
+                className="flex items-center gap-2 py-2 text-xs font-semibold text-slate-500"
+              >
+                <svg className="animate-spin h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Loading more on scroll...</span>
+              </div>
+            ) : (
+              <span className="text-xs font-semibold text-slate-400">All brands loaded</span>
+            )}
+          </div>
+        )}
       </section>
 
       {isModalOpen && (
@@ -265,10 +358,10 @@ export default function BrandsPage() {
                 />
               </label>
               <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4">
-                {logoPreview ? (
+                {visibleLogoPreview ? (
                   <div className="flex items-center gap-4">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={logoPreview} alt="Logo preview" className="h-20 w-20 rounded-lg border border-slate-200 bg-white object-cover" />
+                    <img src={visibleLogoPreview} alt="Logo preview" className="h-20 w-20 rounded-lg border border-slate-200 bg-white object-cover" />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm text-slate-800">{form.logo?.name ?? "Current logo"}</p>
                     </div>

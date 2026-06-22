@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { FiChevronDown, FiGrid, FiHeart, FiList, FiSearch } from "react-icons/fi";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { FiChevronDown, FiGrid, FiHeart, FiList, FiSearch, FiLoader } from "react-icons/fi";
 import { productSlug, shopProducts } from "./products";
+
 
 const colorOptions = [
   { label: "Orange", value: "#f58a4b" },
@@ -40,8 +41,14 @@ export default function ShopCatalog() {
   const [selectedSize, setSelectedSize] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("featured");
   const [productsPerPage, setProductsPerPage] = useState(8);
-  const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
+
+  type LoadMode = "infinite" | "button" | "all";
+  const [loadMode, setLoadMode] = useState<LoadMode>("infinite");
+  const [visibleCount, setVisibleCount] = useState(8);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const observerTarget = useRef<HTMLDivElement>(null);
 
   const filteredProducts = useMemo(() => {
     const filtered = shopProducts.filter((product) => {
@@ -60,11 +67,49 @@ export default function ShopCatalog() {
     });
   }, [selectedCategory, selectedColor, selectedSize, sortBy]);
 
-  const pageCount = Math.max(1, Math.ceil(filteredProducts.length / productsPerPage));
-  const visibleProducts = filteredProducts.slice(
-    (currentPage - 1) * productsPerPage,
-    currentPage * productsPerPage,
-  );
+  const visibleProducts = useMemo(() => {
+    if (loadMode === "all") {
+      return filteredProducts;
+    }
+    return filteredProducts.slice(0, visibleCount);
+  }, [filteredProducts, visibleCount, loadMode]);
+
+  useEffect(() => {
+    setVisibleCount(productsPerPage);
+  }, [productsPerPage, selectedCategory, selectedColor, selectedSize, sortBy]);
+
+  const handleLoadMore = () => {
+    if (isLoadingMore || visibleCount >= filteredProducts.length) return;
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount((prev) => Math.min(prev + productsPerPage, filteredProducts.length));
+      setIsLoadingMore(false);
+    }, 600);
+  };
+
+  useEffect(() => {
+    if (loadMode !== "infinite") return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMore && visibleCount < filteredProducts.length) {
+          handleLoadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: "100px" }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [loadMode, isLoadingMore, visibleCount, filteredProducts.length, productsPerPage]);
 
   const breadcrumbItems = [
     { label: "Home", href: "/" },
@@ -76,7 +121,7 @@ export default function ShopCatalog() {
 
   function updateFilter(update: () => void) {
     update();
-    setCurrentPage(1);
+    setVisibleCount(productsPerPage);
   }
 
   function clearFilters() {
@@ -84,7 +129,7 @@ export default function ShopCatalog() {
     setSelectedColor("");
     setSelectedSize("");
     setSortBy("featured");
-    setCurrentPage(1);
+    setVisibleCount(productsPerPage);
   }
 
   return (
@@ -209,27 +254,42 @@ export default function ShopCatalog() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 text-sm font-bold text-neutral-500">
-              <span>
-                Showing {visibleProducts.length} of {filteredProducts.length}
-              </span>
+              {loadMode !== "all" && (
+                <>
+                  <span>Limit:</span>
+                  <select
+                    value={productsPerPage}
+                    onChange={(event) => {
+                      setProductsPerPage(Number(event.target.value));
+                    }}
+                    className="border border-neutral-200 bg-white px-2 py-1.5 font-medium outline-none"
+                  >
+                    {showOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </>
+              )}
+
+              <span>Mode:</span>
               <select
-                value={productsPerPage}
+                value={loadMode}
                 onChange={(event) => {
-                  setProductsPerPage(Number(event.target.value));
-                  setCurrentPage(1);
+                  setLoadMode(event.target.value as LoadMode);
                 }}
-                className="border border-neutral-200 bg-white px-3 py-2 font-medium outline-none"
+                className="border border-neutral-200 bg-white px-2 py-1.5 font-medium outline-none"
               >
-                {showOptions.map((option) => (
-                  <option key={option} value={option}>
-                    Show {option}
-                  </option>
-                ))}
+                <option value="infinite">Auto-Scroll</option>
+                <option value="button">Load More</option>
+                <option value="all">Show All</option>
               </select>
+
               <button
                 type="button"
                 onClick={() => setViewMode("grid")}
-                className={`border border-neutral-200 p-2 text-lg ${
+                className={`border border-neutral-200 p-2 text-lg cursor-pointer ${
                   viewMode === "grid" ? "bg-black text-white" : "text-black"
                 }`}
                 aria-label="Grid view"
@@ -239,7 +299,7 @@ export default function ShopCatalog() {
               <button
                 type="button"
                 onClick={() => setViewMode("list")}
-                className={`border border-neutral-200 p-2 text-lg ${
+                className={`border border-neutral-200 p-2 text-lg cursor-pointer ${
                   viewMode === "list" ? "bg-black text-white" : "text-black"
                 }`}
                 aria-label="List view"
@@ -265,7 +325,9 @@ export default function ShopCatalog() {
               {visibleProducts.map((product) => (
                 <article
                   key={product.name}
-                  className={viewMode === "grid" ? "group" : "group grid gap-5 sm:grid-cols-[220px_1fr]"}
+                  className={`${
+                    viewMode === "grid" ? "group" : "group grid gap-5 sm:grid-cols-[220px_1fr]"
+                  } animate-fade-up`}
                 >
                   <Link href={`/shop/${productSlug(product)}`} className="block border border-neutral-100 bg-white">
                     <div className={viewMode === "grid" ? "relative aspect-square" : "relative aspect-square sm:h-full"}>
@@ -297,33 +359,83 @@ export default function ShopCatalog() {
                         {formatPrice(product.price)}
                       </p>
                     </div>
-                    <FiHeart className="mt-1 shrink-0 text-lg text-neutral-600" aria-label="Add to wishlist" />
+                    <FiHeart className="mt-1 shrink-0 text-lg text-neutral-600 cursor-pointer" aria-label="Add to wishlist" />
                   </div>
                 </article>
               ))}
+
+              {/* Skeleton items rendered inside the same grid */}
+              {isLoadingMore &&
+                Array.from({ length: Math.min(viewMode === "grid" ? 4 : 2, filteredProducts.length - visibleCount) }).map((_, idx) => (
+                  <div
+                    key={`skeleton-${idx}`}
+                    className={
+                      viewMode === "grid"
+                        ? "animate-pulse flex flex-col gap-4"
+                        : "animate-pulse grid gap-5 sm:grid-cols-[220px_1fr] py-2"
+                    }
+                  >
+                    <div className="aspect-square w-full bg-neutral-50 border border-neutral-100 rounded flex items-center justify-center">
+                      <FiLoader className="text-neutral-300 text-3xl animate-spin" />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <div className="h-3 w-1/3 bg-neutral-250 rounded" />
+                      <div className="h-4 w-2/3 bg-neutral-250 rounded" />
+                      {viewMode === "list" && (
+                        <div className="space-y-2 mt-2">
+                          <div className="h-3 w-full bg-neutral-150 rounded" />
+                          <div className="h-3 w-5/6 bg-neutral-150 rounded" />
+                        </div>
+                      )}
+                      <div className="h-4 w-1/4 bg-neutral-250 rounded mt-auto" />
+                    </div>
+                  </div>
+                ))}
             </div>
           )}
 
-          <div className="mt-12 flex items-center justify-between border-t border-neutral-200 pt-6 text-sm font-bold">
-            <button
-              type="button"
-              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-              disabled={currentPage === 1}
-              className="text-neutral-600 disabled:text-neutral-300"
-            >
-              Previous
-            </button>
-            <span>
-              Page {currentPage} of {pageCount}
-            </span>
-            <button
-              type="button"
-              onClick={() => setCurrentPage((page) => Math.min(pageCount, page + 1))}
-              disabled={currentPage === pageCount}
-              className="text-neutral-600 disabled:text-neutral-300"
-            >
-              Next
-            </button>
+          <div className="mt-16 flex flex-col items-center justify-center border-t border-neutral-200 pt-10">
+            {/* Progress indicators */}
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-xs font-black uppercase tracking-[0.08em] text-neutral-500 font-medium">
+                Showing {visibleProducts.length} of {filteredProducts.length} Products
+              </p>
+              {filteredProducts.length > 0 && (
+                <div className="h-[3px] w-48 overflow-hidden bg-neutral-100 rounded-full">
+                  <div
+                    className="h-full bg-[#ffd02f] transition-all duration-500 ease-out"
+                    style={{ width: `${(visibleProducts.length / filteredProducts.length) * 100}%` }}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Load More Trigger Area */}
+            {visibleCount < filteredProducts.length && loadMode !== "all" && (
+              <div className="mt-6 flex flex-col items-center w-full">
+                {loadMode === "button" ? (
+                  <button
+                    type="button"
+                    onClick={handleLoadMore}
+                    disabled={isLoadingMore}
+                    className="group relative flex items-center gap-3 bg-black px-8 py-3.5 text-xs font-black uppercase tracking-[0.1em] text-white hover:bg-neutral-800 transition active:scale-97 disabled:opacity-50 cursor-pointer"
+                  >
+                    {isLoadingMore && <FiLoader className="animate-spin text-sm" />}
+                    <span>{isLoadingMore ? "Loading Items..." : "Load More Products"}</span>
+                  </button>
+                ) : (
+                  <div
+                    ref={observerTarget}
+                    className="flex h-16 items-center justify-center py-4 text-neutral-400"
+                  >
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.08em]">
+                      <FiLoader className="animate-spin text-base text-[#151515]" />
+                      <span className="text-[#151515]">Loading more on scroll...</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </section>
       </div>

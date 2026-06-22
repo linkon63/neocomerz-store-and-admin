@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { AdminIcon, PageHeader } from "../../_components/admin-shell";
 import { ConfirmModal } from "../../_components/confirm-modal";
 import { apiRequest, type Attribute } from "../../../../lib/admin-api";
@@ -27,11 +27,16 @@ function cleanValues(values: VariantValueForm[]) {
     .filter((item) => item.value.length > 0);
 }
 
+const PAGE_SIZE = 10;
+
 export default function VariantOptionsPage() {
   const [variantOptions, setVariantOptions] = useState<Attribute[]>([]);
   const [form, setForm] = useState<VariantOptionForm>(emptyForm);
   const [search, setSearch] = useState("");
   const [showSearchInput, setShowSearchInput] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const observerTarget = useRef<HTMLDivElement>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -48,6 +53,47 @@ export default function VariantOptionsPage() {
         .includes(query),
     );
   }, [search, variantOptions]);
+
+  // Reset visibleCount when search changes
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [search]);
+
+  const paginatedOptions = useMemo(() => {
+    return filteredOptions.slice(0, visibleCount);
+  }, [filteredOptions, visibleCount]);
+
+  function handleLoadMore() {
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount((prev) => prev + PAGE_SIZE);
+      setIsLoadingMore(false);
+    }, 300);
+  }
+
+  useEffect(() => {
+    if (isLoadingMore || paginatedOptions.length >= filteredOptions.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMore) {
+          handleLoadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: "100px" }
+    );
+
+    const target = observerTarget.current;
+    if (target) {
+      observer.observe(target);
+    }
+
+    return () => {
+      if (target) {
+        observer.unobserve(target);
+      }
+    };
+  }, [isLoadingMore, paginatedOptions.length, filteredOptions.length]);
 
   async function loadVariantOptions() {
     setError("");
@@ -304,7 +350,7 @@ export default function VariantOptionsPage() {
                     </td>
                   </tr>
                 ) : filteredOptions.length > 0 ? (
-                  filteredOptions.map((option) => (
+                  paginatedOptions.map((option) => (
                     <tr
                       className="odd:bg-white even:bg-slate-50/70"
                       key={option.id}
@@ -368,6 +414,39 @@ export default function VariantOptionsPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Lazy Loading */}
+          {!isLoading && filteredOptions.length > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100 px-5 py-4 bg-gradient-to-r from-slate-50 to-white">
+              <div className="flex flex-col items-start gap-1.5">
+                <p className="text-sm font-medium text-slate-500">
+                  Showing <span className="font-bold text-slate-800">{paginatedOptions.length}</span> of{" "}
+                  <span className="font-bold text-slate-800">{filteredOptions.length}</span> variant options
+                </p>
+                <div className="h-1.5 w-48 overflow-hidden rounded bg-slate-200">
+                  <div
+                    className="h-full bg-blue-600 transition-all duration-300 ease-out"
+                    style={{ width: `${Math.min(100, (paginatedOptions.length / filteredOptions.length) * 100)}%` }}
+                  />
+                </div>
+              </div>
+
+              {paginatedOptions.length < filteredOptions.length ? (
+                <div
+                  ref={observerTarget}
+                  className="flex items-center gap-2 py-2 text-xs font-semibold text-slate-500"
+                >
+                  <svg className="animate-spin h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Loading more on scroll...</span>
+                </div>
+              ) : (
+                <span className="text-xs font-semibold text-slate-400">All variant options loaded</span>
+              )}
+            </div>
+          )}
         </div>
       </section>
 

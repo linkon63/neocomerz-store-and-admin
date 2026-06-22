@@ -6,6 +6,7 @@ import { ConfirmModal } from "../../_components/confirm-modal";
 import {
   apiRequest,
   formatDate,
+  resolveImageUrl,
   slugify,
   type Category,
 } from "../../../../lib/admin-api";
@@ -52,7 +53,9 @@ export default function CategoriesPage() {
   const [form, setForm] = useState<CategoryForm>(emptyForm);
   const [search, setSearch] = useState("");
   const [showSearchInput, setShowSearchInput] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const observerTarget = useRef<HTMLDivElement>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -74,16 +77,46 @@ export default function CategoriesPage() {
     return result;
   }, [rows, search]);
 
-  // Reset to page 1 when search changes
+  // Reset visibleCount when search changes
   useEffect(() => {
-    setCurrentPage(1);
+    setVisibleCount(PAGE_SIZE);
   }, [search]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
   const paginatedRows = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    return filteredRows.slice(start, start + PAGE_SIZE);
-  }, [filteredRows, currentPage]);
+    return filteredRows.slice(0, visibleCount);
+  }, [filteredRows, visibleCount]);
+
+  function handleLoadMore() {
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount((prev) => prev + PAGE_SIZE);
+      setIsLoadingMore(false);
+    }, 300);
+  }
+
+  useEffect(() => {
+    if (isLoadingMore || paginatedRows.length >= filteredRows.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMore) {
+          handleLoadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: "100px" }
+    );
+
+    const target = observerTarget.current;
+    if (target) {
+      observer.observe(target);
+    }
+
+    return () => {
+      if (target) {
+        observer.unobserve(target);
+      }
+    };
+  }, [isLoadingMore, paginatedRows.length, filteredRows.length]);
 
   useEffect(() => {
     if (!form.image) {
@@ -247,7 +280,7 @@ export default function CategoriesPage() {
   }
 
   const visibleImagePreview =
-    imagePreviewUrl ?? (form.removeImage ? null : form.imageUrl);
+    imagePreviewUrl ?? (form.removeImage ? null : (form.imageUrl ? resolveImageUrl(form.imageUrl) : null));
 
   function cancelDelete() {
     setDeleteModalOpen(false);
@@ -372,7 +405,7 @@ export default function CategoriesPage() {
                           <img
                             alt=""
                             className="h-12 w-12 rounded-lg border border-slate-200 object-cover"
-                            src={category.imageUrl}
+                            src={resolveImageUrl(category.imageUrl)}
                           />
                         ) : (
                           <div className="grid h-12 w-12 place-items-center rounded-lg border border-slate-200 bg-white text-xl">
@@ -390,7 +423,7 @@ export default function CategoriesPage() {
                         {category.parentName}
                       </td>
                       <td className="px-5 py-4 text-sm text-slate-600">
-                        {category.products?.length ?? 0}
+                        {(category as any)._count?.products ?? category.products?.length ?? 0}
                       </td>
                       <td className="px-5 py-4 text-sm text-slate-600">
                         {formatDate(category.createdAt)}
@@ -422,88 +455,36 @@ export default function CategoriesPage() {
             </table>
           </div>
 
-          {/* Pagination */}
-          {!isLoading && filteredRows.length > PAGE_SIZE && (
-            <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm font-medium text-slate-500">
-                Showing{" "}
-                <span className="font-semibold text-slate-800">
-                  {(currentPage - 1) * PAGE_SIZE + 1}–
-                  {Math.min(currentPage * PAGE_SIZE, filteredRows.length)}
-                </span>{" "}
-                of{" "}
-                <span className="font-semibold text-slate-800">
-                  {filteredRows.length}
-                </span>{" "}
-                categories
-              </p>
-              <div className="flex items-center gap-1">
-                {/* Previous */}
-                <button
-                  className="grid h-9 w-9 place-items-center rounded-lg border border-slate-300 bg-white font-medium text-slate-600 disabled:cursor-not-allowed disabled:opacity-40"
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage((p) => p - 1)}
-                  type="button"
-                  aria-label="Previous page"
-                >
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                    <path d="M15 18l-6-6 6-6" />
-                  </svg>
-                </button>
-
-                {/* Page numbers */}
-                {Array.from({ length: totalPages }, (_, i) => i + 1)
-                  .filter((page) => {
-                    // Show first, last, current, and neighbours
-                    return (
-                      page === 1 ||
-                      page === totalPages ||
-                      Math.abs(page - currentPage) <= 1
-                    );
-                  })
-                  .reduce<(number | "...")[]>((acc, page, idx, arr) => {
-                    if (idx > 0 && page - (arr[idx - 1] as number) > 1) {
-                      acc.push("...");
-                    }
-                    acc.push(page);
-                    return acc;
-                  }, [])
-                  .map((item, idx) =>
-                    item === "..." ? (
-                      <span
-                        key={`ellipsis-${idx}`}
-                        className="grid h-9 w-9 place-items-center text-sm font-medium text-slate-400"
-                      >
-                        …
-                      </span>
-                    ) : (
-                      <button
-                        key={item}
-                        className={`grid h-9 w-9 place-items-center rounded-lg text-sm font-medium transition-colors ${currentPage === item
-                            ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
-                            : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-                          }`}
-                        onClick={() => setCurrentPage(item as number)}
-                        type="button"
-                        aria-label={`Page ${item}`}
-                        aria-current={currentPage === item ? "page" : undefined}
-                      >
-                        {item}
-                      </button>
-                    ),
-                  )}
-
-                {/* Next */}
-                <button
-                  className="grid h-9 w-9 place-items-center rounded-lg border border-slate-300 bg-white font-medium text-slate-600 disabled:cursor-not-allowed disabled:opacity-40"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage((p) => p + 1)}
-                  type="button"
-                  aria-label="Next page"
-                >
-                  <AdminIcon className="h-4 w-4" name="chevronRight" />
-                </button>
+          {/* Lazy Loading */}
+          {!isLoading && filteredRows.length > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100 px-5 py-4 bg-gradient-to-r from-slate-50 to-white">
+              <div className="flex flex-col items-start gap-1.5">
+                <p className="text-sm font-medium text-slate-500">
+                  Showing <span className="font-bold text-slate-800">{paginatedRows.length}</span> of{" "}
+                  <span className="font-bold text-slate-800">{filteredRows.length}</span> categories
+                </p>
+                <div className="h-1.5 w-48 overflow-hidden rounded bg-slate-200">
+                  <div
+                    className="h-full bg-blue-600 transition-all duration-300 ease-out"
+                    style={{ width: `${Math.min(100, (paginatedRows.length / filteredRows.length) * 100)}%` }}
+                  />
+                </div>
               </div>
+
+              {paginatedRows.length < filteredRows.length ? (
+                <div
+                  ref={observerTarget}
+                  className="flex items-center gap-2 py-2 text-xs font-semibold text-slate-500"
+                >
+                  <svg className="animate-spin h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Loading more on scroll...</span>
+                </div>
+              ) : (
+                <span className="text-xs font-semibold text-slate-400">All categories loaded</span>
+              )}
             </div>
           )}
         </div>
