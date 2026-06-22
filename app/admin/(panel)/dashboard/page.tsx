@@ -31,15 +31,22 @@ function formatNumber(n: number) {
   return n.toLocaleString("en");
 }
 
-type Period = "week" | "month" | "quarter" | "year" | "custom";
+type Period = "today" | "yesterday" | "week" | "month" | "custom";
 
-const THUMB_COLORS = ["blue", "amber", "emerald", "violet", "rose", "cyan"];
+const THUMB_COLORS = [
+  "bg-blue-500",
+  "bg-amber-500",
+  "bg-emerald-500",
+  "bg-violet-500",
+  "bg-rose-500",
+  "bg-cyan-500",
+];
 
 const PERIODS: { key: Period; label: string }[] = [
+  { key: "today", label: "Today" },
+  { key: "yesterday", label: "Yesterday" },
   { key: "week", label: "Week" },
   { key: "month", label: "Month" },
-  { key: "quarter", label: "Quarter" },
-  { key: "year", label: "Year" },
 ];
 
 function formatBucket(date: string, granularity: Granularity) {
@@ -291,7 +298,7 @@ export default function DashboardPage() {
         </div>
         <div className="grid divide-y divide-slate-200 border-t border-slate-200 md:grid-cols-2 md:divide-x md:divide-y-0 xl:grid-cols-4">
           <MetricCard label="Avg. order value" metric={summary?.avgOrderValue} iconName="discount" tone="bg-sky-50 text-sky-600" href="/admin/orders" caption="Per paid order" isMoney loading={isLoading} />
-          <MetricCard label="Total customers" metric={{ value: summary?.totalCustomers.value ?? 0, trend: summary?.newCustomers.trend ?? null }} iconName="suppliers" tone="bg-violet-50 text-violet-600" href="/admin/reports" caption="New customers vs previous" loading={isLoading} />
+          <MetricCard label="Total customers" metric={{ value: summary?.totalCustomers.value ?? 0, trend: summary?.newCustomers.trend ?? null }} iconName="suppliers" tone="bg-violet-50 text-violet-600" href="/admin/reports/customer" caption="New customers vs previous" loading={isLoading} />
           <MetricCard label="Total products" metric={summary?.totalProducts} iconName="package" tone="bg-slate-100 text-slate-600" href="/admin/products" caption="Active catalogue" loading={isLoading} />
           <MetricCard label="Refund amount" metric={summary?.refundAmount} iconName="refresh" tone="bg-rose-50 text-rose-600" href="/admin/orders?paymentStatus=refunded" isMoney goodWhenDown loading={isLoading} />
         </div>
@@ -375,7 +382,11 @@ export default function DashboardPage() {
               ))
             ) : summary && summary.recentOrders.length > 0 ? (
               summary.recentOrders.slice(0, 5).map((order) => (
-                <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4" key={order.id}>
+                <Link
+                  className="flex items-center justify-between rounded-xl bg-slate-50 p-4 transition hover:bg-slate-100/80"
+                  href={`/admin/orders?search=${encodeURIComponent(order.orderNumber)}`}
+                  key={order.id}
+                >
                   <div className="min-w-0">
                     <p className="truncate font-normal text-slate-800">{order.orderNumber}</p>
                     <p className="truncate text-sm font-medium text-slate-500">
@@ -388,7 +399,7 @@ export default function DashboardPage() {
                       {order.paymentStatus}
                     </span>
                   </div>
-                </div>
+                </Link>
               ))
             ) : (
               <p className="rounded-xl bg-slate-50 p-4 font-medium text-slate-400">
@@ -408,17 +419,23 @@ export default function DashboardPage() {
             ))
           ) : topProducts.length > 0 ? (
             topProducts.map((product, index) => (
-              <div className="flex items-center gap-4 rounded-xl border border-slate-100 p-4" key={product.id}>
-                {product.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    alt={product.name}
-                    className="h-12 w-12 flex-shrink-0 rounded-lg object-cover bg-white"
-                    src={resolveImageUrl(product.imageUrl)}
-                  />
-                ) : (
-                  <ProductThumb color={THUMB_COLORS[index % THUMB_COLORS.length]} />
-                )}
+              <Link
+                className="flex items-center gap-4 rounded-xl border border-slate-100 p-4 transition hover:border-slate-200 hover:bg-slate-50/60"
+                href={`/admin/products/${product.id}/edit`}
+                key={product.id}
+              >
+                <div className="relative h-12 w-12 overflow-hidden rounded-lg border border-slate-200 bg-white flex-shrink-0 shadow-sm">
+                  {product.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      alt={product.name}
+                      className="h-full w-full object-cover"
+                      src={resolveImageUrl(product.imageUrl)}
+                    />
+                  ) : (
+                    <ProductThumb color={THUMB_COLORS[index % THUMB_COLORS.length]} />
+                  )}
+                </div>
                 <div className="min-w-0">
                   <p className="truncate font-black">{product.name}</p>
                   <p className="mt-1 text-sm font-medium text-slate-500">
@@ -428,7 +445,7 @@ export default function DashboardPage() {
                     {formatNumber(product.stock)} pcs in stock
                   </p>
                 </div>
-              </div>
+              </Link>
             ))
           ) : (
             <p className="font-medium text-slate-400">No sales recorded in this period.</p>
