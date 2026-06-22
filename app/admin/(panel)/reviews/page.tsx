@@ -187,13 +187,13 @@ export default function ReviewsPage() {
                   } catch (e) {}
                 }
               }}
-              className="grid h-14 w-14 place-items-center rounded-lg border border-slate-300 bg-white hover:bg-slate-50 transition cursor-pointer font-black"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm cursor-pointer"
               type="button"
             >
               <AdminIcon className="h-5 w-5 text-slate-500" name="refresh" />
             </button>
             <button
-              className="inline-flex h-14 items-center gap-2 rounded-md bg-slate-900 px-6 font-black text-white hover:bg-slate-800 transition cursor-pointer shadow-lg shadow-slate-900/15"
+              className="inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 shrink-0"
               onClick={openAddModal}
               type="button"
             >
@@ -208,12 +208,12 @@ export default function ReviewsPage() {
         <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-2xl font-black text-slate-800">Reviews list</h2>
-              <p className="font-medium text-slate-650">
+              <h2 className="text-lg font-semibold text-slate-800">Reviews list</h2>
+              <p className="text-sm font-medium text-slate-600">
                 Displaying {filteredReviews.length} reviews
               </p>
             </div>
-            <label className="flex h-12 w-full max-w-md items-center gap-3 rounded-md border border-slate-300 bg-white px-4 focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-100 transition-all">
+            <label className="flex h-11 w-full max-w-md items-center gap-3 rounded-lg border-2 border-slate-200 bg-white px-4 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 transition-all">
               <AdminIcon className="h-5 w-5 text-slate-400" name="search" />
               <input
                 className="w-full bg-transparent text-sm font-medium outline-none text-slate-700 placeholder:text-slate-400"
@@ -225,11 +225,11 @@ export default function ReviewsPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] border-collapse text-left text-sm font-medium text-slate-650">
-              <thead className="bg-slate-50 border-b border-slate-100 text-xs font-black uppercase tracking-wider text-slate-500">
+            <table className="w-full min-w-[900px] border-collapse text-left">
+              <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
                   {["Name", "Detail", "Meta", "Status", "Actions"].map((heading) => (
-                    <th className="px-5 py-4 font-black" key={heading}>
+                    <th className="px-4 py-4 text-sm font-semibold text-slate-700" key={heading}>
                       {heading}
                     </th>
                   ))}
@@ -238,30 +238,30 @@ export default function ReviewsPage() {
               <tbody className="divide-y divide-slate-100">
                 {filteredReviews.length > 0 ? (
                   filteredReviews.map((row) => (
-                    <tr className="hover:bg-slate-50/50 transition-colors" key={row.id}>
-                      <td className="px-5 py-4 font-black text-slate-800">
+                    <tr className="hover:bg-blue-50/30 transition-all duration-200" key={row.id}>
+                      <td className="px-4 py-4 text-sm font-semibold text-slate-800">
                         {row.name}
                       </td>
-                      <td className="px-5 py-4 font-semibold text-slate-600">
+                      <td className="px-4 py-4 text-sm text-slate-600">
                         {row.detail}
                       </td>
-                      <td className="px-5 py-4">
-                        <span className={`inline-flex rounded-md border px-2 py-0.5 text-xs font-bold capitalize ${metaTone(row.meta)}`}>
+                      <td className="px-4 py-4">
+                        <span className={`inline-flex rounded-md border px-2 py-0.5 text-xs font-semibold capitalize ${metaTone(row.meta)}`}>
                           {row.meta}
                         </span>
                       </td>
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-4">
                         <div className="flex items-center gap-2">
                           <LocalStatusToggle
                             active={row.status === "Active"}
                             onToggle={() => handleToggleStatus(row.id)}
                           />
-                          <span className={`text-sm font-bold ${row.status === "Active" ? "text-slate-800" : "text-slate-400"}`}>
+                          <span className={`text-sm font-semibold ${row.status === "Active" ? "text-slate-800" : "text-slate-400"}`}>
                             {row.status}
                           </span>
                         </div>
                       </td>
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-4">
                         <div className="flex gap-2">
                           <button
                             className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
@@ -285,7 +285,7 @@ export default function ReviewsPage() {
                   ))
                 ) : (
                   <tr>
-                    <td className="px-5 py-8 text-center text-slate-400 font-semibold" colSpan={5}>
+                    <td className="px-4 py-8 text-center text-sm text-slate-400 font-semibold" colSpan={5}>
                       No reviews found.
                     </td>
                   </tr>
@@ -307,17 +307,17 @@ export default function ReviewsPage() {
             className="modal-panel flex w-full max-w-lg flex-col rounded-xl border border-slate-200 bg-white shadow-2xl min-h-[480px] max-h-[calc(100vh-3rem)]"
             onSubmit={handleSubmit}
           >
-            <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 pt-6 pb-5 shrink-0">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5 bg-gradient-to-r from-slate-50 to-white shrink-0">
               <div>
-                <h2 className="text-2xl font-black text-slate-800" id="review-modal-title">
+                <h2 className="text-lg font-semibold text-slate-800" id="review-modal-title">
                   {form.id ? "Edit Review" : "Add Review"}
                 </h2>
-                <p className="mt-1 font-medium text-slate-605">
+                <p className="mt-1 text-sm font-medium text-slate-600">
                   Fill in the reviewer details and status moderations.
                 </p>
               </div>
               <button
-                className="grid h-10 w-10 place-items-center rounded-md border border-slate-300 text-xl font-black text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+                className="grid h-10 w-10 place-items-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 transition-all cursor-pointer"
                 onClick={() => setIsModalOpen(false)}
                 type="button"
               >
@@ -328,12 +328,12 @@ export default function ReviewsPage() {
             <div className="flex-1 modal-body px-6 py-5">
             <div className="space-y-4">
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+                <span className="mb-2 block text-sm font-semibold text-slate-700">
                   Reviewer Name
                 </span>
                 <input
                   autoFocus
-                  className="h-12 w-full rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   required
                   value={form.name}
@@ -343,11 +343,11 @@ export default function ReviewsPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <label className="block">
-                  <span className="mb-2 block text-sm font-black text-slate-700">
+                  <span className="mb-2 block text-sm font-semibold text-slate-700">
                     Rating
                   </span>
                   <select
-                    className="h-12 w-full rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition cursor-pointer"
+                    className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all cursor-pointer"
                     onChange={(e) => setForm({ ...form, rating: e.target.value })}
                     value={form.rating}
                   >
@@ -360,11 +360,11 @@ export default function ReviewsPage() {
                 </label>
 
                 <label className="block">
-                  <span className="mb-2 block text-sm font-black text-slate-700">
+                  <span className="mb-2 block text-sm font-semibold text-slate-700">
                     Moderation Meta
                   </span>
                   <select
-                    className="h-12 w-full rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition cursor-pointer"
+                    className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all cursor-pointer"
                     onChange={(e) => setForm({ ...form, meta: e.target.value as any })}
                     value={form.meta}
                   >
@@ -376,11 +376,11 @@ export default function ReviewsPage() {
               </div>
 
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+                <span className="mb-2 block text-sm font-semibold text-slate-700">
                   Product Name
                 </span>
                 <input
-                  className="h-12 w-full rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(e) => setForm({ ...form, product: e.target.value })}
                   required
                   value={form.product}
@@ -389,11 +389,11 @@ export default function ReviewsPage() {
               </label>
 
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+                <span className="mb-2 block text-sm font-semibold text-slate-700">
                   Status
                 </span>
                 <select
-                  className="h-12 w-full rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition cursor-pointer"
+                  className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all cursor-pointer"
                   onChange={(e) => setForm({ ...form, status: e.target.value as any })}
                   value={form.status}
                 >
@@ -405,16 +405,16 @@ export default function ReviewsPage() {
             </div>
             </div>
 
-            <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4 shrink-0">
+            <div className="flex items-center justify-end gap-3 border-t border-slate-200 px-6 py-5 bg-slate-50 shrink-0">
                 <button
-                  className="h-12 rounded-md border border-slate-300 bg-white px-5 text-sm font-black text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                  className="h-11 rounded-lg border-2 border-slate-200 bg-white px-5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer"
                   onClick={() => setIsModalOpen(false)}
                   type="button"
                 >
                   Cancel
                 </button>
                 <button
-                  className="inline-flex h-12 items-center gap-2 rounded-md bg-slate-900 px-5 text-sm font-black text-white hover:bg-slate-800 transition cursor-pointer shadow-xs"
+                  className="inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 cursor-pointer"
                   type="submit"
                 >
                   <AdminIcon className="h-5 w-5" name="check" />

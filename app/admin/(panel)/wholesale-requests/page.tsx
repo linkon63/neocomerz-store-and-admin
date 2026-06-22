@@ -32,7 +32,7 @@ const STATUS_PILL: Record<WholesaleRequestStatus, string> = {
 };
 
 function statusPill(status: WholesaleRequestStatus) {
-  return `inline-block rounded-md px-3 py-1 text-sm font-black capitalize ${STATUS_PILL[status]}`;
+  return `inline-block rounded-md px-3 py-1 text-sm font-semibold capitalize ${STATUS_PILL[status]}`;
 }
 
 function itemName(item: WholesaleRequestItem) {
@@ -292,7 +292,7 @@ export default function WholesaleRequestsPage() {
         description="Review B2B wholesale order requests, approve or reject them, and convert approved requests into orders."
         action={
           <button
-            className="grid h-14 w-14 place-items-center rounded-lg border border-slate-300 bg-white font-black"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm"
             onClick={() => loadRequests()}
             type="button"
           >
@@ -302,18 +302,18 @@ export default function WholesaleRequestsPage() {
       />
 
       <section>
-        <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-2xl font-black">Wholesale requests</h2>
-              <p className="font-medium text-slate-600">
+              <h2 className="text-lg font-semibold text-slate-800">Wholesale requests</h2>
+              <p className="text-sm font-medium text-slate-600">
                 Displaying {visibleRequests.length} requests
               </p>
             </div>
-            <label className="flex h-12 w-full max-w-md items-center gap-3 rounded-lg border border-slate-300 px-4">
+            <label className="flex h-11 w-full max-w-md items-center gap-3 rounded-lg border-2 border-slate-200 bg-white px-4 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 transition-all">
               <AdminIcon className="h-5 w-5 text-slate-400" name="search" />
               <input
-                className="w-full bg-transparent font-medium outline-none"
+                className="w-full bg-transparent text-sm font-medium outline-none"
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search by request #, customer name or email"
                 value={search}
@@ -324,7 +324,7 @@ export default function WholesaleRequestsPage() {
           <div className="flex flex-wrap gap-2 px-5 pb-4">
             {STATUS_TABS.map((tab) => (
               <button
-                className={`rounded-full px-4 py-2 text-sm font-black ${
+                className={`rounded-full px-4 py-2 text-sm font-semibold ${
                   statusFilter === tab.value
                     ? "bg-blue-600 text-white"
                     : "border border-slate-300 text-slate-600 hover:bg-slate-50"
@@ -339,7 +339,7 @@ export default function WholesaleRequestsPage() {
           </div>
 
           {error && (
-            <p className="mx-5 mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+            <p className="mx-5 mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
               {error}
             </p>
           )}
@@ -357,7 +357,7 @@ export default function WholesaleRequestsPage() {
                     "Created",
                     "Actions",
                   ].map((heading) => (
-                    <th className="px-5 py-4 font-black" key={heading}>
+                    <th className="px-4 py-4 text-sm font-semibold text-slate-700" key={heading}>
                       {heading}
                     </th>
                   ))}
@@ -366,13 +366,13 @@ export default function WholesaleRequestsPage() {
               <tbody className="divide-y divide-slate-100">
                 {isLoading ? (
                   <tr>
-                    <td className="px-5 py-8 font-bold text-slate-500" colSpan={7}>
+                    <td className="px-5 py-8 font-semibold text-slate-500" colSpan={7}>
                       Loading wholesale requests...
                     </td>
                   </tr>
                 ) : visibleRequests.length === 0 ? (
                   <tr>
-                    <td className="px-5 py-8 font-bold text-slate-500" colSpan={7}>
+                    <td className="px-5 py-8 font-semibold text-slate-500" colSpan={7}>
                       No wholesale requests found.
                     </td>
                   </tr>
@@ -383,11 +383,11 @@ export default function WholesaleRequestsPage() {
                       key={request.id}
                       onClick={() => openDetail(request)}
                     >
-                      <td className="px-5 py-4 font-bold text-slate-800">
+                      <td className="px-5 py-4 font-semibold text-slate-800">
                         {request.requestNumber ?? request.id}
                       </td>
                       <td className="px-5 py-4">
-                        <p className="font-bold text-slate-800">
+                        <p className="font-semibold text-slate-800">
                           {request.user?.name ?? "-"}
                         </p>
                         <p className="text-sm font-medium text-slate-400">
@@ -410,7 +410,7 @@ export default function WholesaleRequestsPage() {
                       </td>
                       <td className="px-5 py-4">
                         <button
-                          className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-black"
+                          className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold"
                           onClick={(event) => {
                             event.stopPropagation();
                             openDetail(request);
@@ -432,15 +432,15 @@ export default function WholesaleRequestsPage() {
 
       {selected && !convertOpen && (
         <div
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6"
+          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6 modal-backdrop"
           role="dialog"
           aria-modal="true"
           aria-labelledby="wholesale-detail-title"
         >
-          <div className="max-h-[calc(100vh-3rem)] w-full max-w-4xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-6 shadow-2xl">
+          <div className="modal-panel max-h-[calc(100vh-3rem)] w-full max-w-4xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-6 shadow-2xl">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-black" id="wholesale-detail-title">
+                <h2 className="text-lg font-semibold text-slate-800" id="wholesale-detail-title">
                   Request {selected.requestNumber ?? selected.id}
                 </h2>
                 <span className={`mt-2 ${statusPill(selected.status)}`}>
@@ -448,7 +448,7 @@ export default function WholesaleRequestsPage() {
                 </span>
               </div>
               <button
-                className="grid h-10 w-10 place-items-center rounded-lg border border-slate-300 text-xl font-black text-slate-600"
+                className="grid h-10 w-10 place-items-center rounded-lg border border-slate-300 text-xl font-semibold text-slate-600"
                 disabled={isActing}
                 onClick={closeDetail}
                 type="button"
@@ -459,10 +459,10 @@ export default function WholesaleRequestsPage() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-lg border border-slate-200 p-4">
-                <p className="text-sm font-black uppercase tracking-wide text-slate-500">
+                <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
                   Customer
                 </p>
-                <p className="mt-1 font-black text-slate-800">
+                <p className="mt-1 font-semibold text-slate-800">
                   {selected.user?.name ?? "-"}
                 </p>
                 <p className="font-medium text-slate-600">
@@ -474,7 +474,7 @@ export default function WholesaleRequestsPage() {
               </div>
               {selected.customerNote && (
                 <div className="rounded-lg border border-slate-200 p-4">
-                  <p className="text-sm font-black uppercase tracking-wide text-slate-500">
+                  <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
                     Customer note
                   </p>
                   <p className="mt-1 font-medium text-slate-700">
@@ -490,7 +490,7 @@ export default function WholesaleRequestsPage() {
                   <tr>
                     {["Product", "Variant", "Requested Qty", "Target Price", "Note"].map(
                       (heading) => (
-                        <th className="px-4 py-3 text-sm font-black" key={heading}>
+                        <th className="px-4 py-4 text-sm font-semibold text-slate-700" key={heading}>
                           {heading}
                         </th>
                       ),
@@ -500,19 +500,19 @@ export default function WholesaleRequestsPage() {
                 <tbody className="divide-y divide-slate-100">
                   {selected.items?.map((item) => (
                     <tr key={item.id}>
-                      <td className="px-4 py-3 font-bold text-slate-800">
+                      <td className="px-4 py-4 text-sm font-semibold text-slate-800">
                         {itemName(item)}
                       </td>
-                      <td className="px-4 py-3 font-medium text-slate-600">
+                      <td className="px-4 py-4 text-sm text-slate-600">
                         {item.variant?.sku ?? "-"}
                       </td>
-                      <td className="px-4 py-3 font-medium text-slate-700">
+                      <td className="px-4 py-4 text-sm text-slate-700">
                         {item.requestedQuantity}
                       </td>
-                      <td className="px-4 py-3 font-medium text-slate-700">
+                      <td className="px-4 py-4 text-sm text-slate-700">
                         {formatMoney(item.targetPrice)}
                       </td>
-                      <td className="px-4 py-3 font-medium text-slate-600">
+                      <td className="px-4 py-4 text-sm text-slate-600">
                         {item.note ?? "-"}
                       </td>
                     </tr>
@@ -522,26 +522,26 @@ export default function WholesaleRequestsPage() {
             </div>
 
             {selected.status === "rejected" && selected.adminNote && (
-              <p className="mt-4 rounded-lg bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700">
+              <p className="mt-4 rounded-lg bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">
                 Rejection note: {selected.adminNote}
               </p>
             )}
             {selected.status === "converted" && (
-              <p className="mt-4 rounded-lg bg-violet-50 px-4 py-3 text-sm font-bold text-violet-700">
+              <p className="mt-4 rounded-lg bg-violet-50 px-4 py-3 text-sm font-semibold text-violet-700">
                 Converted to order:{" "}
                 {selected.order?.orderNumber ?? selected.orderId ?? "—"}
               </p>
             )}
 
             {actionError && (
-              <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+              <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
                 {actionError}
               </p>
             )}
 
             {noteMode && (
               <div className="mt-4 rounded-lg border border-slate-200 p-4">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+                <span className="mb-2 block text-sm font-semibold text-slate-700">
                   {noteMode === "rejected"
                     ? "Reason for rejection (optional)"
                     : "What information do you need from the customer?"}
@@ -555,7 +555,7 @@ export default function WholesaleRequestsPage() {
                 />
                 <div className="mt-3 flex justify-end gap-3">
                   <button
-                    className="h-11 rounded-lg border border-slate-300 bg-white px-4 font-black text-slate-700"
+                    className="h-11 rounded-lg border border-slate-300 bg-white px-4 font-semibold text-slate-700"
                     disabled={isActing}
                     onClick={() => {
                       setNoteMode(null);
@@ -567,7 +567,7 @@ export default function WholesaleRequestsPage() {
                   </button>
                   {noteMode === "info_requested" ? (
                     <button
-                      className="inline-flex h-11 items-center gap-2 rounded-lg bg-amber-500 px-4 font-black text-white disabled:bg-slate-400"
+                      className="inline-flex h-11 items-center gap-2 rounded-lg bg-amber-500 px-4 font-semibold text-white disabled:bg-slate-400"
                       disabled={isActing}
                       onClick={() => submitStatus("info_requested", noteText)}
                       type="button"
@@ -576,7 +576,7 @@ export default function WholesaleRequestsPage() {
                     </button>
                   ) : (
                     <button
-                      className="inline-flex h-11 items-center gap-2 rounded-lg bg-red-600 px-4 font-black text-white disabled:bg-slate-400"
+                      className="inline-flex h-11 items-center gap-2 rounded-lg bg-red-600 px-4 font-semibold text-white disabled:bg-slate-400"
                       disabled={isActing}
                       onClick={() => setRejectConfirmOpen(true)}
                       type="button"
@@ -594,7 +594,7 @@ export default function WholesaleRequestsPage() {
                   selected.status === "info_requested") && (
                   <>
                     <button
-                      className="inline-flex h-12 items-center gap-2 rounded-lg bg-emerald-600 px-5 font-black text-white disabled:bg-slate-400"
+                      className="inline-flex h-11 items-center gap-2 rounded-lg bg-emerald-600 px-5 text-sm font-semibold text-white disabled:bg-slate-400"
                       disabled={isActing}
                       onClick={() => submitStatus("approved")}
                       type="button"
@@ -603,7 +603,7 @@ export default function WholesaleRequestsPage() {
                       Approve
                     </button>
                     <button
-                      className="inline-flex h-12 items-center gap-2 rounded-lg bg-amber-500 px-5 font-black text-white disabled:bg-slate-400"
+                      className="inline-flex h-11 items-center gap-2 rounded-lg bg-amber-500 px-5 text-sm font-semibold text-white disabled:bg-slate-400"
                       disabled={isActing}
                       onClick={() => {
                         setNoteText("");
@@ -614,7 +614,7 @@ export default function WholesaleRequestsPage() {
                       Request More Info
                     </button>
                     <button
-                      className="inline-flex h-12 items-center gap-2 rounded-lg bg-red-600 px-5 font-black text-white disabled:bg-slate-400"
+                      className="inline-flex h-11 items-center gap-2 rounded-lg bg-red-600 px-5 text-sm font-semibold text-white disabled:bg-slate-400"
                       disabled={isActing}
                       onClick={() => {
                         setNoteText("");
@@ -629,7 +629,7 @@ export default function WholesaleRequestsPage() {
                 {selected.status === "approved" && (
                   <>
                     <button
-                      className="inline-flex h-12 items-center gap-2 rounded-lg bg-red-600 px-5 font-black text-white disabled:bg-slate-400"
+                      className="inline-flex h-11 items-center gap-2 rounded-lg bg-red-600 px-5 text-sm font-semibold text-white disabled:bg-slate-400"
                       disabled={isActing}
                       onClick={() => {
                         setNoteText("");
@@ -640,7 +640,7 @@ export default function WholesaleRequestsPage() {
                       Reject
                     </button>
                     <button
-                      className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-5 font-black text-white disabled:bg-slate-400"
+                      className="inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 disabled:bg-slate-400"
                       disabled={isActing}
                       onClick={openConvert}
                       type="button"
@@ -658,27 +658,27 @@ export default function WholesaleRequestsPage() {
 
       {selected && convertOpen && (
         <div
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6"
+          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6 modal-backdrop"
           role="dialog"
           aria-modal="true"
           aria-labelledby="wholesale-convert-title"
         >
           <form
-            className="max-h-[calc(100vh-3rem)] w-full max-w-3xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-6 shadow-2xl"
+            className="modal-panel max-h-[calc(100vh-3rem)] w-full max-w-3xl overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-2xl"
             onSubmit={submitConvert}
           >
-            <div className="mb-5 flex items-start justify-between gap-4">
+            <div className="mb-5 flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5 bg-gradient-to-r from-slate-50 to-white shrink-0">
               <div>
-                <h2 className="text-2xl font-black" id="wholesale-convert-title">
+                <h2 className="text-lg font-semibold text-slate-800" id="wholesale-convert-title">
                   Convert to order
                 </h2>
-                <p className="mt-1 font-medium text-slate-600">
+                <p className="mt-1 text-sm font-medium text-slate-600">
                   Request {selected.requestNumber ?? selected.id} for{" "}
                   {selected.user?.name}
                 </p>
               </div>
               <button
-                className="grid h-10 w-10 place-items-center rounded-lg border border-slate-300 text-xl font-black text-slate-600"
+                className="grid h-10 w-10 place-items-center rounded-lg border border-slate-300 text-xl font-semibold text-slate-600"
                 disabled={isConverting}
                 onClick={closeConvert}
                 type="button"
@@ -689,12 +689,12 @@ export default function WholesaleRequestsPage() {
 
             {createdOrderNumber ? (
               <div className="space-y-5">
-                <div className="rounded-lg bg-emerald-50 px-4 py-4 font-bold text-emerald-700">
+                <div className="rounded-lg bg-emerald-50 px-4 py-4 font-semibold text-emerald-700">
                   Order created successfully — {createdOrderNumber}
                 </div>
                 <div className="flex justify-end">
                   <button
-                    className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-5 font-black text-white"
+                    className="inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20"
                     onClick={() => {
                       setConvertOpen(false);
                       setSelected(null);
@@ -713,66 +713,66 @@ export default function WholesaleRequestsPage() {
                       <tr>
                         {["Product", "Quantity", "Unit Price", "Line Total"].map(
                           (heading) => (
-                            <th
-                              className="px-4 py-3 text-sm font-black"
-                              key={heading}
-                            >
-                              {heading}
-                            </th>
-                          ),
-                        )}
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {convertForm.items.map((line, index) => (
-                        <tr key={line.requestItemId}>
-                          <td className="px-4 py-3 font-bold text-slate-800">
-                            {line.productName}
-                          </td>
-                          <td className="px-4 py-3">
-                            <input
-                              className="h-11 w-28 rounded-lg border border-slate-300 px-3 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                              min="1"
-                              onChange={(event) =>
-                                updateLine(index, "quantity", event.target.value)
-                              }
-                              type="number"
-                              value={line.quantity}
-                            />
-                          </td>
-                          <td className="px-4 py-3">
-                            <input
-                              className="h-11 w-32 rounded-lg border border-slate-300 px-3 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                              min="0"
-                              onChange={(event) =>
-                                updateLine(index, "unitPrice", event.target.value)
-                              }
-                              placeholder="0.00"
-                              step="0.01"
-                              type="number"
-                              value={line.unitPrice}
-                            />
-                          </td>
-                          <td className="px-4 py-3 font-bold text-slate-800">
-                            {formatMoney(
-                              Number(line.quantity || 0) *
-                                Number(line.unitPrice || 0),
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                             <th
+                               className="px-4 py-4 text-sm font-semibold text-slate-700"
+                               key={heading}
+                             >
+                               {heading}
+                             </th>
+                           ),
+                         )}
+                       </tr>
+                     </thead>
+                     <tbody className="divide-y divide-slate-100">
+                       {convertForm.items.map((line, index) => (
+                         <tr key={line.requestItemId}>
+                           <td className="px-4 py-4 text-sm font-semibold text-slate-800">
+                             {line.productName}
+                           </td>
+                           <td className="px-4 py-4">
+                             <input
+                               className="h-11 w-28 rounded-lg border-2 border-slate-200 bg-white px-3 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
+                               min="1"
+                               onChange={(event) =>
+                                 updateLine(index, "quantity", event.target.value)
+                               }
+                               type="number"
+                               value={line.quantity}
+                             />
+                           </td>
+                           <td className="px-4 py-4">
+                             <input
+                               className="h-11 w-32 rounded-lg border-2 border-slate-200 bg-white px-3 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
+                               min="0"
+                               onChange={(event) =>
+                                 updateLine(index, "unitPrice", event.target.value)
+                               }
+                               placeholder="0.00"
+                               step="0.01"
+                               type="number"
+                               value={line.unitPrice}
+                             />
+                           </td>
+                           <td className="px-4 py-4 text-sm font-semibold text-slate-800">
+                             {formatMoney(
+                               Number(line.quantity || 0) *
+                                 Number(line.unitPrice || 0),
+                             )}
+                           </td>
+                         </tr>
+                       ))}
                     </tbody>
                   </table>
                 </div>
 
                 <label className="block">
-                  <span className="mb-2 block text-sm font-black text-slate-700">
+                  <span className="mb-2 block text-sm font-semibold text-slate-700">
                     Delivery address
                   </span>
                   {selected.user?.addresses &&
                   selected.user.addresses.length > 0 ? (
                     <select
-                      className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
                       onChange={(event) =>
                         setConvertForm((current) => ({
                           ...current,
@@ -797,7 +797,7 @@ export default function WholesaleRequestsPage() {
                       ))}
                     </select>
                   ) : (
-                    <p className="rounded-lg bg-amber-50 px-4 py-3 text-sm font-bold text-amber-700">
+                    <p className="rounded-lg bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-700">
                       This customer has no saved addresses. Ask them to add a
                       delivery address before converting.
                     </p>
@@ -806,11 +806,11 @@ export default function WholesaleRequestsPage() {
 
                 <div className="grid gap-4 sm:grid-cols-3">
                   <label className="block">
-                    <span className="mb-2 block text-sm font-black text-slate-700">
+                    <span className="mb-2 block text-sm font-semibold text-slate-700">
                       Discount
                     </span>
                     <input
-                      className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                       min="0"
                       onChange={(event) =>
                         setConvertForm((current) => ({
@@ -824,11 +824,11 @@ export default function WholesaleRequestsPage() {
                     />
                   </label>
                   <label className="block">
-                    <span className="mb-2 block text-sm font-black text-slate-700">
+                    <span className="mb-2 block text-sm font-semibold text-slate-700">
                       Shipping
                     </span>
                     <input
-                      className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                       min="0"
                       onChange={(event) =>
                         setConvertForm((current) => ({
@@ -842,11 +842,11 @@ export default function WholesaleRequestsPage() {
                     />
                   </label>
                   <label className="block">
-                    <span className="mb-2 block text-sm font-black text-slate-700">
+                    <span className="mb-2 block text-sm font-semibold text-slate-700">
                       Tax
                     </span>
                     <input
-                      className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                       min="0"
                       onChange={(event) =>
                         setConvertForm((current) => ({
@@ -878,21 +878,21 @@ export default function WholesaleRequestsPage() {
                     <span>+ Tax</span>
                     <span>{formatMoney(convertTotals.tax)}</span>
                   </div>
-                  <div className="mt-2 flex justify-between border-t border-slate-200 pt-2 text-lg font-black text-slate-900">
+                  <div className="mt-2 flex justify-between border-t border-slate-200 pt-2 text-lg font-semibold text-slate-900">
                     <span>Grand Total</span>
                     <span>{formatMoney(convertTotals.grandTotal)}</span>
                   </div>
                 </div>
 
                 {convertError && (
-                  <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+                  <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
                     {convertError}
                   </p>
                 )}
 
                 <div className="flex justify-end gap-3">
                   <button
-                    className="h-12 rounded-lg border border-slate-300 bg-white px-5 font-black text-slate-700"
+                    className="h-11 rounded-lg border-2 border-slate-200 bg-white px-5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all"
                     disabled={isConverting}
                     onClick={closeConvert}
                     type="button"
@@ -900,7 +900,7 @@ export default function WholesaleRequestsPage() {
                     Cancel
                   </button>
                   <button
-                    className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-5 font-black text-white disabled:bg-slate-400"
+                    className="inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 disabled:bg-slate-400"
                     disabled={isConverting || !canSubmitConvert}
                     type="submit"
                   >

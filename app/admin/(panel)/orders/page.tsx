@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
+import { InfiniteScroll } from "../../_components/infinite-scroll";
 import { AdminIcon, PageHeader, ProductThumb } from "../../_components/admin-shell";
 import {
   apiRequest,
@@ -78,15 +80,6 @@ function num(value: unknown) {
   return Number(value ?? 0);
 }
 
-const ORDER_STATUS_OPTIONS: { value: OrderStatus; label: string }[] = [
-  { value: "pending", label: "Pending" },
-  { value: "processing", label: "Processing" },
-  { value: "shipped", label: "Shipped" },
-  { value: "delivered", label: "Delivered" },
-  { value: "cancelled", label: "Cancelled" },
-  { value: "returned", label: "Returned" },
-];
-
 const PAYMENT_STATUS_OPTIONS: { value: OrderPaymentStatus; label: string }[] = [
   { value: "unpaid", label: "Unpaid" },
   { value: "paid", label: "Paid" },
@@ -126,7 +119,7 @@ function RichDropdown<T extends string>({
         onClick={() => setIsOpen(!isOpen)}
         className="flex h-10 w-44 items-center justify-between gap-2 rounded-md border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100 hover:border-slate-400 cursor-pointer shadow-xs"
       >
-        <span className={`inline-flex rounded border px-2.5 py-0.5 text-[11px] font-bold capitalize ${getTone(value)}`}>
+        <span className={`inline-flex rounded border px-2.5 py-0.5 text-[11px] font-semibold capitalize ${getTone(value)}`}>
           {selectedOption.label}
         </span>
         <svg
@@ -157,7 +150,7 @@ function RichDropdown<T extends string>({
                     isSelected ? "bg-slate-50 text-slate-900" : "text-slate-600 hover:bg-slate-50/70 hover:text-slate-900"
                   }`}
                 >
-                  <span className={`inline-flex rounded border px-2 py-0.5 text-[10px] font-bold capitalize ${getTone(opt.value)}`}>
+                  <span className={`inline-flex rounded border px-2 py-0.5 text-[10px] font-semibold capitalize ${getTone(opt.value)}`}>
                     {opt.label}
                   </span>
                   {isSelected && (
@@ -214,11 +207,14 @@ export default function OrdersPage() {
 
       const res = await apiRequest<PaginatedOrders>(`/orders?${params.toString()}`);
       if (myReq !== reqRef.current) return; // a newer request superseded this one
-      setOrders(res.data);
+      setOrders((prev) => page === 1 ? res.data : [...prev, ...res.data.filter((o) => !prev.some((p) => p.id === o.id))]);
       setTotal(res.meta.total);
-      setSelectedId((prev) =>
-        prev && res.data.some((o) => o.id === prev) ? prev : res.data[0]?.id ?? null,
-      );
+      setSelectedId((prev) => {
+        if (page === 1) {
+          return prev && res.data.some((o) => o.id === prev) ? prev : res.data[0]?.id ?? null;
+        }
+        return prev;
+      });
     } catch (err) {
       if (myReq !== reqRef.current) return;
       setError(err instanceof Error ? err.message : "Failed to load orders");
@@ -232,12 +228,14 @@ export default function OrdersPage() {
     if (!selectedId) return;
     setError("");
     try {
-      await apiRequest(`/orders/${selectedId}`, {
+      await apiRequest(`/orders/${selectedId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
       await loadOrders();
+      const msg = newStatus === "cancelled" ? "Order cancelled." : newStatus === "returned" ? "Order returned." : "Order accepted.";
+      toast.success(msg);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update order status");
     }
@@ -247,12 +245,13 @@ export default function OrdersPage() {
     if (!selectedId) return;
     setError("");
     try {
-      await apiRequest(`/orders/${selectedId}`, {
+      await apiRequest(`/orders/${selectedId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ paymentStatus: newPaymentStatus }),
       });
       await loadOrders();
+      toast.success("Payment status updated.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update payment status");
     }
@@ -264,12 +263,12 @@ export default function OrdersPage() {
     return () => clearTimeout(timer);
   }, [loadOrders, search]);
 
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
   const selected = useMemo(
     () => orders.find((o) => o.id === selectedId) ?? null,
     [orders, selectedId],
   );
-
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const totals = useMemo(() => {
     if (!selected) return null;
@@ -289,7 +288,7 @@ export default function OrdersPage() {
         title="Orders"
         description="Search, filter, and manage customer orders."
         action={
-          <span className="inline-flex h-12 items-center gap-2 rounded-md border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-600 shadow-xs">
+          <span className="inline-flex h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-600 shadow-xs">
             <AdminIcon className="h-4 w-4 text-slate-400" name="orders" />
             {total} total
           </span>
@@ -300,9 +299,9 @@ export default function OrdersPage() {
         <div className="mb-6 flex gap-6 overflow-x-auto border-b border-slate-200">
           {TABS.map((tab) => (
             <button
-              className={`whitespace-nowrap pb-3 text-sm font-bold transition-all duration-200 border-b-2 -mb-[2px] cursor-pointer ${
+              className={`whitespace-nowrap pb-3 text-sm font-semibold transition-all duration-200 border-b-2 -mb-[2px] cursor-pointer ${
                 status === tab.key
-                  ? "border-slate-900 text-slate-900 font-extrabold"
+                  ? "border-slate-900 text-slate-900"
                   : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
               }`}
               key={tab.key || "all"}
@@ -338,7 +337,7 @@ export default function OrdersPage() {
         )}
 
         {error && (
-          <div className="mb-6 rounded-md border border-rose-200 bg-rose-50 px-5 py-3.5 text-sm font-semibold text-rose-700">
+          <div className="mb-6 rounded-lg border border-rose-200 bg-rose-50 px-5 py-3.5 text-sm font-semibold text-rose-700">
             {error}
           </div>
         )}
@@ -346,7 +345,7 @@ export default function OrdersPage() {
         <div className="grid gap-7 xl:grid-cols-[380px_1fr]">
           <aside className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xs">
             <div className="flex flex-col gap-2 p-3 border-b border-slate-100 bg-slate-50/50">
-              <label className="flex h-10 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-100 transition-all">
+              <label className="flex h-11 items-center gap-2 rounded-lg border-2 border-slate-200 bg-white px-3 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 transition-all">
                 <AdminIcon className="h-4 w-4 text-slate-400" name="search" />
                 <input
                   className="w-full bg-transparent text-xs font-medium outline-none text-slate-700 placeholder:text-slate-400"
@@ -359,14 +358,14 @@ export default function OrdersPage() {
                 />
               </label>
               <div className="flex items-center justify-between gap-2 mt-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Payment Status:</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Payment:</span>
                 <select
                   value={paymentStatus}
                   onChange={(e) => {
                     setPaymentStatus(e.target.value as OrderPaymentStatus | "");
                     setPage(1);
                   }}
-                  className="h-8 rounded-md border border-slate-200 bg-white px-2 text-[11px] font-semibold text-slate-600 outline-none hover:border-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-50 transition cursor-pointer"
+                  className="h-11 rounded-lg border-2 border-slate-200 bg-white px-3 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all cursor-pointer"
                 >
                   <option value="">All Payments</option>
                   <option value="unpaid">Unpaid</option>
@@ -377,7 +376,7 @@ export default function OrdersPage() {
             </div>
 
             <div className="flex flex-col gap-2.5 p-3 max-h-[calc(100vh-280px)] overflow-y-auto bg-slate-50/30">
-              {isLoading ? (
+              {isLoading && page === 1 ? (
                 Array.from({ length: 6 }).map((_, i) => (
                   <div className="h-20 animate-pulse bg-slate-100 rounded-md" key={i} />
                 ))
@@ -396,10 +395,10 @@ export default function OrdersPage() {
                     type="button"
                   >
                     <div className="flex items-start justify-between gap-2 w-full">
-                      <span className="truncate font-bold text-slate-800 text-[13px] group-hover:text-slate-950 transition-colors">
+                      <span className="truncate font-semibold text-slate-800 text-[13px] group-hover:text-slate-950 transition-colors">
                         #{order.orderNumber}
                       </span>
-                      <span className="shrink-0 font-bold text-slate-900 text-sm">
+                      <span className="shrink-0 font-semibold text-slate-900 text-sm">
                         {formatMoney(order.total)}
                       </span>
                     </div>
@@ -410,48 +409,32 @@ export default function OrdersPage() {
                     </div>
 
                     <div className="flex items-center gap-1.5 mt-1 w-full flex-wrap">
-                      <span className={`inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-bold capitalize tracking-wide ${statusTone(order.status)}`}>
+                      <span className={`inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-semibold capitalize tracking-wide ${statusTone(order.status)}`}>
                         {order.status}
                       </span>
-                      <span className={`inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-bold capitalize tracking-wide ${paymentTone(order.paymentStatus)}`}>
+                      <span className={`inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-semibold capitalize tracking-wide ${paymentTone(order.paymentStatus)}`}>
                         {order.paymentStatus}
                       </span>
                     </div>
                   </button>
                 ))
               )}
-            </div>
 
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between border-t border-slate-100 p-3 text-xs font-bold bg-white">
-                <button
-                  className="rounded-md border border-slate-200 px-3 py-1.5 hover:bg-slate-50 disabled:opacity-40 transition cursor-pointer"
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  type="button"
-                >
-                  Prev
-                </button>
-                <span className="text-slate-500">
-                  Page {page} of {totalPages}
-                </span>
-                <button
-                  className="rounded-md border border-slate-200 px-3 py-1.5 hover:bg-slate-50 disabled:opacity-40 transition cursor-pointer"
-                  disabled={page >= totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  type="button"
-                >
-                  Next
-                </button>
-              </div>
-            )}
+              <InfiniteScroll
+                hasMore={page < totalPages}
+                isLoading={isLoading}
+                onLoadMore={() => setPage((p) => p + 1)}
+                loadingLabel="Loading more orders..."
+                allLoadedLabel="All orders loaded"
+              />
+            </div>
           </aside>
 
           <section>
             {!selected ? (
               <div className="flex flex-col items-center justify-center h-[500px] rounded-lg border border-dashed border-slate-200 bg-slate-50/50 p-12 text-center">
                 <AdminIcon className="h-10 w-10 text-slate-400 mb-3" name="orders" />
-                <h3 className="font-bold text-slate-700 text-sm">No Order Selected</h3>
+                <h3 className="font-semibold text-slate-700 text-sm">No Order Selected</h3>
                 <p className="text-xs text-slate-400 mt-1 max-w-[240px]">
                   Select an order from the list on the left to view details and update its status.
                 </p>
@@ -472,7 +455,7 @@ export default function OrdersPage() {
                       <AdminIcon className="h-5 w-5" name={statusIcon(selected.status)} />
                     </span>
                     <div>
-                      <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                      <h2 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
                         Order #{selected.orderNumber}
                       </h2>
                       <p className="text-xs text-slate-400 mt-0.5">
@@ -481,18 +464,17 @@ export default function OrdersPage() {
                     </div>
                   </div>
                   
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-3 items-end">
                     <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Order Status</span>
-                      <RichDropdown
-                        value={selected.status}
-                        options={ORDER_STATUS_OPTIONS}
-                        onChange={updateOrderStatus}
-                        getTone={statusTone}
-                      />
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Order Status</span>
+                      <div className="flex items-center gap-2 h-10">
+                        <span className={`inline-flex items-center rounded-lg border px-3 py-1.5 text-xs font-semibold capitalize ${statusTone(selected.status)}`}>
+                          {selected.status}
+                        </span>
+                      </div>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Payment Status</span>
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Payment Status</span>
                       <RichDropdown
                         value={selected.paymentStatus}
                         options={PAYMENT_STATUS_OPTIONS}
@@ -500,19 +482,59 @@ export default function OrdersPage() {
                         getTone={paymentTone}
                       />
                     </div>
+                    {(selected.status === "pending" || selected.status === "processing") && (
+                      <div className="flex items-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => updateOrderStatus(selected.status === "pending" ? "processing" : "shipped")}
+                          className="h-11 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 cursor-pointer"
+                        >
+                          Accept
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updateOrderStatus("cancelled")}
+                          className="h-11 rounded-lg bg-red-600 px-5 text-sm font-semibold text-white transition hover:bg-red-700 cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    )}
+                    {selected.status === "shipped" && (
+                      <div className="flex items-end">
+                        <button
+                          type="button"
+                          onClick={() => updateOrderStatus("delivered")}
+                          className="h-11 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 cursor-pointer"
+                        >
+                          Accept
+                        </button>
+                      </div>
+                    )}
+                    {selected.status === "delivered" && (
+                      <div className="flex items-end">
+                        <button
+                          type="button"
+                          onClick={() => updateOrderStatus("returned")}
+                          className="h-11 rounded-lg bg-amber-500 px-5 text-sm font-semibold text-white transition hover:bg-amber-600 cursor-pointer"
+                        >
+                          Return
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2 mb-6">
                   {/* Customer Info Card */}
                   <div className="rounded-lg border border-slate-200/60 bg-white p-5 shadow-xs">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-1.5">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-1.5">
                       <span className="inline-block w-1.5 h-1.5 rounded-full bg-slate-400" />
                       Customer Details
                     </h3>
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
-                        <div className="grid h-9 w-9 place-items-center rounded-full bg-slate-100 font-bold text-slate-700 text-sm">
+                        <div className="grid h-9 w-9 place-items-center rounded-full bg-slate-100 font-semibold text-slate-700 text-sm">
                           {(selected.user?.name ?? "G").charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0">
@@ -535,7 +557,7 @@ export default function OrdersPage() {
 
                   {/* Shipping Info Card */}
                   <div className="rounded-lg border border-slate-200/60 bg-white p-5 shadow-xs">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-1.5">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-1.5">
                       <span className="inline-block w-1.5 h-1.5 rounded-full bg-slate-400" />
                       Shipping Address
                     </h3>
@@ -560,11 +582,11 @@ export default function OrdersPage() {
 
                 <div className="rounded-lg border border-slate-200/60 bg-white shadow-xs overflow-hidden">
                   <div className="border-b border-slate-100 p-5 bg-slate-50 flex items-center justify-between">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                       <span className="inline-block w-1.5 h-1.5 rounded-full bg-slate-400" />
                       Order Items
                     </h3>
-                    <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 border border-slate-200">
+                    <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 border border-slate-200">
                       {selected.items?.length ?? 0} {selected.items?.length === 1 ? "item" : "items"}
                     </span>
                   </div>
@@ -590,7 +612,7 @@ export default function OrdersPage() {
                                 <ProductThumb color={["bg-slate-500/80", "bg-slate-600/80", "bg-slate-400/80"][index % 3]} />
                               )}
                               <div className="min-w-0 flex-1">
-                                <h4 className="text-xs font-bold text-slate-800 uppercase truncate">
+                                <h4 className="text-xs font-semibold text-slate-800 uppercase truncate">
                                   {item.product?.name ?? "Product"}
                                 </h4>
                                 <div className="flex items-center gap-1.5 mt-1">
@@ -606,7 +628,7 @@ export default function OrdersPage() {
                                 </div>
                               </div>
                               <div className="text-right">
-                                <p className="text-xs font-bold text-slate-800">
+                                <p className="text-xs font-semibold text-slate-800">
                                   {formatMoney(item.totalPrice)}
                                 </p>
                               </div>
@@ -620,7 +642,7 @@ export default function OrdersPage() {
 
                       {totals && (
                         <div className="rounded-lg border border-slate-200/60 bg-slate-50/80 p-4 shrink-0 h-fit">
-                          <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">
+                          <h4 className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-3">
                             Payment Summary
                           </h4>
                           <div className="space-y-2.5 text-xs text-slate-600">
@@ -632,7 +654,7 @@ export default function OrdersPage() {
                             {totals.discount > 0 && (
                               <div className="flex justify-between">
                                 <span className="text-slate-500 font-medium">Discount</span>
-                                <span className="font-bold text-rose-600">- {formatMoney(totals.discount)}</span>
+                                <span className="font-semibold text-rose-600">- {formatMoney(totals.discount)}</span>
                               </div>
                             )}
 
@@ -642,18 +664,18 @@ export default function OrdersPage() {
                             </div>
 
                             <div className="border-t border-slate-200/60 pt-2.5 flex justify-between items-center">
-                              <span className="font-bold text-slate-800 text-[13px]">Total</span>
-                              <span className="font-extrabold text-slate-900 text-[15px]">{formatMoney(totals.grand)}</span>
+                              <span className="font-semibold text-slate-800 text-[13px]">Total</span>
+                              <span className="font-semibold text-slate-900 text-[15px]">{formatMoney(totals.grand)}</span>
                             </div>
 
                             <div className="flex justify-between items-center text-emerald-600 bg-emerald-50/50 px-2 py-1.5 rounded-md border border-emerald-100/50 mt-1">
                               <span className="font-semibold text-[11px]">Paid Amount</span>
-                              <span className="font-bold text-xs">{formatMoney(totals.paid)}</span>
+                              <span className="font-semibold text-xs">{formatMoney(totals.paid)}</span>
                             </div>
 
                             <div className="flex justify-between items-center text-rose-600 bg-rose-50/50 px-2 py-1.5 rounded-md border border-rose-100/50 mt-1">
                               <span className="font-semibold text-[11px]">Due Amount</span>
-                              <span className="font-bold text-xs">{formatMoney(totals.due)}</span>
+                              <span className="font-semibold text-xs">{formatMoney(totals.due)}</span>
                             </div>
                           </div>
                         </div>
