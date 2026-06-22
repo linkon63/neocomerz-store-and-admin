@@ -264,20 +264,20 @@ export default function ReviewsPage() {
                       <td className="px-5 py-4">
                         <div className="flex gap-2">
                           <button
-                            className="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-black text-slate-750 transition cursor-pointer hover:bg-slate-50"
+                            className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
                             onClick={() => openEditModal(row)}
                             type="button"
+                            title="Edit review"
                           >
                             <AdminIcon className="h-4 w-4" name="edit" />
-                            Edit
                           </button>
                           <button
-                            className="inline-flex items-center gap-2 rounded-md bg-red-50 hover:bg-red-100 px-3 py-2 text-sm font-black text-red-700 transition cursor-pointer"
+                            className="grid h-8 w-8 place-items-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
                             onClick={() => deleteReview(row)}
                             type="button"
+                            title="Delete review"
                           >
-                            <AdminIcon className="h-4 w-4" name="x" />
-                            Delete
+                            <AdminIcon className="h-4 w-4" name="trash" />
                           </button>
                         </div>
                       </td>
@@ -298,16 +298,16 @@ export default function ReviewsPage() {
 
       {isModalOpen && (
         <div
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6"
+          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6 modal-backdrop"
           role="dialog"
           aria-modal="true"
           aria-labelledby="review-modal-title"
         >
           <form
-            className="w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-2xl"
+            className="modal-panel flex w-full max-w-lg flex-col rounded-xl border border-slate-200 bg-white shadow-2xl min-h-[480px] max-h-[calc(100vh-3rem)]"
             onSubmit={handleSubmit}
           >
-            <div className="mb-5 flex items-start justify-between gap-4">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 pt-6 pb-5 shrink-0">
               <div>
                 <h2 className="text-2xl font-black text-slate-800" id="review-modal-title">
                   {form.id ? "Edit Review" : "Add Review"}
@@ -325,6 +325,7 @@ export default function ReviewsPage() {
               </button>
             </div>
             
+            <div className="flex-1 modal-body px-6 py-5">
             <div className="space-y-4">
               <label className="block">
                 <span className="mb-2 block text-sm font-black text-slate-700">
@@ -401,7 +402,10 @@ export default function ReviewsPage() {
                 </select>
               </label>
 
-              <div className="flex justify-end gap-3 pt-3">
+            </div>
+            </div>
+
+            <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4 shrink-0">
                 <button
                   className="h-12 rounded-md border border-slate-300 bg-white px-5 text-sm font-black text-slate-700 hover:bg-slate-50 transition cursor-pointer"
                   onClick={() => setIsModalOpen(false)}
@@ -416,7 +420,6 @@ export default function ReviewsPage() {
                   <AdminIcon className="h-5 w-5" name="check" />
                   {form.id ? "Update" : "Create"}
                 </button>
-              </div>
             </div>
           </form>
         </div>

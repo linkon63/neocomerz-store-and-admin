@@ -77,6 +77,17 @@ export type ProductMedia = {
   };
 };
 
+export type VariantMedia = {
+  id: string;
+  isFeatured: boolean;
+  sortOrder: number;
+  media: {
+    id: string;
+    url: string;
+    type: "image" | "video";
+  };
+};
+
 export type ProductVariant = {
   id: string;
   sku: string;
@@ -85,6 +96,8 @@ export type ProductVariant = {
   stockQuantity: number;
   stockAlertThreshold: number;
   isDefault: boolean;
+  optionValues?: { value: string; attribute: { name: string } }[];
+  media?: VariantMedia[];
   createdAt?: string;
 };
 
