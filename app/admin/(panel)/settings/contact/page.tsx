@@ -11,19 +11,17 @@ import {
 } from "react-icons/fa6";
 import { AdminIcon, PageHeader } from "../../../_components/admin-shell";
 import {
-  apiRequest,
   getContactEntries,
   packContactEntries,
   type AppSettings,
   type SettingsContactEntry,
 } from "../../../../../lib/admin-api";
+import { useSettingsSaving, useSettingsLoading } from "../../../_hooks/use-settings";
 import {
   SettingsCard,
   FieldLabel,
   Input,
   SaveButton,
-  ErrorBanner,
-  SuccessBanner,
 } from "../_components/settings-ui";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -54,28 +52,19 @@ export default function ContactPage() {
   const [emails, setEmails] = useState<SettingsContactEntry[]>([{ title: "", value: "" }]);
   const [contacts, setContacts] = useState<SettingsContactEntry[]>([{ title: "", value: "" }]);
   const [social, setSocial] = useState<AppSettings["socialContact"]>({});
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const { saving, saveSettings } = useSettingsSaving();
+  const { loading, loadSettings: loadData } = useSettingsLoading();
 
   // ── Load ──────────────────────────────────────────────────────────────────
 
   const loadSettings = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await apiRequest<AppSettings>("/settings");
-      if (data) {
-        setEmails(getContactEntries(data.email));
-        setContacts(getContactEntries(data.contactNumber));
-        setSocial(data.socialContact ?? {});
-      }
-    } catch {
-      // empty on first run
-    } finally {
-      setLoading(false);
+    const data = await loadData();
+    if (data) {
+      setEmails(getContactEntries(data.email));
+      setContacts(getContactEntries(data.contactNumber));
+      setSocial(data.socialContact ?? {});
     }
-  }, []);
+  }, [loadData]);
 
   useEffect(() => { loadSettings(); }, [loadSettings]);
 
@@ -106,26 +95,13 @@ export default function ContactPage() {
   // ── Save ───────────────────────────────────────────────────────────────────
 
   async function save() {
-    setSaving(true);
-    setError("");
-    setSuccess("");
-    try {
-      await apiRequest("/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: packContactEntries(emails),
-          contactNumber: packContactEntries(contacts),
-          socialContact: social,
-        }),
-      });
-      setSuccess("Contact settings saved successfully.");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save settings");
-    } finally {
-      setSaving(false);
-    }
+    await saveSettings("/settings", {
+      email: packContactEntries(emails),
+      contactNumber: packContactEntries(contacts),
+      socialContact: social,
+    }, {
+      successMessage: "Contact settings saved successfully.",
+    });
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -135,6 +111,11 @@ export default function ContactPage() {
       <PageHeader
         title="Contact & Social Media"
         description="Manage & customize your website content & interface."
+        action={
+          <SaveButton onClick={save} saving={saving}>
+            Save Contact
+          </SaveButton>
+        }
       />
 
       {loading ? (
@@ -289,14 +270,7 @@ export default function ContactPage() {
             </div>
           </SettingsCard>
 
-          {/* ── Feedback + Save ── */}
-          {error && <ErrorBanner message={error} />}
-          {success && <SuccessBanner message={success} />}
-          <div className="flex justify-end">
-            <SaveButton onClick={save} saving={saving}>
-              Save Contact Settings
-            </SaveButton>
-          </div>
+          <div className="border-t border-slate-100 pt-2" />
 
         </div>
       )}

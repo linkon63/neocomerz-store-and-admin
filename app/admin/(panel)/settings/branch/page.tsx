@@ -1,17 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { PageHeader } from "../../../_components/admin-shell";
-import { apiRequest, type AppSettings } from "../../../../../lib/admin-api";
+import { type AppSettings } from "../../../../../lib/admin-api";
+import { useSettingsSaving, useSettingsLoading } from "../../../_hooks/use-settings";
 import {
   SettingsCard,
   FieldLabel,
   Input,
   Textarea,
   SaveButton,
-  ErrorBanner,
-  SuccessBanner,
 } from "../_components/settings-ui";
+
+const MapPicker = dynamic(() => import("./map-picker"), { ssr: false });
 
 function toNum(v: number | string | null | undefined): string {
   if (v === null || v === undefined || v === "") return "";
@@ -20,46 +22,26 @@ function toNum(v: number | string | null | undefined): string {
 
 export default function BranchPage() {
   const [settings, setSettings] = useState<AppSettings>({});
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const { saving, saveSettings } = useSettingsSaving();
+  const { loading, loadSettings: loadData } = useSettingsLoading();
 
   const loadSettings = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await apiRequest<AppSettings>("/settings");
-      if (data) setSettings(data);
-    } catch {
-      // ok on first run
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    const data = await loadData();
+    if (data) setSettings(data);
+  }, [loadData]);
 
   useEffect(() => { loadSettings(); }, [loadSettings]);
 
   async function save() {
-    setSaving(true);
-    setError("");
-    setSuccess("");
-    try {
-      await apiRequest("/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          branchName: settings.branchName ?? null,
-          branchAddress: settings.branchAddress ?? null,
-        }),
-      });
-      setSuccess("Branch settings saved successfully.");
-      setTimeout(() => setSuccess(""), 3000);
-      await loadSettings();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save settings");
-    } finally {
-      setSaving(false);
-    }
+    await saveSettings("/settings", {
+      branchName: settings.branchName ?? null,
+      branchAddress: settings.branchAddress ?? null,
+      branchLat: settings.branchLat ?? null,
+      branchLng: settings.branchLng ?? null,
+    }, {
+      successMessage: "Branch settings saved successfully.",
+      onSuccess: loadSettings,
+    });
   }
 
   return (
@@ -67,6 +49,11 @@ export default function BranchPage() {
       <PageHeader
         title="Branch"
         description="Manage & customize your website content & interface."
+        action={
+          <SaveButton onClick={save} saving={saving}>
+            Save Branch
+          </SaveButton>
+        }
       />
 
       <SettingsCard title="Branch Settings">
@@ -104,15 +91,24 @@ export default function BranchPage() {
               </div>
             </div>
 
-            <div className="border-t border-slate-100 pt-2">
-              {error && <div className="mb-4"><ErrorBanner message={error} /></div>}
-              {success && <div className="mb-4"><SuccessBanner message={success} /></div>}
-              <div className="flex justify-end">
-                <SaveButton onClick={save} saving={saving}>
-                  Save Branch Settings
-                </SaveButton>
+            {/* ── Branch Location (Map) ── */}
+            <div className="grid gap-x-8 gap-y-5 sm:grid-cols-[200px_1fr]">
+              <div className="pt-1">
+                <p className="text-sm font-black text-slate-800">Branch Location</p>
+                <p className="mt-1 text-xs font-medium text-slate-500">
+                  Click on the map to set branch location. Drag the marker to adjust.
+                </p>
+              </div>
+              <div>
+                <MapPicker
+                  lat={settings.branchLat ?? null}
+                  lng={settings.branchLng ?? null}
+                  onChange={(lat, lng) => setSettings((p) => ({ ...p, branchLat: lat, branchLng: lng }))}
+                />
               </div>
             </div>
+
+            <div className="border-t border-slate-100 pt-2" />
 
           </div>
         )}

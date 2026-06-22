@@ -297,11 +297,14 @@ export type AppSettings = {
   shopName?: string;
   logo?: string | null;
   icon?: string | null;
+  favicon?: string | null;
   slogan?: string | null;
   isTopBarVisible?: boolean;
   hideOutOfStock?: boolean;
   branchName?: string | null;
   branchAddress?: string | null;
+  branchLat?: number | null;
+  branchLng?: number | null;
   /** Raw JSON from API — { entries: [...] } */
   contactNumber?: SettingsContactJson | null;
   /** Raw JSON from API — { entries: [...] } */
@@ -723,3 +726,45 @@ export function resolveImageUrl(url?: string | null): string {
   return resolvedUrl;
 }
 
+// ─── News / Blog ───────────────────────────────────────────────────────────
+
+export type News = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string | null;
+  content: string;
+  coverImageUrl?: string | null;
+  author?: string | null;
+  isPublished: boolean;
+  publishedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// Admin: all articles (drafts included).
+export async function getAllNews(): Promise<News[]> {
+  return apiRequest<News[]>("/news/manage");
+}
+
+// Public: published articles only.
+export async function getPublishedNews(): Promise<News[]> {
+  return apiRequest<News[]>("/news", { auth: false });
+}
+
+// Public: a single published article by slug.
+export async function getNewsBySlug(slug: string): Promise<News> {
+  return apiRequest<News>(`/news/slug/${slug}`, { auth: false });
+}
+
+export async function createNews(body: FormData): Promise<News> {
+  return apiRequest<News>("/news", { method: "POST", body });
+}
+
+export async function updateNews(id: string, body: FormData): Promise<News> {
+  return apiRequest<News>(`/news/${id}`, { method: "PATCH", body });
+}
+
+export async function deleteNews(id: string): Promise<void> {
+  return apiRequest<void>(`/news/${id}`, { method: "DELETE" });
+}
