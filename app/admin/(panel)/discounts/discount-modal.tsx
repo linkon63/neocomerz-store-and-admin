@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { AdminIcon } from "../../_components/admin-shell";
 import { type Product } from "../../../../lib/admin-api";
 import { useDiscountForm } from "../../_hooks/use-discount-form";
@@ -13,13 +12,13 @@ interface DiscountModalProps {
 }
 
 export function DiscountModal({ isOpen, discountId, onClose, onSaved }: DiscountModalProps) {
-  const [productSearch, setProductSearch] = useState("");
-
   const {
     products,
     filteredProducts,
     form,
     setForm,
+    productSearch,
+    setProductSearch,
     error,
     isSaving,
     isLoadingProducts,
@@ -42,7 +41,7 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
       );
     }
     return (
-      <div className="grid h-8 w-8 shrink-0 place-items-center rounded border border-slate-200 bg-white text-xs font-bold text-slate-400">
+      <div className="grid h-8 w-8 shrink-0 place-items-center rounded border border-slate-200 bg-white text-xs font-medium text-slate-400">
         <AdminIcon className="h-4 w-4" name="package" />
       </div>
     );
@@ -62,45 +61,45 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
         onSubmit={handleSubmit}
         style={{ maxHeight: "90vh" }}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-6">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 pt-6 pb-5 shrink-0">
           <div>
-            <h2 className="text-2xl font-black" id="discount-modal-title">
+            <h3 className="text-base font-semibold text-slate-900" id="discount-modal-title">
               {form.id ? "Edit discount" : "Add discount"}
-            </h2>
-            <p className="mt-1 font-medium text-slate-600">
+            </h3>
+            <p className="mt-1 text-xs font-medium text-slate-500">
               {form.id
                 ? "Update discount details and linked products."
                 : "Create a new product discount."}
             </p>
           </div>
           <button
-            className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-slate-300 text-xl font-black text-slate-600 ${isSaving ? "cursor-not-allowed" : "cursor-pointer"}`}
+            className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600 ${isSaving ? "cursor-not-allowed" : "cursor-pointer"}`}
             disabled={isSaving}
             onClick={close}
             type="button"
           >
-            <AdminIcon className="h-5 w-5" name="x" />
+            <AdminIcon className="h-4 w-4" name="x" />
           </button>
         </div>
 
         <div className="flex-1 modal-body p-6">
           <div className="space-y-4">
             <label className="block">
-              <span className="mb-2 block text-sm font-black text-slate-700">Name</span>
+              <span className="mb-2 block text-sm font-semibold text-slate-700">Name</span>
               <input
                 autoFocus
-                className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                onChange={(e) => setForm((c) => ({ ...c, name: e.target.value }))}
                 required
                 value={form.name}
+                onChange={(e) => setForm((c) => ({ ...c, name: e.target.value }))}
+                className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
               />
             </label>
 
             <div className="grid grid-cols-2 gap-4">
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">Type</span>
+                <span className="mb-2 block text-sm font-semibold text-slate-700">Type</span>
                 <select
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(e) =>
                     setForm((c) => ({ ...c, type: e.target.value as "percentage" | "fixed" }))
                   }
@@ -112,11 +111,11 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
               </label>
 
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+                <span className="mb-2 block text-sm font-semibold text-slate-700">
                   Value {form.type === "percentage" ? "(%)" : "(৳)"}
                 </span>
                 <input
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   min={0}
                   onChange={(e) => setForm((c) => ({ ...c, value: e.target.value }))}
                   required
@@ -129,9 +128,9 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
 
             <div className="grid grid-cols-2 gap-4">
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">Start Date</span>
+                <span className="mb-2 block text-sm font-semibold text-slate-700">Start Date</span>
                 <input
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(e) => setForm((c) => ({ ...c, startDate: e.target.value }))}
                   type="date"
                   value={form.startDate}
@@ -139,9 +138,9 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
               </label>
 
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">End Date</span>
+                <span className="mb-2 block text-sm font-semibold text-slate-700">End Date</span>
                 <input
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(e) => setForm((c) => ({ ...c, endDate: e.target.value }))}
                   type="date"
                   value={form.endDate}
@@ -150,9 +149,9 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
             </div>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-black text-slate-700">Status</span>
+              <span className="mb-2 block text-sm font-semibold text-slate-700">Status</span>
               <select
-                className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                 onChange={(e) =>
                   setForm((c) => ({ ...c, status: e.target.value as "active" | "inactive" }))
                 }
@@ -164,7 +163,7 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
             </label>
 
             <div className="block">
-              <span className="mb-2 block text-sm font-black text-slate-700">
+              <span className="mb-2 block text-sm font-semibold text-slate-700">
                 Linked Products ({form.productIds.length} selected)
               </span>
               <div className="rounded-lg border border-slate-300">
@@ -192,7 +191,7 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
                     <div className="divide-y divide-slate-100">
                       <div className="flex gap-2 border-b border-slate-200 bg-slate-50 px-3 py-2">
                         <button
-                        className="text-sm font-black text-blue-600 hover:text-blue-800 cursor-pointer"
+                        className="text-sm font-semibold text-blue-600 hover:text-blue-800 cursor-pointer"
                         onClick={() =>
                             setForm((c) => ({
                               ...c,
@@ -205,7 +204,7 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
                         </button>
                         <span className="text-slate-300">|</span>
                         <button
-                        className="text-sm font-black text-slate-600 hover:text-slate-800 cursor-pointer"
+                        className="text-sm font-semibold text-slate-600 hover:text-slate-800 cursor-pointer"
                         onClick={() =>
                             setForm((c) => ({
                               ...c,
@@ -247,16 +246,16 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
             </div>
 
             {error && (
-              <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+              <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
                 {error}
               </p>
             )}
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 border-t border-slate-200 p-6">
+        <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4 shrink-0">
           <button
-            className={`h-12 rounded-lg border border-slate-300 bg-white px-5 font-black text-slate-700 ${isSaving ? "cursor-not-allowed" : "cursor-pointer"}`}
+            className={`h-10 rounded-lg border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors ${isSaving ? "cursor-not-allowed" : "cursor-pointer"}`}
             disabled={isSaving}
             onClick={close}
             type="button"
@@ -264,11 +263,11 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
             Cancel
           </button>
           <button
-            className={`inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-5 font-black text-white disabled:bg-slate-400 ${!canSubmit || isSaving ? "cursor-not-allowed" : "cursor-pointer"}`}
+            className={`inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white disabled:bg-slate-400 hover:bg-blue-700 transition-colors ${!canSubmit || isSaving ? "cursor-not-allowed" : "cursor-pointer"}`}
             disabled={!canSubmit || isSaving}
             type="submit"
           >
-            <AdminIcon className="h-5 w-5" name={form.id ? "check" : "plus"} />
+            <AdminIcon className="h-4 w-4" name={form.id ? "check" : "plus"} />
             {isSaving ? "Saving..." : form.id ? "Update Discount" : "Add Discount"}
           </button>
         </div>
