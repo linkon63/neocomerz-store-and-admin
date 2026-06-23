@@ -15,6 +15,11 @@ export type ProductDiscount = {
   }>;
 };
 
+export type PaginatedDiscounts = {
+  data: ProductDiscount[];
+  meta: { page: number; limit: number; total: number };
+};
+
 export type DiscountForm = {
   id?: string;
   name: string;
