@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AdminIcon, PageHeader, ProductThumb, StatusToggle } from "../../_components/admin-shell";
 import { AdjustInventoryModal } from "../../_components/adjust-inventory-modal";
 import { ConfirmModal } from "../../_components/confirm-modal";
+import { InfiniteScroll } from "../../_components/infinite-scroll";
 import {
   apiRequest,
   slugify,
@@ -434,31 +435,7 @@ export default function ProductsPage() {
   const [variantToAdjust, setVariantToAdjust] = useState<ProductVariant | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
-  const observerTarget = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (isLoading || page >= totalPages) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !isLoading) {
-          setPage((p) => p + 1);
-        }
-      },
-      { threshold: 0.1, rootMargin: "100px" }
-    );
-
-    const target = observerTarget.current;
-    if (target) {
-      observer.observe(target);
-    }
-
-    return () => {
-      if (target) {
-        observer.unobserve(target);
-      }
-    };
-  }, [isLoading, page, totalPages]);
+  const reqRef = useRef(0);
 
   const categoryOptions = useMemo(
     () => flattenCategories(categories),
@@ -569,13 +546,14 @@ export default function ProductsPage() {
   }, [form.images]);
 
   async function loadProducts() {
+    const myReq = ++reqRef.current;
     setError("");
     setIsLoading(true);
 
     try {
       const params = new URLSearchParams({
-        limit: String(limit * page),
-        page: "1",
+        page: String(page),
+        limit: String(limit),
       });
 
       if (appliedSearch.trim()) params.set("search", appliedSearch.trim());
@@ -590,12 +568,17 @@ export default function ProductsPage() {
       const response = await apiRequest<PaginatedProducts>(
         `/products?${params.toString()}`,
       );
-      setProducts(response.data);
+      if (myReq !== reqRef.current) return;
+      setProducts((prev) =>
+        page === 1 ? response.data : [...prev, ...response.data.filter((d) => !prev.some((p) => p.id === d.id))],
+      );
       setTotal(response.meta.total);
     } catch (err) {
+      if (myReq !== reqRef.current) return;
       setError(err instanceof Error ? err.message : "Failed to load products");
+      setProducts([]);
     } finally {
-      setIsLoading(false);
+      if (myReq === reqRef.current) setIsLoading(false);
     }
   }
 
@@ -1699,16 +1682,7 @@ export default function ProductsPage() {
                       </React.Fragment>
                     );
                   })}
-                  {isLoading && page > 1 && (
-                    <tr>
-                      <td className="px-8 py-6 text-slate-500 text-center font-medium animate-pulse border-b border-slate-100 bg-slate-50/20" colSpan={9}>
-                        <div className="flex items-center justify-center gap-2">
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600" />
-                          <span className="text-sm font-medium text-slate-400">Loading more products...</span>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
+
                 </>
               ) : (
                   <tr>
@@ -1737,36 +1711,17 @@ export default function ProductsPage() {
             </table>
           </div>
 
-        {total > 0 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200 px-6 py-5 bg-gradient-to-r from-slate-50 to-white">
-            <div className="flex flex-col items-start gap-1.5">
-              <p className="text-sm font-medium text-slate-600">
-                Showing <span className="font-bold text-slate-900">{products.length}</span> of{" "}
-                <span className="font-bold text-slate-900">{total}</span> products
-              </p>
-              <div className="h-1.5 w-48 overflow-hidden rounded bg-slate-200">
-                <div
-                  className="h-full bg-blue-600 transition-all duration-300 ease-out"
-                  style={{ width: `${Math.min(100, (products.length / total) * 100)}%` }}
-                />
-              </div>
-            </div>
-
-            {page < totalPages ? (
-              <div
-                ref={observerTarget}
-                className="flex items-center gap-2 py-2 text-xs font-semibold text-slate-500"
-              >
-                <svg className="animate-spin h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>Loading more on scroll...</span>
-              </div>
-            ) : (
-              <span className="text-xs font-semibold text-slate-400">All products loaded</span>
-            )}
-          </div>
+        {products.length > 0 && (
+          <InfiniteScroll
+            hasMore={page < totalPages}
+            isLoading={isLoading}
+            onLoadMore={() => setPage((p) => p + 1)}
+            total={total}
+            loaded={products.length}
+            itemLabel="products"
+            loadingLabel="Loading more..."
+            allLoadedLabel="All products loaded"
+          />
         )}
       </section>
 

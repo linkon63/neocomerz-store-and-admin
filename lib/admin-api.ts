@@ -543,6 +543,11 @@ export type InventoryVariant = {
   };
 };
 
+export type PaginatedInventory = {
+  data: InventoryVariant[];
+  meta: { page: number; limit: number; total: number };
+};
+
 export type InventoryLog = {
   id: string;
   change: number;

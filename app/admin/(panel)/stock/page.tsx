@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AdminIcon, PageHeader, ProductThumb } from "../../_components/admin-shell";
 import { AdjustInventoryModal } from "../../_components/adjust-inventory-modal";
+import { InfiniteScroll } from "../../_components/infinite-scroll";
 import { useStockData } from "../../_hooks/use-stock-data";
 import { AdjustmentLogsModal } from "./_components/adjustment-logs-modal";
 
@@ -18,7 +19,7 @@ const THUMB_COLORS = [
 ];
 
 export default function StockPage() {
-  const { variants, isLoading, error, totalStock, lowStockCount, adjustmentsToday, todayLogs, refetch } = useStockData();
+  const { variants, isLoading, error, totalStock, lowStockCount, adjustmentsToday, todayLogs, refetch, total, hasMore, setPage } = useStockData();
   const [showLogsModal, setShowLogsModal] = useState(false);
   const [adjustingItem, setAdjustingItem] = useState<{
     product: { id: string; name: string; slug: string; imageUrl?: string };
@@ -57,7 +58,7 @@ export default function StockPage() {
       )}
 
       <section className="overflow-hidden rounded-xl bg-white shadow-sm">
-        {isLoading ? (
+        {isLoading && variants.length === 0 ? (
           <div className="space-y-4 p-5">
             <div className="grid gap-4 sm:grid-cols-3">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -165,6 +166,19 @@ export default function StockPage() {
                 );
               })}
             </div>
+
+            {variants.length > 0 && (
+              <InfiniteScroll
+                hasMore={hasMore}
+                isLoading={isLoading}
+                onLoadMore={() => setPage((p) => p + 1)}
+                total={total}
+                loaded={variants.length}
+                itemLabel="variants"
+                loadingLabel="Loading more..."
+                allLoadedLabel="All variants loaded"
+              />
+            )}
           </>
         )}
       </section>
