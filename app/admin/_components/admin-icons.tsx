@@ -27,6 +27,7 @@ export type AdminIconName =
   | "pos"
   | "refresh"
   | "report"
+  | "return"
   | "reviews"
   | "search"
   | "settings"
@@ -192,6 +193,13 @@ const iconPaths: Record<AdminIconName, ReactNode> = {
       <path d="M8 16v-5" />
       <path d="M12 16V8" />
       <path d="M16 16v-3" />
+    </>
+  ),
+  return: (
+    <>
+      <path d="M4 17v-5h5" />
+      <path d="M20 7v5a6 6 0 0 1-6 6H4" />
+      <path d="M8 21l-4-4 4-4" />
     </>
   ),
   reviews: (

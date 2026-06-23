@@ -78,6 +78,7 @@ const menuGroups: {
         children: [
           { label: "New Orders", href: "/admin/orders", icon: "orders" },
           { label: "Canceled Orders", href: "/admin/orders/canceled", icon: "x" },
+          { label: "Returned Orders", href: "/admin/orders/returned", icon: "return" },
           { label: "Completed Orders", href: "/admin/orders/completed", icon: "check" },
           { label: "Wholesale Requests", href: "/admin/wholesale-requests", icon: "wholesale" },
           { label: "Reviews", href: "/admin/reviews", icon: "reviews" },
