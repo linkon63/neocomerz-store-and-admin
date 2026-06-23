@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AdminIcon, PageHeader, ProductThumb, StatusToggle } from "../../_components/admin-shell";
+import { AdjustInventoryModal } from "../../_components/adjust-inventory-modal";
 import { ConfirmModal } from "../../_components/confirm-modal";
 import {
   apiRequest,
@@ -431,11 +432,6 @@ export default function ProductsPage() {
   const [adjustModalOpen, setAdjustModalOpen] = useState(false);
   const [productToAdjust, setProductToAdjust] = useState<Product | null>(null);
   const [variantToAdjust, setVariantToAdjust] = useState<ProductVariant | null>(null);
-  const [adjustmentBranch, setAdjustmentBranch] = useState("Main Branch");
-  const [adjustmentType, setAdjustmentType] = useState("");
-  const [adjustmentNote, setAdjustmentNote] = useState("");
-  const [adjustmentQuantity, setAdjustmentQuantity] = useState("");
-  const [isAdjusting, setIsAdjusting] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -492,35 +488,13 @@ export default function ProductsPage() {
   const openAdjustModal = (product: Product, variant?: ProductVariant) => {
     setProductToAdjust(product);
     setVariantToAdjust(variant ?? getDefaultVariant(product) ?? null);
-    setAdjustmentBranch("Main Branch");
-    setAdjustmentType("");
-    setAdjustmentNote("");
-    setAdjustmentQuantity("");
     setAdjustModalOpen(true);
   };
 
   const closeAdjustModal = () => {
     setProductToAdjust(null);
     setVariantToAdjust(null);
-    setAdjustmentBranch("Main Branch");
-    setAdjustmentType("");
-    setAdjustmentNote("");
-    setAdjustmentQuantity("");
     setAdjustModalOpen(false);
-  };
-
-  const calculateNewInventory = () => {
-    if (!variantToAdjust || !adjustmentQuantity) {
-      return variantToAdjust?.stockQuantity ?? 0;
-    }
-    const currentStock = variantToAdjust.stockQuantity ?? 0;
-    const rawChange = Number(adjustmentQuantity);
-    if (Number.isNaN(rawChange) || rawChange === 0) return currentStock;
-    const change =
-      adjustmentType === "add" || adjustmentType === "return"
-        ? rawChange
-        : -Math.abs(rawChange);
-    return currentStock + change;
   };
 
   async function setDefaultVariant(product: Product, variant: ProductVariant) {
@@ -545,60 +519,9 @@ export default function ProductsPage() {
     }
   }
 
-  async function handleAdjustInventory() {
-    if (!variantToAdjust || !adjustmentType || !adjustmentQuantity) {
-      setError("Please fill in all required fields");
-      return;
-    }
-
-    setIsAdjusting(true);
-    setError("");
-
-    try {
-      const currentStock = variantToAdjust.stockQuantity ?? 0;
-      const rawChange = Number(adjustmentQuantity);
-      if (Number.isNaN(rawChange) || rawChange === 0) {
-        throw new Error("Invalid adjustment quantity");
-      }
-
-      const change =
-        adjustmentType === "add" || adjustmentType === "return"
-          ? rawChange
-          : -Math.abs(rawChange);
-
-      const newStock = currentStock + change;
-
-      if (newStock < 0) {
-        throw new Error("Stock cannot be negative");
-      }
-
-      const reason =
-        adjustmentType === "add"
-          ? "restock"
-          : adjustmentType === "return"
-            ? "return"
-            : adjustmentType === "damage"
-              ? "correction"
-              : "manual";
-
-      await apiRequest("/inventory/adjust", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          variantId: variantToAdjust.id,
-          change,
-          reason,
-          note: adjustmentNote?.trim() || `Admin inventory adjustment (${adjustmentType})`,
-        }),
-      });
-
-      closeAdjustModal();
-      await loadProducts();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to adjust inventory");
-    } finally {
-      setIsAdjusting(false);
-    }
+  async function handleAdjustSuccess() {
+    closeAdjustModal();
+    await loadProducts();
   }
 
   async function saveVariant(variant: ProductVariant, patch: Partial<ProductVariant>) {
@@ -1847,170 +1770,22 @@ export default function ProductsPage() {
         )}
       </section>
 
-      {/* Adjust Inventory Modal */}
-      {adjustModalOpen && productToAdjust && (
-        <div
-          aria-labelledby="adjust-modal-title"
-          aria-modal="true"
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 px-4 py-6"
-          role="dialog"
-        >
-          <div className="max-h-[calc(100vh-3rem)] w-full max-w-2xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-8 shadow-2xl">
-            <div className="mb-6 flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-[20px] font-semibold text-slate-900" id="adjust-modal-title">
-                  Adjust inventory
-                </h2>
-                <p className="mt-1 text-[14px] font-normal text-slate-500">
-                  Choose a reason and quantity to adjust
-                </p>
-              </div>
-              <button
-                className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
-                onClick={closeAdjustModal}
-                type="button"
-                disabled={isAdjusting}
-              >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="mb-6 flex items-center gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
-              <div className="relative h-14 w-14 overflow-hidden rounded-md border border-slate-200 bg-white flex-shrink-0">
-                {getFeaturedMedia(productToAdjust) ? (
-                  <img
-                    alt={productToAdjust.name}
-                    className="h-full w-full object-cover"
-                    src={getFeaturedMedia(productToAdjust)!}
-                  />
-                ) : (
-                  <ProductThumb color="bg-slate-100" />
-                )}
-              </div>
-              <div>
-                <p className="text-[15px] font-semibold text-slate-900">
-                  {productToAdjust.name}
-                </p>
-                <p className="text-[13px] font-normal text-slate-400 mt-0.5">
-                  {productToAdjust.slug}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-5">
-              <label className="block">
-                <span className="mb-2 block text-[14px] font-semibold text-slate-700">
-                  Branch <span className="text-red-500">*</span>
-                </span>
-                <select 
-                  className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                  value={adjustmentBranch}
-                  onChange={(e) => setAdjustmentBranch(e.target.value)}
-                >
-                  <option>Main Branch</option>
-                </select>
-              </label>
-
-              <label className="block">
-                <span className="mb-2 block text-[14px] font-semibold text-slate-700">
-                  Adjustment type <span className="text-red-500">*</span>
-                </span>
-                <select 
-                  className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                  value={adjustmentType}
-                  onChange={(e) => setAdjustmentType(e.target.value)}
-                >
-                  <option value="">Choose a type</option>
-                  <option value="add">Add Stock</option>
-                  <option value="remove">Remove Stock</option>
-                  <option value="damage">Damage</option>
-                  <option value="return">Return</option>
-                </select>
-              </label>
-
-              <label className="block">
-                <span className="mb-2 block text-[14px] font-semibold text-slate-700">
-                  Note
-                </span>
-                <textarea
-                  className="min-h-28 w-full rounded-lg border border-slate-300 px-4 py-3 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                  placeholder="Add your adjustment note"
-                  value={adjustmentNote}
-                  onChange={(e) => setAdjustmentNote(e.target.value)}
-                />
-              </label>
-
-              <div className="grid grid-cols-2 gap-5">
-                <label className="block">
-                  <span className="mb-2 block text-[14px] font-semibold text-slate-700">
-                    Adjustment quantity <span className="text-red-500">*</span>
-                  </span>
-                  <input
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                    placeholder="e.g. -2 or 10"
-                    type="number"
-                    value={adjustmentQuantity}
-                    onChange={(e) => setAdjustmentQuantity(e.target.value)}
-                  />
-                </label>
-
-                <div>
-                  <span className="mb-2 block text-[14px] font-semibold text-slate-700">
-                    Inventory
-                  </span>
-                  <div className="flex items-center gap-3 h-11">
-                    <span className="text-[16px] font-semibold text-slate-900">
-                      {getDefaultVariant(productToAdjust)?.stockQuantity ?? 0}
-                    </span>
-                    <svg className="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                    <span className={`text-[16px] font-semibold ${calculateNewInventory() < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
-                      {calculateNewInventory()}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {error && (
-              <p className="mt-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[14px] font-semibold text-red-700">
-                {error}
-              </p>
-            )}
-
-            <div className="mt-8 flex items-center justify-end gap-3 border-t border-slate-200 pt-6">
-              <button
-                className="h-11 rounded-lg border border-slate-200 bg-white px-6 text-[14px] font-semibold text-slate-600 transition-colors hover:bg-slate-50"
-                onClick={closeAdjustModal}
-                type="button"
-                disabled={isAdjusting}
-              >
-                Cancel
-              </button>
-              <button
-                className="flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-6 text-[14px] font-semibold text-white transition-all hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                type="button"
-                onClick={handleAdjustInventory}
-                disabled={isAdjusting || !adjustmentType || !adjustmentQuantity}
-              >
-                {isAdjusting ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Adjusting...
-                  </>
-                ) : (
-                  "Adjust Inventory"
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
+      {adjustModalOpen && productToAdjust && variantToAdjust && (
+        <AdjustInventoryModal
+          product={{
+            id: productToAdjust.id,
+            name: productToAdjust.name,
+            slug: productToAdjust.slug,
+            imageUrl: getFeaturedMedia(productToAdjust) ?? undefined,
+          }}
+          variant={{
+            id: variantToAdjust.id,
+            sku: variantToAdjust.sku,
+            stockQuantity: variantToAdjust.stockQuantity,
+          }}
+          onClose={closeAdjustModal}
+          onSuccess={handleAdjustSuccess}
+        />
       )}
 
       {/* Edit Product Modal */}

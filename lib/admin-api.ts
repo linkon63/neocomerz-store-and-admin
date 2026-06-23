@@ -539,6 +539,7 @@ export type InventoryVariant = {
     name: string;
     slug: string;
     status: string;
+    media?: { media: { url: string } }[];
   };
 };
 
