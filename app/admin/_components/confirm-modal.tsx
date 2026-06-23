@@ -45,7 +45,7 @@ export function ConfirmModal({
             </p>
           </div>
           <button
-            className="grid h-10 w-10 place-items-center rounded-lg border border-slate-300 text-xl font-medium text-slate-600"
+            className="grid h-10 w-10 place-items-center rounded-lg border border-slate-300 text-xl font-medium text-slate-600 cursor-pointer hover:bg-slate-50 hover:text-slate-700"
             onClick={onClose}
             type="button"
           >
@@ -61,14 +61,14 @@ export function ConfirmModal({
 
         <div className="flex justify-end gap-3 pt-2">
           <button
-            className="h-11 rounded-lg border-2 border-slate-200 bg-white px-5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all"
+            className="h-11 rounded-lg border-2 border-slate-200 bg-white px-5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer"
             onClick={onClose}
             type="button"
           >
             {cancelText}
           </button>
           <button
-            className={`inline-flex h-11 items-center gap-2 rounded-lg px-5 text-sm font-semibold text-white transition-all ${
+            className={`inline-flex h-11 items-center gap-2 rounded-lg px-5 text-sm font-semibold text-white transition-all cursor-pointer ${
               isDestructive
                 ? "bg-red-600 hover:bg-red-700"
                 : "bg-blue-600 hover:bg-blue-700"

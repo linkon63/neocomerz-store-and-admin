@@ -65,7 +65,7 @@ const menuGroups: {
     items: [
       { label: "POS", href: "/admin/pos", icon: "pos" },
       { label: "Discount", href: "/admin/discounts", icon: "discount" },
-      { label: "Gift Voucher", href: "/admin/gift-vouchers", icon: "voucher" },
+      // { label: "Gift Voucher", href: "/admin/gift-vouchers", icon: "voucher" },
     ],
   },
   {

@@ -1,6 +1,6 @@
 "use client";
 
-import { AdminIcon } from "../../_components/admin-shell";
+import { AdminIcon, StatusToggle } from "../../_components/admin-shell";
 import {
   formatDate,
   formatMoney,
@@ -21,7 +21,7 @@ export function DiscountRow({ discount, onToggleStatus, onEdit, onDelete }: Disc
       <td className="px-5 py-4 font-bold text-slate-800">{discount.name}</td>
       <td className="px-5 py-4 font-medium text-slate-700">
         <span
-          className={`rounded-full px-3 py-1 text-sm font-black ${
+          className={`rounded-full px-3 py-1 text-sm font-semibold ${
             discount.type === "percentage"
               ? "bg-blue-50 text-blue-700"
               : "bg-purple-50 text-purple-700"
@@ -44,17 +44,10 @@ export function DiscountRow({ discount, onToggleStatus, onEdit, onDelete }: Disc
           : "No date limit"}
       </td>
       <td className="px-5 py-4">
-        <button className="cursor-pointer" onClick={() => onToggleStatus(discount)} type="button">
-          {discount.status === "active" ? (
-            <span className="inline-flex h-8 w-14 items-center rounded-full bg-blue-600 p-1 shadow-sm">
-              <span className="ml-auto h-6 w-6 rounded-full bg-white" />
-            </span>
-          ) : (
-            <span className="inline-flex h-8 w-14 items-center rounded-full bg-slate-300 p-1 shadow-sm">
-              <span className="h-6 w-6 rounded-full bg-white" />
-            </span>
-          )}
-        </button>
+        <StatusToggle
+          checked={discount.status === "active"}
+          onChange={() => onToggleStatus(discount)}
+        />
       </td>
       <td className="px-5 py-4">
         <div className="flex gap-2">
