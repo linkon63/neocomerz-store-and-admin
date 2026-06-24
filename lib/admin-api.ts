@@ -539,7 +539,13 @@ export type InventoryVariant = {
     name: string;
     slug: string;
     status: string;
+    media?: { media: { url: string } }[];
   };
+};
+
+export type PaginatedInventory = {
+  data: InventoryVariant[];
+  meta: { page: number; limit: number; total: number };
 };
 
 export type InventoryLog = {

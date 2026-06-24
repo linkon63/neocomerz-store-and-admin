@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { AdminIcon, PageHeader, ProductThumb } from "../../_components/admin-shell";
+import { AdjustInventoryModal } from "../../_components/adjust-inventory-modal";
+import { InfiniteScroll } from "../../_components/infinite-scroll";
 import { useStockData } from "../../_hooks/use-stock-data";
 import { AdjustmentLogsModal } from "./_components/adjustment-logs-modal";
-import { AdjustStockModal } from "./_components/adjust-stock-modal";
 
 const THUMB_COLORS = [
   "bg-blue-600",
@@ -18,22 +19,28 @@ const THUMB_COLORS = [
 ];
 
 export default function StockPage() {
-  const { variants, isLoading, error, totalStock, lowStockCount, adjustmentsToday, todayLogs, refetch } = useStockData();
-  const [showModal, setShowModal] = useState(false);
-  const [preselectedId, setPreselectedId] = useState<string | undefined>(undefined);
-  const [preselectedProduct, setPreselectedProduct] = useState<{ id: string; name: string } | undefined>(undefined);
+  const { variants, isLoading, error, totalStock, lowStockCount, adjustmentsToday, todayLogs, refetch, total, hasMore, setPage } = useStockData();
   const [showLogsModal, setShowLogsModal] = useState(false);
+  const [adjustingItem, setAdjustingItem] = useState<{
+    product: { id: string; name: string; slug: string; imageUrl?: string };
+    variant: { id: string; sku: string; stockQuantity: number };
+  } | null>(null);
 
-  function openVariantAdjust(variantId: string) {
-    setPreselectedId(variantId);
-    setPreselectedProduct(undefined);
-    setShowModal(true);
-  }
-
-  function openProductAdjust(productId: string, productName: string) {
-    setPreselectedId(undefined);
-    setPreselectedProduct({ id: productId, name: productName });
-    setShowModal(true);
+  function openVariantAdjust(variant: typeof variants[number]) {
+    if (!variant.id || !variant.sku) return;
+    setAdjustingItem({
+      product: {
+        id: variant.product.id,
+        name: variant.product.name,
+        slug: variant.product.slug,
+        imageUrl: variant.product.media?.[0]?.media?.url,
+      },
+      variant: {
+        id: variant.id,
+        sku: variant.sku,
+        stockQuantity: variant.stockQuantity,
+      },
+    });
   }
 
   return (
@@ -41,26 +48,17 @@ export default function StockPage() {
       <PageHeader
         title="Stock Management"
         description="Track inventory, low stock alerts, and manual adjustments"
-        action={
-          <button
-            className="inline-flex h-14 items-center gap-2 rounded-lg cursor-pointer bg-blue-600 px-6 font-black text-white hover:bg-blue-700"
-            onClick={() => { setPreselectedId(undefined); setPreselectedProduct(undefined); setShowModal(true); }}
-            type="button"
-          >
-            <AdminIcon className="h-5 w-5" name="plus" />
-            Adjust Stock
-          </button>
-        }
+        action={undefined}
       />
 
       {error && (
-        <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-5 py-4 font-black text-rose-700">
+        <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-semibold text-rose-700">
           {error}
         </div>
       )}
 
       <section className="overflow-hidden rounded-xl bg-white shadow-sm">
-        {isLoading ? (
+        {isLoading && variants.length === 0 ? (
           <div className="space-y-4 p-5">
             <div className="grid gap-4 sm:grid-cols-3">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -80,21 +78,21 @@ export default function StockPage() {
             <div className="grid gap-4 p-5 sm:grid-cols-3">
               <div className="rounded-xl border border-slate-200 p-5">
                 <p className="text-sm font-medium text-slate-500">Total stock</p>
-                <p className="mt-1 text-2xl font-black">{totalStock.toLocaleString()} pcs</p>
+                <p className="mt-1 text-2xl font-semibold">{totalStock.toLocaleString()} pcs</p>
               </div>
               <div className="rounded-xl border border-slate-200 p-5">
                 <p className="text-sm font-medium text-slate-500">Low stock items</p>
-                <p className={`mt-1 text-2xl font-black ${lowStockCount > 0 ? "text-rose-600" : ""}`}>
+                <p className={`mt-1 text-2xl font-semibold ${lowStockCount > 0 ? "text-rose-600" : ""}`}>
                   {lowStockCount} items
                 </p>
               </div>
               <button
-                className="cursor-pointer rounded-xl border border-slate-200 p-5 text-left hover:bg-slate-50"
+                className="cursor-pointer rounded-xl border border-slate-200 p-5 text-left transition-all hover:bg-slate-50"
                 onClick={() => setShowLogsModal(true)}
                 type="button"
               >
                 <p className="text-sm font-medium text-slate-500">Adjustments today</p>
-                <p className="mt-1 text-2xl font-black">{adjustmentsToday}</p>
+                <p className="mt-1 text-2xl font-semibold">{adjustmentsToday}</p>
               </button>
             </div>
 
@@ -112,54 +110,53 @@ export default function StockPage() {
                     <div className="flex min-w-0 items-center gap-4">
                       <ProductThumb
                         color={THUMB_COLORS[index % THUMB_COLORS.length]}
+                        src={variant.product.media?.[0]?.media?.url}
+                        alt={variant.product.name}
                       />
                       <div className="min-w-0">
-                        <p className="truncate font-black uppercase">
+                        <p className="max-w-[50ch] truncate font-semibold uppercase">
                           {variant.product.name}
                         </p>
-                        <p className="text-sm font-medium text-slate-500">
+                        <div className="max-w-[70ch] truncate text-sm font-medium text-slate-500">
                           {hasVariant ? (
                             <>
-                              {variant.sku}{" "}
-                              <span className="text-slate-300">·</span> alert below{" "}
+                              <p className="">{variant.sku}</p>
+                              alert below{" "}
                               {variant.stockAlertThreshold} pcs
                             </>
                           ) : (
                             <span className="text-slate-400">No variant created yet</span>
                           )}
-                        </p>
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right">
                         <p
-                          className={`whitespace-nowrap font-black ${
+                          className={`whitespace-nowrap font-semibold ${
                             isLowStock
                               ? "text-rose-600"
                               : "text-slate-700"
                           }`}
                         >
-                          {variant.stockQuantity} pcs
+                              {variant.stockQuantity} pcs
                         </p>
                         {!hasVariant && (
-                          <span className="inline-block rounded-md border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs font-black text-slate-500">
+                          <span className="inline-block rounded-md border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">
                             NO VARIANT
                           </span>
                         )}
                         {hasVariant && isLowStock && (
-                          <span className="inline-block rounded-md border border-rose-200 bg-rose-100 px-2 py-0.5 text-xs font-black text-rose-700">
+                          <span className="inline-block rounded-md border border-rose-200 bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">
                             LOW STOCK
                           </span>
                         )}
                       </div>
                       <button
-                        className="cursor-pointer rounded-lg border border-slate-200 p-2 text-slate-400 hover:bg-slate-50 hover:text-slate-600"
-                        onClick={() =>
-                          hasVariant
-                            ? openVariantAdjust(variant.id!)
-                            : openProductAdjust(variant.product.id, variant.product.name)
-                        }
-                        title="Adjust stock"
+                        className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-700 transition-all hover:bg-slate-50"
+                        onClick={() => openVariantAdjust(variant)}
+                        disabled={!hasVariant}
+                        title={hasVariant ? "Adjust stock" : "No variant to adjust"}
                         type="button"
                       >
                         <AdminIcon className="h-4 w-4" name="edit" />
@@ -169,6 +166,19 @@ export default function StockPage() {
                 );
               })}
             </div>
+
+            {variants.length > 0 && (
+              <InfiniteScroll
+                hasMore={hasMore}
+                isLoading={isLoading}
+                onLoadMore={() => setPage((p) => p + 1)}
+                total={total}
+                loaded={variants.length}
+                itemLabel="variants"
+                loadingLabel="Loading more..."
+                allLoadedLabel="All variants loaded"
+              />
+            )}
           </>
         )}
       </section>
@@ -180,15 +190,13 @@ export default function StockPage() {
         />
       )}
 
-      {showModal && (
-        <AdjustStockModal
-          variants={variants}
-          preselectedVariantId={preselectedId}
-          preselectedProductId={preselectedProduct?.id}
-          preselectedProductName={preselectedProduct?.name}
-          onClose={() => setShowModal(false)}
+      {adjustingItem && (
+        <AdjustInventoryModal
+          product={adjustingItem.product}
+          variant={adjustingItem.variant}
+          onClose={() => setAdjustingItem(null)}
           onSuccess={() => {
-            setShowModal(false);
+            setAdjustingItem(null);
             refetch();
           }}
         />
