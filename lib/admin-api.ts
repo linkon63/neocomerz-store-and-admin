@@ -106,6 +106,12 @@ export type Product = {
   name: string;
   slug: string;
   description?: string | null;
+  shortDescription?: string | null;
+  discountPrice?: string | number | null;
+  isFeatured?: boolean;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  metaKeywords?: string | null;
   status: "active" | "inactive" | "draft";
   createdAt?: string;
   updatedAt?: string;
