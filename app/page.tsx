@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FiHeart } from "react-icons/fi";
 import HeroSlider from "./_components/hero-slider";
+import { PriceDisplay } from "./_components/price-display";
 
 const editorialImages = [
   {
@@ -106,7 +107,9 @@ export default function Home() {
                   <p className="mt-1 text-[10px] uppercase tracking-[0.08em] text-neutral-500">
                     {product.color}
                   </p>
-                  <p className="mt-2 text-xs font-semibold">{product.price}</p>
+                  <p className="mt-2 text-xs font-semibold">
+                    <PriceDisplay value={parseFloat(product.price.replace(/[^0-9.]/g, ""))} />
+                  </p>
                 </div>
                 <FiHeart className="mt-0.5 shrink-0 text-sm" aria-label="Add to wishlist" />
               </div>

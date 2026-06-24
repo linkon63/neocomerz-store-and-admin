@@ -30,20 +30,13 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
 
   function productThumb(product: Product) {
     const url = product.media?.[0]?.media?.url;
-    if (url) {
-      return (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          alt=""
-          className="h-8 w-8 shrink-0 rounded border border-slate-200 object-cover"
-          src={url}
-        />
-      );
-    }
     return (
-      <div className="grid h-8 w-8 shrink-0 place-items-center rounded border border-slate-200 bg-white text-xs font-medium text-slate-400">
-        <AdminIcon className="h-4 w-4" name="package" />
-      </div>
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        alt={product.name}
+        className="h-8 w-8 shrink-0 rounded border border-slate-200 object-cover"
+        src={url ?? '/images/no-image-icon-6.png'}
+      />
     );
   }
 

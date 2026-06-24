@@ -5,6 +5,7 @@ import { AdminIcon } from "../../_components/admin-shell";
 import { PageHeader } from "../../_components/page-header";
 import { DownloadButton } from "../../_components/download-button";
 import { formatMoney } from "../../../../lib/admin-api";
+import { useCurrency } from "../../../../lib/currency-context";
 import { useReportsOverview } from "../../_hooks/use-reports-overview";
 
 function SkeletonCard() {
@@ -29,6 +30,7 @@ function MetricCard({
   isMoney: boolean;
   isLoading: boolean;
 }) {
+  const { symbol } = useCurrency();
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="mb-4 flex items-center gap-3">
@@ -43,7 +45,7 @@ function MetricCard({
         <p className="text-3xl font-black">
           {value !== undefined && value !== null
             ? isMoney
-              ? formatMoney(value)
+              ? formatMoney(value, symbol)
               : Number(value).toLocaleString("en")
             : "-"}
         </p>

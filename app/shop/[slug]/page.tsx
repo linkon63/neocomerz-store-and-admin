@@ -4,10 +4,7 @@ import { notFound } from "next/navigation";
 import { FaFacebookF, FaGooglePlusG, FaLinkedinIn, FaXTwitter } from "react-icons/fa6";
 import { FiChevronLeft, FiChevronRight, FiHeart, FiMail, FiShoppingBag } from "react-icons/fi";
 import { productSlug, shopProducts } from "../products";
-
-function formatPrice(price: number) {
-  return `€${price.toFixed(2)}`;
-}
+import { PriceDisplay } from "../../_components/price-display";
 
 export function generateStaticParams() {
   return shopProducts.map((product) => ({
@@ -89,10 +86,10 @@ export default async function ProductDetailsPage({
                 </h2>
                 <div className="mt-2 flex items-center gap-3">
                   <span className="text-lg font-black text-neutral-400 line-through">
-                    {formatPrice(product.price)}
+                    <PriceDisplay value={product.price} />
                   </span>
                   <span className="text-2xl font-black text-neutral-900">
-                    {formatPrice(salePrice)}
+                    <PriceDisplay value={salePrice} />
                   </span>
                 </div>
               </div>
@@ -208,7 +205,7 @@ export default async function ProductDetailsPage({
                     <h3 className="mt-1 truncate text-sm font-black uppercase text-neutral-800">
                       {item.name}
                     </h3>
-                    <p className="mt-2 text-base font-black">{formatPrice(item.price)}</p>
+                    <p className="mt-2 text-base font-black"><PriceDisplay value={item.price} /></p>
                   </div>
                   <FiHeart className="mt-1 shrink-0 text-lg text-neutral-600" />
                 </div>

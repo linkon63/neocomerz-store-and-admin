@@ -2,13 +2,17 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   apiRequest,
   clearAdminSession,
   resolveImageUrl,
   type AdminUser,
+  type AppSettings,
 } from "../../../lib/admin-api";
+import { useSettingsLoading } from "../_hooks/use-settings";
+import { CurrencyProvider } from "../../../lib/currency-context";
 export { PageHeader, StatusToggle, ProductThumb } from "./admin-ui";
 
 import { AdminIcon, type AdminIconName } from "./admin-icons";
@@ -114,6 +118,12 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [isChecking, setIsChecking] = useState(true);
   const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({});
+  const { loadSettings } = useSettingsLoading();
+  const [settings, setSettings] = useState<AppSettings | null>(null);
+
+  useEffect(() => {
+    loadSettings().then(setSettings);
+  }, [loadSettings]);
 
   useEffect(() => {
     const initialOpen: Record<string, boolean> = {};
@@ -185,12 +195,26 @@ export function AdminShell({ children }: { children: ReactNode }) {
   }
 
   return (
+    <CurrencyProvider>
     <div className="admin-dashboard min-h-screen bg-[#fbfbfc] text-[#111827]">
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-[312px] border-r border-slate-200 bg-white lg:block">
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between px-5 py-5">
-            <Link className="text-5xl font-black italic tracking-tight" href="/admin/dashboard">
-              NeoComerz
+            <Link className="block" href="/admin/dashboard">
+              {settings?.logo ? (
+                <Image
+                  src={resolveImageUrl(settings.logo)}
+                  alt={settings.shopName ?? "NeoComerz"}
+                  width={280}
+                  height={80}
+                  className="max-h-20 w-auto object-contain items-center justify-center"
+                  unoptimized
+                />
+              ) : (
+                <span className="text-5xl font-black italic tracking-tight">
+                  NeoComerz
+                </span>
+              )}
             </Link>
           </div>
           <nav className="flex-1 overflow-y-auto px-3 pb-6 pt-5">
@@ -313,6 +337,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </main>
       </div>
     </div>
+    </CurrencyProvider>
   );
 }
 
