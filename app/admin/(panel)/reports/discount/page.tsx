@@ -8,9 +8,11 @@ import {
   formatDate,
   formatMoney,
 } from "../../../../../lib/admin-api";
+import { useCurrency } from "../../../../../lib/currency-context";
 import { useDiscountReport } from "../../../_hooks/use-discount-report";
 
 export default function DiscountReportPage() {
+  const { symbol } = useCurrency();
   const { report, isLoading, error, dateValue, setDateValue } = useDiscountReport();
 
   const summary = report?.summary;
@@ -108,7 +110,7 @@ export default function DiscountReportPage() {
               <p className="text-3xl font-black">
                 {value !== undefined && value !== null
                   ? isMoney
-                    ? formatMoney(value)
+                    ? formatMoney(value, symbol)
                     : Number(value).toLocaleString("en")
                   : "-"}
               </p>
@@ -157,7 +159,7 @@ export default function DiscountReportPage() {
                     <td className="px-6 py-4 text-right">
                       {coupon.type === "percentage"
                         ? `${coupon.value}%`
-                        : formatMoney(coupon.value)}
+                        : formatMoney(coupon.value, symbol)}
                     </td>
                     <td className="px-6 py-4 text-right">
                       {coupon.usedCount}
@@ -213,10 +215,10 @@ export default function DiscountReportPage() {
                       {order.customer}
                     </td>
                     <td className="px-6 py-4 text-right text-rose-600">
-                      -{formatMoney(order.discountAmount)}
+                      -{formatMoney(order.discountAmount, symbol)}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      {formatMoney(order.orderTotal)}
+                      {formatMoney(order.orderTotal, symbol)}
                     </td>
                     <td className="px-6 py-4 text-slate-500">
                       {formatDate(order.placedAt)}

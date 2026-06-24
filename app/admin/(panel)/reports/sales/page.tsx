@@ -9,9 +9,11 @@ import {
   formatDate,
   formatMoney,
 } from "../../../../../lib/admin-api";
+import { useCurrency } from "../../../../../lib/currency-context";
 import { useSalesReport } from "../../../_hooks/use-sales-report";
 
 export default function SalesReportPage() {
+  const { symbol } = useCurrency();
   const { report, isLoading, error, dateValue, setDateValue, expandedOrders, setExpandedOrders } = useSalesReport();
 
   function toggleOrder(orderId: string) {
@@ -108,7 +110,7 @@ export default function SalesReportPage() {
               <p className="text-3xl font-black">
                 {value !== undefined
                   ? isMoney
-                    ? formatMoney(value)
+                    ? formatMoney(value, symbol)
                     : value.toLocaleString("en")
                   : "-"}
               </p>
@@ -155,9 +157,9 @@ export default function SalesReportPage() {
                       <td className="px-6 py-4 text-slate-600">
                         {order.customer}
                       </td>
-                      <td className="px-6 py-4">{formatMoney(order.total)}</td>
+                      <td className="px-6 py-4">{formatMoney(order.total, symbol)}</td>
                       <td className="px-6 py-4">
-                        {formatMoney(order.discount)}
+                        {formatMoney(order.discount, symbol)}
                       </td>
                       <td className="px-6 py-4 text-slate-500">
                         {formatDate(order.placedAt)}
@@ -200,10 +202,10 @@ export default function SalesReportPage() {
                                     {item.quantity}
                                   </td>
                                   <td className="px-4 py-2 text-right">
-                                    {formatMoney(item.unitPrice)}
+                                    {formatMoney(item.unitPrice, symbol)}
                                   </td>
                                   <td className="px-4 py-2 text-right">
-                                    {formatMoney(item.totalPrice)}
+                                    {formatMoney(item.totalPrice, symbol)}
                                   </td>
                                 </tr>
                               ))}
@@ -257,7 +259,7 @@ export default function SalesReportPage() {
                       {product.quantity}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      {formatMoney(product.revenue)}
+                      {formatMoney(product.revenue, symbol)}
                     </td>
                   </tr>
                 ))}

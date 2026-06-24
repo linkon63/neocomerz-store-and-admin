@@ -11,6 +11,7 @@ import {
   type WholesaleRequestItem,
   type WholesaleRequestStatus,
 } from "../../../../lib/admin-api";
+import { useCurrency } from "../../../../lib/currency-context";
 
 type StatusFilter = WholesaleRequestStatus | "all";
 
@@ -74,6 +75,7 @@ const emptyConvertForm: ConvertForm = {
 };
 
 export default function WholesaleRequestsPage() {
+  const { symbol } = useCurrency();
   const [requests, setRequests] = useState<WholesaleOrderRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -510,7 +512,7 @@ export default function WholesaleRequestsPage() {
                         {item.requestedQuantity}
                       </td>
                       <td className="px-4 py-4 text-sm text-slate-700">
-                        {formatMoney(item.targetPrice)}
+                        {formatMoney(item.targetPrice, symbol)}
                       </td>
                       <td className="px-4 py-4 text-sm text-slate-600">
                         {item.note ?? "-"}
@@ -754,10 +756,10 @@ export default function WholesaleRequestsPage() {
                              />
                            </td>
                            <td className="px-4 py-4 text-sm font-semibold text-slate-800">
-                             {formatMoney(
-                               Number(line.quantity || 0) *
-                                 Number(line.unitPrice || 0),
-                             )}
+{formatMoney(
+                                Number(line.quantity || 0) *
+                                  Number(line.unitPrice || 0), symbol,
+                              )}
                            </td>
                          </tr>
                        ))}
@@ -864,23 +866,23 @@ export default function WholesaleRequestsPage() {
                 <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
                   <div className="flex justify-between font-medium text-slate-600">
                     <span>Subtotal</span>
-                    <span>{formatMoney(convertTotals.subtotal)}</span>
+                    <span>{formatMoney(convertTotals.subtotal, symbol)}</span>
                   </div>
                   <div className="flex justify-between font-medium text-slate-600">
                     <span>− Discount</span>
-                    <span>{formatMoney(convertTotals.discount)}</span>
+                    <span>{formatMoney(convertTotals.discount, symbol)}</span>
                   </div>
                   <div className="flex justify-between font-medium text-slate-600">
                     <span>+ Shipping</span>
-                    <span>{formatMoney(convertTotals.shippingCost)}</span>
+                    <span>{formatMoney(convertTotals.shippingCost, symbol)}</span>
                   </div>
                   <div className="flex justify-between font-medium text-slate-600">
                     <span>+ Tax</span>
-                    <span>{formatMoney(convertTotals.tax)}</span>
+                    <span>{formatMoney(convertTotals.tax, symbol)}</span>
                   </div>
                   <div className="mt-2 flex justify-between border-t border-slate-200 pt-2 text-lg font-semibold text-slate-900">
                     <span>Grand Total</span>
-                    <span>{formatMoney(convertTotals.grandTotal)}</span>
+                    <span>{formatMoney(convertTotals.grandTotal, symbol)}</span>
                   </div>
                 </div>
 

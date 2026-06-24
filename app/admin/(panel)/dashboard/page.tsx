@@ -23,6 +23,7 @@ import {
   type SalesTrendPoint,
   type TopProduct,
 } from "../../../../lib/admin-api";
+import { useCurrency } from "../../../../lib/currency-context";
 import { toISODate } from "../../../../lib/utils";
 
 type Granularity = "daily" | "monthly" | "yearly";
@@ -132,6 +133,7 @@ function MetricCard({
   caption?: string;
   loading: boolean;
 }) {
+  const { symbol } = useCurrency();
   const value = metric?.value ?? 0;
   return (
     <Link
@@ -152,7 +154,7 @@ function MetricCard({
         <div className="h-9 w-28 animate-pulse rounded bg-slate-100" />
       ) : (
         <p className="text-3xl font-black">
-          {isMoney ? formatMoney(value) : formatNumber(value)}
+          {isMoney ? formatMoney(value, symbol) : formatNumber(value)}
         </p>
       )}
       <div className="mt-4 flex items-center gap-3 text-sm font-black">
@@ -168,6 +170,7 @@ function MetricCard({
 }
 
 export default function DashboardPage() {
+  const { symbol } = useCurrency();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [trend, setTrend] = useState<SalesTrendPoint[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
@@ -357,7 +360,7 @@ export default function DashboardPage() {
                   />
                   <Tooltip
                     cursor={{ fill: "#f8fafc" }}
-                    formatter={(value) => [formatMoney(value as number), "Revenue"]}
+                    formatter={(value) => [formatMoney(value as number, symbol), "Revenue"]}
                     labelStyle={{ fontWeight: 800, color: "#0f172a" }}
                     contentStyle={{ borderRadius: 12, border: "1px solid #e2e8f0", fontWeight: 700 }}
                   />
@@ -394,7 +397,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-black">{formatMoney(order.total)}</p>
+                    <p className="font-black">{formatMoney(order.total, symbol)}</p>
                     <span className={`text-xs font-black capitalize ${paymentTone(order.paymentStatus)}`}>
                       {order.paymentStatus}
                     </span>
@@ -439,7 +442,7 @@ export default function DashboardPage() {
                 <div className="min-w-0">
                   <p className="truncate font-black">{product.name}</p>
                   <p className="mt-1 text-sm font-medium text-slate-500">
-                    {formatNumber(product.unitsSold)} sold · {formatMoney(product.revenue)}
+                    {formatNumber(product.unitsSold)} sold · {formatMoney(product.revenue, symbol)}
                   </p>
                   <p className="text-xs font-medium text-slate-400">
                     {formatNumber(product.stock)} pcs in stock

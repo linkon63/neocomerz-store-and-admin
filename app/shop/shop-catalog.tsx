@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FiChevronDown, FiGrid, FiHeart, FiList, FiSearch, FiLoader } from "react-icons/fi";
 import { productSlug, shopProducts } from "./products";
+import { useCurrency } from "../../lib/currency-context";
 
 
 const colorOptions = [
@@ -31,11 +32,8 @@ const showOptions = [8, 12, 20];
 type SortOption = "featured" | "price-low" | "price-high" | "name";
 type ViewMode = "grid" | "list";
 
-function formatPrice(price: number) {
-  return `€${price.toFixed(2)}`;
-}
-
 export default function ShopCatalog() {
+  const { formatCurrency } = useCurrency();
   const [selectedCategory, setSelectedCategory] = useState("Football Corner");
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
@@ -356,7 +354,7 @@ export default function ShopCatalog() {
                         </p>
                       )}
                       <p className="mt-2 text-base font-black text-neutral-800">
-                        {formatPrice(product.price)}
+                        {formatCurrency(product.price)}
                       </p>
                     </div>
                     <FiHeart className="mt-1 shrink-0 text-lg text-neutral-600 cursor-pointer" aria-label="Add to wishlist" />
