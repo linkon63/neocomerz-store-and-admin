@@ -1,22 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { AdminIcon } from "./admin-icons";
 import { ProductThumb } from "./admin-ui";
-import { apiRequest } from "../../../lib/admin-api";
-
-type AdjustProduct = {
-  id: string;
-  name: string;
-  slug: string;
-  imageUrl?: string;
-};
-
-type AdjustVariant = {
-  id: string;
-  sku: string;
-  stockQuantity: number;
-};
+import { useAdjustInventory } from "../_hooks/use-adjust-inventory";
 
 export function AdjustInventoryModal({
   product,
@@ -24,71 +10,24 @@ export function AdjustInventoryModal({
   onClose,
   onSuccess,
 }: {
-  product: AdjustProduct;
-  variant: AdjustVariant;
+  product: { id: string; name: string; slug: string; imageUrl?: string };
+  variant: { id: string; sku: string; stockQuantity: number };
   onClose: () => void;
   onSuccess: () => void;
 }) {
-  const [adjustmentType, setAdjustmentType] = useState("");
-  const [note, setNote] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-
-  const rawChange = Number(quantity) || 0;
-  const change =
-    adjustmentType === "add" || adjustmentType === "return"
-      ? rawChange
-      : -Math.abs(rawChange);
-  const projectedStock = variant.stockQuantity + (adjustmentType ? change : 0);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-
-    if (!adjustmentType) {
-      setError("Select an adjustment type");
-      return;
-    }
-    if (!quantity || rawChange < 1) {
-      setError("Quantity must be a positive whole number");
-      return;
-    }
-    if (projectedStock < 0) {
-      setError(`Stock cannot go negative. Current stock: ${variant.stockQuantity}`);
-      return;
-    }
-
-    const reason =
-      adjustmentType === "add"
-        ? "restock"
-        : adjustmentType === "return"
-          ? "return"
-          : adjustmentType === "damage"
-            ? "correction"
-            : "manual";
-
-    setSaving(true);
-    try {
-      await apiRequest("/inventory/adjust", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          variantId: variant.id,
-          change,
-          reason,
-          note: note.trim() || `Admin inventory adjustment (${adjustmentType})`,
-        }),
-      });
-      onSuccess();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to adjust inventory");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  const isFormValid = adjustmentType && quantity && rawChange >= 1 && projectedStock >= 0;
+  const {
+    adjustmentType,
+    setAdjustmentType,
+    note,
+    setNote,
+    quantity,
+    setQuantity,
+    saving,
+    error,
+    projectedStock,
+    isFormValid,
+    submit,
+  } = useAdjustInventory({ product, variant, onSuccess });
 
   return (
     <div
@@ -134,7 +73,7 @@ export function AdjustInventoryModal({
           </div>
         </div>
 
-        <form className="space-y-5" onSubmit={handleSubmit}>
+        <form className="space-y-5" onSubmit={submit}>
           <label className="block">
             <span className="mb-2 block text-sm font-semibold text-slate-700">
               Branch <span className="text-red-500">*</span>
