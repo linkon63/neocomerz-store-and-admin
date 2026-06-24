@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { InfiniteScroll } from "./infinite-scroll";
 import { AdminIcon, PageHeader, ProductThumb } from "./admin-shell";
 import { useOrders } from "../_hooks/use-orders";
-import { formatMoney, resolveImageUrl, type OrderStatus } from "../../../lib/admin-api";
+import { formatMoney, resolveImageUrl, type OrderStatus, type OrderPaymentStatus } from "../../../lib/admin-api";
 
 const TABS: { key: OrderStatus | ""; label: string }[] = [
   { key: "", label: "All" },
