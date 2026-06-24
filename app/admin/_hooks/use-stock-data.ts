@@ -18,6 +18,7 @@ export function useStockData() {
   const [error, setError] = useState("");
   const [adjustmentsToday, setAdjustmentsToday] = useState(0);
   const [todayLogs, setTodayLogs] = useState<InventoryLogResponse[]>([]);
+  const [refetchCount, setRefetchCount] = useState(0);
 
   const reqRef = useRef(0);
 
@@ -54,12 +55,13 @@ export function useStockData() {
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, [fetchData, refetchCount]);
 
   const refetch = useCallback(() => {
     setPage(1);
     setVariants([]);
     setTotal(0);
+    setRefetchCount((c) => c + 1);
   }, []);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
