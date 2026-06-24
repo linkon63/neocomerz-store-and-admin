@@ -12,6 +12,7 @@ import {
   type AppSettings,
 } from "../../../lib/admin-api";
 import { useSettingsLoading } from "../_hooks/use-settings";
+import { CurrencyProvider } from "../../../lib/currency-context";
 export { PageHeader, StatusToggle, ProductThumb } from "./admin-ui";
 
 import { AdminIcon, type AdminIconName } from "./admin-icons";
@@ -194,6 +195,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   }
 
   return (
+    <CurrencyProvider>
     <div className="admin-dashboard min-h-screen bg-[#fbfbfc] text-[#111827]">
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-[312px] border-r border-slate-200 bg-white lg:block">
         <div className="flex h-full flex-col">
@@ -335,6 +337,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </main>
       </div>
     </div>
+    </CurrencyProvider>
   );
 }
 

@@ -5,6 +5,7 @@ import {
   formatDate,
   formatMoney,
 } from "../../../../lib/admin-api";
+import { useCurrency } from "../../../../lib/currency-context";
 
 import { ProductDiscount } from "@/lib/type";
 
@@ -16,6 +17,7 @@ interface DiscountRowProps {
 }
 
 export function DiscountRow({ discount, onToggleStatus, onEdit, onDelete }: DiscountRowProps) {
+  const { symbol } = useCurrency();
   return (
     <tr className="odd:bg-white even:bg-slate-50/70">
       <td className="px-5 py-4 font-bold text-slate-800">{discount.name}</td>
@@ -33,7 +35,7 @@ export function DiscountRow({ discount, onToggleStatus, onEdit, onDelete }: Disc
       <td className="px-5 py-4 font-bold text-slate-800">
         {discount.type === "percentage"
           ? `${Number(discount.value)}%`
-          : formatMoney(discount.value)}
+          : formatMoney(discount.value, symbol)}
       </td>
       <td className="px-5 py-4 font-medium text-slate-700">
         {discount._count?.products ?? 0} products

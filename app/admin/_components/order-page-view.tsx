@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { InfiniteScroll } from "./infinite-scroll";
 import { AdminIcon, PageHeader, ProductThumb } from "./admin-shell";
 import { useOrders } from "../_hooks/use-orders";
-import { formatMoney, resolveImageUrl, type OrderStatus } from "../../../lib/admin-api";
+import { formatMoney, resolveImageUrl, type OrderStatus, type OrderPaymentStatus } from "../../../lib/admin-api";
+import { useCurrency } from "../../../lib/currency-context";
 
 const TABS: { key: OrderStatus | ""; label: string }[] = [
   { key: "", label: "All" },
@@ -164,6 +165,7 @@ interface OrderPageViewProps {
 }
 
 export default function OrderPageView({ title, description, fixedStatus }: OrderPageViewProps) {
+  const { symbol } = useCurrency();
   const {
     orders, selected, selectedId, setSelectedId,
     status, setStatus, paymentStatus, setPaymentStatus,
@@ -292,7 +294,7 @@ export default function OrderPageView({ title, description, fixedStatus }: Order
                         #{order.orderNumber}
                       </span>
                       <span className="shrink-0 font-semibold text-slate-900 text-sm">
-                        {formatMoney(order.total)}
+                        {formatMoney(order.total, symbol)}
                       </span>
                     </div>
 
@@ -514,13 +516,13 @@ export default function OrderPageView({ title, description, fixedStatus }: Order
                                     <span className="text-[10px] text-slate-300">|</span>
                                   )}
                                   <span className="text-[11px] font-medium text-slate-500">
-                                    {item.quantity} × {formatMoney(item.unitPrice)}
+                                    {item.quantity} × {formatMoney(item.unitPrice, symbol)}
                                   </span>
                                 </div>
                               </div>
                               <div className="text-right">
                                 <p className="text-xs font-semibold text-slate-800">
-                                  {formatMoney(item.totalPrice)}
+                                  {formatMoney(item.totalPrice, symbol)}
                                 </p>
                               </div>
                             </div>
@@ -539,34 +541,34 @@ export default function OrderPageView({ title, description, fixedStatus }: Order
                           <div className="space-y-2.5 text-xs text-slate-600">
                             <div className="flex justify-between">
                               <span className="text-slate-500 font-medium">Subtotal</span>
-                              <span className="font-semibold text-slate-800">{formatMoney(totals.subtotal)}</span>
+                              <span className="font-semibold text-slate-800">{formatMoney(totals.subtotal, symbol)}</span>
                             </div>
                             
                             {totals.discount > 0 && (
                               <div className="flex justify-between">
                                 <span className="text-slate-500 font-medium">Discount</span>
-                                <span className="font-semibold text-rose-600">- {formatMoney(totals.discount)}</span>
+                                <span className="font-semibold text-rose-600">- {formatMoney(totals.discount, symbol)}</span>
                               </div>
                             )}
 
                             <div className="flex justify-between">
                               <span className="text-slate-500 font-medium">Delivery Charge</span>
-                              <span className="font-semibold text-slate-800">{formatMoney(totals.shipping)}</span>
+                              <span className="font-semibold text-slate-800">{formatMoney(totals.shipping, symbol)}</span>
                             </div>
 
                             <div className="border-t border-slate-200/60 pt-2.5 flex justify-between items-center">
                               <span className="font-semibold text-slate-800 text-[13px]">Total</span>
-                              <span className="font-semibold text-slate-900 text-[15px]">{formatMoney(totals.grand)}</span>
+                              <span className="font-semibold text-slate-900 text-[15px]">{formatMoney(totals.grand, symbol)}</span>
                             </div>
 
                             <div className="flex justify-between items-center text-emerald-600 bg-emerald-50/50 px-2 py-1.5 rounded-md border border-emerald-100/50 mt-1">
                               <span className="font-semibold text-[11px]">Paid Amount</span>
-                              <span className="font-semibold text-xs">{formatMoney(totals.paid)}</span>
+                              <span className="font-semibold text-xs">{formatMoney(totals.paid, symbol)}</span>
                             </div>
 
                             <div className="flex justify-between items-center text-rose-600 bg-rose-50/50 px-2 py-1.5 rounded-md border border-rose-100/50 mt-1">
                               <span className="font-semibold text-[11px]">Due Amount</span>
-                              <span className="font-semibold text-xs">{formatMoney(totals.due)}</span>
+                              <span className="font-semibold text-xs">{formatMoney(totals.due, symbol)}</span>
                             </div>
                           </div>
                         </div>

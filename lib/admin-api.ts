@@ -768,10 +768,11 @@ export function toInventoryRows(
   }));
 }
 
-export function formatMoney(value?: string | number | null) {
+export function formatMoney(value?: string | number | null, symbol?: string) {
   if (value === undefined || value === null || value === "") return "-";
+  const sym = symbol ?? "৳";
 
-  return `৳${Number(value).toLocaleString("en", {
+  return `${sym}${Number(value).toLocaleString("en", {
     maximumFractionDigits: 2,
   })}`;
 }

@@ -8,6 +8,7 @@ import { ConfirmModal } from "../../_components/confirm-modal";
 import { InfiniteScroll } from "../../_components/infinite-scroll";
 import {
   apiRequest,
+  formatMoney,
   slugify,
   type Brand,
   type Category,
@@ -20,6 +21,7 @@ import {
   type InventoryLog,
   type InventoryLogResponse,
 } from "../../../../lib/admin-api";
+import { useCurrency } from "../../../../lib/currency-context";
 
 function VariantRow({
   variant,
@@ -267,14 +269,6 @@ function getDefaultVariant(product: Product): ProductVariant | undefined {
   return product.variants?.find((item) => item.isDefault) ?? product.variants?.[0];
 }
 
-function formatMoney(value?: string | number | null) {
-  let result = "-";
-  if (value !== undefined && value !== null && value !== "") {
-    result = `৳${Number(value).toLocaleString("en", { maximumFractionDigits: 2 })}`;
-  }
-  return result;
-}
-
 function HistoryTab({ product }: { product: Product }) {
   const defaultVariant = product.variants?.find((v) => v.isDefault) ?? product.variants?.[0];
   const [selectedVariantId, setSelectedVariantId] = useState(defaultVariant?.id || "");
@@ -406,6 +400,7 @@ function HistoryTab({ product }: { product: Product }) {
 }
 
 export default function ProductsPage() {
+  const { symbol } = useCurrency();
   const [products, setProducts] = useState<Product[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -1004,7 +999,7 @@ export default function ProductsPage() {
                       setFilters((f) => ({ ...f, minPrice: e.target.value }));
                       setPage(1);
                     }}
-                    placeholder="৳0"
+                    placeholder={`${symbol}0`}
                     type="number"
                     value={filters.minPrice}
                   />
@@ -1017,7 +1012,7 @@ export default function ProductsPage() {
                       setFilters((f) => ({ ...f, maxPrice: e.target.value }));
                       setPage(1);
                     }}
-                    placeholder="৳10000"
+                    placeholder={`${symbol}10000`}
                     type="number"
                     value={filters.maxPrice}
                   />
@@ -1195,7 +1190,7 @@ export default function ProductsPage() {
                           </div>
                         </td>
                         <td className="px-4 py-4 text-sm font-semibold text-slate-800">
-                          ৳{Number(variant?.price || 0).toLocaleString("en")}
+                          {symbol}{Number(variant?.price || 0).toLocaleString("en")}
                         </td>
                         <td className="px-4 py-4 text-sm text-slate-600">
                           {product.createdAt
@@ -1493,7 +1488,7 @@ export default function ProductsPage() {
                                             Unit Price
                                           </p>
                                           <p className="text-[14px] font-semibold text-slate-900">
-                                            BDT {Number(variant?.cost || 0).toLocaleString("en", { minimumFractionDigits: 2 })}
+                                            {symbol} {Number(variant?.cost || 0).toLocaleString("en", { minimumFractionDigits: 2 })}
                                           </p>
                                         </div>
                                         <div>
@@ -1501,7 +1496,7 @@ export default function ProductsPage() {
                                             Retail Price
                                           </p>
                                           <p className="text-[14px] font-semibold text-slate-900">
-                                            BDT {Number(variant?.price || 0).toLocaleString("en", { minimumFractionDigits: 2 })}
+                                            {symbol} {Number(variant?.price || 0).toLocaleString("en", { minimumFractionDigits: 2 })}
                                           </p>
                                         </div>
                                         <div>
@@ -1652,7 +1647,7 @@ export default function ProductsPage() {
                                             Supplier Price
                                           </p>
                                           <p className="text-[14px] font-semibold text-slate-900">
-                                            BDT {Number(variant?.cost || 0).toLocaleString("en", { minimumFractionDigits: 2 })}
+                                            {symbol} {Number(variant?.cost || 0).toLocaleString("en", { minimumFractionDigits: 2 })}
                                           </p>
                                         </div>
                                         <div>
@@ -1660,7 +1655,7 @@ export default function ProductsPage() {
                                             Retail Price
                                           </p>
                                           <p className="text-[14px] font-semibold text-slate-900">
-                                            BDT {Number(variant?.price || 0).toLocaleString("en", { minimumFractionDigits: 2 })}
+                                            {symbol} {Number(variant?.price || 0).toLocaleString("en", { minimumFractionDigits: 2 })}
                                           </p>
                                         </div>
                                         <div>
