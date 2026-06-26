@@ -5,6 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AdminIcon, PageHeader } from "../../../../_components/admin-shell";
+import { ConfirmModal } from "../../../../_components/confirm-modal";
+import { useDeleteProductMedia } from "../../../../_hooks/use-delete-product-media";
+import { useUpdateProductMedia } from "../../../../_hooks/use-update-product-media";
 import {
   apiRequest,
   slugify,
@@ -18,6 +21,8 @@ import {
   type Tag,
   type Unit,
 } from "../../../../../../lib/admin-api";
+import { EditProductSkeleton } from "./EditProductSkeleton";
+import { SupplierModal } from "./SupplierModal";
 
 type CategoryOption = Category & { depth: number };
 
@@ -109,51 +114,7 @@ function getDefaultVariant(product: Product): ProductVariant | undefined {
   return product.variants?.find((v) => v.isDefault) ?? product.variants?.[0];
 }
 
-// Single-column loading skeleton
-function EditProductSkeleton() {
-  return (
-    <div className="mx-auto max-w-5xl space-y-6 p-6 animate-pulse">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-6">
-        <div className="space-y-2">
-          <div className="h-7 w-48 rounded bg-slate-200" />
-          <div className="h-4 w-72 rounded bg-slate-200" />
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-28 rounded bg-slate-200" />
-          <div className="h-10 w-24 rounded bg-slate-200" />
-          <div className="h-10 w-32 rounded bg-slate-200" />
-        </div>
-      </div>
 
-      <div className="space-y-6">
-        {/* General Info Skeleton */}
-        <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
-          <div className="h-5 w-32 rounded bg-slate-200" />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <div className="h-4 w-12 rounded bg-slate-200" />
-              <div className="h-11 rounded-lg bg-slate-100" />
-            </div>
-            <div className="space-y-2">
-              <div className="h-4 w-12 rounded bg-slate-200" />
-              <div className="h-11 rounded-lg bg-slate-100" />
-            </div>
-            <div className="space-y-2 sm:col-span-2">
-              <div className="h-4 w-24 rounded bg-slate-200" />
-              <div className="h-28 rounded-lg bg-slate-100" />
-            </div>
-          </div>
-        </div>
-
-        {/* Media Skeleton */}
-        <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
-          <div className="h-5 w-20 rounded bg-slate-200" />
-          <div className="h-24 rounded-xl bg-slate-100 border border-dashed border-slate-300" />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -176,11 +137,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
-  const [newSupplier, setNewSupplier] = useState({
-    name: "", phone: "", email: "", address: "", isActive: true,
-  });
-  const [supplierError, setSupplierError] = useState("");
-  const [isSavingSupplier, setIsSavingSupplier] = useState(false);
+  const [isConfirmLeaveOpen, setIsConfirmLeaveOpen] = useState(false);
+
+  const { deleteMedia } = useDeleteProductMedia();
+  const { updateMedia } = useUpdateProductMedia();
+
   const [variantSelections, setVariantSelections] = useState<VariantSelection[]>([
     emptyVariantSelection,
   ]);
@@ -663,7 +624,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     if (item.type === "existing") {
       try {
         setIsSaving(true);
-        await apiRequest(`/product-media/${item.id}`, { method: "DELETE" });
+        await deleteMedia(item.id);
         setImagesList((prev) => prev.filter((_, i) => i !== idx));
         toast.success("Image removed successfully");
       } catch (err) {
@@ -693,13 +654,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     await Promise.all(
       existingItems.map((item) => {
         const indexInUnifiedList = imagesList.findIndex((img) => img.key === item.key);
-        return apiRequest(`/product-media/${item.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sortOrder: indexInUnifiedList,
-            isFeatured: indexInUnifiedList === 0,
-          }),
+        return updateMedia(item.id, {
+          sortOrder: indexInUnifiedList,
+          isFeatured: indexInUnifiedList === 0,
         });
       })
     );
@@ -851,13 +808,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
       toast.success("Product updated successfully!");
       setIsDirty(false);
-      
-      const timeoutId = window.setTimeout(() => {
-        router.push("/admin/products");
-        router.refresh();
-      }, 500);
-
-      return () => window.clearTimeout(timeoutId);
+      router.push("/admin/products");
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save product");
       toast.error(err instanceof Error ? err.message : "Failed to save product");
@@ -866,45 +818,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     }
   }
 
-  async function handleCreateSupplier(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setSupplierError("");
-    if (!newSupplier.name.trim()) {
-      setSupplierError("Company Name is required");
-      return;
-    }
-    setIsSavingSupplier(true);
-    try {
-      const created = await apiRequest<{ id: string; name: string }>("/suppliers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: newSupplier.name.trim(),
-          phone: newSupplier.phone.trim() || undefined,
-          email: newSupplier.email.trim() || undefined,
-          address: newSupplier.address.trim() || undefined,
-          isActive: newSupplier.isActive,
-        }),
-      });
-      setSuppliers((current) => [...current, created]);
-      setForm((current) => ({ ...current, supplierId: created.id }));
-      setIsSupplierModalOpen(false);
-      setNewSupplier({ name: "", phone: "", email: "", address: "", isActive: true });
-      toast.success("Supplier added successfully!");
-    } catch (err) {
-      setSupplierError(err instanceof Error ? err.message : "Failed to create supplier");
-      toast.error(err instanceof Error ? err.message : "Failed to create supplier");
-    } finally {
-      setIsSavingSupplier(false);
-    }
-  }
-
   const handleBackLinkClick = (e: React.MouseEvent) => {
     if (isDirty) {
-      const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to leave?");
-      if (!confirmLeave) {
-        e.preventDefault();
-      }
+      e.preventDefault();
+      setIsConfirmLeaveOpen(true);
     }
   };
 
@@ -930,12 +847,12 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             <button
               className="inline-flex h-11 items-center rounded-lg border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700"
               type="button"
-              onClick={(e) => {
+              onClick={() => {
                 if (isDirty) {
-                  const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to leave?");
-                  if (!confirmLeave) return;
+                  setIsConfirmLeaveOpen(true);
+                } else {
+                  router.push("/admin/products");
                 }
-                router.push("/admin/products");
               }}
             >
               Cancel
@@ -1727,120 +1644,30 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       </form>
 
       {/* Supplier Modal */}
-      {isSupplierModalOpen && (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="supplier-modal-title"
-        >
-          <form
-            className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-2xl space-y-4"
-            onSubmit={handleCreateSupplier}
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-base font-semibold text-slate-900" id="supplier-modal-title">
-                  Add Supplier
-                </h3>
-                <p className="mt-1 text-xs text-slate-500">Provide company details below.</p>
-              </div>
-              <button
-                className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600"
-                disabled={isSavingSupplier}
-                onClick={() => setIsSupplierModalOpen(false)}
-                type="button"
-              >
-                <AdminIcon className="h-4 w-4" name="x" />
-              </button>
-            </div>
+      <SupplierModal
+        isOpen={isSupplierModalOpen}
+        onClose={() => setIsSupplierModalOpen(false)}
+        onSuccess={(created) => {
+          setSuppliers((current) => [...current, created]);
+          setForm((current) => ({ ...current, supplierId: created.id }));
+          setIsSupplierModalOpen(false);
+        }}
+      />
 
-            <div className="space-y-3">
-              <label className="block">
-                <span className="mb-1 block text-xs font-semibold text-slate-700">Company Name *</span>
-                <input
-                  autoFocus
-                  className="h-10 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                  onChange={(e) =>
-                    setNewSupplier((current) => ({ ...current, name: e.target.value }))
-                  }
-                  required
-                  value={newSupplier.name}
-                  placeholder="New Supplier Company"
-                />
-              </label>
-              <label className="block">
-                <span className="mb-1 block text-xs font-semibold text-slate-700">Business Phone No.</span>
-                <input
-                  className="h-10 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                  onChange={(e) =>
-                    setNewSupplier((current) => ({ ...current, phone: e.target.value }))
-                  }
-                  value={newSupplier.phone}
-                  placeholder="017XXXXXXXX"
-                />
-              </label>
-              <label className="block">
-                <span className="mb-1 block text-xs font-semibold text-slate-700">Email Address</span>
-                <input
-                  type="email"
-                  className="h-10 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                  onChange={(e) =>
-                    setNewSupplier((current) => ({ ...current, email: e.target.value }))
-                  }
-                  value={newSupplier.email}
-                  placeholder="supplier@example.com"
-                />
-              </label>
-              <label className="block">
-                <span className="mb-1 block text-xs font-semibold text-slate-700">Address</span>
-                <input
-                  className="h-10 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                  onChange={(e) =>
-                    setNewSupplier((current) => ({ ...current, address: e.target.value }))
-                  }
-                  value={newSupplier.address}
-                  placeholder="Street Address, City"
-                />
-              </label>
-              <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 pt-1 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={newSupplier.isActive}
-                  onChange={(e) =>
-                    setNewSupplier((current) => ({ ...current, isActive: e.target.checked }))
-                  }
-                />
-                Active Status
-              </label>
-            </div>
-
-            {supplierError && (
-              <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-                {supplierError}
-              </p>
-            )}
-
-            <div className="flex justify-end gap-3 pt-2">
-              <button
-                className="h-10 rounded-lg border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-                disabled={isSavingSupplier}
-                onClick={() => setIsSupplierModalOpen(false)}
-                type="button"
-              >
-                Cancel
-              </button>
-              <button
-                className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-500 px-5 text-sm font-semibold text-white disabled:bg-slate-400 hover:bg-blue-600 transition-colors"
-                disabled={isSavingSupplier}
-                type="submit"
-              >
-                {isSavingSupplier ? "Saving..." : "Add Supplier"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      {/* Confirm Leave Modal */}
+      <ConfirmModal
+        isOpen={isConfirmLeaveOpen}
+        onClose={() => setIsConfirmLeaveOpen(false)}
+        onConfirm={() => {
+          setIsConfirmLeaveOpen(false);
+          router.push("/admin/products");
+        }}
+        title="Unsaved Changes"
+        message="You have unsaved changes. Are you sure you want to leave?"
+        confirmText="Yes, leave"
+        cancelText="No, stay"
+        isDestructive={true}
+      />
     </>
   );
 }
