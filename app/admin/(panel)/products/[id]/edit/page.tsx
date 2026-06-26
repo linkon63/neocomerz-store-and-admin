@@ -3,10 +3,15 @@
 import React, { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { AdminIcon, PageHeader } from "../../../../_components/admin-shell";
+import { ConfirmModal } from "../../../../_components/confirm-modal";
+import { useDeleteProductMedia } from "../../../../_hooks/use-delete-product-media";
+import { useUpdateProductMedia } from "../../../../_hooks/use-update-product-media";
 import {
   apiRequest,
   slugify,
+  resolveImageUrl,
   type Attribute,
   type Brand,
   type Category,
@@ -16,6 +21,8 @@ import {
   type Tag,
   type Unit,
 } from "../../../../../../lib/admin-api";
+import { EditProductSkeleton } from "./EditProductSkeleton";
+import { SupplierModal } from "./SupplierModal";
 
 type CategoryOption = Category & { depth: number };
 
@@ -40,6 +47,10 @@ type VariantDraft = {
   isDefault: boolean;
 };
 
+type ImageItem =
+  | { id: string; type: "existing"; url: string; key: string; mediaObj: ProductMedia }
+  | { type: "new"; file: File; url: string; key: string };
+
 type ProductEditForm = {
   name: string;
   categoryId: string;
@@ -61,14 +72,14 @@ type ProductEditForm = {
   purchaseOrderReturnable: boolean;
   includeStock: boolean;
   sizeChart: File | null;
+  sizeChartUrl: string | null;
   careGuide: File | null;
+  careGuideUrl: string | null;
   productType: "simple" | "variant";
   sku: string;
   unitPrice: string;
   retailPrice: string;
   stockQuantity: string;
-  images: File[];
-  existingMedia: ProductMedia[];
   defaultVariantId: string;
 };
 
@@ -103,6 +114,8 @@ function getDefaultVariant(product: Product): ProductVariant | undefined {
   return product.variants?.find((v) => v.isDefault) ?? product.variants?.[0];
 }
 
+
+
 export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { id } = React.use(params);
@@ -119,14 +132,16 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
-  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
+  const [imagesList, setImagesList] = useState<ImageItem[]>([]);
+  const [isDirty, setIsDirty] = useState(false);
+
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
-  const [newSupplier, setNewSupplier] = useState({
-    name: "", phone: "", email: "", address: "", isActive: true,
-  });
-  const [supplierError, setSupplierError] = useState("");
-  const [isSavingSupplier, setIsSavingSupplier] = useState(false);
+  const [isConfirmLeaveOpen, setIsConfirmLeaveOpen] = useState(false);
+
+  const { deleteMedia } = useDeleteProductMedia();
+  const { updateMedia } = useUpdateProductMedia();
+
   const [variantSelections, setVariantSelections] = useState<VariantSelection[]>([
     emptyVariantSelection,
   ]);
@@ -134,12 +149,12 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [existingVariants, setExistingVariants] = useState<ProductVariant[]>([]);
 
   const [form, setForm] = useState<ProductEditForm>({
-    name: "", categoryId: "", slug: "", description: "", brandId: "",
-    unitId: "", baseUnitId: "", status: "draft", tagIds: [], supplierId: "",
+    name: "", categoryId: "", slug: "", description: "",
+    brandId: "", unitId: "", baseUnitId: "", status: "draft", tagIds: [], supplierId: "",
     supplierPrice: "", branchId: "", channelIds: [], vatId: "", factor: "1",
     markup: "", purchaseDate: "", purchaseOrderReturnable: false, includeStock: true,
-    sizeChart: null, careGuide: null, productType: "simple", sku: "", unitPrice: "",
-    retailPrice: "", stockQuantity: "0", images: [], existingMedia: [],
+    sizeChart: null, sizeChartUrl: null, careGuide: null, careGuideUrl: null,
+    productType: "simple", sku: "", unitPrice: "", retailPrice: "", stockQuantity: "0",
     defaultVariantId: "",
   });
 
@@ -179,6 +194,29 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     return result;
   }, [form.name, form.sku, selectedUnit?.code, selectedVariantGroups]);
 
+  // Prevent accidental navigation when form has unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
+  // Clean up object URLs on unmount
+  useEffect(() => {
+    return () => {
+      imagesList.forEach((item) => {
+        if (item.type === "new") {
+          URL.revokeObjectURL(item.url);
+        }
+      });
+    };
+  }, [imagesList]);
+
   // Keep variant drafts in sync with selected option values
   useEffect(() => {
     if (form.productType !== "variant") {
@@ -209,16 +247,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       );
     });
   }, [form.productType, form.retailPrice, form.unitPrice, form.stockQuantity, variantPreview]);
-
-  // Generate image preview URLs for newly selected images
-  useEffect(() => {
-    const urls = form.images.map((image) => URL.createObjectURL(image));
-    const timeoutId = window.setTimeout(() => setImagePreviewUrls(urls), 0);
-    return () => {
-      window.clearTimeout(timeoutId);
-      urls.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [form.images]);
 
   // Load product data + all lookup lists on mount
   useEffect(() => {
@@ -283,7 +311,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           tagIds: product.tags?.map((t) => t.id) ?? [],
           supplierId: "",
           supplierPrice: "",
-          branchId: "",
+          branchId: (product as any).branchId ?? "",
           channelIds: [],
           vatId: "",
           factor: "1",
@@ -292,17 +320,29 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           purchaseOrderReturnable: false,
           includeStock: true,
           sizeChart: null,
+          sizeChartUrl: (product as any).sizeChartUrl ?? null,
           careGuide: null,
+          careGuideUrl: (product as any).careGuideUrl ?? null,
           productType: isVariantProduct ? "variant" : "simple",
           sku: defaultVariant?.sku ?? "",
           unitPrice: defaultVariant?.cost ? String(defaultVariant.cost) : "",
           retailPrice: defaultVariant?.price ? String(defaultVariant.price) : "",
           stockQuantity: defaultVariant?.stockQuantity !== undefined
             ? String(defaultVariant.stockQuantity) : "0",
-          images: [],
-          existingMedia: product.media ?? [],
           defaultVariantId: defaultVariant?.id ?? "",
         });
+
+        // Initialize images list
+        const initialImages: ImageItem[] = (product.media ?? [])
+          .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+          .map((m) => ({
+            id: m.id,
+            type: "existing",
+            url: resolveImageUrl(m.media.url),
+            key: m.id,
+            mediaObj: m,
+          }));
+        setImagesList(initialImages);
 
         // Restore variant selections and drafts for variant products
         if (isVariantProduct && product.variants && attributeList.length > 0) {
@@ -400,6 +440,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   }, [id]);
 
   const handleApplyBaseValues = () => {
+    setIsDirty(true);
     setVariantDrafts((current) =>
       current.map((d) => ({
         ...d,
@@ -411,6 +452,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   };
 
   const handleVariantDefaultChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsDirty(true);
     const key = e.currentTarget.getAttribute("data-key") || "";
     setVariantDrafts((current) =>
       current.map((d) => ({
@@ -421,6 +463,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   };
 
   const handleVariantSkuChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsDirty(true);
     const key = e.currentTarget.getAttribute("data-key") || "";
     const nextSku = e.target.value;
     setVariantDrafts((current) =>
@@ -429,6 +472,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   };
 
   const handleVariantCostChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsDirty(true);
     const key = e.currentTarget.getAttribute("data-key") || "";
     const nextCost = e.target.value;
     setVariantDrafts((current) =>
@@ -437,6 +481,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   };
 
   const handleVariantPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsDirty(true);
     const key = e.currentTarget.getAttribute("data-key") || "";
     const nextPrice = e.target.value;
     setVariantDrafts((current) =>
@@ -445,6 +490,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   };
 
   const handleVariantStockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsDirty(true);
     const key = e.currentTarget.getAttribute("data-key") || "";
     const nextStock = e.target.value;
     setVariantDrafts((current) =>
@@ -453,6 +499,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   };
 
   const handleVariantImagesEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsDirty(true);
     const key = e.currentTarget.getAttribute("data-key") || "";
     const files = e.target.files;
     if (!files || files.length === 0) {
@@ -477,6 +524,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   };
 
   function updateName(name: string) {
+    setIsDirty(true);
     setForm((current) => ({
       ...current,
       name,
@@ -485,6 +533,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   }
 
   function generateSku() {
+    setIsDirty(true);
     setForm((current) => ({
       ...current,
       sku: makeSkuSeed(current.name, selectedUnit?.code),
@@ -492,6 +541,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   }
 
   function toggleTag(tagId: string) {
+    setIsDirty(true);
     setForm((current) => ({
       ...current,
       tagIds: current.tagIds.includes(tagId)
@@ -501,6 +551,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   }
 
   function toggleChannel(channelId: string) {
+    setIsDirty(true);
     setForm((current) => ({
       ...current,
       channelIds: current.channelIds.includes(channelId)
@@ -510,6 +561,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   }
 
   function addVariantSelection() {
+    setIsDirty(true);
     setVariantSelections((current) => [
       ...current,
       {
@@ -524,12 +576,14 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   }
 
   function updateVariantSelection(key: string, patch: Partial<Omit<VariantSelection, "key">>) {
+    setIsDirty(true);
     setVariantSelections((current) =>
       current.map((sel) => (sel.key === key ? { ...sel, ...patch } : sel)),
     );
   }
 
   function removeVariantSelection(key: string) {
+    setIsDirty(true);
     setVariantSelections((current) =>
       current.length === 1
         ? [{ ...emptyVariantSelection }]
@@ -538,6 +592,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   }
 
   function removeVariantValue(key: string, valueId: string) {
+    setIsDirty(true);
     setVariantSelections((current) =>
       current.map((sel) =>
         sel.key === key
@@ -552,52 +607,72 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     return option?.values?.find((item) => item.id === valueId)?.value ?? valueId;
   }
 
-  function updateImages(files: FileList | null) {
-    setForm((current) => ({ ...current, images: files ? Array.from(files) : [] }));
-  }
-
-  function removeImage(index: number) {
-    setForm((current) => ({
-      ...current,
-      images: current.images.filter((_, i) => i !== index),
+  function handleUploadImages(files: FileList | null) {
+    if (!files) return;
+    setIsDirty(true);
+    const newItems: ImageItem[] = Array.from(files).map((file, idx) => ({
+      type: "new",
+      file,
+      url: URL.createObjectURL(file),
+      key: `new-${file.name}-${Date.now()}-${idx}`,
     }));
+    setImagesList((prev) => [...prev, ...newItems]);
   }
 
-  async function removeExistingMedia(mediaId: string) {
-    try {
-      await apiRequest(`/product-media/${mediaId}`, { method: "DELETE" });
-      setForm((current) => ({
-        ...current,
-        existingMedia: current.existingMedia.filter((m) => m.id !== mediaId),
-      }));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to remove image");
+  const handleRemoveImage = async (item: ImageItem, idx: number) => {
+    setIsDirty(true);
+    if (item.type === "existing") {
+      try {
+        setIsSaving(true);
+        await deleteMedia(item.id);
+        setImagesList((prev) => prev.filter((_, i) => i !== idx));
+        toast.success("Image removed successfully");
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Failed to remove image");
+      } finally {
+        setIsSaving(false);
+      }
+    } else {
+      URL.revokeObjectURL(item.url);
+      setImagesList((prev) => prev.filter((_, i) => i !== idx));
     }
-  }
+  };
 
-  async function uploadImages(productId: string) {
+  const handleMoveImage = (idx: number, direction: "left" | "right") => {
+    const nextIdx = direction === "left" ? idx - 1 : idx + 1;
+    if (nextIdx < 0 || nextIdx >= imagesList.length) return;
+    setIsDirty(true);
+    const newList = [...imagesList];
+    const [removed] = newList.splice(idx, 1);
+    newList.splice(nextIdx, 0, removed);
+    setImagesList(newList);
+  };
+
+  async function saveImages(productId: string) {
+    // 1. Reorder remaining existing media
+    const existingItems = imagesList.filter((item): item is ImageItem & { type: "existing" } => item.type === "existing");
     await Promise.all(
-      form.images.map((image, index) => {
-        const body = new FormData();
-        body.append("file", image);
-        body.append("type", "image");
-        body.append("sortOrder", String(form.existingMedia.length + index));
-        if (form.existingMedia.length === 0 && index === 0) body.append("isFeatured", "true");
-        return apiRequest(`/products/${productId}/media`, { method: "POST", body });
-      }),
+      existingItems.map((item) => {
+        const indexInUnifiedList = imagesList.findIndex((img) => img.key === item.key);
+        return updateMedia(item.id, {
+          sortOrder: indexInUnifiedList,
+          isFeatured: indexInUnifiedList === 0,
+        });
+      })
     );
-  }
 
-  async function uploadVariantImages(variantId: string, files: File[]) {
+    // 2. Upload new images with correct sort order
+    const newItems = imagesList.filter((item): item is ImageItem & { type: "new" } => item.type === "new");
     await Promise.all(
-      files.map((image, index) => {
+      newItems.map((item) => {
+        const indexInUnifiedList = imagesList.findIndex((img) => img.key === item.key);
         const body = new FormData();
-        body.append("file", image);
+        body.append("file", item.file);
         body.append("type", "image");
-        body.append("sortOrder", String(index));
-        if (index === 0) body.append("isFeatured", "true");
-        return apiRequest(`/variants/${variantId}/media`, { method: "POST", body });
-      }),
+        body.append("sortOrder", String(indexInUnifiedList));
+        if (indexInUnifiedList === 0) body.append("isFeatured", "true");
+        return apiRequest(`/products/${productId}/media`, { method: "POST", body });
+      })
     );
   }
 
@@ -630,9 +705,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         }
       }
     } else {
-      // Variant product: PATCH existing, POST new
       if (variantDrafts.some((v) => !v.sku.trim() || !v.price)) {
-        setError("Every variant needs a SKU and price.");
+        throw new Error("Every variant needs a SKU and price.");
       } else {
         result = await Promise.all(
           variantDrafts.map((v) => {
@@ -664,12 +738,26 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     return result;
   }
 
+  async function uploadVariantImages(variantId: string, files: File[]) {
+    await Promise.all(
+      files.map((image, index) => {
+        const body = new FormData();
+        body.append("file", image);
+        body.append("type", "image");
+        body.append("sortOrder", String(index));
+        if (index === 0) body.append("isFeatured", "true");
+        return apiRequest(`/variants/${variantId}/media`, { method: "POST", body });
+      }),
+    );
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
 
     if (form.productType === "variant" && variantPreview.length === 0) {
       setError("Select at least one variant option value.");
+      toast.error("Select at least one variant option value.");
       return;
     }
 
@@ -716,57 +804,29 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         await apiRequest(`/products/${savedProduct.id}/care-guide`, { method: "POST", body });
       }
 
-      await uploadImages(savedProduct.id);
+      await saveImages(savedProduct.id);
 
+      toast.success("Product updated successfully!");
+      setIsDirty(false);
       router.push("/admin/products");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save product");
+      toast.error(err instanceof Error ? err.message : "Failed to save product");
     } finally {
       setIsSaving(false);
     }
   }
 
-  async function handleCreateSupplier(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setSupplierError("");
-    if (!newSupplier.name.trim()) {
-      setSupplierError("Company Name is required");
-      return;
+  const handleBackLinkClick = (e: React.MouseEvent) => {
+    if (isDirty) {
+      e.preventDefault();
+      setIsConfirmLeaveOpen(true);
     }
-    setIsSavingSupplier(true);
-    try {
-      const created = await apiRequest<{ id: string; name: string }>("/suppliers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: newSupplier.name.trim(),
-          phone: newSupplier.phone.trim() || undefined,
-          email: newSupplier.email.trim() || undefined,
-          address: newSupplier.address.trim() || undefined,
-          isActive: newSupplier.isActive,
-        }),
-      });
-      setSuppliers((current) => [...current, created]);
-      setForm((current) => ({ ...current, supplierId: created.id }));
-      setIsSupplierModalOpen(false);
-      setNewSupplier({ name: "", phone: "", email: "", address: "", isActive: true });
-    } catch (err) {
-      setSupplierError(err instanceof Error ? err.message : "Failed to create supplier");
-    } finally {
-      setIsSavingSupplier(false);
-    }
-  }
+  };
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-100 border-t-blue-600" />
-          <span className="text-sm font-medium text-slate-400">Loading product...</span>
-        </div>
-      </div>
-    );
+    return <EditProductSkeleton />;
   }
 
   return (
@@ -777,21 +837,28 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         action={
           <div className="flex items-center gap-3">
             <Link
-              className="inline-flex h-11 items-center gap-2 rounded-lg px-4 text-sm font-semibold text-slate-600 hover:text-slate-900"
+              className="inline-flex h-11 items-center gap-2 rounded-lg px-4 text-sm font-medium text-slate-600 hover:text-slate-900"
               href="/admin/products"
+              onClick={handleBackLinkClick}
             >
               <AdminIcon className="h-4 w-4" name="chevronRight" />
               Back to product list
             </Link>
             <button
-              className="inline-flex h-11 items-center rounded-lg border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700"
+              className="inline-flex h-11 items-center rounded-lg border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700"
               type="button"
-              onClick={() => router.push("/admin/products")}
+              onClick={() => {
+                if (isDirty) {
+                  setIsConfirmLeaveOpen(true);
+                } else {
+                  router.push("/admin/products");
+                }
+              }}
             >
               Cancel
             </button>
             <button
-              className="inline-flex h-11 items-center rounded-lg bg-blue-500 px-6 text-sm font-semibold text-white disabled:opacity-60"
+              className="inline-flex h-11 items-center rounded-lg bg-blue-600 px-6 text-sm font-semibold text-white disabled:opacity-60 hover:bg-blue-700"
               disabled={isSaving}
               form="edit-product-form"
               type="submit"
@@ -804,11 +871,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
       <form
         id="edit-product-form"
-        className="mx-auto max-w-5xl space-y-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
+        className="mx-auto max-w-5xl space-y-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm pb-12"
         onSubmit={handleSubmit}
       >
         <div className="grid gap-6">
-          {/* General Info */}
+          {/* Section 1: General Info */}
           <section className="rounded-xl border border-slate-200 bg-white p-5">
             <div className="mb-4">
               <h2 className="text-sm font-semibold text-slate-900">General Info</h2>
@@ -819,7 +886,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 <span className="mb-2 block text-xs font-semibold text-slate-700">Name</span>
                 <input
                   autoFocus
-                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
+                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   onChange={(e) => updateName(e.target.value)}
                   placeholder="Enter a product name"
                   required
@@ -829,8 +896,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <label className="block">
                 <span className="mb-2 block text-xs font-semibold text-slate-700">Slug</span>
                 <input
-                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
+                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   onChange={(e) => {
+                    setIsDirty(true);
                     setSlugManuallyEdited(true);
                     setForm((current) => ({ ...current, slug: e.target.value }));
                   }}
@@ -842,13 +910,14 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <label className="block">
                 <span className="mb-2 block text-xs font-semibold text-slate-700">Status</span>
                 <select
-                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm capitalize outline-none focus:border-blue-500"
-                  onChange={(e) =>
+                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm capitalize bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  onChange={(e) => {
+                    setIsDirty(true);
                     setForm((current) => ({
                       ...current,
                       status: e.target.value as ProductEditForm["status"],
-                    }))
-                  }
+                    }));
+                  }}
                   value={form.status}
                 >
                   <option value="active">Active</option>
@@ -859,10 +928,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <label className="block">
                 <span className="mb-2 block text-xs font-semibold text-slate-700">Brand</span>
                 <select
-                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                  onChange={(e) =>
-                    setForm((current) => ({ ...current, brandId: e.target.value }))
-                  }
+                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  onChange={(e) => {
+                    setIsDirty(true);
+                    setForm((current) => ({ ...current, brandId: e.target.value }));
+                  }}
                   value={form.brandId}
                 >
                   <option value="">Select brand</option>
@@ -874,10 +944,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <label className="block">
                 <span className="mb-2 block text-xs font-semibold text-slate-700">Category</span>
                 <select
-                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                  onChange={(e) =>
-                    setForm((current) => ({ ...current, categoryId: e.target.value }))
-                  }
+                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  onChange={(e) => {
+                    setIsDirty(true);
+                    setForm((current) => ({ ...current, categoryId: e.target.value }));
+                  }}
                   value={form.categoryId}
                 >
                   <option value="">Select category</option>
@@ -895,10 +966,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                     const selected = form.tagIds.includes(tag.id);
                     return (
                       <button
-                        className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                        className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-all ${
                           selected
                             ? "border-blue-500 bg-blue-50 text-blue-700"
-                            : "border-slate-300 bg-white text-slate-600"
+                            : "border-slate-300 bg-white text-slate-600 hover:border-slate-400"
                         }`}
                         key={tag.id}
                         onClick={() => toggleTag(tag.id)}
@@ -913,10 +984,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <label className="block">
                 <span className="mb-2 block text-xs font-semibold text-slate-700">Base unit</span>
                 <select
-                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                  onChange={(e) =>
-                    setForm((current) => ({ ...current, baseUnitId: e.target.value }))
-                  }
+                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  onChange={(e) => {
+                    setIsDirty(true);
+                    setForm((current) => ({ ...current, baseUnitId: e.target.value }));
+                  }}
                   value={form.baseUnitId}
                 >
                   <option value="">Select unit</option>
@@ -928,10 +1000,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <label className="block">
                 <span className="mb-2 block text-xs font-semibold text-slate-700">Unit</span>
                 <select
-                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                  onChange={(e) =>
-                    setForm((current) => ({ ...current, unitId: e.target.value }))
-                  }
+                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  onChange={(e) => {
+                    setIsDirty(true);
+                    setForm((current) => ({ ...current, unitId: e.target.value }));
+                  }}
                   value={form.unitId}
                 >
                   <option value="">Select unit</option>
@@ -940,27 +1013,29 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                   ))}
                 </select>
               </label>
-              <div className="flex items-center gap-6">
-                <label className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+              <div className="flex items-center gap-6 py-2 md:col-span-2">
+                <label className="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.purchaseOrderReturnable}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      setIsDirty(true);
                       setForm((current) => ({
                         ...current,
                         purchaseOrderReturnable: e.target.checked,
-                      }))
-                    }
+                      }));
+                    }}
                   />
                   Purchase order returnable
                 </label>
-                <label className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                <label className="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.includeStock}
-                    onChange={(e) =>
-                      setForm((current) => ({ ...current, includeStock: e.target.checked }))
-                    }
+                    onChange={(e) => {
+                      setIsDirty(true);
+                      setForm((current) => ({ ...current, includeStock: e.target.checked }));
+                    }}
                   />
                   Include stock
                 </label>
@@ -968,10 +1043,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <div className="md:col-span-2">
                 <span className="mb-2 block text-xs font-semibold text-slate-700">Description</span>
                 <textarea
-                  className="min-h-28 w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-blue-500"
-                  onChange={(e) =>
-                    setForm((current) => ({ ...current, description: e.target.value }))
-                  }
+                  className="min-h-28 w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  onChange={(e) => {
+                    setIsDirty(true);
+                    setForm((current) => ({ ...current, description: e.target.value }));
+                  }}
                   placeholder="Enter description"
                   value={form.description}
                 />
@@ -979,39 +1055,71 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             </div>
           </section>
 
-          {/* Media */}
-          <section className="rounded-xl border border-slate-200 bg-white p-5">
-            <div className="mb-4">
+          {/* Section 2: Media */}
+          <section className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
+            <div>
               <h2 className="text-sm font-semibold text-slate-900">Media</h2>
-              <p className="text-xs text-slate-500">Upload product, size chart, and care guide files</p>
+              <p className="text-xs text-slate-500">Upload and reorder product images</p>
             </div>
-            <div className="grid gap-4">
-              {/* Existing media */}
-              {form.existingMedia.length > 0 && (
-                <div>
-                  <p className="mb-2 text-xs font-semibold text-slate-700">Current images</p>
-                  <div className="flex flex-wrap gap-3">
-                    {form.existingMedia.map((item) => (
-                      <div className="group relative" key={item.id}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          alt=""
-                          className="h-20 w-20 rounded-lg border border-slate-200 object-cover"
-                          src={item.media.url}
-                        />
-                        <button
-                          className="absolute -right-2 -top-2 grid h-6 w-6 place-items-center rounded-full bg-red-600 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-700"
-                          disabled={isSaving}
-                          onClick={() => removeExistingMedia(item.id)}
-                          type="button"
-                          title="Remove image"
+            <div className="space-y-4">
+              {/* Unified Image List */}
+              {imagesList.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-slate-700">Images (Hover to reorder &amp; remove)</p>
+                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-5">
+                    {imagesList.map((item, index) => {
+                      const isFeatured = index === 0;
+                      return (
+                        <div
+                          key={item.key}
+                          className="group relative aspect-square overflow-hidden rounded-xl border border-slate-200 bg-slate-50 transition-all hover:shadow-md"
                         >
-                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    ))}
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img alt="" className="h-full w-full object-cover" src={item.url} />
+                          {isFeatured && (
+                            <span className="absolute left-2 top-2 rounded-md bg-blue-600 px-2 py-0.5 text-[10px] font-semibold text-white shadow-xs">
+                              Featured
+                            </span>
+                          )}
+                          <div className="absolute inset-0 bg-slate-950/40 opacity-0 transition-opacity group-hover:opacity-100 flex items-center justify-center gap-1.5 z-10">
+                            {index > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => handleMoveImage(index, "left")}
+                                className="grid h-8 w-8 place-items-center rounded-full bg-white text-slate-700 hover:text-blue-600 transition-colors shadow-xs"
+                                title="Move Left"
+                              >
+                                  <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                                  </svg>
+                              </button>
+                            )}
+                            {index < imagesList.length - 1 && (
+                              <button
+                                type="button"
+                                onClick={() => handleMoveImage(index, "right")}
+                                className="grid h-8 w-8 place-items-center rounded-full bg-white text-slate-700 hover:text-blue-600 transition-colors shadow-xs"
+                                title="Move Right"
+                              >
+                                  <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                                  </svg>
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage(item, index)}
+                              className="grid h-8 w-8 place-items-center rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors shadow-xs"
+                              title="Remove image"
+                            >
+                              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -1019,16 +1127,16 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs font-semibold text-slate-700">Upload Images</p>
-                    <p className="text-xs text-slate-500">Click to upload or drag and drop</p>
+                    <p className="text-xs font-semibold text-slate-700">Upload New Images</p>
+                    <p className="text-xs text-slate-500">Supports JPG, PNG, WEBP formats</p>
                   </div>
-                  <label className="inline-flex h-10 items-center rounded-lg border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700">
-                    Upload
+                  <label className="inline-flex h-10 items-center rounded-lg border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-50">
+                    Upload Files
                     <input
                       accept="image/*"
                       className="hidden"
                       multiple
-                      onChange={(e) => updateImages(e.target.files)}
+                      onChange={(e) => handleUploadImages(e.target.files)}
                       ref={imageInputRef}
                       type="file"
                     />
@@ -1036,98 +1144,70 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 </div>
               </div>
 
-              {imagePreviewUrls.length > 0 && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold text-slate-700">
-                      {imagePreviewUrls.length} image{imagePreviewUrls.length !== 1 ? "s" : ""} selected
-                    </p>
-                    <button
-                      className="text-xs font-semibold text-red-600 hover:text-red-700"
-                      onClick={() => {
-                        if (imageInputRef.current) imageInputRef.current.value = "";
-                        setForm((current) => ({ ...current, images: [] }));
-                      }}
-                      type="button"
-                    >
-                      Clear all
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                    {imagePreviewUrls.map((url, index) => (
-                      <div
-                        className="group relative overflow-hidden rounded-lg border border-slate-200"
-                        key={url}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img alt="" className="aspect-square w-full object-cover" src={url} />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-red-600 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-700"
-                          title="Remove image"
-                        >
-                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                        <p className="truncate px-2 py-1 text-[11px] font-semibold text-slate-600">
-                          {form.images[index]?.name}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-xl border border-dashed border-slate-300 bg-white p-4">
                   <p className="text-xs font-semibold text-slate-700">Upload Size Chart</p>
-                  <p className="text-xs text-slate-500">Click to upload</p>
-                  <label className="mt-3 inline-flex h-9 items-center rounded-lg border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700">
-                    Select file
+                  <p className="text-xs text-slate-500">Add size matrix image</p>
+                  <label className="mt-3 inline-flex h-9 items-center rounded-lg border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-50">
+                    Select File
                     <input
                       accept="image/*"
                       className="hidden"
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        setIsDirty(true);
                         setForm((current) => ({
                           ...current,
                           sizeChart: e.target.files?.[0] ?? null,
-                        }))
-                      }
+                        }));
+                      }}
                       type="file"
                     />
                   </label>
                   {form.sizeChart && (
-                    <p className="mt-2 text-[11px] text-slate-500">{form.sizeChart.name}</p>
+                    <p className="mt-2 text-[11px] text-slate-600 font-semibold truncate">{form.sizeChart.name}</p>
+                  )}
+                  {!form.sizeChart && form.sizeChartUrl && (
+                    <div className="mt-2 flex items-center gap-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img alt="" className="h-8 w-8 rounded object-cover" src={resolveImageUrl(form.sizeChartUrl)} />
+                      <span className="text-[10px] text-slate-500">Current size chart</span>
+                    </div>
                   )}
                 </div>
                 <div className="rounded-xl border border-dashed border-slate-300 bg-white p-4">
                   <p className="text-xs font-semibold text-slate-700">Upload Care Guide</p>
-                  <p className="text-xs text-slate-500">Click to upload</p>
-                  <label className="mt-3 inline-flex h-9 items-center rounded-lg border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700">
-                    Select file
+                  <p className="text-xs text-slate-500">Add care guidelines image</p>
+                  <label className="mt-3 inline-flex h-9 items-center rounded-lg border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-50">
+                    Select File
                     <input
                       accept="image/*"
                       className="hidden"
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        setIsDirty(true);
                         setForm((current) => ({
                           ...current,
                           careGuide: e.target.files?.[0] ?? null,
-                        }))
-                      }
+                        }));
+                      }}
                       type="file"
                     />
                   </label>
                   {form.careGuide && (
-                    <p className="mt-2 text-[11px] text-slate-500">{form.careGuide.name}</p>
+                    <p className="mt-2 text-[11px] text-slate-600 font-semibold truncate">{form.careGuide.name}</p>
+                  )}
+                  {!form.careGuide && form.careGuideUrl && (
+                    <div className="mt-2 flex items-center gap-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img alt="" className="h-8 w-8 rounded object-cover" src={resolveImageUrl(form.careGuideUrl)} />
+                      <span className="text-[10px] text-slate-500">Current care guide</span>
+                    </div>
                   )}
                 </div>
               </div>
             </div>
           </section>
 
-          {/* Channel & Branch */}
+          {/* Section 3: Channel & Branch */}
           <section className="rounded-xl border border-slate-200 bg-white p-5">
             <div className="mb-4">
               <h2 className="text-sm font-semibold text-slate-900">Channel &amp; Branch</h2>
@@ -1143,10 +1223,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                       <button
                         key={channel.id}
                         type="button"
-                        className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                        className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-all ${
                           selected
                             ? "border-blue-500 bg-blue-50 text-blue-700"
-                            : "border-slate-300 bg-white text-slate-600"
+                            : "border-slate-300 bg-white text-slate-600 hover:border-slate-400"
                         }`}
                         onClick={() => toggleChannel(channel.id)}
                       >
@@ -1159,10 +1239,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <label className="block">
                 <span className="mb-2 block text-xs font-semibold text-slate-700">Branch</span>
                 <select
-                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                  onChange={(e) =>
-                    setForm((current) => ({ ...current, branchId: e.target.value }))
-                  }
+                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm bg-white outline-none focus:border-blue-500"
+                  onChange={(e) => {
+                    setIsDirty(true);
+                    setForm((current) => ({ ...current, branchId: e.target.value }));
+                  }}
                   value={form.branchId}
                 >
                   <option value="">Select branch</option>
@@ -1174,21 +1255,22 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             </div>
           </section>
 
-          {/* Inventory */}
-          <section className="rounded-xl border border-slate-200 bg-white p-5">
-            <div className="mb-4">
+          {/* Section 4: Inventory */}
+          <section className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
+            <div>
               <h2 className="text-sm font-semibold text-slate-900">Inventory</h2>
               <p className="text-xs text-slate-500">Choose the product type and inventory details</p>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <button
                 type="button"
-                className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all ${
+                className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all cursor-pointer ${
                   form.productType === "simple"
                     ? "border-blue-500 bg-blue-50/50 ring-1 ring-blue-500"
                     : "border-slate-200 hover:border-slate-300"
                 }`}
                 onClick={() => {
+                  setIsDirty(true);
                   setForm((current) => ({ ...current, productType: "simple" }));
                   setVariantSelections([{ ...emptyVariantSelection }]);
                 }}
@@ -1209,15 +1291,18 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               </button>
               <button
                 type="button"
-                className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all ${
+                className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all cursor-pointer ${
                   form.productType === "variant"
                     ? "border-blue-500 bg-blue-50/50 ring-1 ring-blue-500"
                     : "border-slate-200 hover:border-slate-300"
                 }`}
-                onClick={() => setForm((current) => ({ ...current, productType: "variant" }))}
+                onClick={() => {
+                  setIsDirty(true);
+                  setForm((current) => ({ ...current, productType: "variant" }));
+                }}
               >
                 <div className="mr-4">
-                  <p className="text-sm font-semibold text-slate-900">Variant Product</p>
+                  <p className="text-sm font-semibold text-slate-950">Variant Product</p>
                   <p className="mt-1 text-xs text-slate-500">
                     This product has multiple variants like size or color
                   </p>
@@ -1247,22 +1332,24 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                     </button>
                   </div>
                   <input
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm uppercase outline-none focus:border-blue-500"
-                    onChange={(e) =>
-                      setForm((current) => ({ ...current, sku: e.target.value }))
-                    }
+                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm uppercase outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    onChange={(e) => {
+                      setIsDirty(true);
+                      setForm((current) => ({ ...current, sku: e.target.value }));
+                    }}
                     placeholder="PRODUCT-SKU"
                     value={form.sku}
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">Stock quantity</span>
+                  <span className="mb-2 block text-xs font-semibold text-slate-700">Stock Quantity</span>
                   <input
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
+                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     min="0"
-                    onChange={(e) =>
-                      setForm((current) => ({ ...current, stockQuantity: e.target.value }))
-                    }
+                    onChange={(e) => {
+                      setIsDirty(true);
+                      setForm((current) => ({ ...current, stockQuantity: e.target.value }));
+                    }}
                     placeholder="0"
                     step="1"
                     type="number"
@@ -1290,10 +1377,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                     </button>
                   </div>
                   <select
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                    onChange={(e) =>
-                      setForm((current) => ({ ...current, supplierId: e.target.value }))
-                    }
+                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    onChange={(e) => {
+                      setIsDirty(true);
+                      setForm((current) => ({ ...current, supplierId: e.target.value }));
+                    }}
                     value={form.supplierId}
                   >
                     <option value="">Select supplier</option>
@@ -1307,13 +1395,14 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-400">৳</span>
                     <input
-                      className="h-11 w-full rounded-lg border border-slate-300 pl-8 pr-4 text-sm outline-none focus:border-blue-500"
+                      className="h-11 w-full rounded-lg border border-slate-300 pl-8 pr-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                       type="number"
                       step="0.01"
                       value={form.supplierPrice}
-                      onChange={(e) =>
-                        setForm((current) => ({ ...current, supplierPrice: e.target.value }))
-                      }
+                      onChange={(e) => {
+                        setIsDirty(true);
+                        setForm((current) => ({ ...current, supplierPrice: e.target.value }));
+                      }}
                       placeholder="0.00"
                     />
                   </div>
@@ -1321,19 +1410,20 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 <div className="md:col-span-2">
                   <span className="mb-2 block text-xs font-semibold text-slate-700">Purchase Date</span>
                   <input
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
+                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     type="date"
                     value={form.purchaseDate}
-                    onChange={(e) =>
-                      setForm((current) => ({ ...current, purchaseDate: e.target.value }))
-                    }
+                    onChange={(e) => {
+                      setIsDirty(true);
+                      setForm((current) => ({ ...current, purchaseDate: e.target.value }));
+                    }}
                   />
                 </div>
               </div>
             </div>
           </section>
 
-          {/* VAT */}
+          {/* Section 5: VAT */}
           <section className="rounded-xl border border-slate-200 bg-white p-5">
             <div className="mb-4">
               <h2 className="text-sm font-semibold text-slate-900">VAT</h2>
@@ -1342,11 +1432,12 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             <div>
               <span className="mb-2 block text-xs font-semibold text-slate-700">VAT</span>
               <select
-                className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
+                className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm bg-white outline-none focus:border-blue-500"
                 value={form.vatId}
-                onChange={(e) =>
-                  setForm((current) => ({ ...current, vatId: e.target.value }))
-                }
+                onChange={(e) => {
+                  setIsDirty(true);
+                  setForm((current) => ({ ...current, vatId: e.target.value }));
+                }}
               >
                 <option value="">Select VAT</option>
                 {vats.map((vat) => (
@@ -1358,7 +1449,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             </div>
           </section>
 
-          {/* Price */}
+          {/* Section 6: Price */}
           <section className="rounded-xl border border-slate-200 bg-white p-5">
             <div className="mb-4">
               <h2 className="text-sm font-semibold text-slate-900">Price</h2>
@@ -1374,9 +1465,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                     type="number"
                     step="0.01"
                     value={form.factor}
-                    onChange={(e) =>
-                      setForm((current) => ({ ...current, factor: e.target.value }))
-                    }
+                    onChange={(e) => {
+                      setIsDirty(true);
+                      setForm((current) => ({ ...current, factor: e.target.value }));
+                    }}
                   />
                 </div>
                 <div>
@@ -1396,9 +1488,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                       type="number"
                       step="0.01"
                       value={form.unitPrice}
-                      onChange={(e) =>
-                        setForm((current) => ({ ...current, unitPrice: e.target.value }))
-                      }
+                      onChange={(e) => {
+                        setIsDirty(true);
+                        setForm((current) => ({ ...current, unitPrice: e.target.value }));
+                      }}
                     />
                   </div>
                 </div>
@@ -1419,9 +1512,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                       type="number"
                       step="0.01"
                       value={form.retailPrice}
-                      onChange={(e) =>
-                        setForm((current) => ({ ...current, retailPrice: e.target.value }))
-                      }
+                      onChange={(e) => {
+                        setIsDirty(true);
+                        setForm((current) => ({ ...current, retailPrice: e.target.value }));
+                      }}
                     />
                   </div>
                 </div>
@@ -1442,9 +1536,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                       type="number"
                       step="0.01"
                       value={form.markup}
-                      onChange={(e) =>
-                        setForm((current) => ({ ...current, markup: e.target.value }))
-                      }
+                      onChange={(e) => {
+                        setIsDirty(true);
+                        setForm((current) => ({ ...current, markup: e.target.value }));
+                      }}
                     />
                   </div>
                 </div>
@@ -1452,13 +1547,13 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             </div>
           </section>
 
-          {/* Variant options — only shown when product type is variant */}
+          {/* Section 7: Variant Options */}
           {form.productType === "variant" && (
-            <section className="rounded-xl border border-slate-200 bg-white p-5">
-              <div className="mb-4">
-                <h3 className="text-base font-black">Variant options</h3>
-                <p className="mt-1 text-sm font-medium text-slate-500">
-                  Choose a variant option first, then choose values from that option.
+            <section className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
+              <div>
+                <h3 className="text-base font-semibold text-slate-950">Variant Options</h3>
+                <p className="text-xs text-slate-500">
+                  Choose options and option values to generate unique variants.
                 </p>
               </div>
               {variantOptions.length > 0 ? (
@@ -1487,7 +1582,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                   })}
 
                   <button
-                    className="inline-flex h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 font-black text-slate-700 disabled:opacity-50"
+                    className="inline-flex h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 font-semibold text-slate-700 disabled:opacity-50 hover:bg-slate-50 cursor-pointer"
                     disabled={variantSelections.length >= variantOptions.length}
                     onClick={addVariantSelection}
                     type="button"
@@ -1497,16 +1592,16 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                   </button>
 
                   {variantPreview.length > 0 && (
-                    <div className="rounded-lg bg-slate-50 p-4">
-                      <div className="mb-3 flex items-center justify-between gap-3">
+                    <div className="rounded-lg bg-slate-50 p-4 space-y-3">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-3">
                         <div>
-                          <p className="text-sm font-black text-slate-700">Variants to save</p>
-                          <p className="mt-0.5 text-xs font-bold text-slate-500">
-                            Set SKU, price, cost, stock, default, and images per variant.
+                          <p className="text-sm font-semibold text-slate-800">Variants configuration list</p>
+                          <p className="text-xs text-slate-500">
+                            Configure price, costs, stock alert indicators per product variant.
                           </p>
                         </div>
                         <button
-                          className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm font-black"
+                          className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold hover:bg-slate-50 cursor-pointer"
                           type="button"
                           onClick={handleApplyBaseValues}
                         >
@@ -1533,8 +1628,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                   )}
                 </div>
               ) : (
-                <p className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 font-medium text-slate-500">
-                  No variant options found. Add options from Variant Options first.
+                <p className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">
+                  No variant options found. Go to Attribute page to configure them.
                 </p>
               )}
             </section>
@@ -1542,127 +1637,37 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         </div>
 
         {error && (
-          <p className="mt-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[14px] font-semibold text-red-700">
+          <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
             {error}
           </p>
         )}
       </form>
 
-      {/* Supplier creation modal */}
-      {isSupplierModalOpen && (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="supplier-modal-title"
-        >
-          <form
-            className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-2xl space-y-4"
-            onSubmit={handleCreateSupplier}
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-base font-semibold text-slate-900" id="supplier-modal-title">
-                  Add Supplier
-                </h3>
-                <p className="mt-1 text-xs text-slate-500">Provide company details below.</p>
-              </div>
-              <button
-                className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600"
-                disabled={isSavingSupplier}
-                onClick={() => setIsSupplierModalOpen(false)}
-                type="button"
-              >
-                <AdminIcon className="h-4 w-4" name="x" />
-              </button>
-            </div>
+      {/* Supplier Modal */}
+      <SupplierModal
+        isOpen={isSupplierModalOpen}
+        onClose={() => setIsSupplierModalOpen(false)}
+        onSuccess={(created) => {
+          setSuppliers((current) => [...current, created]);
+          setForm((current) => ({ ...current, supplierId: created.id }));
+          setIsSupplierModalOpen(false);
+        }}
+      />
 
-            <div className="space-y-3">
-              <label className="block">
-                <span className="mb-1 block text-xs font-semibold text-slate-700">Company Name *</span>
-                <input
-                  autoFocus
-                  className="h-10 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                  onChange={(e) =>
-                    setNewSupplier((current) => ({ ...current, name: e.target.value }))
-                  }
-                  required
-                  value={newSupplier.name}
-                  placeholder="New Era Cap Company"
-                />
-              </label>
-              <label className="block">
-                <span className="mb-1 block text-xs font-semibold text-slate-700">Business Phone No.</span>
-                <input
-                  className="h-10 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                  onChange={(e) =>
-                    setNewSupplier((current) => ({ ...current, phone: e.target.value }))
-                  }
-                  value={newSupplier.phone}
-                  placeholder="01722301927"
-                />
-              </label>
-              <label className="block">
-                <span className="mb-1 block text-xs font-semibold text-slate-700">Email Address</span>
-                <input
-                  type="email"
-                  className="h-10 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                  onChange={(e) =>
-                    setNewSupplier((current) => ({ ...current, email: e.target.value }))
-                  }
-                  value={newSupplier.email}
-                  placeholder="supplier@example.com"
-                />
-              </label>
-              <label className="block">
-                <span className="mb-1 block text-xs font-semibold text-slate-700">Address</span>
-                <input
-                  className="h-10 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                  onChange={(e) =>
-                    setNewSupplier((current) => ({ ...current, address: e.target.value }))
-                  }
-                  value={newSupplier.address}
-                  placeholder="123 Supplier Street, Dhaka"
-                />
-              </label>
-              <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 pt-1">
-                <input
-                  type="checkbox"
-                  checked={newSupplier.isActive}
-                  onChange={(e) =>
-                    setNewSupplier((current) => ({ ...current, isActive: e.target.checked }))
-                  }
-                />
-                Active Status
-              </label>
-            </div>
-
-            {supplierError && (
-              <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[14px] font-semibold text-red-700">
-                {supplierError}
-              </p>
-            )}
-
-            <div className="flex justify-end gap-3 pt-2">
-              <button
-                className="h-10 rounded-lg border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-                disabled={isSavingSupplier}
-                onClick={() => setIsSupplierModalOpen(false)}
-                type="button"
-              >
-                Cancel
-              </button>
-              <button
-                className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-500 px-5 text-sm font-semibold text-white disabled:bg-slate-400 hover:bg-blue-600 transition-colors"
-                disabled={isSavingSupplier}
-                type="submit"
-              >
-                {isSavingSupplier ? "Saving..." : "Add Supplier"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      {/* Confirm Leave Modal */}
+      <ConfirmModal
+        isOpen={isConfirmLeaveOpen}
+        onClose={() => setIsConfirmLeaveOpen(false)}
+        onConfirm={() => {
+          setIsConfirmLeaveOpen(false);
+          router.push("/admin/products");
+        }}
+        title="Unsaved Changes"
+        message="You have unsaved changes. Are you sure you want to leave?"
+        confirmText="Yes, leave"
+        cancelText="No, stay"
+        isDestructive={true}
+      />
     </>
   );
 }
@@ -1753,11 +1758,11 @@ function VariantPillsSelector({
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 p-4">
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <p className="font-black text-slate-800">Variant option {index + 1}</p>
+    <div className="rounded-lg border border-slate-200 p-4 space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <p className="font-semibold text-slate-800">Variant option {index + 1}</p>
         <button
-          className="inline-flex h-9 items-center gap-2 rounded-lg bg-red-50 px-3 text-sm font-black text-red-700"
+          className="inline-flex h-9 items-center gap-2 rounded-lg bg-red-50 px-3 text-sm font-semibold text-red-700 hover:bg-red-100 cursor-pointer"
           onClick={handleRemoveClick}
           type="button"
         >
@@ -1771,7 +1776,7 @@ function VariantPillsSelector({
             Variant option
           </span>
           <select
-            className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+            className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium bg-white outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
             onChange={handleOptionChange}
             value={selection.optionId}
           >
@@ -1821,10 +1826,10 @@ function VariantDraftCard({
     <div className="rounded-lg border border-slate-200 bg-white p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-black text-slate-800">{v.label}</p>
-          <p className="mt-0.5 text-xs font-bold text-slate-500">{v.sku}</p>
+          <p className="text-sm font-semibold text-slate-800">{v.label}</p>
+          <p className="text-xs text-slate-500">{v.sku}</p>
         </div>
-        <label className="inline-flex items-center gap-2 text-xs font-black text-slate-600">
+        <label className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer">
           <input
             checked={v.isDefault}
             data-key={v.key}
@@ -1832,24 +1837,24 @@ function VariantDraftCard({
             type="radio"
             name="default-variant"
           />
-          Default
+          Default Variant
         </label>
       </div>
 
       <div className="mt-4 grid gap-4 md:grid-cols-[1.3fr_repeat(3,0.7fr)]">
         <label className="block">
-          <span className="mb-1 block text-xs font-black text-slate-600">SKU</span>
+          <span className="mb-1 block text-xs font-semibold text-slate-600">SKU</span>
           <input
-            className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm font-bold uppercase outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+            className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm font-semibold uppercase outline-none focus:border-blue-500"
             value={v.sku}
             data-key={v.key}
             onChange={handleVariantSkuChange}
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs font-black text-slate-600">Cost</span>
+          <span className="mb-1 block text-xs font-semibold text-slate-600">Cost</span>
           <input
-            className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm font-bold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+            className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm font-semibold outline-none focus:border-blue-500"
             min="0"
             step="0.01"
             type="number"
@@ -1859,9 +1864,9 @@ function VariantDraftCard({
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs font-black text-slate-600">Price</span>
+          <span className="mb-1 block text-xs font-semibold text-slate-600">Price</span>
           <input
-            className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm font-bold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+            className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm font-semibold outline-none focus:border-blue-500"
             min="0"
             step="0.01"
             type="number"
@@ -1871,9 +1876,9 @@ function VariantDraftCard({
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs font-black text-slate-600">Stock</span>
+          <span className="mb-1 block text-xs font-semibold text-slate-600">Stock</span>
           <input
-            className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm font-bold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+            className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm font-semibold outline-none focus:border-blue-500"
             min="0"
             step="1"
             type="number"
@@ -1886,9 +1891,9 @@ function VariantDraftCard({
 
       <div className="mt-4">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-black text-slate-600">Variant images</p>
+          <p className="text-xs font-semibold text-slate-600">Variant images</p>
           {v.images.length > 0 && (
-            <span className="text-xs font-bold text-slate-500">{v.images.length} selected</span>
+            <span className="text-xs font-semibold text-slate-500">{v.images.length} selected</span>
           )}
         </div>
         <div className="mt-2 flex flex-wrap gap-2">
@@ -1897,12 +1902,13 @@ function VariantDraftCard({
               className="h-16 w-16 overflow-hidden rounded-lg border border-slate-200"
               key={`${v.key}-preview-${idx}`}
             >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img alt="" className="h-full w-full object-cover" src={url} />
             </div>
           ))}
           <label className="flex h-16 w-16 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white text-slate-500 hover:bg-slate-50">
             <AdminIcon className="h-4 w-4" name="upload" />
-            <span className="mt-1 text-[10px] font-bold">Add</span>
+            <span className="mt-1 text-[10px] font-semibold">Add</span>
             <input
               accept="image/*"
               className="hidden"

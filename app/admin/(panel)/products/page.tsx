@@ -194,23 +194,7 @@ function VariantMediaGrid({
   );
 }
 
-type ProductForm = {
-  id?: string;
-  name: string;
-  slug: string;
-  description: string;
-  status: "active" | "inactive" | "draft";
-  brandId: string;
-  categoryId: string;
-  unitId: string;
-  sku: string;
-  price: string;
-  cost: string;
-  stockQuantity: string;
-  images: File[];
-  media: ProductMedia[];
-  variantId?: string;
-};
+
 
 type CategoryOption = Category & {
   depth: number;
@@ -225,21 +209,7 @@ type FilterState = {
   stockStatus: string;
 };
 
-const emptyForm: ProductForm = {
-  name: "",
-  slug: "",
-  description: "",
-  status: "draft",
-  brandId: "",
-  categoryId: "",
-  unitId: "",
-  sku: "",
-  price: "",
-  cost: "",
-  stockQuantity: "0",
-  images: [],
-  media: [],
-};
+
 
 const emptyFilter: FilterState = {
   categoryId: "",
@@ -405,7 +375,7 @@ export default function ProductsPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
-  const [form, setForm] = useState<ProductForm>(emptyForm);
+
   const [search, setSearch] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [showSearchInput, setShowSearchInput] = useState(false);
@@ -418,10 +388,10 @@ export default function ProductsPage() {
   const totalPages = Math.ceil(total / limit);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
-  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
+
   const [isDuplicating, setIsDuplicating] = useState<string | null>(null);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<Record<string, string>>({});
@@ -429,6 +399,32 @@ export default function ProductsPage() {
   const [productToAdjust, setProductToAdjust] = useState<Product | null>(null);
   const [variantToAdjust, setVariantToAdjust] = useState<ProductVariant | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isLoading || page >= totalPages) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoading) {
+          setPage((p) => p + 1);
+        }
+      },
+      { threshold: 0.1, rootMargin: "100px" }
+    );
+
+    const target = observerTarget.current;
+    if (target) {
+      observer.observe(target);
+    }
+
+    return () => {
+      if (target) {
+        observer.unobserve(target);
+      }
+    };
+  }, [isLoading, page, totalPages]);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const reqRef = useRef(0);
 
@@ -528,17 +524,7 @@ export default function ProductsPage() {
     }
   }
 
-  useEffect(() => {
-    const urls = form.images.map((image) => URL.createObjectURL(image));
-    const timeoutId = window.setTimeout(() => {
-      setImagePreviewUrls(urls);
-    }, 0);
 
-    return () => {
-      window.clearTimeout(timeoutId);
-      urls.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [form.images]);
 
   async function loadProducts() {
     const myReq = ++reqRef.current;
@@ -618,168 +604,7 @@ export default function ProductsPage() {
     setPage(1);
   }
 
-  function updateName(name: string) {
-    setForm((current) => ({
-      ...current,
-      name,
-      slug: current.id ? current.slug : slugify(name),
-      sku: current.id || current.sku ? current.sku : slugify(name).toUpperCase(),
-    }));
-  }
 
-  function openEditModal(product: Product) {
-    const variant = getDefaultVariant(product);
-
-    setError("");
-    setForm({
-      id: product.id,
-      name: product.name,
-      slug: product.slug,
-      description: product.description ?? "",
-      status: product.status,
-      brandId: product.brand?.id ?? product.brandId ?? "",
-      categoryId: product.category?.id ?? product.categoryId ?? "",
-      unitId: product.unit?.id ?? product.unitId ?? "",
-      sku: variant?.sku ?? "",
-      price: variant?.price ? String(variant.price) : "",
-      cost: variant?.cost ? String(variant.cost) : "",
-      stockQuantity:
-        variant?.stockQuantity !== undefined ? String(variant.stockQuantity) : "0",
-      images: [],
-      media: product.media ?? [],
-      variantId: variant?.id,
-    });
-    setIsModalOpen(true);
-  }
-
-  function closeModal() {
-    if (isSaving) return;
-
-    setError("");
-    setForm(emptyForm);
-    setIsModalOpen(false);
-  }
-
-  function updateImages(files: FileList | null) {
-    if (!files) return;
-    setForm((current) => ({
-      ...current,
-      images: [...current.images, ...Array.from(files)],
-    }));
-    if (imageInputRef.current) {
-      imageInputRef.current.value = "";
-    }
-  }
-
-  function removeNewImage(index: number) {
-    setForm((current) => ({
-      ...current,
-      images: current.images.filter((_, idx) => idx !== index),
-    }));
-  }
-
-  function clearSelectedImages() {
-    if (imageInputRef.current) imageInputRef.current.value = "";
-    setForm((current) => ({ ...current, images: [] }));
-  }
-
-  async function uploadProductImages(productId: string) {
-    await Promise.all(
-      form.images.map((image, index) => {
-        const body = new FormData();
-        body.append("file", image);
-        body.append("type", "image");
-        body.append("sortOrder", String(form.media.length + index));
-        if (form.media.length === 0 && index === 0) {
-          body.append("isFeatured", "true");
-        }
-
-        return apiRequest(`/products/${productId}/media`, {
-          method: "POST",
-          body,
-        });
-      }),
-    );
-  }
-
-  async function saveDefaultVariant(productId: string) {
-    if (!form.sku.trim() || !form.price) return;
-
-    const body = {
-      sku: form.sku.trim(),
-      price: Number(form.price),
-      cost: form.cost ? Number(form.cost) : undefined,
-      stockQuantity: Number(form.stockQuantity || 0),
-      isDefault: true,
-    };
-
-    await apiRequest(
-      form.variantId ? `/variants/${form.variantId}` : `/products/${productId}/variants`,
-      {
-        method: form.variantId ? "PATCH" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      },
-    );
-  }
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError("");
-    setIsSaving(true);
-
-    try {
-      const payload = {
-        name: form.name.trim(),
-        slug: form.slug.trim() || slugify(form.name),
-        description: form.description.trim() || undefined,
-        status: form.status,
-        brandId: form.brandId,
-        categoryId: form.categoryId,
-        unitId: form.unitId || undefined,
-      };
-
-      const savedProduct = await apiRequest<Product>(
-        form.id ? `/products/${form.id}` : "/products",
-        {
-          method: form.id ? "PATCH" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
-      );
-
-      await saveDefaultVariant(savedProduct.id);
-      await uploadProductImages(savedProduct.id);
-
-      setForm(emptyForm);
-      setIsModalOpen(false);
-      await loadProducts();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save product");
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  async function removeMedia(media: ProductMedia) {
-    if (isSaving) return;
-
-    setError("");
-    setIsSaving(true);
-
-    try {
-      await apiRequest(`/product-media/${media.id}`, { method: "DELETE" });
-      setForm((current) => ({
-        ...current,
-        media: current.media.filter((item) => item.id !== media.id),
-      }));
-      await loadProducts();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to remove image");
-    } finally {
-      setIsSaving(false);
-    }
-  }
 
   async function confirmDelete() {
     if (!productToDelete) return;
@@ -1243,18 +1068,16 @@ export default function ProductsPage() {
                                     onClick={() => setOpenMenuId(null)}
                                   />
                                   <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-slate-200 bg-white shadow-xl z-20 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                                    <button
-                                      onClick={() => {
-                                        openEditModal(product);
-                                        setOpenMenuId(null);
-                                      }}
+                                    <Link
+                                      href={`/admin/products/${product.id}/edit`}
+                                      onClick={() => setOpenMenuId(null)}
                                       className="flex w-full items-center gap-3 px-4 py-3 text-[15px] font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-all"
                                     >
                                       <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                       </svg>
                                       Edit Product
-                                    </button>
+                                    </Link>
                                     <button
                                       onClick={() => {
                                         duplicateProduct(product);
@@ -1361,15 +1184,15 @@ export default function ProductsPage() {
                                     >
                                       <AdminIcon className="h-4.5 w-4.5" name="trash" />
                                     </button>
-                                    <button
-                                      onClick={() => openEditModal(product)}
+                                    <Link
+                                      href={`/admin/products/${product.id}/edit`}
                                       className="inline-flex items-center justify-center h-10 w-10 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 transition-all shadow-xs"
                                       title="Edit product"
                                     >
                                       <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                       </svg>
-                                    </button>
+                                    </Link>
                                   </div>
                                 </div>
 
@@ -1738,242 +1561,7 @@ export default function ProductsPage() {
         />
       )}
 
-      {/* Edit Product Modal */}
-      {isModalOpen && (
-        <div
-          aria-labelledby="product-modal-title"
-          aria-modal="true"
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 px-4 py-6"
-          role="dialog"
-        >
-          <form
-            className="max-h-[calc(100vh-3rem)] w-full max-w-5xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-8 shadow-2xl"
-            onSubmit={handleSubmit}
-          >
-            <div className="mb-6 flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-[20px] font-semibold text-slate-900" id="product-modal-title">
-                  {form.id ? "Update Product" : "Add Product"}
-                </h2>
-                <p className="mt-1 text-[14px] font-normal text-slate-500">
-                  {form.id ? "Update the details of your product" : "Product details, default variant, and multiple images."}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                {form.id && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-medium text-slate-600">Change Status</span>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={form.status === "active"}
-                        onChange={() => setForm((current) => ({
-                          ...current,
-                          status: current.status === "active" ? "inactive" : "active",
-                        }))}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
-                  </div>
-                )}
-                <button
-                  className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
-                  disabled={isSaving}
-                  onClick={closeModal}
-                  type="button"
-                >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
 
-            <div className="mb-6 p-5 bg-slate-50 rounded-lg border border-slate-200">
-              <h3 className="text-[15px] font-semibold text-slate-900 mb-1">Product Info</h3>
-              <p className="text-[13px] font-normal text-slate-500 mb-5">Update general information for this product</p>
-
-              <div className="grid gap-5 lg:grid-cols-2">
-                <label className="block">
-                  <span className="mb-2 block text-[13px] font-semibold text-slate-700">
-                    Name <span className="text-red-500">*</span> <span className="text-slate-400 text-[11px]">ⓘ</span>
-                  </span>
-                  <input
-                    autoFocus
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                    onChange={(event) => updateName(event.target.value)}
-                    required
-                    value={form.name}
-                  />
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-[13px] font-semibold text-slate-700">
-                    Brand <span className="text-red-500">*</span>
-                  </span>
-                  <select
-                    className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        brandId: event.target.value,
-                      }))
-                    }
-                    required
-                    value={form.brandId}
-                  >
-                    <option value="">Select brand</option>
-                    {brands.map((brand) => (
-                      <option key={brand.id} value={brand.id}>
-                        {brand.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-[13px] font-semibold text-slate-700">
-                    Tags
-                  </span>
-                  <input
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                    placeholder="flat-brim-cap"
-                    value={form.sku}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        sku: event.target.value,
-                      }))
-                    }
-                  />
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-[13px] font-semibold text-slate-700">
-                    Suppliers
-                  </span>
-                  <select
-                    className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        categoryId: event.target.value,
-                      }))
-                    }
-                    required
-                    value={form.categoryId}
-                  >
-                    <option value="">Select category</option>
-                    {categoryOptions.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {"— ".repeat(category.depth)}
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block lg:col-span-2">
-                  <span className="mb-2 block text-[13px] font-semibold text-slate-700">
-                    Description <span className="text-slate-400 text-[11px]">ⓘ</span>
-                  </span>
-                  <textarea
-                    className="min-h-24 w-full rounded-lg border border-slate-300 px-4 py-3 text-[14px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        description: event.target.value,
-                      }))
-                    }
-                    value={form.description}
-                  />
-                </label>
-              </div>
-            </div>
-
-            <div className="mb-6 p-5 bg-slate-50 rounded-lg border border-slate-200">
-              <h3 className="text-[15px] font-semibold text-slate-900 mb-5">Upload Images <span className="text-slate-400 text-[11px]">ⓘ</span></h3>
-
-              <div className="flex items-start gap-4">
-                {form.media.length > 0 && form.media.map((item) => (
-                  <div className="relative" key={item.id}>
-                    <img
-                      alt=""
-                      className="h-24 w-24 rounded-lg border border-slate-200 object-cover"
-                      src={item.media.url}
-                    />
-                    <button
-                      className="absolute -right-2 -top-2 grid h-6 w-6 place-items-center rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors"
-                      disabled={isSaving}
-                      onClick={() => removeMedia(item)}
-                      type="button"
-                    >
-                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                ))}
-
-                {imagePreviewUrls.length > 0 && imagePreviewUrls.map((url, index) => (
-                  <div className="relative" key={url}>
-                    <img
-                      alt=""
-                      className="h-24 w-24 rounded-lg border border-slate-200 object-cover"
-                      src={url}
-                    />
-                    <button
-                      className="absolute -right-2 -top-2 grid h-6 w-6 place-items-center rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors"
-                      disabled={isSaving}
-                      onClick={() => removeNewImage(index)}
-                      type="button"
-                    >
-                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                ))}
-
-                <label className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-white hover:bg-slate-50 transition-colors">
-                  <svg className="h-6 w-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  <input
-                    accept="image/*"
-                    className="hidden"
-                    multiple
-                    onChange={(event) => updateImages(event.target.files)}
-                    ref={imageInputRef}
-                    type="file"
-                  />
-                </label>
-              </div>
-            </div>
-
-            {error && (
-              <p className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[14px] font-semibold text-red-700">
-                {error}
-              </p>
-            )}
-
-            <div className="flex items-center justify-end gap-3 border-t border-slate-200 pt-6">
-              <button
-                className="h-11 rounded-lg border border-slate-200 bg-white px-6 text-[14px] font-semibold text-slate-600 transition-colors hover:bg-slate-50"
-                disabled={isSaving}
-                onClick={closeModal}
-                type="button"
-              >
-                Cancel
-              </button>
-              <button
-                className="flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-6 text-[14px] font-semibold text-white transition-all hover:bg-blue-700 disabled:opacity-50"
-                disabled={isSaving}
-                type="submit"
-              >
-                {isSaving ? "Saving..." : form.id ? "Update" : "Add Product"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
 
       <ConfirmModal
         cancelText="No"
