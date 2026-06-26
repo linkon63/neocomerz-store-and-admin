@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
   apiRequest,
@@ -31,17 +32,19 @@ export function useOrders({ fixedStatus }: UseOrdersOptions = {}) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const searchParams = useSearchParams();
+  const searchParamStatus = searchParams?.get("status");
+  const searchParamPaymentStatus = searchParams?.get("paymentStatus");
+  const searchParamSearch = searchParams?.get("search");
+
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
     if (!fixedStatus) {
-      const s = params.get("status");
-      if (s) setStatus(s as OrderStatus);
+      setStatus((searchParamStatus as OrderStatus) || "");
     }
-    const ps = params.get("paymentStatus");
-    const q = params.get("search");
-    if (ps) setPaymentStatus(ps as OrderPaymentStatus);
-    if (q) setSearch(q);
-  }, [fixedStatus]);
+    setPaymentStatus((searchParamPaymentStatus as OrderPaymentStatus) || "");
+    setSearch(searchParamSearch || "");
+    setPage(1);
+  }, [fixedStatus, searchParamStatus, searchParamPaymentStatus, searchParamSearch]);
 
   const reqRef = useRef(0);
 
