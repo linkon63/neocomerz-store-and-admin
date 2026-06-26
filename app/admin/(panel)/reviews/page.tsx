@@ -1,175 +1,24 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { AdminIcon, PageHeader } from "../../_components/admin-shell";
-import { ConfirmModal } from "../../_components/confirm-modal";
-
-type Review = {
-  id: string;
-  name: string;
-  detail: string;
-  meta: "Approved" | "Pending moderation" | "Needs response";
-  status: "Active" | "Draft";
-};
-
-type ReviewForm = {
-  id?: string;
-  name: string;
-  rating: string;
-  product: string;
-  meta: "Approved" | "Pending moderation" | "Needs response";
-  status: "Active" | "Draft";
-};
-
-const DEFAULT_REVIEWS: Review[] = [
-  { id: "1", name: "Imran Hossain", detail: "5 stars on Elegante Zero", meta: "Approved", status: "Active" },
-  { id: "2", name: "Sadia Rahman", detail: "4 stars on Bucket Hat", meta: "Pending moderation", status: "Draft" },
-  { id: "3", name: "Rakib Hasan", detail: "3 stars on Triple AAA Cap", meta: "Needs response", status: "Draft" },
-  { id: "4", name: "Amina Begum", detail: "5 stars on Juventus 2012-13 Black Shirt", meta: "Approved", status: "Active" },
-  { id: "5", name: "Tahmid Islam", detail: "2 stars on Manchester United Red Drill Top", meta: "Needs response", status: "Draft" },
-];
-
-const emptyForm: ReviewForm = {
-  name: "",
-  rating: "5",
-  product: "",
-  meta: "Approved",
-  status: "Active",
-};
-
-function metaTone(meta: string) {
-  switch (meta) {
-    case "Approved":
-      return "border-emerald-200 bg-emerald-50 text-emerald-700";
-    case "Pending moderation":
-      return "border-amber-200 bg-amber-50 text-amber-700";
-    case "Needs response":
-      return "border-rose-200 bg-rose-50 text-rose-700";
-    default:
-      return "border-slate-200 bg-slate-50 text-slate-700";
-  }
-}
-
-function LocalStatusToggle({ active, onToggle }: { active: boolean; onToggle: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      className={`inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out outline-none ${
-        active ? "bg-slate-900" : "bg-slate-200"
-      }`}
-    >
-      <span
-        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${
-          active ? "translate-x-5" : "translate-x-0"
-        }`}
-      />
-    </button>
-  );
-}
+import { InfiniteScroll } from "../../_components/infinite-scroll";
+import { ReviewsTableSkeleton } from "../../_components/reviews-table-skeleton";
+import { useReviews } from "../../_hooks/use-reviews";
 
 export default function ReviewsPage() {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [search, setSearch] = useState("");
-  const [form, setForm] = useState<ReviewForm>(emptyForm);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [reviewToDelete, setReviewToDelete] = useState<Review | null>(null);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("neocomerz_reviews");
-    if (saved) {
-      try {
-        setReviews(JSON.parse(saved));
-      } catch (e) {
-        setReviews(DEFAULT_REVIEWS);
-      }
-    } else {
-      setReviews(DEFAULT_REVIEWS);
-    }
-  }, []);
-
-  const saveReviews = (updated: Review[]) => {
-    setReviews(updated);
-    localStorage.setItem("neocomerz_reviews", JSON.stringify(updated));
-  };
-
-  const filteredReviews = useMemo(() => {
-    return reviews.filter((review) =>
-      `${review.name} ${review.detail} ${review.meta}`
-        .toLowerCase()
-        .includes(search.toLowerCase())
-    );
-  }, [reviews, search]);
-
-  const handleToggleStatus = (id: string) => {
-    const updated = reviews.map((r) =>
-      r.id === id ? { ...r, status: r.status === "Active" ? "Draft" as const : "Active" as const } : r
-    );
-    saveReviews(updated);
-  };
-
-  const openAddModal = () => {
-    setForm(emptyForm);
-    setIsModalOpen(true);
-  };
-
-  const openEditModal = (review: Review) => {
-    const match = review.detail.match(/^(\d+)\s+stars?\s+on\s+(.+)$/i);
-    const rating = match ? match[1] : "5";
-    const product = match ? match[2] : review.detail;
-
-    setForm({
-      id: review.id,
-      name: review.name,
-      rating,
-      product,
-      meta: review.meta,
-      status: review.status,
-    });
-    setIsModalOpen(true);
-  };
-
-  const deleteReview = (review: Review) => {
-    setReviewToDelete(review);
-    setDeleteModalOpen(true);
-  };
-
-  const confirmDelete = () => {
-    if (!reviewToDelete) return;
-    const updated = reviews.filter((r) => r.id !== reviewToDelete.id);
-    saveReviews(updated);
-    setDeleteModalOpen(false);
-    setReviewToDelete(null);
-  };
-
-  const cancelDelete = () => {
-    setDeleteModalOpen(false);
-    setReviewToDelete(null);
-  };
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const detail = `${form.rating} stars on ${form.product}`;
-
-    if (form.id) {
-      const updated = reviews.map((r) =>
-        r.id === form.id ? { ...r, name: form.name, detail, meta: form.meta, status: form.status } : r
-      );
-      saveReviews(updated);
-    } else {
-      const newReview: Review = {
-        id: String(Date.now()),
-        name: form.name,
-        detail,
-        meta: form.meta,
-        status: form.status,
-      };
-      saveReviews([...reviews, newReview]);
-    }
-    setIsModalOpen(false);
-    setForm(emptyForm);
-  };
+  const {
+    reviews,
+    isLoading,
+    error,
+    search,
+    setSearch,
+    hasMore,
+    total,
+    page,
+    setPage,
+  } = useReviews();
+  const [showSearchInput, setShowSearchInput] = useState(false);
 
   return (
     <>
@@ -177,264 +26,124 @@ export default function ReviewsPage() {
         title="Reviews"
         description="Moderate product reviews before they appear in the store"
         action={
-          <div className="flex gap-3">
-            <button
-              onClick={() => {
-                const saved = localStorage.getItem("neocomerz_reviews");
-                if (saved) {
-                  try {
-                    setReviews(JSON.parse(saved));
-                  } catch (e) {}
-                }
-              }}
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm cursor-pointer"
-              type="button"
-            >
-              <AdminIcon className="h-5 w-5 text-slate-500" name="refresh" />
-            </button>
-            <button
-              className="inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 shrink-0"
-              onClick={openAddModal}
-              type="button"
-            >
-              <AdminIcon className="h-5 w-5" name="plus" />
-              Add Review
-            </button>
+          <div className="flex items-center justify-end gap-3">
+            {showSearchInput ? (
+              <div className="relative flex h-11 w-64 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+                <AdminIcon className="h-5 w-5 shrink-0 text-slate-400" name="search" />
+                <input
+                  autoFocus
+                  className="w-full bg-transparent text-sm font-medium outline-none placeholder:text-slate-400 text-slate-800"
+                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                  onKeyDown={(e) => e.key === "Enter" && setPage(1)}
+                  placeholder="Search reviews..."
+                  value={search}
+                />
+                <button
+                  className="grid h-6 w-6 shrink-0 place-items-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all"
+                  onClick={() => {
+                    setSearch("");
+                    setPage(1);
+                    setShowSearchInput(false);
+                  }}
+                  title="Close search"
+                  type="button"
+                >
+                  <AdminIcon className="h-4 w-4" name="x" />
+                </button>
+              </div>
+            ) : (
+              <button
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm cursor-pointer"
+                onClick={() => setShowSearchInput(true)}
+                title="Search reviews"
+                type="button"
+              >
+                <AdminIcon className="h-5 w-5 text-slate-600" name="search" />
+              </button>
+            )}
           </div>
         }
       />
 
-      <section>
-        <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-          <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-800">Reviews list</h2>
-              <p className="text-sm font-medium text-slate-600">
-                Displaying {filteredReviews.length} reviews
-              </p>
+      {error && (
+        <div className="mb-6 bg-gradient-to-r from-red-50 to-red-100/50 border-2 border-red-200 px-5 py-4 rounded-xl animate-in shake duration-300 shadow-sm">
+          <div className="flex items-start gap-3">
+            <svg className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="flex-1">
+              <p className="text-[15px] font-semibold text-red-900">{error}</p>
             </div>
-            <label className="flex h-11 w-full max-w-md items-center gap-3 rounded-lg border-2 border-slate-200 bg-white px-4 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 transition-all">
-              <AdminIcon className="h-5 w-5 text-slate-400" name="search" />
-              <input
-                className="w-full bg-transparent text-sm font-medium outline-none text-slate-700 placeholder:text-slate-400"
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search reviews"
-                value={search}
-              />
-            </label>
           </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] border-collapse text-left">
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  {["Name", "Detail", "Meta", "Status", "Actions"].map((heading) => (
-                    <th className="px-4 py-4 text-sm font-semibold text-slate-700" key={heading}>
-                      {heading}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredReviews.length > 0 ? (
-                  filteredReviews.map((row) => (
-                    <tr className="hover:bg-blue-50/30 transition-all duration-200" key={row.id}>
-                      <td className="px-4 py-4 text-sm font-semibold text-slate-800">
-                        {row.name}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-slate-600">
-                        {row.detail}
-                      </td>
-                      <td className="px-4 py-4">
-                        <span className={`inline-flex rounded-md border px-2 py-0.5 text-xs font-semibold capitalize ${metaTone(row.meta)}`}>
-                          {row.meta}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-2">
-                          <LocalStatusToggle
-                            active={row.status === "Active"}
-                            onToggle={() => handleToggleStatus(row.id)}
-                          />
-                          <span className={`text-sm font-semibold ${row.status === "Active" ? "text-slate-800" : "text-slate-400"}`}>
-                            {row.status}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex gap-2">
-                          <button
-                            className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
-                            onClick={() => openEditModal(row)}
-                            type="button"
-                            title="Edit review"
-                          >
-                            <AdminIcon className="h-4 w-4" name="edit" />
-                          </button>
-                          <button
-                            className="grid h-8 w-8 place-items-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
-                            onClick={() => deleteReview(row)}
-                            type="button"
-                            title="Delete review"
-                          >
-                            <AdminIcon className="h-4 w-4" name="trash" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td className="px-4 py-8 text-center text-sm text-slate-400 font-semibold" colSpan={5}>
-                      No reviews found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      {isModalOpen && (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6 modal-backdrop"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="review-modal-title"
-        >
-          <form
-            className="modal-panel flex w-full max-w-lg flex-col rounded-xl border border-slate-200 bg-white shadow-2xl min-h-[480px] max-h-[calc(100vh-3rem)]"
-            onSubmit={handleSubmit}
-          >
-            <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5 bg-gradient-to-r from-slate-50 to-white shrink-0">
-              <div>
-                <h2 className="text-lg font-semibold text-slate-800" id="review-modal-title">
-                  {form.id ? "Edit Review" : "Add Review"}
-                </h2>
-                <p className="mt-1 text-sm font-medium text-slate-600">
-                  Fill in the reviewer details and status moderations.
-                </p>
-              </div>
-              <button
-                className="grid h-10 w-10 place-items-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 transition-all cursor-pointer"
-                onClick={() => setIsModalOpen(false)}
-                type="button"
-              >
-                <AdminIcon className="h-5 w-5" name="x" />
-              </button>
-            </div>
-            
-            <div className="flex-1 modal-body px-6 py-5">
-            <div className="space-y-4">
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-700">
-                  Reviewer Name
-                </span>
-                <input
-                  autoFocus
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  required
-                  value={form.name}
-                  placeholder="e.g. John Doe"
-                />
-              </label>
-
-              <div className="grid grid-cols-2 gap-4">
-                <label className="block">
-                  <span className="mb-2 block text-sm font-semibold text-slate-700">
-                    Rating
-                  </span>
-                  <select
-                    className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all cursor-pointer"
-                    onChange={(e) => setForm({ ...form, rating: e.target.value })}
-                    value={form.rating}
-                  >
-                    {[5, 4, 3, 2, 1].map((r) => (
-                      <option key={r} value={r}>
-                        {r} Star{r !== 1 && "s"}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="block">
-                  <span className="mb-2 block text-sm font-semibold text-slate-700">
-                    Moderation Meta
-                  </span>
-                  <select
-                    className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all cursor-pointer"
-                    onChange={(e) => setForm({ ...form, meta: e.target.value as any })}
-                    value={form.meta}
-                  >
-                    <option value="Approved">Approved</option>
-                    <option value="Pending moderation">Pending moderation</option>
-                    <option value="Needs response">Needs response</option>
-                  </select>
-                </label>
-              </div>
-
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-700">
-                  Product Name
-                </span>
-                <input
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
-                  onChange={(e) => setForm({ ...form, product: e.target.value })}
-                  required
-                  value={form.product}
-                  placeholder="e.g. Bucket Hat"
-                />
-              </label>
-
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-700">
-                  Status
-                </span>
-                <select
-                  className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-4 text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all cursor-pointer"
-                  onChange={(e) => setForm({ ...form, status: e.target.value as any })}
-                  value={form.status}
-                >
-                  <option value="Active">Active</option>
-                  <option value="Draft">Draft</option>
-                </select>
-              </label>
-
-            </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 border-t border-slate-200 px-6 py-5 bg-slate-50 shrink-0">
-                <button
-                  className="h-11 rounded-lg border-2 border-slate-200 bg-white px-5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer"
-                  onClick={() => setIsModalOpen(false)}
-                  type="button"
-                >
-                  Cancel
-                </button>
-                <button
-                  className="inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 cursor-pointer"
-                  type="submit"
-                >
-                  <AdminIcon className="h-5 w-5" name="check" />
-                  {form.id ? "Update" : "Create"}
-                </button>
-            </div>
-          </form>
         </div>
       )}
 
-      <ConfirmModal
-        isOpen={deleteModalOpen}
-        onClose={cancelDelete}
-        onConfirm={confirmDelete}
-        title="Delete Review"
-        message={`Are you sure you want to delete this review by "${reviewToDelete?.name}"? This action cannot be undone.`}
-        confirmText="Delete"
-        cancelText="Cancel"
-        isDestructive={true}
-      />
+      <section>
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          {isLoading && reviews.length === 0 ? (
+            <ReviewsTableSkeleton />
+          ) : (
+            <>
+              <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
+                <p className="text-sm font-medium text-slate-500">
+                  {total} {total === 1 ? "review" : "reviews"}
+                </p>
+              </div>
+              {reviews.length > 0 ? (
+                <>
+                  <div className="overflow-x-auto">
+                    <table className="w-full min-w-[900px] text-left">
+                      <thead className="bg-slate-50 border-b border-slate-200">
+                        <tr>
+                          <th className="px-2 py-2 text-sm font-semibold text-slate-700">User</th>
+                          <th className="px-2 py-2 text-sm font-semibold text-slate-700">Product</th>
+                          <th className="px-2 py-2 text-sm font-semibold text-slate-700">Rating</th>
+                          <th className="px-2 py-2 text-sm font-semibold text-slate-700">Comment</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {reviews.map((row) => (
+                          <tr className="hover:bg-blue-50/30 transition-all duration-200" key={row.id}>
+                            <td className="px-2 py-2 text-sm font-semibold text-slate-800">
+                              {row.user?.name ?? "—"}
+                            </td>
+                            <td className="px-2 py-2 text-sm text-slate-600">
+                              {row.product?.name ?? "—"}
+                            </td>
+                            <td className="px-2 py-2">
+                              <span className="inline-flex items-center gap-1 text-sm font-semibold text-amber-500">
+                                {"★".repeat(Math.min(5, Math.max(0, row.rating)))}
+                                {"☆".repeat(Math.max(0, 5 - Math.min(5, Math.max(0, row.rating))))}
+                              </span>
+                            </td>
+                            <td className="px-3 py-4 text-sm text-slate-600 line-clamp-3 max-w-full">
+                              {row.comment ?? "—"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <InfiniteScroll
+                    hasMore={hasMore}
+                    isLoading={isLoading}
+                    onLoadMore={() => setPage((p) => p + 1)}
+                    total={total}
+                    loaded={reviews.length}
+                    itemLabel="reviews"
+                    loadingLabel="Loading more..."
+                    allLoadedLabel="All reviews loaded"
+                  />
+                </>
+              ) : (
+                <div className="px-5 py-8 text-center text-sm text-slate-400 font-semibold">
+                  {search ? "No reviews match your search." : "No reviews yet."}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </section>
     </>
   );
 }

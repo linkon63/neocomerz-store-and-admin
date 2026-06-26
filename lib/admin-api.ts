@@ -845,3 +845,65 @@ export async function updateNews(id: string, body: FormData): Promise<News> {
 export async function deleteNews(id: string): Promise<void> {
   return apiRequest<void>(`/news/${id}`, { method: "DELETE" });
 }
+
+// ─── Reviews ─────────────────────────────────────────────────────────────────
+
+export type Review = {
+  id: string;
+  rating: number;
+  comment: string | null;
+  isApproved: boolean;
+  createdAt: string;
+  productId: string;
+  userId: string;
+  product?: { id: string; name: string; slug: string };
+  user?: { id: string; name: string; email: string };
+};
+
+export type PaginatedReviews = {
+  data: Review[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+};
+
+export type UpdateReviewDto = {
+  rating?: number;
+  comment?: string;
+  isApproved?: boolean;
+};
+
+export async function getAllReviews(params?: Record<string, string>): Promise<PaginatedReviews> {
+  const qs = params ? `?${new URLSearchParams(params)}` : "";
+  return apiRequest<PaginatedReviews>(`/reviews${qs}`);
+}
+
+export async function updateReview(id: string, dto: UpdateReviewDto): Promise<Review> {
+  return apiRequest<Review>(`/reviews/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dto),
+  });
+}
+
+export type CreateReviewDto = {
+  productId: string;
+  rating: number;
+  comment?: string;
+  isApproved?: boolean;
+};
+
+export async function createReview(dto: CreateReviewDto): Promise<Review> {
+  return apiRequest<Review>("/reviews", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dto),
+  });
+}
+
+export async function deleteReview(id: string): Promise<void> {
+  return apiRequest<void>(`/reviews/${id}`, { method: "DELETE" });
+}
