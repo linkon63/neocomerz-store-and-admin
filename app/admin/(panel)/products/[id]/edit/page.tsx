@@ -44,6 +44,7 @@ type VariantDraft = {
   stockQuantity: string;
   images: File[];
   imagePreviews: string[];
+  existingMedia: import("../../../../../../lib/admin-api").VariantMedia[];
   isDefault: boolean;
 };
 
@@ -236,6 +237,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           stockQuantity: existing?.stockQuantity ?? form.stockQuantity,
           images: existing?.images ?? [],
           imagePreviews: existing?.imagePreviews ?? [],
+          existingMedia: existing?.existingMedia ?? [],
           isDefault: existing?.isDefault ?? idx === 0,
         };
       });
@@ -419,6 +421,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               stockQuantity: String(v.stockQuantity ?? 0),
               images: [],
               imagePreviews: [],
+              existingMedia: v.media ?? [],
               isDefault: v.isDefault,
             });
           });
@@ -497,30 +500,61 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       current.map((d) => (d.key === key ? { ...d, stockQuantity: nextStock } : d)),
     );
   };
+  const handleRemoveExistingVariantMedia = async (key: string, mediaId: string) => {
+    setIsDirty(true);
+    try {
+      setIsSaving(true);
+      await apiRequest(`/variant-media/${mediaId}`, { method: "DELETE" });
+      setVariantDrafts((current) =>
+        current.map((draft) => {
+          if (draft.key !== key) return draft;
+          return {
+            ...draft,
+            existingMedia: draft.existingMedia.filter((m) => m.id !== mediaId),
+          };
+        })
+      );
+      toast.success("Variant image removed successfully");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to remove variant image");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleRemoveNewVariantMedia = (key: string, idx: number) => {
+    setIsDirty(true);
+    setVariantDrafts((current) =>
+      current.map((draft) => {
+        if (draft.key !== key) return draft;
+        URL.revokeObjectURL(draft.imagePreviews[idx]);
+        const newImages = draft.images.filter((_, i) => i !== idx);
+        const newPreviews = draft.imagePreviews.filter((_, i) => i !== idx);
+        return { ...draft, images: newImages, imagePreviews: newPreviews };
+      })
+    );
+  };
 
   const handleVariantImagesEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsDirty(true);
     const key = e.currentTarget.getAttribute("data-key") || "";
     const files = e.target.files;
-    if (!files || files.length === 0) {
-      setVariantDrafts((current) =>
-        current.map((draft) => {
-          if (draft.key !== key) return draft;
-          draft.imagePreviews.forEach((url) => URL.revokeObjectURL(url));
-          return { ...draft, images: [], imagePreviews: [] };
-        })
-      );
-    } else {
-      const list = Array.from(files);
-      const previews = list.map((file) => URL.createObjectURL(file));
-      setVariantDrafts((current) =>
-        current.map((draft) => {
-          if (draft.key !== key) return draft;
-          draft.imagePreviews.forEach((url) => URL.revokeObjectURL(url));
-          return { ...draft, images: list, imagePreviews: previews };
-        })
-      );
-    }
+    if (!files || files.length === 0) return;
+
+    const list = Array.from(files);
+    const previews = list.map((file) => URL.createObjectURL(file));
+    setVariantDrafts((current) =>
+      current.map((draft) => {
+        if (draft.key !== key) return draft;
+        return {
+          ...draft,
+          images: [...draft.images, ...list],
+          imagePreviews: [...draft.imagePreviews, ...previews],
+        };
+      })
+    );
+    // Clear input so same file can be selected again
+    e.target.value = "";
   };
 
   function updateName(name: string) {
@@ -1621,6 +1655,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                             handleVariantPriceChange={handleVariantPriceChange}
                             handleVariantStockChange={handleVariantStockChange}
                             handleVariantImagesEvent={handleVariantImagesEvent}
+                            handleRemoveExistingVariantMedia={handleRemoveExistingVariantMedia}
+                            handleRemoveNewVariantMedia={handleRemoveNewVariantMedia}
                           />
                         ))}
                       </div>
@@ -1811,6 +1847,8 @@ type VariantDraftCardProps = {
   handleVariantPriceChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleVariantStockChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleVariantImagesEvent: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleRemoveExistingVariantMedia: (key: string, mediaId: string) => void;
+  handleRemoveNewVariantMedia: (key: string, idx: number) => void;
 };
 
 function VariantDraftCard({
@@ -1821,6 +1859,8 @@ function VariantDraftCard({
   handleVariantPriceChange,
   handleVariantStockChange,
   handleVariantImagesEvent,
+  handleRemoveExistingVariantMedia,
+  handleRemoveNewVariantMedia,
 }: VariantDraftCardProps) {
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-4">
@@ -1897,13 +1937,36 @@ function VariantDraftCard({
           )}
         </div>
         <div className="mt-2 flex flex-wrap gap-2">
+          {(v.existingMedia ?? []).map((m, idx) => (
+            <div
+              className="group relative h-16 w-16 overflow-hidden rounded-lg border border-slate-200"
+              key={m.id}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img alt="" className="h-full w-full object-cover" src={resolveImageUrl(m.media.url)} />
+              <button
+                type="button"
+                className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-red-500 opacity-0 shadow hover:bg-white group-hover:opacity-100"
+                onClick={() => handleRemoveExistingVariantMedia(v.key, m.id)}
+              >
+                <AdminIcon className="h-3 w-3" name="trash" />
+              </button>
+            </div>
+          ))}
           {(v.imagePreviews ?? []).map((url, idx) => (
             <div
-              className="h-16 w-16 overflow-hidden rounded-lg border border-slate-200"
+              className="group relative h-16 w-16 overflow-hidden rounded-lg border border-slate-200"
               key={`${v.key}-preview-${idx}`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img alt="" className="h-full w-full object-cover" src={url} />
+              <button
+                type="button"
+                className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-red-500 opacity-0 shadow hover:bg-white group-hover:opacity-100"
+                onClick={() => handleRemoveNewVariantMedia(v.key, idx)}
+              >
+                <AdminIcon className="h-3 w-3" name="trash" />
+              </button>
             </div>
           ))}
           <label className="flex h-16 w-16 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white text-slate-500 hover:bg-slate-50">
