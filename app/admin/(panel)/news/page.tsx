@@ -359,7 +359,7 @@ export default function NewsAdminPage() {
           aria-labelledby="news-modal-title"
         >
           <form
-            className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-y-auto rounded-xl border border-slate-200 bg-white p-6 shadow-2xl"
+            className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-y-auto rounded-xl border border-slate-200 bg-white px-6 pt-6 shadow-2xl"
             onSubmit={handleSubmit}
           >
             <div className="mb-5 flex items-start justify-between gap-4">
@@ -492,7 +492,7 @@ export default function NewsAdminPage() {
                 </div>
               )}
 
-              <label className="flex items-center gap-3">
+              <label className="flex items-center gap-3 mb-4">
                 <input
                   type="checkbox"
                   checked={form.isPublished}
