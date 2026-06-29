@@ -107,7 +107,7 @@ function RichDropdown<T extends string>({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-10 w-44 items-center justify-between gap-2 rounded-md border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100 hover:border-slate-400 cursor-pointer shadow-xs"
+        className="flex h-10 w-28 items-center justify-between gap-2 rounded-md border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100 hover:border-slate-400 cursor-pointer shadow-xs"
       >
         <span className={`inline-flex rounded border px-2.5 py-0.5 text-[11px] font-semibold capitalize ${getTone(value)}`}>
           {selectedOption.label}
@@ -237,7 +237,7 @@ export default function OrderPageView({ title, description, fixedStatus }: Order
           </div>
         )}
 
-        <div className="grid gap-7 xl:grid-cols-[380px_1fr]">
+        <div className="grid gap-4 xl:grid-cols-[380px_1fr]">
           <aside className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xs">
             <div className="flex flex-col gap-2 p-3 border-b border-slate-100 bg-slate-50/50">
               <label className="flex h-11 items-center gap-2 rounded-lg border-2 border-slate-200 bg-white px-3 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 transition-all">
@@ -336,7 +336,7 @@ export default function OrderPageView({ title, description, fixedStatus }: Order
               </div>
             ) : (
               <>
-                <div className="mb-6 flex flex-col justify-between gap-4 rounded-lg bg-white p-4 sm:flex-row sm:items-center shadow-xs border border-slate-200/60">
+                <div className="mb-4 flex flex-col justify-between gap-4 rounded-lg bg-white p-4 sm:flex-row sm:items-center shadow-xs border border-slate-200/60">
                   <div className="flex items-center gap-3">
                     <span className={`grid h-10 w-10 place-items-center rounded-full border shadow-sm ring-4 ring-offset-0 ${
                       selected.status === "delivered"
@@ -361,21 +361,19 @@ export default function OrderPageView({ title, description, fixedStatus }: Order
                   
                   <div className="flex flex-wrap gap-3 items-end">
                     <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Order Status</span>
-                      <div className="flex items-center gap-2 h-10">
-                        <span className={`inline-flex items-center rounded-lg border px-3 py-1.5 text-xs font-semibold capitalize ${statusTone(selected.status)}`}>
-                          {selected.status}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-1">
                       <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Payment Status</span>
-                      <RichDropdown
-                        value={selected.paymentStatus}
-                        options={PAYMENT_STATUS_OPTIONS}
-                        onChange={updatePaymentStatus}
-                        getTone={paymentTone}
-                      />
+                      {selected.status === "delivered" ? (
+                        <RichDropdown
+                          value={selected.paymentStatus}
+                          options={PAYMENT_STATUS_OPTIONS}
+                          onChange={updatePaymentStatus}
+                          getTone={paymentTone}
+                        />
+                      ) : (
+                        <span className={`inline-flex items-center rounded-lg border px-2 py-1.5 text-xs font-semibold capitalize ${paymentTone(selected.paymentStatus)}`}>
+                          {selected.paymentStatus}
+                        </span>
+                      )}
                     </div>
                     {(selected.status === "pending" || selected.status === "processing") && (
                       <div className="flex items-end gap-2">
@@ -411,7 +409,7 @@ export default function OrderPageView({ title, description, fixedStatus }: Order
                         <button
                           type="button"
                           onClick={() => updateOrderStatus("returned")}
-                          className="h-11 rounded-lg bg-amber-500 px-5 text-sm font-semibold text-white transition hover:bg-amber-600 cursor-pointer"
+                          className="h-10 rounded-lg bg-amber-500 px-5 text-sm font-semibold text-white transition hover:bg-amber-600 cursor-pointer"
                         >
                           Return
                         </button>
@@ -420,7 +418,7 @@ export default function OrderPageView({ title, description, fixedStatus }: Order
                   </div>
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-2 mb-6">
+                <div className="grid gap-4 md:grid-cols-2 mb-4">
                   <div className="rounded-lg border border-slate-200/60 bg-white p-5 shadow-xs">
                     <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-1.5">
                       <span className="inline-block w-1.5 h-1.5 rounded-full bg-slate-400" />

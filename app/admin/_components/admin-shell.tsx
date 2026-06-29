@@ -48,12 +48,12 @@ const menuGroups: {
         href: "/admin/products",
         icon: "package",
         children: [
-          { label: "Products", href: "/admin/products", icon: "package" },
-          { label: "Categories", href: "/admin/categories", icon: "category" },
           { label: "Brands", href: "/admin/brands", icon: "brand" },
+          { label: "Categories", href: "/admin/categories", icon: "category" },
           { label: "Tags", href: "/admin/tags", icon: "tag" },
-          { label: "Variant Options", href: "/admin/variant-options", icon: "variants" },
           { label: "Units of Measurement", href: "/admin/units", icon: "units" },
+          { label: "Variant Options", href: "/admin/variant-options", icon: "variants" },
+          { label: "Products", href: "/admin/products", icon: "package" },
         ],
       },
     ],
@@ -67,7 +67,7 @@ const menuGroups: {
   {
     title: "Sales & Billing",
     items: [
-      { label: "POS", href: "/admin/pos", icon: "pos" },
+      // { label: "POS", href: "/admin/pos", icon: "pos" },
       { label: "Discount", href: "/admin/discounts", icon: "discount" },
       // { label: "Gift Voucher", href: "/admin/gift-vouchers", icon: "voucher" },
     ],
@@ -88,7 +88,7 @@ const menuGroups: {
           { label: "Reviews", href: "/admin/reviews", icon: "reviews" },
         ],
       },
-      { label: "News & Blog", href: "/admin/news", icon: "report" },
+      // { label: "News & Blog", href: "/admin/news", icon: "report" },
     ],
   },
   {
@@ -117,7 +117,17 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<AdminUser | null>(null);
   const [isChecking, setIsChecking] = useState(true);
-  const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({});
+  const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>(
+    () => {
+      const initial: Record<string, boolean> = {};
+      menuGroups.forEach((group) =>
+        group.items.forEach((item) => {
+          if (item.children?.length) initial[item.label] = true;
+        }),
+      );
+      return initial;
+    },
+  );
   const { loadSettings } = useSettingsLoading();
   const [settings, setSettings] = useState<AppSettings | null>(null);
 
