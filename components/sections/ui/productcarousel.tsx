@@ -76,7 +76,7 @@ export default function ProductCarousel({ products, title }: ExtendedProductCaro
               spaceBetween: 30,
             },
           }}
-          className="mySwiper pb-12 [&_.swiper-pagination]:!bottom-0 [&_.swiper-pagination]:!flex [&_.swiper-pagination]:!justify-center"
+          className="mySwiper pb-12 [&_.swiper-pagination]:bottom-0! [&_.swiper-pagination]:flex! [&_.swiper-pagination]:justify-center!"
         >
           {products.map((product) => (
             <SwiperSlide key={product.id}>

@@ -72,7 +72,7 @@ export default function TheCollection() {
         </div>
 
         {/* Image Section */}
-        <div className="relative w-full aspect-video md:aspect-21/9 overflow-hidden rounded-lg shadow-2xl">
+        <div className="relative w-full aspect-video md:aspect-21/9 overflow-hidden shadow-2xl">
           <Image
             src="/images/footer/footerright.png"
             alt="Tea Collections"

@@ -26,7 +26,7 @@ export default function Bottomfooter() {
 
       <div className="bottom-footer-wrapper relative z-10 w-full py-8">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr] gap-8 items-end mb-8">
             
             <FooterPayment />
 
@@ -60,7 +60,6 @@ export default function Bottomfooter() {
           </div>
 
           <FooterLinks />
-
         </div>
       </div>
     </section>
