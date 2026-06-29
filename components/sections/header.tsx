@@ -23,27 +23,27 @@ const navItems = [
 
 export default function Header() {
   return (
-    <header className="w-full bg-white border-b border-zinc-200 text-zinc-800 font-gotham relative shadow-sm z-40">
+    <header className="w-full bg-olive-slate text-white font-gotham relative shadow-sm z-40">
       <div className="hidden xl:flex items-center justify-between w-full max-w-[1440px] mx-auto px-5 py-2.5 gap-4">
         <div className="w-[220px] flex justify-start items-center">
           <div className="flex items-center gap-1.5 pr-6 py-1.5 border-b border-zinc-350">
-            <IoSearchOutline className="w-5 h-5 text-zinc-800" />
+            <IoSearchOutline className="w-5 h-5 text-white" />
             <input
               type="text"
               placeholder="SEARCH"
-              className="bg-transparent text-zinc-800 placeholder-zinc-400 font-gotham text-sm font-semibold uppercase tracking-wider outline-none border-none w-28 focus:w-36 transition-all duration-300"
+              className="bg-transparent text-white placeholder:text-zinc-400 font-gotham text-sm font-semibold uppercase tracking-wider outline-none border-none w-28 focus:w-36 transition-all duration-300"
             />
           </div>
         </div>
 
-        <div className="flex-grow flex justify-center items-center">
+        <div className="grow flex justify-center items-center">
           <Navigation />
         </div>
 
         <div className="w-[220px] flex justify-end items-center gap-1.5">
           <Link
             href="/account"
-            className="p-2 text-zinc-800 hover:text-brand-primary transition-colors cursor-pointer"
+            className="p-2 text-white hover:text-brand-primary transition-colors cursor-pointer"
             aria-label="Account"
           >
             <LuUser className="w-5 h-5" />
@@ -53,7 +53,7 @@ export default function Header() {
           
           <Link
             href="/wishlist"
-            className="p-2 text-zinc-800 hover:text-brand-primary transition-colors cursor-pointer"
+            className="p-2 text-white hover:text-brand-primary transition-colors cursor-pointer"
             aria-label="Wishlist"
           >
             <IoHeartOutline className="w-5 h-5" />
@@ -61,7 +61,7 @@ export default function Header() {
           
           <Link
             href="/cart"
-            className="p-2 relative text-zinc-800 hover:text-brand-primary transition-colors cursor-pointer"
+            className="p-2 relative text-white hover:text-brand-primary transition-colors cursor-pointer"
             aria-label="Shopping Cart"
           >
             <LuShoppingBag className="w-5 h-5" />
@@ -88,7 +88,7 @@ export default function Header() {
 
         <Link
           href="/cart"
-          className="relative p-2 text-zinc-800 hover:text-brand-primary transition-colors cursor-pointer"
+          className="relative p-2 text-white hover:text-brand-primary transition-colors cursor-pointer"
           aria-label="Shopping Cart"
         >
           <LuShoppingBag className="w-5 h-5" />

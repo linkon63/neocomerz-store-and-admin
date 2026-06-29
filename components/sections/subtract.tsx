@@ -18,7 +18,7 @@ export default function Subtract() {
         >
           <path
             d="M0,0 C360,180 1080,180 1440,0 L1440,0 L0,0 Z"
-            fill="#ffffff"
+            fill="#bdbdb5"
           />
         </svg>
         <svg

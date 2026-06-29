@@ -21,7 +21,7 @@ export default function TeaCollection() {
   return (
     <section className="relative w-full">
       <div className="teacollection-wrapper"> 
-        <div className="container mx-auto py-3">
+        <div className="container mx-auto py-3 px-6 md:px-12">
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 md:gap-12 mb-8 md:mb-12">
                 {features.map((feature, index) => (
                 <div key={index} className="flex flex-row items-center gap-3">
@@ -35,7 +35,7 @@ export default function TeaCollection() {
                     />
                     </div>
                     {/* Text */}
-                    <p className="text-stone-500 text-base md:text-lg font-normal font-['Gotham'] leading-relaxed max-w-[180px]">
+                    <p className="text-khaki-gold text-base md:text-lg font-normal font-['Gotham'] leading-relaxed max-w-[180px]">
                     {feature.description}
                     </p>
                 </div>

@@ -7,16 +7,14 @@ export default function NewArrival() {
 
   return (
     <section 
-      className="w-full bg-[#F9F9FB] py-12 md:py-20 lg:py-32 relative overflow-hidden"style={{
-          clipPath: "ellipse(100% 100% at 50% 0%)",
-        }}
+      className="w-full bg-[#F9F9FB] py-12 md:py-20 lg:py-32 relative overflow-hidden"
     >
       <div className="w-full mx-auto px-4 sm:px-6">
         <ProductCarousel products={products} title="NEW ARRIVALS" />
         <div className="pt-6 md:pt-12">
-          <DiscoverMoreButton href="/products" label="DISCOVER MORE" variant="outline" />
+          <DiscoverMoreButton href="/products" label="DISCOVER MORE" variant="primary" />
         </div>
-\      </div>
+      </div>
     </section>
   );
 }

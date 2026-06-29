@@ -1,5 +1,4 @@
 "use client";
-
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
@@ -15,11 +14,11 @@ const brands = [
 ];
 export default function Brands() {
   return (
-    <section className="w-full py-12 px-6 md:px-12 lg:py-16">
+    <section className="w-full py-12 px-6 md:px-12 lg:py-16 bg-[#F6F6F6]">
       <div className="mx-auto">
         <div className="flex flex-col items-center justify-between gap-8 lg:flex-row lg:gap-12 flex-wrap">
           <div className="shrink-0 text-center lg:text-left">
-            <h2 className="font-family-bembo text-lg font-medium uppercase tracking-wide text-brand-3">
+            <h2 className="font-family-bembo text-lg font-medium uppercase tracking-wide text-khaki-gold">
               Trusted Across
             </h2>
             <h3 className="mt-1 font-['Snell_Roundhand_LT_Std'] text-4xl text-black md:text-5xl">

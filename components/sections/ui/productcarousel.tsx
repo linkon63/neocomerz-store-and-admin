@@ -2,6 +2,7 @@
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay, Grid, Pagination } from 'swiper/modules';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import ProductCard from './product-card';
 import type { ExtendedProductCarouselProps } from '@/data/types';
 
@@ -21,11 +22,11 @@ export default function ProductCarousel({ products, title }: ExtendedProductCaro
               className="product-carousel-prev flex items-center gap-2 text-stone-850 hover:text-[#B9975B] transition-colors text-xs font-semibold uppercase tracking-wider cursor-pointer select-none"
               aria-label="Previous"
             >
-              <span className="text-[#B9975B] text-lg font-normal">&lt;</span>
-              <span className="font-gotham font-medium text-[11px] tracking-[0.2em]">PREVIOUS</span>
+              <FiChevronLeft className="text-dark-charcoal text-lg sm:text-xl" />
+              <span className="font-gotham text-dark-charcoal font-medium text-[11px] tracking-[0.2em] uppercase">PREVIOUS</span>
             </button>
 
-            <h2 className="font-['Bembo_Std'] text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-[#B9975B] font-normal text-center">
+            <h2 className="font-['Bembo_Std'] text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-khaki-gold font-normal text-center">
               {title}
             </h2>
 
@@ -33,8 +34,8 @@ export default function ProductCarousel({ products, title }: ExtendedProductCaro
               className="product-carousel-next flex items-center gap-2 text-stone-850 hover:text-[#B9975B] transition-colors text-xs font-semibold uppercase tracking-wider cursor-pointer select-none"
               aria-label="Next"
             >
-              <span className="font-gotham font-medium text-[11px] tracking-[0.2em]">NEXT</span>
-              <span className="text-[#B9975B] text-lg font-normal">&gt;</span>
+              <span className="font-gotham text-dark-charcoal uppercase font-medium text-[11px] tracking-[0.2em]">NEXT</span>
+              <FiChevronRight className="text-dark-charcoal text-lg sm:text-xl" />
             </button>
           </div>
 

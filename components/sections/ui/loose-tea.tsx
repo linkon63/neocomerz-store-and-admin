@@ -14,7 +14,7 @@ const teaTypes = [
 
 export default function LooseTea() {
   return (
-    <section className="relative w-full bg-white py-12 md:py-16 lg:py-20 overflow-hidden">
+    <section className="relative w-full bg-greenish-gray py-12 md:py-16 lg:py-20 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6">
         {/* Title */}
         <div className="text-center mb-10 md:mb-14">

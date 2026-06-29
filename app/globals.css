@@ -1,94 +1,75 @@
 @import "tailwindcss";
 
-/* Tailwind v4 doesn't scan node_modules by default — include the date picker so its utility classes are generated. */
+/* Tailwind v4 Source */
 @source "../node_modules/react-tailwindcss-datepicker/dist";
 
 @theme {
-  /* Text Colors */
-  --color-text-primary: rgba(35, 31, 32, 1);
-  --color-text-secondary: rgba(217, 217, 214, 1);
-  
-  /* Brand Colors */
-  --color-brand-primary: rgba(228, 0, 43, 1);
-  --color-brand-2: rgba(197, 185, 172, 1);
-  --color-brand-3: rgba(185, 151, 91, 1);
-  --color-brand-4: rgba(71, 55, 41, 1);
-  --color-brand-5: rgba(33, 39, 33, 1);
-  --color-brand-6: rgba(245, 245, 240, 1);
-  
-  /* Font Families */
-  --font-gotham: 'Gotham', Arial, Helvetica, sans-serif;
-  --font-bembo: 'Bembo Std', Georgia, serif;
-}
+  /* ===========================
+     Brand Colors
+  ============================ */
 
-/* Custom Fonts */
-@font-face {
-  font-family: 'Bembo Std';
-  src: url('./fonts/Bembo-Std-Font/BemboStd.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
+  --color-white: #ffffff;
+  --color-platinum-gray: #f0f0f0;
+  --color-off-white: #f6f6f6;
+  --color-stone-gray: #999999;
+  --color-rich-black: #665a5d;
+  --color-pearl-gray: #d9d9d6;
+  --color-greenish-gray: #bdbdb5;
+  --color-warm-gray: #c5b9ac;
+  --color-sage-gray: #83847e;
+  --color-olive-slate: #51524e;
+  --color-dark-brown: #4b3729;
+  --color-dark-charcoal: #212721;
+  --color-khaki-gold: #b4a676;
+  --color-sage-gold: #d2c494;
+  --color-dark-crimson: #d31f3a;
 
-@font-face {
-  font-family: 'Bembo Std';
-  src: url('./fonts/Bembo-Std-Font/BemboStd-Bold.otf') format('opentype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
+  /* ===========================
+     Text Colors
+  ============================ */
 
-@font-face {
-  font-family: 'Bembo Std';
-  src: url('./fonts/Bembo-Std-Font/BemboStd-SemiboldItalic.otf') format('opentype');
-  font-weight: 600;
-  font-style: italic;
-  font-display: swap;
-}
+  --color-text-primary: var(--color-rich-black);
+  --color-text-secondary: var(--color-olive-slate);
+  --color-text-muted: var(--color-stone-gray);
+  --color-text-light: var(--color-white);
 
-@font-face {
-  font-family: 'Gotham';
-  src: url('./fonts/Gotham/Gotham-Thin.otf') format('opentype');
-  font-weight: 100;
-  font-style: normal;
-  font-display: swap;
-}
+  /* ===========================
+     Background Colors
+  ============================ */
 
-@font-face {
-  font-family: 'Gotham';
-  src: url('./fonts/Gotham/Gotham-Medium.otf') format('opentype');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
+  --color-bg-primary: var(--color-white);
+  --color-bg-secondary: var(--color-off-white);
+  --color-bg-muted: var(--color-pearl-gray);
+  --color-bg-dark: var(--color-dark-charcoal);
 
-:root {
-  /* Variables used throughout the application */
-  --text-primary: rgba(35, 31, 32, 1);
-  --text-secondary: rgba(217, 217, 214, 1);
-  --brand-primary: rgba(228, 0, 43, 1);
-  --brand-color-2: rgba(197, 185, 172, 1);
-  --brand-color-3: rgba(185, 151, 91, 1);
-  --brand-color-4: rgba(71, 55, 41, 1);
-  --brand-color-5: rgba(33, 39, 33, 1);
-  --brand-color-6: rgba(245, 245, 240, 1);
-  --font-gotham: 'Gotham', Arial, Helvetica, sans-serif;
-  --font-bembo: 'Bembo Std', Georgia, serif;
-}
+  /* ===========================
+     Brand Colors
+  ============================ */
 
-@media (color-scheme: dark) {
-  :root {
-    /* Brand Colors */
-    --brand-primary: rgba(228, 0, 43, 1);
-    --brand-color-2: rgba(197, 185, 172, 1);
-    --brand-color-3: rgba(185, 151, 91, 1);
-    --brand-color-4: rgba(71, 55, 41, 1);
-    --brand-color-5: rgba(33, 39, 33, 1);
-    --brand-color-6: rgba(245, 245, 240, 1);
-  }
-}
+  --color-primary: var(--color-dark-crimson);
+  --color-secondary: var(--color-khaki-gold);
+  --color-accent: var(--color-sage-gold);
 
-body {
-  font-family: var(--font-gotham);
-}
+  /* ===========================
+     Border Colors
+  ============================ */
 
+  --color-border: var(--color-pearl-gray);
+  --color-border-dark: var(--color-greenish-gray);
+
+  /* ===========================
+     Fonts
+  ============================ */
+
+  --font-heading: "Cormorant Garamond", serif;
+  --font-body: "Inter", sans-serif;
+
+  /* ===========================
+     Radius
+  ============================ */
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}

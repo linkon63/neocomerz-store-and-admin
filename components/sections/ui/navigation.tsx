@@ -41,7 +41,7 @@ export default function Navigation() {
         className={`font-gotham text-sm font-semibold uppercase tracking-wider transition-colors flex items-center gap-1 ${
           isActive(item.href)
             ? "text-brand-primary"
-            : "text-zinc-600 hover:text-brand-primary"
+            : "text-white hover:text-brand-primary"
         }`}
       >
         {item.label}
@@ -77,7 +77,7 @@ export default function Navigation() {
 
       <Link href="/" className="mx-4 shrink-0 transition-transform duration-200 hover:scale-105">
         <Image
-          src="/images/logo/uodate-logo.png"
+          src="/images/logo/Logo-update.png"
           alt="London Tea Exchange Logo"
           width={90}
           height={90}

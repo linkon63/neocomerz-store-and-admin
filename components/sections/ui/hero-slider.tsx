@@ -62,9 +62,9 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                 {slide.subtitle}
               </p>
                {/* Icon */}
-              <div className="relative w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 mb-6">
+              <div className="relative w-16 h-16 md:w-20 md:h-20 lg:w-40 lg:h-40">
                 <Image
-                  src="/images/icons/icon-3.svg"
+                  src="/images/icons/icon-4.svg"
                   alt="Hero Icon"
                   fill
                   className="object-contain"

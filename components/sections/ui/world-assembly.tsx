@@ -2,13 +2,13 @@ import Image from "next/image";
 
 export default function WorldAssembly() {
   return (
-    <section className="relative w-full py-16 md:py-20 lg:py-24 overflow-hidden bg-[#2d3d2f]">
+    <section className="relative w-full py-16 md:py-20 lg:py-24 overflow-hidden bg-white">
       {/* Content Layer */}
       <div className="relative z-10 container mx-auto px-4">
         {/* Header Section */}
         <div className="flex flex-col items-center justify-center text-center space-y-6 md:space-y-8 mb-12 md:mb-16">
           {/* Title */}
-          <h3 className="font-['Bembo_Std'] text-lg text-white uppercase tracking-wider">
+          <h3 className="font-['Bembo_Std'] text-lg text-stone-gray uppercase tracking-wider">
             THE WORLD ASSEMBLY
           </h3>
 
@@ -25,11 +25,11 @@ export default function WorldAssembly() {
 
           {/* Main Heading */}
           <h2 className="max-w-4xl text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
-            <span className="font-['Bembo_Std'] font-normal text-brand-3">
+            <span className="font-['Bembo_Std'] font-normal text-khaki-gold">
               Bringing Together the World
             </span>
             <br />
-            <span className="font-['Snell_Roundhand_LT_Std'] italic text-white">
+            <span className="font-['Snell_Roundhand_LT_Std'] italic text-olive-slate">
               Through the Ritual of Tea
             </span>
           </h2>
