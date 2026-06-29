@@ -17,6 +17,7 @@ export interface NavigationProps {
 export interface Slide {
   videoId: string;
   title: string;
+  titleItalic?: string;
   subtitle: string;
 }
 

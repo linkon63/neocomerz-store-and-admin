@@ -79,9 +79,9 @@ export default function Navigation() {
         <Image
           src="/images/logo/Logo-update.png"
           alt="London Tea Exchange Logo"
-          width={90}
-          height={90}
-          className="w-[90px] h-[90px] object-contain"
+          width={80}
+          height={80}
+          className="w-20 h-20 object-contain"
           priority
         />
       </Link>
