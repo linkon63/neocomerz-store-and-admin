@@ -104,6 +104,11 @@ export function useOrders({ fixedStatus }: UseOrdersOptions = {}) {
 
   async function updatePaymentStatus(newPaymentStatus: OrderPaymentStatus) {
     if (!selectedId) return;
+    const order = orders.find((o) => o.id === selectedId);
+    if (order && order.status !== "delivered") {
+      toast.error("Payment status can only be changed for delivered orders.");
+      return;
+    }
     setError("");
     try {
       await apiRequest(`/orders/${selectedId}/status`, {
