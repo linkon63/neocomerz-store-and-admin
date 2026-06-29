@@ -14,7 +14,7 @@ export default function NewArrival() {
         <div className="pt-6 md:pt-12">
           <DiscoverMoreButton href="/products" label="DISCOVER MORE" variant="primary" />
         </div>
-\      </div>
+      </div>
     </section>
   );
 }
