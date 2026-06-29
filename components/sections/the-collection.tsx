@@ -18,8 +18,8 @@ export default function TheCollection() {
         {/* Title Section */}
         <div className="text-center mb-6 md:mb-8">
           <h2 className="font-['Bembo_Std'] text-4xl md:text-5xl lg:text-6xl mb-3">
-            <span className="text-[#B9975B]">The </span>
-            <span className="italic text-[#B9975B]">Collections</span>
+            <span className="text-khaki-gold">The </span>
+            <span className="italic text-stone-gray">Collections</span>
           </h2>
           <p className="font-gotham text-sm md:text-base text-gray-600 max-w-3xl mx-auto">
             Elegant tea bag presentations featuring rare blends, royal infusions, wellness<br className="hidden sm:block" />
@@ -34,7 +34,7 @@ export default function TheCollection() {
             href="/collections/assorted"
             className="w-full md:w-auto px-8 lg:px-12 py-3 md:py-3.5 text-white font-gotham text-xs md:text-sm uppercase tracking-wider rounded-full transition-all duration-300 text-center shadow-md hover:opacity-90"
             style={{
-              background: 'linear-gradient(98deg, #B4A676 0%, #D2C494 100%)',
+              background: 'linear-gradient(134deg, var(--Khaki-Gold, #B4A676) -3.81%, var(--Sage-Gold, #D2C494) 102.27%)',
             }}
           >
             Assorted Collections
@@ -53,7 +53,7 @@ export default function TheCollection() {
           {/* Button 2 */}
           <Link
             href="/collections/tea-books"
-            className="w-full md:w-auto px-8 lg:px-12 py-3 md:py-3.5 bg-white text-[#B9975B] font-gotham text-xs md:text-sm uppercase tracking-wider rounded-full hover:bg-[#F5F5F0] transition-all duration-300 text-center shadow-md border border-[#B9975B]"
+            className="w-full md:w-auto px-8 lg:px-12 py-3 md:py-3.5 bg-white text-stone-gray font-['Bembo_Std'] text-xs md:text-sm uppercase tracking-wider rounded-full hover:bg-[#F5F5F0] transition-all duration-300 text-center shadow-md border border-[#B9975B]"
           >
             Tea Book Collections
           </Link>
@@ -71,7 +71,7 @@ export default function TheCollection() {
           {/* Button 3 */}
           <Link
             href="/collections/tea-chests"
-            className="w-full md:w-auto px-8 lg:px-12 py-3 md:py-3.5 bg-white text-[#B9975B] font-gotham text-xs md:text-sm uppercase tracking-wider rounded-full hover:bg-[#F5F5F0] transition-all duration-300 text-center shadow-md border border-[#B9975B]"
+            className="w-full md:w-auto px-8 lg:px-12 py-3 md:py-3.5 bg-white text-stone-gray font-['Bembo_Std'] text-xs md:text-sm uppercase tracking-wider rounded-full hover:bg-[#F5F5F0] transition-all duration-300 text-center shadow-md border border-[#B9975B]"
           >
             Tea chests
           </Link>

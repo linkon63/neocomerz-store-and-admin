@@ -13,7 +13,7 @@ export default function MostPopuler() {
           <DiscoverMoreButton
             href="/products"
             label="DISCOVER MORE"
-            variant="outline"
+            variant="primary"
           />
         </div>{" "}
       </div>

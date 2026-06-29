@@ -24,16 +24,10 @@ export default function Testimonial() {
   ];
 
   return (
-    <section className="relative bg-[#473729] py-16 lg:py-24 overflow-hidden">
-      {/* Pattern Background Layer with blend mode */}
-      <div 
-        className="absolute inset-0 z-0 opacity-20"
-        style={{
-          backgroundImage: "url('/images/pattern/pattern.png')",
-          backgroundRepeat: "repeat",
-          backgroundSize: "150px 150px",
-        }}
-      ></div>
+    <section 
+      className="relative bg-[#473729] py-16 lg:py-24 overflow-hidden bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: "url('/images/tea-testmonial.jpg')" }}
+    >
 
       <div className="relative z-10 container mx-auto px-4">
         <div
@@ -44,13 +38,13 @@ export default function Testimonial() {
           }}
         >
           <div className="px-6 py-14 md:p-12 lg:p-24">
-            <h2 className="text-center text-3xl md:text-6xl font-['Bembo_Std'] font-normal">
+            <h2 className="text-center text-3xl md:text-6xl font-['Bembo_Std'] font-normal text-khaki-gold">
               Our Community
-              <span className="font-['Snell_Roundhand_LT_Std'] italic">
+              <span className="font-['Snell_Roundhand_LT_Std'] italic text-olive-slate">
                 {" "}
                 is{" "}
               </span>
-              <span className="font-['Snell_Roundhand_LT_Std'] italic">
+              <span className="font-['Snell_Roundhand_LT_Std'] italic text-olive-slate">
                 Saying
               </span>
             </h2>

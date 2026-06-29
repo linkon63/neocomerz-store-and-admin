@@ -7,7 +7,7 @@ export default function Button({
   variant = "primary" 
 }: ButtonProps) {
   const variantStyles = {
-    primary: "bg-brand-primary text-white hover:bg-brand-4",
+    primary: "bg-khaki-gold text-white hover:bg-brand-4",
     secondary: "bg-black text-white hover:bg-opacity-90",
     outline: "bg-transparent text-[#B9975B] border-2 border-[#B9975B] hover:bg-[#B9975B] hover:text-white",
   };

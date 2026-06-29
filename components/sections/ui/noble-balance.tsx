@@ -3,7 +3,7 @@ import Button from "./button";
 
 export default function NobleBalance() {
   return (
-    <section className="relative w-full py-16 md:py-20 lg:py-24 overflow-hidden bg-[#473729] mb-12 md:mb-36">
+    <section className="relative w-full py-16 md:py-20 lg:py-24 overflow-hidden bg-olive-slate mb-12 md:mb-36">
       {/* Pattern Background Layer with blend mode */}
       <div 
         className="absolute inset-0 z-0 opacity-20"
@@ -34,7 +34,7 @@ export default function NobleBalance() {
 
           {/* Main Heading */}
           <h2 className="max-w-4xl text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
-            <span className="font-['Bembo_Std'] font-normal text-brand-3">
+            <span className="font-['Bembo_Std'] font-normal text-khaki-gold">
               True Prestige Lies in Grace,
             </span>
             <br />
@@ -58,7 +58,7 @@ export default function NobleBalance() {
             <Button 
               href="/about" 
               label="KNOW MORE"
-              variant="outline"
+              variant="primary"
             />
           </div>
         </div>

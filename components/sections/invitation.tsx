@@ -31,13 +31,13 @@ export default function Invitation() {
       <div className="relative z-10 container mx-auto px-6 sm:px-12">
         {/* Header */}
         <div className="text-center mb-8 md:mb-12">
-          <p className="font-gotham text-text-primary text-xs sm:text-sm tracking-widest uppercase mb-4">
+          <p className="font-gotham text-stone-gray text-xs sm:text-sm tracking-widest uppercase mb-4">
             A QUIET INVITATION
           </p>
-          <h2 className="font-family-bembo text-brand-3 text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-relaxed">
+          <h2 className="font-['Bembo_Std'] text-khaki-gold text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-relaxed">
             Not Everything Rare Asks for Attention
           </h2>
-          <h3 className="font-family-bembo text-brand-3 text-xl sm:text-2xl md:text-4xl lg:text-5xl mb-8 md:mb-12">
+          <h3 className="font-['Snell_Roundhand_LT_Std'] text-olive-slate text-xl sm:text-2xl md:text-4xl lg:text-5xl mb-8 md:mb-12">
             Some Things Reveal Themselves, Slowly
           </h3>
         </div>
@@ -56,7 +56,7 @@ export default function Invitation() {
                 />
               </div>
               {/* Text */}
-              <p className="font-gotham text-text-primary text-xs sm:text-lg leading-relaxed">
+              <p className="font-gotham text-khaki-gold text-xs sm:text-lg leading-relaxed">
                 {feature.description}
               </p>
             </div>
@@ -64,7 +64,7 @@ export default function Invitation() {
         </div>
         {/* Bottom Text */}
         <div className="text-center max-w-5xl mx-auto">
-          <p className="font-gotham text-text-primary text-xs sm:text-sm md:text-base leading-relaxed">
+          <p className="font-gotham text-stone-gray text-xs sm:text-sm md:text-base leading-relaxed">
             This is not a collection made to impress at first glance. It is designed to unfold—layer by layer, note by note. For those who choose to go further, there is always more to discover.
           </p>
         </div>

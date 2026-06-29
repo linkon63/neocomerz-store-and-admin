@@ -25,26 +25,25 @@ const giftItems = [
 
 export default function GiftItem() {
   return (
-    <section className="relative w-full py-16 md:py-20 lg:py-24 overflow-hidden bg-white">
+    <section className="relative w-full py-16 md:py-20 lg:py-24 overflow-hidden bg-dark-charcoal">
       {/* Pattern Background Layer */}
-      <div 
+      <div
         className="absolute inset-0 z-0 opacity-10"
         style={{
-          backgroundImage: "url('/images/pattern/pattern.png')",
-          backgroundRepeat: "repeat",
-          backgroundSize: "150px 150px",
+          backgroundImage: "linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)",
+          backgroundSize: "24px 24px",
         }}
-      ></div>
+      />
 
       {/* Content Layer */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6">
         {/* Title Section */}
         <div className="text-center mb-12 md:mb-16">
           <h2 className="font-['Bembo_Std'] text-4xl md:text-5xl lg:text-6xl mb-4">
-            <span className="text-brand-primary">Gifting </span>
-            <span className="italic text-brand-primary">Items</span>
+            <span className="text-white">Gifting </span>
+            <span className="italic text-white">Items</span>
           </h2>
-          <p className="font-gotham text-sm md:text-base text-brand-primary max-w-3xl mx-auto leading-relaxed">
+          <p className="font-gotham text-sm md:text-base text-white max-w-3xl mx-auto leading-relaxed">
             From executive gifting to bespoke corporate collections, we create refined tea presentations<br className="hidden sm:block" />
             tailored for hotels, boardrooms, private events, and premium clientele.
           </p>
@@ -73,7 +72,7 @@ export default function GiftItem() {
               {/* Red Circular Button - Exact match to reference image */}
               <Link
                 href={item.href}
-                className="absolute bottom-0 w-36 h-36 md:w-40 md:h-40 lg:w-44 lg:h-44 bg-brand-primary rounded-full flex items-center justify-center text-white hover:bg-[#C62828] transition-all duration-300 shadow-2xl hover:scale-105"
+                className="absolute bottom-0 w-36 h-36 md:w-40 md:h-40 lg:w-44 lg:h-44 bg-khaki-gold rounded-full flex items-center justify-center text-white hover:bg-[#C62828] transition-all duration-300 shadow-2xl hover:scale-105"
               >
                 <svg viewBox="0 0 200 200" className="w-full h-full absolute inset-0 -rotate-90">
                   <defs>

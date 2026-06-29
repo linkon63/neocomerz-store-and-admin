@@ -7,7 +7,7 @@ export default function Prestige() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center ">
             <div className="text-center lg:text-left border-r border-brand-3">
               <h2 
-                className="text-3xl md:text-4xl lg:text-6xl font-['Bembo_Std'] leading-[56px] font-normal text-brand-4"
+                className="text-3xl md:text-4xl lg:text-6xl font-['Bembo_Std'] leading-14 font-normal text-khaki-gold"
               >
                 Recognized Where Taste
                 Becomes Prestige
