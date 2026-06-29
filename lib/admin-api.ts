@@ -277,6 +277,15 @@ export type PaginatedOrders = {
   meta: { page: number; limit: number; total: number };
 };
 
+export type OrderTotals = {
+  subtotal: number;
+  shipping: number;
+  discount: number;
+  grand: number;
+  paid: number;
+  due: number;
+};
+
 // ─── Settings ──────────────────────────────────────────────────────────────
 
 export type SettingsContactEntry = { title: string; value: string };

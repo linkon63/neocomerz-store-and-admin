@@ -6,6 +6,7 @@ import { useOrders } from "../_hooks/use-orders";
 import { OrderDetailPanel } from "./order-detail-panel";
 import { formatMoney, type OrderStatus, type OrderPaymentStatus } from "../../../lib/admin-api";
 import { useCurrency } from "../../../lib/currency-context";
+import { formatDateTime } from "../../../lib/utils";
 
 const TABS: { key: OrderStatus | ""; label: string }[] = [
   { key: "", label: "All" },
@@ -35,17 +36,6 @@ function paymentTone(status: string) {
   if (status === "paid") return "border-emerald-300 bg-emerald-50 text-emerald-700";
   if (status === "refunded") return "border-amber-300 bg-amber-50 text-amber-700";
   return "border-rose-300 bg-rose-50 text-rose-700";
-}
-
-function formatDateTime(value?: string) {
-  if (!value) return "-";
-  return new Intl.DateTimeFormat("en", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(value));
 }
 
 interface OrderPageViewProps {
