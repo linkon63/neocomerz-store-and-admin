@@ -16,34 +16,39 @@ import { AdminIcon, PageHeader, ProductThumb } from "../../_components/admin-she
 import {
   apiRequest,
   formatMoney,
+  resolveImageUrl,
   type DashboardSummary,
   type MetricValue,
   type OrderPaymentStatus,
   type SalesTrendPoint,
   type TopProduct,
 } from "../../../../lib/admin-api";
+import { useCurrency } from "../../../../lib/currency-context";
+import { toISODate } from "../../../../lib/utils";
+
+type Granularity = "daily" | "monthly" | "yearly";
+
+function formatNumber(n: number) {
+  return n.toLocaleString("en");
+}
 
 type Period = "today" | "yesterday" | "week" | "month" | "custom";
-type Granularity = "daily" | "monthly" | "yearly";
+
+const THUMB_COLORS = [
+  "bg-blue-500",
+  "bg-amber-500",
+  "bg-emerald-500",
+  "bg-violet-500",
+  "bg-rose-500",
+  "bg-cyan-500",
+];
 
 const PERIODS: { key: Period; label: string }[] = [
   { key: "today", label: "Today" },
   { key: "yesterday", label: "Yesterday" },
-  { key: "week", label: "This Week" },
-  { key: "month", label: "This Month" },
+  { key: "week", label: "Week" },
+  { key: "month", label: "Month" },
 ];
-
-const THUMB_COLORS = [
-  "bg-blue-600",
-  "bg-emerald-700",
-  "bg-violet-600",
-  "bg-amber-600",
-  "bg-rose-600",
-];
-
-function formatNumber(value: number) {
-  return value.toLocaleString("en");
-}
 
 function formatBucket(date: string, granularity: Granularity) {
   const d = new Date(date);
@@ -56,14 +61,6 @@ function formatBucket(date: string, granularity: Granularity) {
       ? { month: "short", year: "2-digit" }
       : { month: "short", day: "numeric" },
   ).format(d);
-}
-
-/** Local yyyy-MM-dd (avoids the UTC day-shift of toISOString). */
-function toISODate(date: Date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
 }
 
 function paymentTone(status: OrderPaymentStatus) {
@@ -136,6 +133,7 @@ function MetricCard({
   caption?: string;
   loading: boolean;
 }) {
+  const { symbol } = useCurrency();
   const value = metric?.value ?? 0;
   return (
     <Link
@@ -156,7 +154,7 @@ function MetricCard({
         <div className="h-9 w-28 animate-pulse rounded bg-slate-100" />
       ) : (
         <p className="text-3xl font-black">
-          {isMoney ? formatMoney(value) : formatNumber(value)}
+          {isMoney ? formatMoney(value, symbol) : formatNumber(value)}
         </p>
       )}
       <div className="mt-4 flex items-center gap-3 text-sm font-black">
@@ -172,6 +170,7 @@ function MetricCard({
 }
 
 export default function DashboardPage() {
+  const { symbol } = useCurrency();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [trend, setTrend] = useState<SalesTrendPoint[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
@@ -302,7 +301,7 @@ export default function DashboardPage() {
         </div>
         <div className="grid divide-y divide-slate-200 border-t border-slate-200 md:grid-cols-2 md:divide-x md:divide-y-0 xl:grid-cols-4">
           <MetricCard label="Avg. order value" metric={summary?.avgOrderValue} iconName="discount" tone="bg-sky-50 text-sky-600" href="/admin/orders" caption="Per paid order" isMoney loading={isLoading} />
-          <MetricCard label="Total customers" metric={{ value: summary?.totalCustomers.value ?? 0, trend: summary?.newCustomers.trend ?? null }} iconName="suppliers" tone="bg-violet-50 text-violet-600" href="/admin/reports" caption="New customers vs previous" loading={isLoading} />
+          <MetricCard label="Total customers" metric={{ value: summary?.totalCustomers.value ?? 0, trend: summary?.newCustomers.trend ?? null }} iconName="suppliers" tone="bg-violet-50 text-violet-600" href="/admin/reports/customer" caption="New customers vs previous" loading={isLoading} />
           <MetricCard label="Total products" metric={summary?.totalProducts} iconName="package" tone="bg-slate-100 text-slate-600" href="/admin/products" caption="Active catalogue" loading={isLoading} />
           <MetricCard label="Refund amount" metric={summary?.refundAmount} iconName="refresh" tone="bg-rose-50 text-rose-600" href="/admin/orders?paymentStatus=refunded" isMoney goodWhenDown loading={isLoading} />
         </div>
@@ -361,7 +360,7 @@ export default function DashboardPage() {
                   />
                   <Tooltip
                     cursor={{ fill: "#f8fafc" }}
-                    formatter={(value) => [formatMoney(value as number), "Revenue"]}
+                    formatter={(value) => [formatMoney(value as number, symbol), "Revenue"]}
                     labelStyle={{ fontWeight: 800, color: "#0f172a" }}
                     contentStyle={{ borderRadius: 12, border: "1px solid #e2e8f0", fontWeight: 700 }}
                   />
@@ -386,20 +385,24 @@ export default function DashboardPage() {
               ))
             ) : summary && summary.recentOrders.length > 0 ? (
               summary.recentOrders.slice(0, 5).map((order) => (
-                <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4" key={order.id}>
+                <Link
+                  className="flex items-center justify-between rounded-xl bg-slate-50 p-4 transition hover:bg-slate-100/80"
+                  href={`/admin/orders?search=${encodeURIComponent(order.orderNumber)}`}
+                  key={order.id}
+                >
                   <div className="min-w-0">
-                    <p className="truncate font-black">{order.orderNumber}</p>
+                    <p className="truncate font-normal text-slate-800">{order.orderNumber}</p>
                     <p className="truncate text-sm font-medium text-slate-500">
                       {order.user?.name ?? "Guest"}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-black">{formatMoney(order.total)}</p>
+                    <p className="font-black">{formatMoney(order.total, symbol)}</p>
                     <span className={`text-xs font-black capitalize ${paymentTone(order.paymentStatus)}`}>
                       {order.paymentStatus}
                     </span>
                   </div>
-                </div>
+                </Link>
               ))
             ) : (
               <p className="rounded-xl bg-slate-50 p-4 font-medium text-slate-400">
@@ -419,27 +422,33 @@ export default function DashboardPage() {
             ))
           ) : topProducts.length > 0 ? (
             topProducts.map((product, index) => (
-              <div className="flex items-center gap-4 rounded-xl border border-slate-100 p-4" key={product.id}>
-                {product.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    alt={product.name}
-                    className="h-12 w-12 flex-shrink-0 rounded-lg object-cover"
-                    src={product.imageUrl}
-                  />
-                ) : (
-                  <ProductThumb color={THUMB_COLORS[index % THUMB_COLORS.length]} />
-                )}
+              <Link
+                className="flex items-center gap-4 rounded-xl border border-slate-100 p-4 transition hover:border-slate-200 hover:bg-slate-50/60"
+                href={`/admin/products/${product.id}/edit`}
+                key={product.id}
+              >
+                <div className="relative h-12 w-12 overflow-hidden rounded-lg border border-slate-200 bg-white flex-shrink-0 shadow-sm">
+                  {product.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      alt={product.name}
+                      className="h-full w-full object-cover"
+                      src={resolveImageUrl(product.imageUrl)}
+                    />
+                  ) : (
+                    <ProductThumb color={THUMB_COLORS[index % THUMB_COLORS.length]} />
+                  )}
+                </div>
                 <div className="min-w-0">
                   <p className="truncate font-black">{product.name}</p>
                   <p className="mt-1 text-sm font-medium text-slate-500">
-                    {formatNumber(product.unitsSold)} sold · {formatMoney(product.revenue)}
+                    {formatNumber(product.unitsSold)} sold · {formatMoney(product.revenue, symbol)}
                   </p>
                   <p className="text-xs font-medium text-slate-400">
                     {formatNumber(product.stock)} pcs in stock
                   </p>
                 </div>
-              </div>
+              </Link>
             ))
           ) : (
             <p className="font-medium text-slate-400">No sales recorded in this period.</p>
