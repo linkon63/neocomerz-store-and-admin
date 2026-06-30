@@ -46,7 +46,7 @@ export default function Mainfooter() {
           {/* Logo */}
           <div className="mb-8">
             <Image 
-              src="/images/logo/Logo.png" 
+              src="/images/logo/white-logo.png" 
               alt="London Tea Exchange Logo" 
               width={300} 
               height={80}

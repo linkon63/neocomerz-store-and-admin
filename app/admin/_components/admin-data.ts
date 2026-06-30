@@ -1,5 +1,9 @@
+import { getCurrencySymbol } from "../../../lib/currency";
+
+const C = getCurrencySymbol();
+
 export const summaryCards = [
-  { label: "Total sales", value: "৳482,950", trend: "12.4%", tone: "blue" },
+  { label: "Total sales", value: `${C}482,950`, trend: "12.4%", tone: "blue" },
   { label: "Total orders", value: "1,284", trend: "8.1%", tone: "emerald" },
   { label: "Pending orders", value: "42", trend: "4.3%", tone: "amber" },
   { label: "Low stock products", value: "17", trend: "2.0%", tone: "rose" },
@@ -15,7 +19,7 @@ export const products = [
     brand: "Nike",
     supplier: "Flexfit",
     stock: 998,
-    price: "৳1,899.00",
+    price: `${C}1,899.00`,
     status: "Active",
     createdAt: "Feb 18, 2026",
     color: "bg-stone-700",
@@ -27,7 +31,7 @@ export const products = [
     brand: "New Era",
     supplier: "New Era Cap Company",
     stock: 997,
-    price: "৳899.00",
+    price: `${C}899.00`,
     status: "Active",
     createdAt: "Feb 18, 2026",
     color: "bg-blue-600",
@@ -39,7 +43,7 @@ export const products = [
     brand: "Vans",
     supplier: "New Era Cap Company",
     stock: 998,
-    price: "৳1,399.00",
+    price: `${C}1,399.00`,
     status: "Active",
     createdAt: "Feb 18, 2026",
     color: "bg-emerald-900",
@@ -51,7 +55,7 @@ export const products = [
     brand: "Adidas",
     supplier: "New Era Cap Company",
     stock: 1000,
-    price: "৳899.00",
+    price: `${C}899.00`,
     status: "Active",
     createdAt: "Feb 18, 2026",
     color: "bg-olive-600",
@@ -63,7 +67,7 @@ export const products = [
     brand: "Under Armour",
     supplier: "Flexfit",
     stock: 997,
-    price: "৳699.00",
+    price: `${C}699.00`,
     status: "Draft",
     createdAt: "Feb 18, 2026",
     color: "bg-pink-300",
@@ -104,12 +108,12 @@ export const categories = [
 }));
 
 export const orders = [
-  { no: "FYXAOCNU7Q", total: "BDT 1959", status: "Order Placed" },
-  { no: "LPVSAXKGTD", total: "BDT 2019", status: "Packaging" },
-  { no: "LKPTLYLEHA", total: "BDT 3858", status: "Ready to Ship" },
-  { no: "Y3NBULI8CH", total: "BDT 1560", status: "On the Way" },
-  { no: "X5BS15GSOY", total: "BDT 959", status: "Delivered" },
-  { no: "ZLV9ATJB1S", total: "BDT 1959", status: "Failed" },
+  { no: "FYXAOCNU7Q", total: `${C} 1959`, status: "Order Placed" },
+  { no: "LPVSAXKGTD", total: `${C} 2019`, status: "Packaging" },
+  { no: "LKPTLYLEHA", total: `${C} 3858`, status: "Ready to Ship" },
+  { no: "Y3NBULI8CH", total: `${C} 1560`, status: "On the Way" },
+  { no: "X5BS15GSOY", total: `${C} 959`, status: "Delivered" },
+  { no: "ZLV9ATJB1S", total: `${C} 1959`, status: "Failed" },
 ];
 
 export const recentOrders = orders.slice(0, 4).map((order, index) => ({

@@ -27,13 +27,14 @@ export default function GiftItem() {
   return (
     <section className="relative w-full py-16 md:py-20 lg:py-24 overflow-hidden bg-dark-charcoal">
       {/* Pattern Background Layer */}
-      <div
-        className="absolute inset-0 z-0 opacity-10"
+      <div 
+        className="absolute inset-0 z-0 opacity-20"
         style={{
-          backgroundImage: "linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
+          backgroundImage: "url('/images/pattern/pattern.png')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "150px 150px",
         }}
-      />
+      ></div>
 
       {/* Content Layer */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6">
