@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiRequest, setAdminSession, type AdminUser } from "../../../lib/admin-api";
+import { useCurrency } from "../../../lib/currency-context";
 
 type LoginResponse = {
   accessToken: string;
@@ -11,6 +12,7 @@ type LoginResponse = {
 };
 
 export default function AdminLoginPage() {
+  const { symbol } = useCurrency();
   const router = useRouter();
   const [email, setEmail] = useState("david.brown@example.com");
   const [password, setPassword] = useState("password123");
@@ -46,7 +48,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="grid min-h-screen bg-[#f7f8fb] text-slate-950 lg:grid-cols-[0.95fr_1.05fr]">
+    <main className="admin-dashboard grid min-h-screen bg-[#f7f8fb] text-slate-950 lg:grid-cols-[0.95fr_1.05fr]">
       <section className="hidden bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
         <Link className="text-5xl font-black italic tracking-tight" href="/">
           Mock
@@ -60,7 +62,7 @@ export default function AdminLoginPage() {
           </h1>
           <div className="mt-10 grid max-w-xl grid-cols-3 gap-4">
             {[
-              ["৳482k", "sales tracked"],
+              [`${symbol}482k`, "sales tracked"],
               ["1.2k", "orders"],
               ["346", "products"],
             ].map(([value, label]) => (
