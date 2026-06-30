@@ -14,8 +14,22 @@ const teaTypes = [
 
 export default function LooseTea() {
   return (
-    <section className="relative w-full bg-greenish-gray py-12 md:py-16 lg:py-20 overflow-hidden">
-      <div className="container mx-auto px-4 sm:px-6">
+    <section 
+      className="relative w-full bg-greenish-gray overflow-hidden flex items-end min-h-175"
+    >
+      {/* Top SVG Curve */}
+      <svg
+        className="absolute top-0 left-0 w-full h-32 md:h-45"
+        viewBox="0 0 1440 180"
+        preserveAspectRatio="none"
+      >
+        <path
+          d="M0,0 C360,180 1080,180 1440,0 L1440,0 L0,0 Z"
+          fill="#F9F9FB"
+        />
+      </svg>
+
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
         {/* Title */}
         <div className="text-center mb-10 md:mb-14">
           <p className="font-['Bembo_Std'] text-xs sm:text-lg uppercase tracking-wider text-gray-600 mb-2">
@@ -63,7 +77,7 @@ export default function LooseTea() {
                     unoptimized
                   />
                 </div>
-                <p className="font-gotham text-xs sm:text-sm text-gray-700 text-center">
+                <p className="font-gotham text-xs sm:text-sm text-stone-gray text-center">
                   {tea.name}
                 </p>
               </div>

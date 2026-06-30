@@ -100,7 +100,7 @@ export default function FooterLinks() {
         {/* Copyright Row */}
         <div className="text-center">
           <p className="font-['Gotham'] text-white text-xs">
-            © 2026 London Tea Exchange. All rights reserved.
+            © {new Date().getFullYear()} London Tea Exchange. All rights reserved.
           </p>
         </div>
       </div>

@@ -193,6 +193,166 @@
         "originalPrice": 2099,
         "image": "/images/products/Product-2.png",
         "badge": "SALE"
+      },
+      {
+        "id": "21",
+        "name": "Lemongrass Ginger Fusion",
+        "price": 1599,
+        "originalPrice": 1999,
+        "image": "/images/products/Product-3.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "22",
+        "name": "Celestial Oolong Premium",
+        "price": 2799,
+        "originalPrice": 3299,
+        "image": "/images/products/Product-4.png",
+        "badge": "PREMIUM"
+      },
+      {
+        "id": "23",
+        "name": "Cardamom Spice Blend",
+        "price": 1799,
+        "originalPrice": 2199,
+        "image": "/images/products/Product-5.png",
+        "badge": "POPULAR"
+      },
+      {
+        "id": "24",
+        "name": "Breakfast English Bold",
+        "price": 1899,
+        "originalPrice": 2399,
+        "image": "/images/products/Product-6.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "25",
+        "name": "Turmeric Golden Milk Tea",
+        "price": 1999,
+        "originalPrice": 2499,
+        "image": "/images/products/Product-1.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "26",
+        "name": "Dragon Well Longjing",
+        "price": 3199,
+        "originalPrice": 3699,
+        "image": "/images/products/Product-2.png",
+        "badge": "PREMIUM"
+      },
+      {
+        "id": "27",
+        "name": "Blueberry Acai Infusion",
+        "price": 2099,
+        "originalPrice": 2599,
+        "image": "/images/products/Product-3.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "28",
+        "name": "Ceylon Orange Pekoe",
+        "price": 2299,
+        "originalPrice": 2799,
+        "image": "/images/products/Product-4.png",
+        "badge": "POPULAR"
+      },
+      {
+        "id": "29",
+        "name": "Moroccan Mint Medley",
+        "price": 1699,
+        "originalPrice": 2099,
+        "image": "/images/products/Product-5.png",
+        "badge": "SALE"
+      },
+      {
+        "id": "30",
+        "name": "Butterfly Pea Blossom",
+        "price": 2199,
+        "originalPrice": 2699,
+        "image": "/images/products/Product-6.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "31",
+        "name": "Smoky Lapsang Souchong",
+        "price": 2599,
+        "originalPrice": 3099,
+        "image": "/images/products/Product-1.png",
+        "badge": "PREMIUM"
+      },
+      {
+        "id": "32",
+        "name": "Peach Apricot Paradise",
+        "price": 1899,
+        "originalPrice": 2299,
+        "image": "/images/products/Product-2.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "33",
+        "name": "Gyokuro Imperial Green",
+        "price": 3499,
+        "originalPrice": 3999,
+        "image": "/images/products/Product-3.png",
+        "badge": "PREMIUM"
+      },
+      {
+        "id": "34",
+        "name": "Cinnamon Apple Chai",
+        "price": 1799,
+        "originalPrice": 2199,
+        "image": "/images/products/Product-4.png",
+        "badge": "POPULAR"
+      },
+      {
+        "id": "35",
+        "name": "Raspberry Leaf Herbal",
+        "price": 1599,
+        "originalPrice": 1999,
+        "image": "/images/products/Product-5.png",
+        "badge": "SALE"
+      },
+      {
+        "id": "36",
+        "name": "Tieguanyin Iron Goddess",
+        "price": 2899,
+        "originalPrice": 3399,
+        "image": "/images/products/Product-6.png",
+        "badge": "PREMIUM"
+      },
+      {
+        "id": "37",
+        "name": "Mango Passion Tropical",
+        "price": 2099,
+        "originalPrice": 2599,
+        "image": "/images/products/Product-1.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "38",
+        "name": "Masala Chai Authentic",
+        "price": 1899,
+        "originalPrice": 2399,
+        "image": "/images/products/Product-2.png",
+        "badge": "POPULAR"
+      },
+      {
+        "id": "39",
+        "name": "Nettle Detox Blend",
+        "price": 1699,
+        "originalPrice": 2099,
+        "image": "/images/products/Product-3.png",
+        "badge": "NEW"
+      },
+      {
+        "id": "40",
+        "name": "Phoenix Oolong Supreme",
+        "price": 3799,
+        "originalPrice": 4299,
+        "image": "/images/products/Product-4.png",
+        "badge": "PREMIUM"
       }
     ]
   }

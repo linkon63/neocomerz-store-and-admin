@@ -38,9 +38,6 @@ export default function ProductCarousel({ products, title }: ExtendedProductCaro
               <FiChevronRight className="text-dark-charcoal text-lg sm:text-xl" />
             </button>
           </div>
-
-          {/* Pagination Dots */}
-          <div className="swiper-pagination-product flex justify-center items-center gap-2 h-4"></div>
         </div>
       </div>
 
@@ -59,10 +56,10 @@ export default function ProductCarousel({ products, title }: ExtendedProductCaro
             nextEl: '.product-carousel-next',
           }}
           pagination={{
-            el: '.swiper-pagination-product',
             clickable: true,
-            bulletClass: 'inline-block w-2 h-2 bg-gray-300 rounded-full cursor-pointer transition-all duration-300 mx-1',
-            bulletActiveClass: '!bg-[#B9975B] scale-110',
+            dynamicBullets: true,
+            bulletClass: 'swiper-pagination-bullet',
+            bulletActiveClass: 'swiper-pagination-bullet-active',
           }}
           autoplay={{
             delay: 3500,
@@ -79,7 +76,7 @@ export default function ProductCarousel({ products, title }: ExtendedProductCaro
               spaceBetween: 30,
             },
           }}
-          className="mySwiper pb-12"
+          className="mySwiper pb-12 [&_.swiper-pagination]:bottom-0! [&_.swiper-pagination]:flex! [&_.swiper-pagination]:justify-center!"
         >
           {products.map((product) => (
             <SwiperSlide key={product.id}>

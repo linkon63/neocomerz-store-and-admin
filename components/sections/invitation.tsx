@@ -28,7 +28,7 @@ export default function Invitation() {
         }}
       ></div>
 
-      <div className="relative z-10 container mx-auto px-6 sm:px-12">
+      <div className="relative z-10 container mx-auto px-6 sm:px-12 max-w-360">
         {/* Header */}
         <div className="text-center mb-8 md:mb-12">
           <p className="font-gotham text-stone-gray text-xs sm:text-sm tracking-widest uppercase mb-4">
@@ -37,7 +37,7 @@ export default function Invitation() {
           <h2 className="font-['Bembo_Std'] text-khaki-gold text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-relaxed">
             Not Everything Rare Asks for Attention
           </h2>
-          <h3 className="font-['Snell_Roundhand_LT_Std'] text-olive-slate text-xl sm:text-2xl md:text-4xl lg:text-5xl mb-8 md:mb-12">
+          <h3 className="font-['Snell_Roundhand_LT_Std'] italic text-olive-slate text-xl sm:text-2xl md:text-4xl lg:text-5xl mb-8 md:mb-12">
             Some Things Reveal Themselves, Slowly
           </h3>
         </div>

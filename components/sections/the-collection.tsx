@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Button from "./ui/button";
 
 export default function TheCollection() {
   return (
@@ -30,15 +30,11 @@ export default function TheCollection() {
         {/* Buttons and Icons Row */}
         <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 lg:gap-8 mb-12 md:mb-16">
           {/* Button 1 */}
-          <Link
+          <Button
             href="/collections/assorted"
-            className="w-full md:w-auto px-8 lg:px-12 py-3 md:py-3.5 text-white font-gotham text-xs md:text-sm uppercase tracking-wider rounded-full transition-all duration-300 text-center shadow-md hover:opacity-90"
-            style={{
-              background: 'linear-gradient(134deg, var(--Khaki-Gold, #B4A676) -3.81%, var(--Sage-Gold, #D2C494) 102.27%)',
-            }}
-          >
-            Assorted Collections
-          </Link>
+            label="Assorted Collections"
+            variant="primary"
+          />
 
           {/* Icon 1 */}
           <div className="hidden md:block relative w-8 h-8">
@@ -51,12 +47,11 @@ export default function TheCollection() {
           </div>
 
           {/* Button 2 */}
-          <Link
+          <Button
             href="/collections/tea-books"
-            className="w-full md:w-auto px-8 lg:px-12 py-3 md:py-3.5 bg-white text-stone-gray font-['Bembo_Std'] text-xs md:text-sm uppercase tracking-wider rounded-full hover:bg-[#F5F5F0] transition-all duration-300 text-center shadow-md border border-[#B9975B]"
-          >
-            Tea Book Collections
-          </Link>
+            label="Tea Book Collections"
+            variant="outline"
+          />
 
           {/* Icon 2 */}
           <div className="hidden md:block relative w-8 h-8">
@@ -69,16 +64,15 @@ export default function TheCollection() {
           </div>
 
           {/* Button 3 */}
-          <Link
+          <Button
             href="/collections/tea-chests"
-            className="w-full md:w-auto px-8 lg:px-12 py-3 md:py-3.5 bg-white text-stone-gray font-['Bembo_Std'] text-xs md:text-sm uppercase tracking-wider rounded-full hover:bg-[#F5F5F0] transition-all duration-300 text-center shadow-md border border-[#B9975B]"
-          >
-            Tea chests
-          </Link>
+            label="Tea chests"
+            variant="outline"
+          />
         </div>
 
         {/* Image Section */}
-        <div className="relative w-full aspect-video md:aspect-21/9 overflow-hidden rounded-lg shadow-2xl">
+        <div className="relative w-full aspect-video md:aspect-21/9 overflow-hidden shadow-2xl">
           <Image
             src="/images/footer/footerright.png"
             alt="Tea Collections"
