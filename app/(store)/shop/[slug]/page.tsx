@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { FaFacebookF, FaGooglePlusG, FaLinkedinIn, FaXTwitter } from "react-icons/fa6";
 import { FiChevronLeft, FiChevronRight, FiHeart, FiMail, FiShoppingBag } from "react-icons/fi";
 import { productSlug, shopProducts } from "../products";
-import { PriceDisplay } from "../../_components/price-display";
+import { PriceDisplay } from "../../../_components/price-display";
 
 export function generateStaticParams() {
   return shopProducts.map((product) => ({
