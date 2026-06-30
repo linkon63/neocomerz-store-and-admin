@@ -17,8 +17,8 @@ interface AuthContextValue {
   loading: boolean;
   showAuthModal: boolean;
   setShowAuthModal: (show: boolean) => void;
-  login: (phone: string, password: string) => Promise<void>;
-  register: (firstName: string, lastName: string, phone: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -45,15 +45,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = useCallback(async (phone: string, password: string) => {
-    const { accessToken, user: loggedInUser } = await apiLogin(phone, password);
+  const login = useCallback(async (email: string, password: string) => {
+    const { accessToken, user: loggedInUser } = await apiLogin(email, password);
     setCustomerSession(accessToken, loggedInUser);
     setUser(loggedInUser);
     setShowAuthModal(false);
   }, []);
 
-  const register = useCallback(async (firstName: string, lastName: string, phone: string, password: string) => {
-    const { accessToken, user: registeredUser } = await apiRegister(firstName, lastName, phone, password);
+  const register = useCallback(async (name: string, email: string, password: string) => {
+    const { accessToken, user: registeredUser } = await apiRegister(name, email, password);
     setCustomerSession(accessToken, registeredUser);
     setUser(registeredUser);
     setShowAuthModal(false);

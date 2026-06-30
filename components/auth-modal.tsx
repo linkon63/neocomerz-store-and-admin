@@ -12,10 +12,8 @@ export default function AuthModal() {
   const { showAuthModal, setShowAuthModal, login, register } = useAuth();
 
   const [view, setView] = useState<AuthView>("login");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [countryCode, setCountryCode] = useState("+880");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -27,9 +25,8 @@ export default function AuthModal() {
   if (!showAuthModal) return null;
 
   const resetForm = () => {
-    setFirstName("");
-    setLastName("");
-    setPhone("");
+    setName("");
+    setEmail("");
     setPassword("");
     setConfirmPassword("");
     setError("");
@@ -52,14 +49,19 @@ export default function AuthModal() {
     e.preventDefault();
     setError("");
 
-    if (!phone.trim() || !password.trim()) {
+    if (!email.trim() || !password.trim()) {
       setError("Please fill in all required fields.");
       return;
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     if (view === "register") {
-      if (!firstName.trim() || !lastName.trim()) {
-        setError("Please enter your first and last name.");
+      if (!name.trim()) {
+        setError("Please enter your name.");
         return;
       }
       if (password.length < 6) {
@@ -72,14 +74,12 @@ export default function AuthModal() {
       }
     }
 
-    const fullPhone = countryCode + phone;
-
     setSubmitting(true);
     try {
       if (view === "login") {
-        await login(fullPhone, password);
+        await login(email.trim(), password);
       } else {
-        await register(firstName, lastName, fullPhone, password);
+        await register(name.trim(), email.trim(), password);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
@@ -90,7 +90,7 @@ export default function AuthModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-      <div className="relative w-full max-w-4xl bg-[#F5F5DC] shadow-2xl rounded-2xl overflow-hidden flex p-2 gap-2">
+      <div className="relative w-full bg-[#F5F5DC] shadow-2xl rounded-2xl overflow-hidden flex p-2 gap-2 max-w-200">
         <button
           type="button"
           onClick={handleClose}
@@ -112,7 +112,7 @@ export default function AuthModal() {
                 <button
                   type="button"
                   onClick={switchView}
-                  className="font-semibold text-red-600 hover:text-red-700 transition-colors cursor-pointer"
+                  className="font-semibold text-[#B4A676] hover:text-[#9a884c] transition-colors cursor-pointer"
                 >
                   CREATE ACCOUNT
                 </button>
@@ -139,60 +139,33 @@ export default function AuthModal() {
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             {view === "register" && (
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label htmlFor="auth-firstname" className="block text-sm font-semibold text-zinc-700 font-gotham mb-1">
-                    First Name
-                  </label>
-                  <input
-                    id="auth-firstname"
-                    type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Enter first name"
-                    className="w-full border border-zinc-300 px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-500 transition-colors font-gotham"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="auth-lastname" className="block text-sm font-semibold text-zinc-700 font-gotham mb-1">
-                    Last Name
-                  </label>
-                  <input
-                    id="auth-lastname"
-                    type="text"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Enter last name"
-                    className="w-full border border-zinc-300 px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-500 transition-colors font-gotham"
-                  />
-                </div>
+              <div>
+                <label htmlFor="auth-name" className="block text-sm font-semibold text-zinc-700 font-gotham mb-1">
+                  Name
+                </label>
+                <input
+                  id="auth-name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter your full name"
+                  className="w-full border border-zinc-300 px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-500 transition-colors font-gotham"
+                />
               </div>
             )}
 
             <div>
-              <label htmlFor="auth-phone" className="block text-sm font-semibold text-zinc-700 font-gotham mb-1">
-                Phone Number
+              <label htmlFor="auth-email" className="block text-sm font-semibold text-zinc-700 font-gotham mb-1">
+                Email
               </label>
-              <div className="flex gap-2">
-                <select
-                  value={countryCode}
-                  onChange={(e) => setCountryCode(e.target.value)}
-                  className="border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-zinc-500 transition-colors font-gotham bg-white"
-                >
-                  <option value="+880">+880</option>
-                  <option value="+1">+1</option>
-                  <option value="+44">+44</option>
-                  <option value="+91">+91</option>
-                </select>
-                <input
-                  id="auth-phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Phone Number"
-                  className="flex-1 border border-zinc-300 px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-500 transition-colors font-gotham"
-                />
-              </div>
+              <input
+                id="auth-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="w-full border border-zinc-300 px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-500 transition-colors font-gotham"
+              />
             </div>
 
             <div className={`grid items-center justify-between gap-2 w-full ${view === "login" ? "grid-cols-1" : "xl:grid-cols-2"}`}>
@@ -246,7 +219,6 @@ export default function AuthModal() {
                 </div>
               )}
             </div>
-            
 
             {view === "login" && (
               <div className="flex items-center gap-2">
@@ -255,7 +227,7 @@ export default function AuthModal() {
                   id="remember-login"
                   checked={rememberLogin}
                   onChange={(e) => setRememberLogin(e.target.checked)}
-                  className="w-4 h-4 accent-red-600 cursor-pointer"
+                  className="w-4 h-4 accent-[#B4A676] cursor-pointer text-white"
                 />
                 <label htmlFor="remember-login" className="text-sm text-zinc-600 font-gotham">
                   Remember login
@@ -280,8 +252,8 @@ export default function AuthModal() {
           </form>
 
           {view === "login" && (
-            <p className="mt-4 text-center text-sm text-zinc-600 font-gotham">
-              <button type="button" className="hover:text-zinc-900 transition-colors cursor-pointer">
+            <p className="mt-4 text-center text-sm text-[#B4A676] font-gotham">
+              <button type="button" className="hover:text-[#9a884c] transition-colors cursor-pointer">
                 Having trouble to log in?
               </button>
             </p>
@@ -329,7 +301,6 @@ export default function AuthModal() {
         {/* Right Decorative Image Section */}
         <div className="w-1/4 relative flex items-center justify-center rounded-2xl">
           <div className="relative w-full h-full flex items-center justify-center">
-            {/* Decorative image placeholder - replace with actual image */}
             <div className="w-full h-full rounded-2xl flex items-center justify-center overflow-hidden relative">
               <div className="absolute inset-0 z-0" style={{ backgroundImage: "url('/images/login.webp')", backgroundSize: "cover", backgroundPosition: "center" }} />
             </div>
