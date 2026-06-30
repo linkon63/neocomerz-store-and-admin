@@ -73,3 +73,76 @@
   --radius-lg: 16px;
   --radius-xl: 24px;
 }
+/* ── Admin Dashboard Clean Typography ── */
+.admin-dashboard .font-black,
+.admin-dashboard .font-extrabold,
+.admin-dashboard .font-bold,
+.admin-dashboard th,
+.admin-dashboard h1,
+.admin-dashboard h2,
+.admin-dashboard h3,
+.admin-dashboard button,
+.admin-dashboard select,
+.admin-dashboard input,
+.admin-dashboard label {
+  font-weight: 500 !important;
+}
+
+/* ── Modal Animations ── */
+@keyframes modal-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modal-panel-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-backdrop {
+  animation: modal-backdrop-in 0.2s ease-out both;
+}
+
+.modal-panel {
+  animation: modal-panel-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Smooth scrolling inside modals */
+.modal-body {
+  scroll-behavior: smooth;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+.modal-body::-webkit-scrollbar {
+  width: 5px;
+}
+.modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.modal-body::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 9999px;
+}
+
+/* ── Lazy Load Product Animations ── */
+@keyframes fade-up-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}

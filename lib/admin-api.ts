@@ -77,6 +77,17 @@ export type ProductMedia = {
   };
 };
 
+export type VariantMedia = {
+  id: string;
+  isFeatured: boolean;
+  sortOrder: number;
+  media: {
+    id: string;
+    url: string;
+    type: "image" | "video";
+  };
+};
+
 export type ProductVariant = {
   id: string;
   sku: string;
@@ -85,6 +96,8 @@ export type ProductVariant = {
   stockQuantity: number;
   stockAlertThreshold: number;
   isDefault: boolean;
+  optionValues?: { value: string; attribute: { name: string } }[];
+  media?: VariantMedia[];
   createdAt?: string;
 };
 
@@ -93,6 +106,12 @@ export type Product = {
   name: string;
   slug: string;
   description?: string | null;
+  shortDescription?: string | null;
+  discountPrice?: string | number | null;
+  isFeatured?: boolean;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  metaKeywords?: string | null;
   status: "active" | "inactive" | "draft";
   createdAt?: string;
   updatedAt?: string;
@@ -258,6 +277,333 @@ export type PaginatedOrders = {
   meta: { page: number; limit: number; total: number };
 };
 
+export type OrderTotals = {
+  subtotal: number;
+  shipping: number;
+  discount: number;
+  grand: number;
+  paid: number;
+  due: number;
+};
+
+// ─── Settings ──────────────────────────────────────────────────────────────
+
+export type SettingsContactEntry = { title: string; value: string };
+
+/**
+ * The API stores contactNumber and email as a JSON object with an "entries" array.
+ * Shape on the wire: { entries: SettingsContactEntry[] }
+ * We flatten/unflatten on the frontend for array-based editing.
+ */
+export type SettingsContactJson = { entries: SettingsContactEntry[] };
+
+export type SettingsSocialContact = {
+  tiktok?: string;
+  instagram?: string;
+  twitter?: string;
+  facebook?: string;
+  linkedin?: string;
+  youtube?: string;
+};
+
+/** Shape returned by GET /settings */
+export type AppSettings = {
+  id?: string;
+  shopName?: string;
+  logo?: string | null;
+  icon?: string | null;
+  favicon?: string | null;
+  slogan?: string | null;
+  isTopBarVisible?: boolean;
+  hideOutOfStock?: boolean;
+  branchName?: string | null;
+  branchAddress?: string | null;
+  branchLat?: number | null;
+  branchLng?: number | null;
+  /** Raw JSON from API — { entries: [...] } */
+  contactNumber?: SettingsContactJson | null;
+  /** Raw JSON from API — { entries: [...] } */
+  email?: SettingsContactJson | null;
+  socialContact?: SettingsSocialContact | null;
+  currency?: string;
+  language?: string;
+  copyrightYear?: string | null;
+  parentCompany?: string | null;
+  parentCompanyLink?: string | null;
+  deliveryChargeInside?: number | string | null;
+  deliveryChargeOutside?: number | string | null;
+  deliveryChargeNearCity?: number | string | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+/** Helper: extract entries array from the API's JSON object format */
+export function getContactEntries(
+  field: SettingsContactJson | null | undefined,
+): SettingsContactEntry[] {
+  if (!field) return [{ title: "", value: "" }];
+  if (Array.isArray(field)) {
+    // guard against old shape
+    return field.length > 0 ? (field as unknown as SettingsContactEntry[]) : [{ title: "", value: "" }];
+  }
+  const entries = field.entries;
+  return Array.isArray(entries) && entries.length > 0
+    ? entries
+    : [{ title: "", value: "" }];
+}
+
+/** Helper: pack entries array back into the API's JSON object format */
+export function packContactEntries(entries: SettingsContactEntry[]): SettingsContactJson {
+  return { entries };
+}
+
+// ─── Policies ──────────────────────────────────────────────────────────────
+
+export type PolicyEntry = { title: string; content: string };
+
+export type AppPolicies = {
+  id?: string;
+  delivery?: PolicyEntry;
+  refund?: PolicyEntry;
+  return?: PolicyEntry;
+  cancellation?: PolicyEntry;
+  privacy?: PolicyEntry;
+  terms?: PolicyEntry;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+// ─── Campaigns ─────────────────────────────────────────────────────────────
+
+export type CampaignImage = {
+  id: string;
+  images: string[];
+};
+
+export type CampaignSection = {
+  id: string;
+  title: string;
+  position: number;
+  page: string;
+};
+
+export type Campaign = {
+  id: string;
+  title: string;
+  description?: string;
+  status: "active" | "inactive";
+  startAt: string;
+  endAt?: string | null;
+  hasDiscount?: boolean;
+  discountId?: string | null;
+  sectionId: string;
+  section?: CampaignSection;
+  images?: CampaignImage[];
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type SalesReportSummary = {
+  totalRevenue: number;
+  totalOrders: number;
+  avgOrderValue: number;
+  period: { start: string; end: string };
+};
+
+export type ProductBreakdown = {
+  productId: string;
+  productName: string;
+  sku: string;
+  quantity: number;
+  revenue: number;
+};
+
+export type SalesReportOrder = {
+  orderId: string;
+  orderNumber: string;
+  customer: string;
+  total: number;
+  discount: number;
+  placedAt: string;
+  items: {
+    product: string;
+    sku: string;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+  }[];
+};
+
+export type PaginationMeta = {
+  page: number;
+  limit: number;
+  total: number;
+};
+
+export type SalesReport = {
+  summary: SalesReportSummary;
+  productBreakdown: ProductBreakdown[];
+  orders: { items: SalesReportOrder[]; meta: PaginationMeta };
+};
+
+export type UserReportUser = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  role: string;
+  registeredAt: string;
+};
+
+export type UserReport = {
+  summary: {
+    totalNewUsers: number;
+    totalCustomers: number;
+    newCustomersThisWeek: number;
+    period: { start: string; end: string };
+  };
+  users: { items: UserReportUser[]; meta: PaginationMeta };
+};
+
+export type CouponBreakdown = {
+  id: string;
+  code: string;
+  type: string;
+  value: number;
+  usedCount: number;
+  maxUsage: number;
+  expiresAt: string | null;
+};
+
+export type DiscountedOrder = {
+  orderId: string;
+  orderNumber: string;
+  customer: string;
+  discountAmount: number;
+  orderTotal: number;
+  placedAt: string;
+};
+
+export type ProductDiscountBreakdown = {
+  discountId: string;
+  discountName: string;
+  type: string;
+  value: number;
+  status: string;
+  startDate: string | null;
+  endDate: string | null;
+  products: {
+    productId: string;
+    productName: string;
+    totalSold: number;
+    revenue: number;
+  }[];
+};
+
+export type DiscountReport = {
+  summary: {
+    totalDiscountGiven: number;
+    ordersWithDiscount: number;
+    totalCoupons: number;
+    period: { start: string; end: string };
+  };
+  couponBreakdown: CouponBreakdown[];
+  discountedOrders: { items: DiscountedOrder[]; meta: PaginationMeta };
+  productDiscountBreakdown: ProductDiscountBreakdown[];
+};
+
+export type ReportOverviewSales = {
+  totalRevenue: number;
+  totalOrders: number;
+  avgOrderValue: number;
+  period: { start: string; end: string };
+};
+
+export type ReportOverviewCustomers = {
+  totalNewUsers: number;
+  totalCustomers: number;
+  newCustomersThisWeek: number;
+  period: { start: string; end: string };
+};
+
+export type ReportOverviewDiscounts = {
+  totalDiscountGiven: number;
+  ordersWithDiscount: number;
+  totalCoupons: number;
+  period: { start: string; end: string };
+};
+
+export type ReportOverviewInventory = {
+  totalStockIn: number;
+  totalStockOut: number;
+  totalTransactions: number;
+  lowStockAlerts: number;
+  period: { start: string; end: string };
+};
+
+export type InventoryVariant = {
+  id: string | null;
+  sku: string | null;
+  price: string | null;
+  cost: string | null;
+  stockQuantity: number;
+  stockAlertThreshold: number;
+  isDefault: boolean;
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    status: string;
+    media?: { media: { url: string } }[];
+  };
+};
+
+export type PaginatedInventory = {
+  data: InventoryVariant[];
+  meta: { page: number; limit: number; total: number };
+};
+
+export type InventoryLog = {
+  id: string;
+  change: number;
+  reason: "sale" | "restock" | "return" | "correction" | "manual";
+  referenceId?: string | null;
+  note?: string | null;
+  createdAt: string;
+  variantId: string;
+};
+
+export type InventoryLogResponse = InventoryLog & {
+  variant: {
+    sku: string;
+    product: { id: string; name: string };
+  };
+};
+
+export type AdjustInventoryPayload = {
+  variantId: string;
+  change: number;
+  reason: "sale" | "restock" | "return" | "correction" | "manual";
+  referenceId?: string;
+  note?: string;
+};
+
+export type ReportOverviewPurchases = {
+  totalPurchases: number;
+  totalUnits: number;
+  totalCost: number;
+  period: { start: string; end: string };
+};
+
+export type ReportOverview = {
+  period: { start: string; end: string };
+  sales: ReportOverviewSales;
+  customers: ReportOverviewCustomers;
+  discounts: ReportOverviewDiscounts;
+  inventory: ReportOverviewInventory;
+  purchases: ReportOverviewPurchases;
+};
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/v1";
 
 export function getAdminToken() {
@@ -337,6 +683,53 @@ export async function apiRequest<T>(
   }
 }
 
+export async function apiRequestRaw(
+  path: string,
+  { auth = true, ...options }: RequestOptions = {},
+): Promise<Response> {
+  const token = getAdminToken();
+  const requestHeaders = new Headers(options.headers);
+
+  if (auth && token) {
+    requestHeaders.set("Authorization", `Bearer ${token}`);
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers: requestHeaders,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Download failed with status ${response.status}`);
+  }
+
+  return response;
+}
+
+export enum ReportFormat {
+  JSON = "json",
+  CSV = "csv",
+  PDF = "pdf",
+}
+
+export async function downloadReport(
+  endpoint: string,
+  format: "csv" | "pdf",
+  params: Record<string, string>,
+) {
+  const searchParams = new URLSearchParams({ ...params, format });
+  const res = await apiRequestRaw(`/reports/${endpoint}?${searchParams}`);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${endpoint}-report.${format}`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 export function slugify(value: string) {
   return value
     .toLowerCase()
@@ -355,10 +748,177 @@ export function formatDate(value?: string) {
   }).format(new Date(value));
 }
 
-export function formatMoney(value?: string | number | null) {
-  if (value === undefined || value === null || value === "") return "-";
+export type InventoryRow = {
+  id: string;
+  sku: string;
+  price: string;
+  cost: string | null;
+  stockQuantity: number;
+  stockAlertThreshold: number;
+  isDefault: boolean;
+  product: { id: string; name: string; slug: string; status: string };
+};
 
-  return `৳${Number(value).toLocaleString("en", {
+export function toInventoryRows(
+  variants: Array<{
+    id: string;
+    sku: string;
+    price: { toString(): string };
+    cost?: { toString(): string } | null;
+    stockQuantity: number;
+    stockAlertThreshold: number;
+    isDefault: boolean;
+    product: { id: string; name: string; slug: string; status: string };
+  }>,
+): InventoryRow[] {
+  return variants.map((v) => ({
+    id: v.id,
+    sku: v.sku,
+    price: v.price.toString(),
+    cost: v.cost?.toString() ?? null,
+    stockQuantity: v.stockQuantity,
+    stockAlertThreshold: v.stockAlertThreshold,
+    isDefault: v.isDefault,
+    product: v.product,
+  }));
+}
+
+export function formatMoney(value?: string | number | null, symbol?: string) {
+  if (value === undefined || value === null || value === "") return "-";
+  const sym = symbol ?? "৳";
+
+  return `${sym}${Number(value).toLocaleString("en", {
     maximumFractionDigits: 2,
   })}`;
+}
+
+export function resolveImageUrl(url?: string | null): string {
+  if (!url) return "";
+
+  // Get API origin from environment variable
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "https://tinyecomapi.neocomerz.com/api/v1";
+  let apiOrigin = "https://tinyecomapi.neocomerz.com";
+  try {
+    const parsed = new URL(apiBaseUrl);
+    apiOrigin = parsed.origin;
+  } catch (e) {
+    // Fallback if parsing fails
+  }
+
+  let resolvedUrl = url;
+  if (resolvedUrl.includes("localhost:")) {
+    resolvedUrl = resolvedUrl.replace(/^https?:\/\/localhost:\d+/, apiOrigin);
+  }
+
+  if (!resolvedUrl.startsWith("http://") && !resolvedUrl.startsWith("https://") && !resolvedUrl.startsWith("data:")) {
+    const separator = resolvedUrl.startsWith("/") ? "" : "/";
+    resolvedUrl = `${apiOrigin}${separator}${resolvedUrl}`;
+  }
+
+  return resolvedUrl;
+}
+
+// ─── News / Blog ───────────────────────────────────────────────────────────
+
+export type News = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string | null;
+  content: string;
+  coverImageUrl?: string | null;
+  author?: string | null;
+  isPublished: boolean;
+  publishedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// Admin: all articles (drafts included).
+export async function getAllNews(): Promise<News[]> {
+  return apiRequest<News[]>("/news/manage");
+}
+
+// Public: published articles only.
+export async function getPublishedNews(): Promise<News[]> {
+  return apiRequest<News[]>("/news", { auth: false });
+}
+
+// Public: a single published article by slug.
+export async function getNewsBySlug(slug: string): Promise<News> {
+  return apiRequest<News>(`/news/slug/${slug}`, { auth: false });
+}
+
+export async function createNews(body: FormData): Promise<News> {
+  return apiRequest<News>("/news", { method: "POST", body });
+}
+
+export async function updateNews(id: string, body: FormData): Promise<News> {
+  return apiRequest<News>(`/news/${id}`, { method: "PATCH", body });
+}
+
+export async function deleteNews(id: string): Promise<void> {
+  return apiRequest<void>(`/news/${id}`, { method: "DELETE" });
+}
+
+// ─── Reviews ─────────────────────────────────────────────────────────────────
+
+export type Review = {
+  id: string;
+  rating: number;
+  comment: string | null;
+  isApproved: boolean;
+  createdAt: string;
+  productId: string;
+  userId: string;
+  product?: { id: string; name: string; slug: string };
+  user?: { id: string; name: string; email: string };
+};
+
+export type PaginatedReviews = {
+  data: Review[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+};
+
+export type UpdateReviewDto = {
+  rating?: number;
+  comment?: string;
+  isApproved?: boolean;
+};
+
+export async function getAllReviews(params?: Record<string, string>): Promise<PaginatedReviews> {
+  const qs = params ? `?${new URLSearchParams(params)}` : "";
+  return apiRequest<PaginatedReviews>(`/reviews${qs}`);
+}
+
+export async function updateReview(id: string, dto: UpdateReviewDto): Promise<Review> {
+  return apiRequest<Review>(`/reviews/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dto),
+  });
+}
+
+export type CreateReviewDto = {
+  productId: string;
+  rating: number;
+  comment?: string;
+  isApproved?: boolean;
+};
+
+export async function createReview(dto: CreateReviewDto): Promise<Review> {
+  return apiRequest<Review>("/reviews", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dto),
+  });
+}
+
+export async function deleteReview(id: string): Promise<void> {
+  return apiRequest<void>(`/reviews/${id}`, { method: "DELETE" });
 }
