@@ -6,9 +6,12 @@ import { ConfirmModal } from "../../_components/confirm-modal";
 import {
   apiRequest,
   formatDate,
+  resolveImageUrl,
   slugify,
   type Category,
 } from "../../../../lib/admin-api";
+
+const PAGE_SIZE = 8;
 
 type CategoryForm = {
   id?: string;
@@ -49,6 +52,10 @@ export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [form, setForm] = useState<CategoryForm>(emptyForm);
   const [search, setSearch] = useState("");
+  const [showSearchInput, setShowSearchInput] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const observerTarget = useRef<HTMLDivElement>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -62,23 +69,70 @@ export default function CategoriesPage() {
 
   const rows = useMemo(() => flattenCategories(categories), [categories]);
   const filteredRows = useMemo(() => {
-    return rows.filter((category) =>
+    const result = rows.filter((category) =>
       `${category.name} ${category.slug} ${category.parentName}`
         .toLowerCase()
         .includes(search.toLowerCase()),
     );
+    return result;
   }, [rows, search]);
+
+  // Reset visibleCount when search changes
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [search]);
+
+  const paginatedRows = useMemo(() => {
+    return filteredRows.slice(0, visibleCount);
+  }, [filteredRows, visibleCount]);
+
+  function handleLoadMore() {
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount((prev) => prev + PAGE_SIZE);
+      setIsLoadingMore(false);
+    }, 300);
+  }
+
+  useEffect(() => {
+    if (isLoadingMore || paginatedRows.length >= filteredRows.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMore) {
+          handleLoadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: "100px" }
+    );
+
+    const target = observerTarget.current;
+    if (target) {
+      observer.observe(target);
+    }
+
+    return () => {
+      if (target) {
+        observer.unobserve(target);
+      }
+    };
+  }, [isLoadingMore, paginatedRows.length, filteredRows.length]);
 
   useEffect(() => {
     if (!form.image) {
-      setImagePreviewUrl(null);
-      return;
+      const timeoutId = window.setTimeout(() => {
+        setImagePreviewUrl(null);
+      }, 0);
+      return () => window.clearTimeout(timeoutId);
     }
 
     const objectUrl = URL.createObjectURL(form.image);
-    setImagePreviewUrl(objectUrl);
+    const timeoutId = window.setTimeout(() => {
+      setImagePreviewUrl(objectUrl);
+    }, 0);
 
     return () => {
+      window.clearTimeout(timeoutId);
       URL.revokeObjectURL(objectUrl);
     };
   }, [form.image]);
@@ -98,7 +152,10 @@ export default function CategoriesPage() {
   }
 
   useEffect(() => {
-    loadCategories();
+    const timeoutId = window.setTimeout(() => {
+      void loadCategories();
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   function updateName(name: string) {
@@ -223,11 +280,12 @@ export default function CategoriesPage() {
   }
 
   const visibleImagePreview =
-    imagePreviewUrl ?? (form.removeImage ? null : form.imageUrl);
+    imagePreviewUrl ?? (form.removeImage ? null : (form.imageUrl ? resolveImageUrl(form.imageUrl) : null));
 
   function cancelDelete() {
     setDeleteModalOpen(false);
     setCategoryToDelete(null);
+    setError("");
   }
 
   return (
@@ -236,16 +294,41 @@ export default function CategoriesPage() {
         title="Category"
         description="Create, update, and remove product categories from the API."
         action={
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-center">
+            {showSearchInput ? (
+              <div className="relative flex h-11 w-64 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+                <AdminIcon className="h-5 w-5 text-slate-400" name="search" />
+                <input
+                  className="w-full bg-transparent text-sm font-medium outline-none placeholder:text-slate-400 text-slate-800"
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Search categories..."
+                  value={search}
+                  autoFocus
+                />
+                <button
+                  onClick={() => {
+                    setSearch("");
+                    setShowSearchInput(false);
+                  }}
+                  className="grid h-6 w-6 place-items-center rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-all"
+                  title="Close search"
+                  type="button"
+                >
+                  <AdminIcon className="h-4 w-4" name="x" />
+                </button>
+              </div>
+            ) : (
+              <button
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm"
+                onClick={() => setShowSearchInput(true)}
+                type="button"
+                title="Search categories"
+              >
+                <AdminIcon className="h-5 w-5 text-slate-600" name="search" />
+              </button>
+            )}
             <button
-              className="grid h-14 w-14 place-items-center rounded-lg border border-slate-300 bg-white font-black"
-              onClick={loadCategories}
-              type="button"
-            >
-              <AdminIcon className="h-5 w-5" name="refresh" />
-            </button>
-            <button
-              className="inline-flex h-14 items-center gap-2 rounded-lg bg-blue-600 px-6 font-black text-white shadow-lg shadow-blue-600/15"
+              className="inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-5 text-[14px] font-semibold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 shrink-0 whitespace-nowrap"
               onClick={openAddModal}
               type="button"
             >
@@ -258,22 +341,10 @@ export default function CategoriesPage() {
 
       <section>
         <div className="overflow-hidden rounded-xl bg-white shadow-sm">
-          <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-2xl font-black">Categories list</h2>
-              <p className="font-medium text-slate-600">
-                Displaying {filteredRows.length} categories
-              </p>
-            </div>
-            <label className="flex h-12 w-full max-w-md items-center gap-3 rounded-lg border border-slate-300 px-4">
-              <AdminIcon className="h-5 w-5 text-slate-400" name="search" />
-              <input
-                className="w-full bg-transparent font-medium outline-none"
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search categories"
-                value={search}
-              />
-            </label>
+          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
+            <p className="text-sm font-medium text-slate-500">
+              {filteredRows.length} {filteredRows.length === 1 ? "category" : "categories"}
+            </p>
           </div>
 
           <div className="overflow-x-auto">
@@ -289,7 +360,7 @@ export default function CategoriesPage() {
                     "Created",
                     "Actions",
                   ].map((heading) => (
-                    <th className="px-5 py-4 font-black" key={heading}>
+                    <th className="px-5 py-4 text-sm font-semibold text-slate-700" key={heading}>
                       {heading}
                     </th>
                   ))}
@@ -299,21 +370,30 @@ export default function CategoriesPage() {
                 {isLoading ? (
                   <tr>
                     <td
-                      className="px-5 py-8 font-bold text-slate-500"
+                      className="px-5 py-8 text-slate-500"
                       colSpan={7}
                     >
                       Loading categories...
                     </td>
                   </tr>
+                ) : filteredRows.length === 0 ? (
+                  <tr>
+                    <td
+                      className="px-5 py-8 text-slate-500"
+                      colSpan={7}
+                    >
+                      No categories found.
+                    </td>
+                  </tr>
                 ) : (
-                  filteredRows.map((category) => (
+                  paginatedRows.map((category) => (
                     <tr
                       className="odd:bg-white even:bg-slate-50/70"
                       key={category.id}
                     >
-                      <td className="px-5 py-4 font-bold text-slate-800">
+                      <td className="px-5 py-4 text-sm text-slate-800">
                         <span
-                          style={{ paddingLeft: `${category.depth * 18}px` }}
+                           style={{ paddingLeft: `${category.depth * 18}px` }}
                         >
                           {category.depth > 0 ? "↳ " : ""}
                           {category.name}
@@ -325,7 +405,7 @@ export default function CategoriesPage() {
                           <img
                             alt=""
                             className="h-12 w-12 rounded-lg border border-slate-200 object-cover"
-                            src={category.imageUrl}
+                            src={resolveImageUrl(category.imageUrl)}
                           />
                         ) : (
                           <div className="grid h-12 w-12 place-items-center rounded-lg border border-slate-200 bg-white text-xl">
@@ -336,35 +416,35 @@ export default function CategoriesPage() {
                           </div>
                         )}
                       </td>
-                      <td className="px-5 py-4 font-medium text-slate-700">
+                      <td className="px-5 py-4 text-sm text-slate-600">
                         {category.slug}
                       </td>
-                      <td className="px-5 py-4 font-medium text-slate-700">
+                      <td className="px-5 py-4 text-sm text-slate-600">
                         {category.parentName}
                       </td>
-                      <td className="px-5 py-4 font-medium text-slate-700">
-                        {category.products?.length ?? 0}
+                      <td className="px-5 py-4 text-sm text-slate-600">
+                        {(category as any)._count?.products ?? category.products?.length ?? 0}
                       </td>
-                      <td className="px-5 py-4 font-medium text-slate-700">
+                      <td className="px-5 py-4 text-sm text-slate-600">
                         {formatDate(category.createdAt)}
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex gap-2">
                           <button
-                            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-black"
                             onClick={() => openEditModal(category)}
+                            className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors"
                             type="button"
+                            title="Edit category"
                           >
                             <AdminIcon className="h-4 w-4" name="edit" />
-                            Edit
                           </button>
                           <button
-                            className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-black text-red-700"
                             onClick={() => deleteCategory(category)}
+                            className="grid h-8 w-8 place-items-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors"
                             type="button"
+                            title="Delete category"
                           >
-                            <AdminIcon className="h-4 w-4" name="x" />
-                            Delete
+                            <AdminIcon className="h-4 w-4" name="trash" />
                           </button>
                         </div>
                       </td>
@@ -374,57 +454,91 @@ export default function CategoriesPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Lazy Loading */}
+          {!isLoading && filteredRows.length > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100 px-5 py-4 bg-gradient-to-r from-slate-50 to-white">
+              <div className="flex flex-col items-start gap-1.5">
+                <p className="text-sm font-medium text-slate-500">
+                  Showing <span className="font-bold text-slate-800">{paginatedRows.length}</span> of{" "}
+                  <span className="font-bold text-slate-800">{filteredRows.length}</span> categories
+                </p>
+                <div className="h-1.5 w-48 overflow-hidden rounded bg-slate-200">
+                  <div
+                    className="h-full bg-blue-600 transition-all duration-300 ease-out"
+                    style={{ width: `${Math.min(100, (paginatedRows.length / filteredRows.length) * 100)}%` }}
+                  />
+                </div>
+              </div>
+
+              {paginatedRows.length < filteredRows.length ? (
+                <div
+                  ref={observerTarget}
+                  className="flex items-center gap-2 py-2 text-xs font-semibold text-slate-500"
+                >
+                  <svg className="animate-spin h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Loading more on scroll...</span>
+                </div>
+              ) : (
+                <span className="text-xs font-semibold text-slate-400">All categories loaded</span>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
       {isModalOpen && (
         <div
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6"
+          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6 modal-backdrop"
           role="dialog"
           aria-modal="true"
           aria-labelledby="category-modal-title"
         >
           <form
-            className="w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-2xl"
+            className="modal-panel flex w-full max-w-lg flex-col rounded-xl border border-slate-200 bg-white shadow-2xl min-h-[480px] max-h-[calc(100vh-3rem)]"
             onSubmit={handleSubmit}
           >
-            <div className="mb-5 flex items-start justify-between gap-4">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 pt-6 pb-5 shrink-0">
               <div>
-                <h2 className="text-2xl font-black" id="category-modal-title">
-                  {form.id ? "Edit category" : "Add category"}
-                </h2>
-                <p className="mt-1 font-medium text-slate-600">
+                <h3 className="text-base font-semibold text-slate-900" id="category-modal-title">
+                  {form.id ? "Edit Category" : "Add Category"}
+                </h3>
+                <p className="mt-1 text-xs text-slate-500">
                   Build root and nested category records.
                 </p>
               </div>
               <button
-                className="grid h-10 w-10 place-items-center rounded-lg border border-slate-300 text-xl font-black text-slate-600"
+                className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600"
                 disabled={isSaving}
                 onClick={closeModal}
                 type="button"
               >
-                <AdminIcon className="h-5 w-5" name="x" />
+                <AdminIcon className="h-4 w-4" name="x" />
               </button>
             </div>
+            <div className="flex-1 modal-body px-6 py-5">
             <div className="space-y-4">
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+                <span className="mb-2 block text-sm font-medium text-slate-700">
                   Name
                 </span>
                 <input
                   autoFocus
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(event) => updateName(event.target.value)}
                   required
                   value={form.name}
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+                <span className="mb-2 block text-sm font-medium text-slate-700">
                   Slug
                 </span>
                 <input
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
@@ -436,11 +550,11 @@ export default function CategoriesPage() {
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+                <span className="mb-2 block text-sm font-medium text-slate-700">
                   Image
                 </span>
                 <input
-                  className="block w-full rounded-lg border border-slate-300 px-4 py-3 font-medium"
+                  className="block w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white file:mr-4 file:rounded-lg file:border-0 file:bg-slate-200 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-300"
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
@@ -454,11 +568,11 @@ export default function CategoriesPage() {
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
+                <span className="mb-2 block text-sm font-medium text-slate-700">
                   Parent category
                 </span>
                 <select
-                  className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
@@ -477,7 +591,7 @@ export default function CategoriesPage() {
                     ))}
                 </select>
               </label>
-              <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
+              <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4">
                 {visibleImagePreview ? (
                   <div className="flex items-center gap-4">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -487,20 +601,20 @@ export default function CategoriesPage() {
                       src={visibleImagePreview}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-black text-slate-800">
+                      <p className="truncate text-sm text-slate-800">
                         {form.image?.name ?? "Current image"}
                       </p>
-                      <p className="mt-1 text-sm font-medium text-slate-500">
+                      <p className="mt-1 text-xs text-slate-500">
                         Preview before saving.
                       </p>
                     </div>
                     <button
-                      className="inline-flex h-10 items-center gap-2 rounded-lg bg-red-50 px-3 text-sm font-black text-red-700"
+                      className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-red-50 px-3 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors"
                       disabled={isSaving}
                       onClick={removeImageFromForm}
                       type="button"
                     >
-                      <AdminIcon className="h-4 w-4" name="x" />
+                      <AdminIcon className="h-3.5 w-3.5" name="x" />
                       Remove
                     </button>
                   </div>
@@ -509,20 +623,22 @@ export default function CategoriesPage() {
                     <span className="grid h-12 w-12 place-items-center rounded-lg border border-slate-200 bg-white">
                       <AdminIcon className="h-5 w-5" name="category" />
                     </span>
-                    <p className="font-medium">
+                    <p className="text-sm font-medium">
                       No image selected. Upload an image to preview it here.
                     </p>
                   </div>
                 )}
               </div>
               {error && (
-                <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+                <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
                   {error}
                 </p>
               )}
-              <div className="flex justify-end gap-3 pt-2">
+            </div>
+            </div>
+            <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4 shrink-0">
                 <button
-                  className="h-12 rounded-lg border border-slate-300 bg-white px-5 font-black text-slate-700"
+                  className="h-10 rounded-lg border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
                   disabled={isSaving}
                   onClick={closeModal}
                   type="button"
@@ -530,12 +646,12 @@ export default function CategoriesPage() {
                   Cancel
                 </button>
                 <button
-                  className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-5 font-black text-white disabled:bg-slate-400"
+                  className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white disabled:bg-slate-400 hover:bg-blue-700 transition-colors"
                   disabled={isSaving}
                   type="submit"
                 >
                   <AdminIcon
-                    className="h-5 w-5"
+                    className="h-4 w-4"
                     name={form.id ? "check" : "plus"}
                   />
                   {isSaving
@@ -544,7 +660,6 @@ export default function CategoriesPage() {
                       ? "Update Category"
                       : "Add Category"}
                 </button>
-              </div>
             </div>
           </form>
         </div>
@@ -559,6 +674,7 @@ export default function CategoriesPage() {
         confirmText="Delete"
         cancelText="Cancel"
         isDestructive={true}
+        error={error}
       />
     </>
   );
