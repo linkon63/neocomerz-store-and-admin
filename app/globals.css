@@ -73,7 +73,15 @@
   --radius-lg: 16px;
   --radius-xl: 24px;
 }
-/* ── Admin Dashboard Clean Typography ── */
+
+/* ── Admin Dashboard Clean Typography & Reset ── */
+.admin-dashboard {
+  --radius-sm: 0.125rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+}
+
 .admin-dashboard .font-black,
 .admin-dashboard .font-extrabold,
 .admin-dashboard .font-bold,
@@ -90,8 +98,13 @@
 
 /* ── Modal Animations ── */
 @keyframes modal-backdrop-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes modal-panel-in {
@@ -99,6 +112,7 @@
     opacity: 0;
     transform: scale(0.95) translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -120,12 +134,15 @@
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
+
 .modal-body::-webkit-scrollbar {
   width: 5px;
 }
+
 .modal-body::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .modal-body::-webkit-scrollbar-thumb {
   background-color: #cbd5e1;
   border-radius: 9999px;
@@ -137,6 +154,7 @@
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

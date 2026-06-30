@@ -1059,8 +1059,6 @@ packages:
 
   es-toolkit@1.47.0:
     resolution: {integrity: sha512-n1GuoD0WEQZMBk5tttoZSqwgyLx01oqa5XsBmCHwPyNe1S9jPBEmtR2pSgp2kJuWE3ciFZ6yRHmY4pM4C3OOkw==}
-  es-toolkit@1.47.1:
-    resolution: {integrity: sha512-5RAqEwf4P4E17p+W75KLOWw/nOvKZzSQpxM32IpI2KZLaVonjTrZ0Ai5ghMaVI9eKC2p8eoQgcBdkEDgzFk6+Q==}
 
   escalade@3.2.0:
     resolution: {integrity: sha512-WUj2qlxaQtO4g6Pq5c29GTcWGDyd8itL8zTlipgECz3JesAiiOKotd8JU6otB3PACgG6xkJUyVhboMS+bje/jA==}
@@ -3160,7 +3158,6 @@ snapshots:
       is-symbol: 1.1.1
 
   es-toolkit@1.47.0: {}
-  es-toolkit@1.47.1: {}
 
   escalade@3.2.0: {}
 
@@ -3973,7 +3970,6 @@ snapshots:
       clsx: 2.1.1
       decimal.js-light: 2.5.1
       es-toolkit: 1.47.0
-      es-toolkit: 1.47.1
       eventemitter3: 5.0.4
       immer: 10.2.0
       react: 19.2.4
