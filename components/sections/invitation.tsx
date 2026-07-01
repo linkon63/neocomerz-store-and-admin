@@ -20,7 +20,7 @@ export default function Invitation() {
     <section className="relative w-full bg-white py-12 md:py-16 lg:py-28 overflow-hidden">
       {/* Pattern Background Layer with blend mode */}
       <div 
-        className="absolute inset-0 z-0 opacity-10"
+        className="absolute inset-0 z-0 opacity-20"
         style={{
           backgroundImage: "url('/images/pattern/pattern.png')",
           backgroundRepeat: "repeat",
@@ -28,7 +28,7 @@ export default function Invitation() {
         }}
       ></div>
 
-      <div className="relative z-10 container mx-auto px-6 sm:px-12 max-w-360">
+      <div className="relative z-10 container mx-auto px-6 sm:px-12 max-w-[1080px]">
         {/* Header */}
         <div className="text-center mb-8 md:mb-12">
           <p className="font-gotham text-stone-gray text-xs sm:text-sm tracking-widest uppercase mb-4">
@@ -43,9 +43,9 @@ export default function Invitation() {
         </div>
 
         {/* Features */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12 max-w-[1080px]">
           {features.map((feature, index) => (
-            <div key={index} className="flex flex-row items-center gap-4 md:gap-6">
+            <div key={index} className="flex flex-row items-center justify-center gap-4 md:gap-6">
               {/* Icon */}
               <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 mb-4">
                 <Image

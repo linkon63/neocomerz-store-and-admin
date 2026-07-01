@@ -3,6 +3,34 @@
 /* Tailwind v4 Source */
 @source "../node_modules/react-tailwindcss-datepicker/dist";
 
+/* ===================================
+   Custom Fonts
+=================================== */
+
+@font-face {
+  font-family: 'Snell Roundhand';
+  src: url('/fonts/Snell Roundhand Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Snell Roundhand';
+  src: url('/fonts/Snell Roundhand Regular.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Snell Roundhand LT Std';
+  src: url('/fonts/Snell Roundhand Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   /* ===========================
      Brand Colors
@@ -63,6 +91,7 @@
 
   --font-heading: "Cormorant Garamond", serif;
   --font-body: "Inter", sans-serif;
+  --font-script: "Snell Roundhand LT Std", "Snell Roundhand", cursive;
 
   /* ===========================
      Radius

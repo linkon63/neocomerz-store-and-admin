@@ -25,10 +25,10 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full bg-olive-slate backdrop-blur-md text-white font-gotham shadow-md border-b border-white/10">
       {/* Desktop Header */}
-      <div className="hidden xl:flex items-center justify-between w-full max-w-360 mx-auto px-5 py-2.5 gap-4">
+      <div className="hidden xl:flex items-center justify-between w-full max-w-360 mx-auto py-3 gap-4">
         {/* Search */}
         <div className="w-55 flex justify-start items-center">
-          <div className="flex items-center gap-1.5 pr-6 py-1.5 border-b border-zinc-400">
+          <div className="flex items-center gap-1.5 pr-6 border-b border-zinc-400 pb-1">
             <IoSearchOutline className="w-5 h-5 text-white" />
 
             <input

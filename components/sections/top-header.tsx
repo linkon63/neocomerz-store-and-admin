@@ -6,21 +6,21 @@ export default function TopHeader() {
   const { help, selectors } = data;
 
   return (
-    <section className="w-full bg-sage-gray text-white font-medium px-2 sm:px-4 md:px-6 py-0.5">
+    <section className="w-full bg-sage-gray text-white font-medium px-2 sm:px-4 md:px-6 py-1 sm:py-2.5">
       <div className="topheader-wrapper max-w-360 mx-auto">
-        <div className="flex items-center justify-between py-1 sm:py-2.5 gap-2 md:gap-4">
+        <div className="flex items-center justify-between gap-2 md:gap-4">
           {/* Left Section - Help & Phone */}
-          <div className="flex items-center gap-1 sm:gap-2 text-xs text-white">
-            <span className="font-['Gotham'] text-white hidden sm:inline">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <span className="text-white text-xs font-medium font-['Gotham'] leading-4 hidden sm:inline">
               {help.text}
             </span>
-            <span className="font-['Gotham'] text-white hidden sm:inline">|</span>
-            <div className="flex items-center gap-1 sm:gap-1.5 text-white">
+            <span className="text-white text-xs font-medium font-['Gotham'] leading-4 hidden sm:inline">|</span>
+            <div className="flex items-center gap-1 sm:gap-1.5">
               <IoCallOutline className="w-3.5 h-3.5 text-white" />
-              <span className="font-['Gotham'] text-white text-xs sm:text-sm hidden md:inline">
+              <span className="text-white text-xs font-medium font-['Gotham'] leading-4 sm:text-sm hidden md:inline">
                 {help.phone.label} {help.phone.full}
               </span>
-              <span className="font-['Gotham'] text-white text-xs sm:text-sm md:hidden">
+              <span className="text-white text-xs font-medium font-['Gotham'] leading-4 sm:text-sm md:hidden">
                 {help.phone.short}
               </span>
             </div>
@@ -32,14 +32,14 @@ export default function TopHeader() {
           </div>
 
           {/* Right Section - Location, Language & Currency */}
-          <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-white">
+          <div className="flex items-center gap-2 sm:gap-4">
             {/* Location Icon */}
             <IoLocationOutline className="w-4 h-4 text-white hidden sm:inline" />
             
             {/* Language Selector */}
             <div className="flex items-center gap-0.5 cursor-pointer">
               <select
-                className="bg-transparent text-white border-none outline-none cursor-pointer font-['Gotham'] text-xs sm:text-sm appearance-none pr-0.5"
+                className="bg-transparent text-white text-xs font-medium font-['Gotham'] leading-4 border-none outline-none cursor-pointer sm:text-sm appearance-none pr-0.5"
                 defaultValue={selectors.language.default}
               >
                 {selectors.language.options.map((option: { value: string; label: string }) => (
@@ -58,7 +58,7 @@ export default function TopHeader() {
             {/* Currency Selector */}
             <div className="flex items-center gap-0.5 cursor-pointer">
               <select
-                className="bg-transparent text-white border-none outline-none cursor-pointer font-['Gotham'] text-xs appearance-none pr-0.5"
+                className="bg-transparent text-white text-xs font-medium font-['Gotham'] leading-4 border-none outline-none cursor-pointer appearance-none pr-0.5"
                 defaultValue={selectors.currency.default}
               >
                 {selectors.currency.options.map((option: { value: string; label: string }) => (
@@ -84,4 +84,3 @@ export default function TopHeader() {
     </section>
   );
 }
-
