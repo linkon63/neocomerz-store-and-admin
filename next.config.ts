@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
         hostname: "images.unsplash.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "tinyecomapi.neocomerz.com",
+        pathname: "/**",
+      },
     ],
     domains: ["images.unsplash.com"],
   },

@@ -1,0 +1,66 @@
+import { type PaginatedProducts, type Product as AdminProduct, resolveImageUrl } from "./admin-api";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/v1";
+
+export type ShopProduct = {
+  id: string;
+  name: string;
+  slug: string;
+  category: string;
+  team: string;
+  price: number;
+  image: string;
+};
+
+export type FetchShopProductsParams = {
+  page?: number;
+  limit?: number;
+};
+
+export type ShopProductsResponse = {
+  data: ShopProduct[];
+  total: number;
+};
+
+function mapProduct(product: AdminProduct): ShopProduct {
+  const defaultVariant = product.variants?.find((v) => v.isDefault) ?? product.variants?.[0];
+
+  const featuredMedia = product.media?.find((m) => m.isFeatured);
+  const firstMedia = product.media?.[0];
+  const rawImage = featuredMedia?.media.url ?? firstMedia?.media.url ?? "";
+
+  return {
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    category: product.category?.name ?? "",
+    team: product.brand?.name ?? "",
+    price: Number(defaultVariant?.price ?? 0),
+    image: resolveImageUrl(rawImage),
+  };
+}
+
+export async function fetchShopProducts(
+  params: FetchShopProductsParams = {},
+): Promise<ShopProductsResponse> {
+  const { page = 1, limit = 12 } = params;
+
+  const searchParams = new URLSearchParams();
+  searchParams.set("page", String(page));
+  searchParams.set("limit", String(limit));
+
+  const res = await fetch(`${API_BASE_URL}/products?${searchParams.toString()}`, {
+    headers: { "Content-Type": "application/json" },
+  });
+
+  if (res.status !== 200) {
+    throw new Error(`Failed to fetch products: ${res.status}`);
+  }
+
+  const paginated: PaginatedProducts = await res.json();
+
+  return {
+    data: paginated.data.map(mapProduct),
+    total: paginated.meta.total,
+  };
+}

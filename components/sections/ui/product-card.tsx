@@ -2,6 +2,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { ProductCardProps } from '@/data/types';
 
+const NO_IMAGE = '/images/no-image-icon-6.png';
+
+function handleImageError(e: React.SyntheticEvent<HTMLImageElement>) {
+  const target = e.currentTarget;
+  if (target.src !== NO_IMAGE) {
+    target.src = NO_IMAGE;
+  }
+}
+
 export default function ProductCard({
   id,
   name,
@@ -28,21 +37,23 @@ export default function ProductCard({
         {id ? (
           <Link href={`/products/${id}`} className="self-stretch h-[290px] flex flex-col justify-center items-center relative overflow-hidden cursor-pointer w-full">
             <Image
-              src={image}
+              src={image || '/images/no-image-icon-6.png'}
               alt={name}
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
               className="object-contain group-hover:scale-105 transition-transform duration-300"
+              onError={handleImageError}
             />
           </Link>
         ) : (
           <div className="self-stretch h-[290px]  flex flex-col justify-center items-center relative overflow-hidden w-full">
             <Image
-              src={image}
+              src={image || '/images/no-image-icon-6.png'}
               alt={name}
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
               className="object-cover group-hover:scale-105 transition-transform duration-300"
+              onError={handleImageError}
             />
           </div>
         )}
@@ -64,7 +75,7 @@ export default function ProductCard({
             <div className="flex-1">
               {id ? (
                 <Link href={`/products/${id}`} className="cursor-pointer">
-                  <h3 className="text-stone-800 hover:text-brand-3 transition-colors duration-200 text-lg md:text-xl lg:text-2xl font-normal font-gotham leading-tight">
+                  <h3 className="text-stone-800 hover:text-brand-3 transition-colors duration-200 text-lg md:text-xl lg:text-2xl font-normal font-gotham line-clamp-2 leading-tight">
                     {name}
                   </h3>
                 </Link>
