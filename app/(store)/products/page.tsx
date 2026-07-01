@@ -1,40 +1,111 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import TopHeader from '@/components/sections/top-header';
 import Header from '@/components/sections/header';
 import ProductCard from '@/components/sections/ui/product-card';
 import RelatedCarousel from '@/components/sections/ui/related-carousel';
 import Mainfooter from '@/components/sections/main-footer';
 import Bottomfooter from '@/components/sections/bottom-footer';
-import { Product, fetchAllProducts } from '@/lib/api';
+import { InfiniteScroll } from '@/app/admin/_components/infinite-scroll';
+import { fetchShopProducts, type ShopProduct } from '@/lib/shop-api';
 
 const COLLECTION_OPTIONS = ['All', 'Tea Books', 'Classic Collections', 'Royal Collections'];
-const PRICE_OPTIONS = ['All', 'Under ৳3,000', '৳3,000 - ৳10,000', 'Over ৳10,000'];
-const CATEGORY_OPTIONS = ['All', 'Black Tea', 'Green Tea', 'Herbal Infusions'];
 const ORIGIN_OPTIONS = ['All', 'Sylhet, Bangladesh', 'Darjeeling, India', 'London, UK'];
+const PRICE_OPTIONS = ['All', 'Under ৳3,000', '৳3,000 - ৳10,000', 'Over ৳10,000'];
 const SORT_OPTIONS = ['New Arrival', 'Price: Low to High', 'Price: High to Low', 'Name: A to Z'];
+const PAGE_LIMIT = 20;
+
+function withinPriceRange(price: number, range: string): boolean {
+  if (range === 'All') return true;
+  if (range === 'Under ৳3,000') return price < 3000;
+  if (range === '৳3,000 - ৳10,000') return price >= 3000 && price <= 10000;
+  if (range === 'Over ৳10,000') return price > 10000;
+  return true;
+}
+
+const NO_IMAGE = '/images/no-image-icon-6.png';
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [viewMode, setViewMode] = useState<'grid2' | 'grid3'>('grid3');
   const [selectedCollection, setSelectedCollection] = useState<string>('All');
+  // const [selectedOrigin] = useState<string>('All');
   const [selectedPrice, setSelectedPrice] = useState<string>('All');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedOrigin, setSelectedOrigin] = useState<string>('All');
+  const [selectedBrand, setSelectedBrand] = useState<string>('All');
   const [selectedSort, setSelectedSort] = useState<string>('New Arrival');
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function loadProducts() {
+  const [products, setProducts] = useState<ShopProduct[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const reqIdRef = useRef(0);
+  const pageRef = useRef(1);
+
+  const categoryOptions = useMemo(
+    () => ['All', ...new Set(products.map((p) => p.category).filter(Boolean))],
+    [products],
+  );
+
+  const brandOptions = useMemo(
+    () => ['All', ...new Set(products.map((p) => p.team).filter(Boolean))],
+    [products],
+  );
+
+  const fetchProducts = useCallback(
+    async (append: boolean) => {
+      const pageNum = append ? pageRef.current + 1 : 1;
+      pageRef.current = pageNum;
+      const id = ++reqIdRef.current;
       setIsLoading(true);
-      const data = await fetchAllProducts();
-      setProducts(data);
-      setIsLoading(false);
+      try {
+        const res = await fetchShopProducts({
+          page: pageNum,
+          limit: PAGE_LIMIT,
+        });
+        if (id !== reqIdRef.current) return;
+        setProducts((prev) => (append ? [...prev, ...res.data] : res.data));
+        setHasMore(res.data.length === PAGE_LIMIT);
+      } catch (err) {
+        if (id !== reqIdRef.current) return;
+        console.error('Failed to fetch products:', err);
+      } finally {
+        if (id === reqIdRef.current) setIsLoading(false);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchProducts(false);
+  }, [fetchProducts]);
+
+  const handleLoadMore = useCallback(() => {
+    if (isLoading) return;
+    fetchProducts(true);
+  }, [isLoading, fetchProducts]);
+
+  const filteredProducts = useMemo(() => {
+    let result = products.filter((p) => {
+      if (selectedCategory !== 'All' && p.category !== selectedCategory) return false;
+      if (selectedBrand !== 'All' && p.team !== selectedBrand) return false;
+      if (!withinPriceRange(p.price, selectedPrice)) return false;
+      return true;
+    });
+
+    if (selectedSort === 'Price: Low to High') {
+      result = [...result].sort((a, b) => a.price - b.price);
+    } else if (selectedSort === 'Price: High to Low') {
+      result = [...result].sort((a, b) => b.price - a.price);
+    } else if (selectedSort === 'Name: A to Z') {
+      result = [...result].sort((a, b) => a.name.localeCompare(b.name));
     }
-    loadProducts();
-  }, []);
+
+    return result;
+  }, [products, selectedCategory, selectedBrand, selectedPrice, selectedSort],
+  );
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -50,37 +121,6 @@ export default function ProductsPage() {
   const toggleDropdown = (dropdown: string) => {
     setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
   };
-
-  const filteredProducts = products.filter((product) => {
-    if (selectedCollection !== 'All' && product.collection !== selectedCollection) {
-      return false;
-    }
-    if (selectedPrice !== 'All') {
-      if (selectedPrice === 'Under ৳3,000' && product.priceNum >= 3000) return false;
-      if (selectedPrice === '৳3,000 - ৳10,000' && (product.priceNum < 3000 || product.priceNum > 10000)) return false;
-      if (selectedPrice === 'Over ৳10,000' && product.priceNum <= 10000) return false;
-    }
-    if (selectedCategory !== 'All' && product.category !== selectedCategory) {
-      return false;
-    }
-    if (selectedOrigin !== 'All' && product.origin !== selectedOrigin) {
-      return false;
-    }
-    return true;
-  });
-
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (selectedSort === 'Price: Low to High') {
-      return a.priceNum - b.priceNum;
-    }
-    if (selectedSort === 'Price: High to Low') {
-      return b.priceNum - a.priceNum;
-    }
-    if (selectedSort === 'Name: A to Z') {
-      return a.name.localeCompare(b.name);
-    }
-    return parseInt(a.id) - parseInt(b.id);
-  });
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -108,11 +148,12 @@ export default function ProductsPage() {
 
                 <div className="relative filter-dropdown-container">
                   <button
-                    onClick={() => toggleDropdown('collection')}
-                    className="flex items-center gap-1 text-stone-700 hover:text-stone-900 font-gotham text-xs font-semibold uppercase tracking-wider cursor-pointer transition-colors duration-200"
+                    className="flex items-center gap-1 text-stone-400 font-gotham text-xs font-semibold uppercase tracking-wider cursor-not-allowed opacity-50"
+                    disabled
+                    aria-label="Collection filter disabled"
                   >
                     <span>Collection Type{selectedCollection !== 'All' ? `: ${selectedCollection}` : ''}</span>
-                    <svg className={`w-2.5 h-2.5 text-stone-400 shrink-0 transition-transform duration-200 ${activeDropdown === 'collection' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth={2.2} viewBox="0 0 24 24">
+                    <svg className="w-2.5 h-2.5 text-stone-400 shrink-0" fill="none" stroke="currentColor" strokeWidth={2.2} viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
@@ -131,6 +172,34 @@ export default function ProductsPage() {
                   )}
                 </div>
               </div>
+              <div className="flex items-center gap-6 md:gap-8 lg:gap-10">
+                <div className="relative filter-dropdown-container">
+                  <button
+                    className="flex items-center gap-1 text-stone-400 font-gotham text-xs font-semibold uppercase tracking-wider cursor-not-allowed opacity-50"
+                    disabled
+                    aria-label="Collection filter disabled"
+                  >
+                    <span>Origin{selectedOrigin !== 'All' ? `: ${selectedOrigin}` : ''}</span>
+                    <svg className="w-2.5 h-2.5 text-stone-400 shrink-0" fill="none" stroke="currentColor" strokeWidth={2.2} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {activeDropdown === 'collection' && (
+                    <div className="absolute left-0 mt-3 w-56 bg-white border border-stone-200 shadow-lg py-1.5 z-50 rounded-sm">
+                      {COLLECTION_OPTIONS.map((opt) => (
+                        <button
+                          key={opt}
+                          onClick={() => { setSelectedOrigin(opt); setActiveDropdown(null); }}
+                          className={`w-full text-left px-4 py-2 font-gotham text-[11px] uppercase tracking-wider hover:bg-stone-50 transition-colors cursor-pointer ${selectedOrigin === opt ? 'text-brand-3 font-bold' : 'text-stone-700'}`}
+                        >
+                          {opt}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
 
               <div className="relative filter-dropdown-container">
                 <button
@@ -162,14 +231,14 @@ export default function ProductsPage() {
                   onClick={() => toggleDropdown('category')}
                   className="flex items-center gap-1 text-stone-700 hover:text-stone-900 font-gotham text-xs font-semibold uppercase tracking-wider cursor-pointer transition-colors duration-200"
                 >
-                  <span>Tea Category{selectedCategory !== 'All' ? `: ${selectedCategory}` : ''}</span>
+                  <span>Category{selectedCategory !== 'All' ? `: ${selectedCategory}` : ''}</span>
                   <svg className={`w-2.5 h-2.5 text-stone-400 shrink-0 transition-transform duration-200 ${activeDropdown === 'category' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth={2.2} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
                 {activeDropdown === 'category' && (
                   <div className="absolute left-0 mt-3 w-56 bg-white border border-stone-200 shadow-lg py-1.5 z-50 rounded-sm">
-                    {CATEGORY_OPTIONS.map((opt) => (
+                    {categoryOptions.map((opt) => (
                       <button
                         key={opt}
                         onClick={() => { setSelectedCategory(opt); setActiveDropdown(null); }}
@@ -184,21 +253,21 @@ export default function ProductsPage() {
 
               <div className="relative filter-dropdown-container">
                 <button
-                  onClick={() => toggleDropdown('origin')}
+                  onClick={() => toggleDropdown('brand')}
                   className="flex items-center gap-1 text-stone-700 hover:text-stone-900 font-gotham text-xs font-semibold uppercase tracking-wider cursor-pointer transition-colors duration-200"
                 >
-                  <span>Origin{selectedOrigin !== 'All' ? `: ${selectedOrigin}` : ''}</span>
-                  <svg className={`w-2.5 h-2.5 text-stone-400 shrink-0 transition-transform duration-200 ${activeDropdown === 'origin' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth={2.2} viewBox="0 0 24 24">
+                  <span>Brand{selectedBrand !== 'All' ? `: ${selectedBrand}` : ''}</span>
+                  <svg className={`w-2.5 h-2.5 text-stone-400 shrink-0 transition-transform duration-200 ${activeDropdown === 'brand' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth={2.2} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                {activeDropdown === 'origin' && (
+                {activeDropdown === 'brand' && (
                   <div className="absolute left-0 mt-3 w-56 bg-white border border-stone-200 shadow-lg py-1.5 z-50 rounded-sm">
-                    {ORIGIN_OPTIONS.map((opt) => (
+                    {brandOptions.map((opt) => (
                       <button
                         key={opt}
-                        onClick={() => { setSelectedOrigin(opt); setActiveDropdown(null); }}
-                        className={`w-full text-left px-4 py-2 font-gotham text-[11px] uppercase tracking-wider hover:bg-stone-50 transition-colors cursor-pointer ${selectedOrigin === opt ? 'text-brand-3 font-bold' : 'text-stone-700'}`}
+                        onClick={() => { setSelectedBrand(opt); setActiveDropdown(null); }}
+                        className={`w-full text-left px-4 py-2 font-gotham text-[11px] uppercase tracking-wider hover:bg-stone-50 transition-colors cursor-pointer ${selectedBrand === opt ? 'text-brand-3 font-bold' : 'text-stone-700'}`}
                       >
                         {opt}
                       </button>
@@ -213,7 +282,7 @@ export default function ProductsPage() {
                 <span className="font-gotham text-xs font-semibold uppercase tracking-wider text-stone-400 select-none mr-1">
                   View as:
                 </span>
-                
+
                 <button
                   onClick={() => setViewMode('grid2')}
                   className="p-1.5 cursor-pointer"
@@ -228,7 +297,7 @@ export default function ProductsPage() {
                     <div className="w-1/2 h-full" />
                   </div>
                 </button>
-                
+
                 <button
                   onClick={() => setViewMode('grid3')}
                   className="p-1.5 cursor-pointer"
@@ -286,7 +355,7 @@ export default function ProductsPage() {
 
         <div className="w-full bg-white py-12 md:py-16">
           <div className="max-w-[1440px] mx-auto px-5 sm:px-10 md:px-14 lg:px-20">
-            {isLoading ? (
+            {isLoading && products.length === 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 lg:gap-12 w-full">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="w-full max-w-[453px] h-[453px] bg-stone-50 animate-pulse border border-stone-100 flex flex-col justify-between p-6 mx-auto rounded-none">
@@ -299,19 +368,32 @@ export default function ProductsPage() {
                   </div>
                 ))}
               </div>
-            ) : sortedProducts.length > 0 ? (
-              <div className={`grid grid-cols-1 md:grid-cols-2 ${viewMode === 'grid3' ? 'lg:grid-cols-3' : ''} gap-8 md:gap-10 lg:gap-12`}>
-                {sortedProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    id={product.id}
-                    name={product.name}
-                    price={product.price}
-                    originalPrice={product.originalPrice}
-                    image={product.image}
+            ) : filteredProducts.length > 0 ? (
+              <>
+                <div className={`grid grid-cols-1 md:grid-cols-2 ${viewMode === 'grid3' ? 'lg:grid-cols-3' : ''} gap-8 md:gap-10 lg:gap-12`}>
+                  {filteredProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      price={String(product.price)}
+                      originalPrice=""
+                      image={product.image || NO_IMAGE}
+                    />
+                  ))}
+                </div>
+
+                <div className="mt-12">
+                  <InfiniteScroll
+                    hasMore={hasMore}
+                    isLoading={isLoading}
+                    onLoadMore={handleLoadMore}
+                    allLoadedLabel="All products loaded"
+                    loadingLabel="Loading products..."
+                    sentinelLabel="Scroll for more"
                   />
-                ))}
-              </div>
+                </div>
+              </>
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <h3 className="font-bembo text-2xl text-stone-500 mb-4">
@@ -319,10 +401,9 @@ export default function ProductsPage() {
                 </h3>
                 <button
                   onClick={() => {
-                    setSelectedCollection('All');
                     setSelectedPrice('All');
                     setSelectedCategory('All');
-                    setSelectedOrigin('All');
+                    setSelectedBrand('All');
                     setSelectedSort('New Arrival');
                   }}
                   className="px-8 py-3 bg-brand-3 hover:bg-[#A38148] text-white font-gotham text-xs font-semibold uppercase tracking-wider rounded-full transition-colors cursor-pointer"
@@ -333,8 +414,6 @@ export default function ProductsPage() {
             )}
           </div>
         </div>
-
-        <RelatedCarousel />
       </main>
     </div>
   );
