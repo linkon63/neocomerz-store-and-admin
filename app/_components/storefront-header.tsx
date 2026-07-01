@@ -14,7 +14,7 @@ export default function StorefrontHeader() {
         <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-4 py-3 sm:px-8">
           <nav className="hidden items-center gap-7 text-[11px] font-semibold uppercase tracking-[0.08em] lg:flex">
             <Link href="/">Home</Link>
-            <Link href="/shop">Shop</Link>
+            <Link href="/products">Shop</Link>
             <Link href="#">New In</Link>
             <Link href="#">Brands</Link>
             <Link href="#">Archive</Link>
@@ -30,7 +30,7 @@ export default function StorefrontHeader() {
           </Link>
 
           <Link
-            href="/shop"
+            href="/products"
             className="hidden min-w-[220px] items-center gap-2 border-b border-black pb-1 text-[11px] font-semibold uppercase tracking-[0.08em] xl:flex"
           >
             <FiSearch className="text-sm" />
@@ -55,7 +55,7 @@ export default function StorefrontHeader() {
 
         <div className="border-t border-neutral-200 px-4 py-2 xl:hidden">
           <Link
-            href="/shop"
+            href="/products"
             className="mx-auto flex max-w-[520px] items-center gap-2 border-b border-black pb-1 text-[11px] uppercase tracking-[0.08em]"
           >
             <FiSearch className="text-sm" />

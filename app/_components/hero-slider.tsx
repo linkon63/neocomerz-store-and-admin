@@ -61,7 +61,7 @@ export default function HeroSlider() {
             {slides[activeSlide].copy}
           </p>
           <Link
-            href="/shop"
+            href="/products"
             className="mt-8 inline-flex bg-white px-8 py-4 text-sm font-bold uppercase tracking-[0.12em] text-black transition hover:bg-black hover:text-white"
           >
             Shop Now

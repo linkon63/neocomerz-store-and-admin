@@ -10,7 +10,7 @@ export default function CartPage() {
           Add archive pieces from the shop and review them here before checkout.
         </p>
         <Link
-          href="/shop"
+          href="/products"
           className="mt-8 inline-flex bg-black px-6 py-3 text-xs font-bold uppercase tracking-[0.12em] text-white"
         >
           Continue Shopping
