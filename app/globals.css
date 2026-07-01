@@ -260,23 +260,27 @@
    Product Carousel Pagination
 =================================== */
 
-.mySwiper .swiper-pagination-bullet {
+.mySwiper .swiper-pagination-bullet,
+.swiper-pagination-bullet {
   width: 8px;
   height: 8px;
-  background: #d1d5db;
+  background: #e2e2e2;
   opacity: 1;
-  margin: 0 4px;
+  margin: 0 6px;
   border-radius: 50%;
   transition: all 0.3s ease;
   cursor: pointer;
+  display: inline-block;
 }
 
-.mySwiper .swiper-pagination-bullet-active {
+.mySwiper .swiper-pagination-bullet-active,
+.swiper-pagination-bullet-active {
   background: #B9975B;
-  transform: scale(1.3);
+  transform: scale(1.2);
 }
 
-.mySwiper .swiper-pagination-bullet:hover {
+.mySwiper .swiper-pagination-bullet:hover,
+.swiper-pagination-bullet:hover {
   background: #c5a86a;
 }
 
