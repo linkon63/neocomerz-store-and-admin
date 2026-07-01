@@ -56,8 +56,8 @@ const gotham = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Humana Vintage",
-  description: "A vintage fashion storefront with curated archive pieces and everyday streetwear.",
+  title: "London Tea Exchange",
+  description: "London Tea Exchange offers an exquisite selection of single estate premium teas and unique tea collections sourced from across the globe.",
 };
 
 export default function RootLayout({

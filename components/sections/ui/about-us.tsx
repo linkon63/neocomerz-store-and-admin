@@ -2,8 +2,18 @@ import Image from "next/image";
 
 export default function AboutUs() {
   return (
-    <section className="w-full h-auto bg-brand-primary py-16 px-6 md:px-12 lg:py-44">
-      <div className="aboutus-wrapper">
+    <section className="relative w-full h-auto bg-dark-charcoal py-16 px-6 md:px-12 lg:py-44 overflow-hidden">
+      {/* Pattern Background Layer */}
+      <div 
+        className="absolute inset-0 z-0 opacity-20"
+        style={{
+          backgroundImage: "url('/images/pattern/pattern.png')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "150px 150px",
+        }}
+      ></div>
+
+      <div className="relative z-10 aboutus-wrapper">
         <div className="container mx-auto py-3">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
             <div className="left-wrapper">

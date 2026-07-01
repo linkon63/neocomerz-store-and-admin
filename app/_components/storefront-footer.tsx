@@ -98,7 +98,7 @@ export default function StorefrontFooter() {
         </div>
 
         <div className="mt-12 border-t border-neutral-300 pt-10 text-xs font-medium text-neutral-400">
-          © 2026 Humana Vintage Italia | Powered by LikeYou Srl .
+          © 2026 London Tea Exchange | All Rights Reserved.
         </div>
       </div>
     </footer>
