@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FiChevronDown, FiGrid, FiHeart, FiList, FiSearch, FiLoader } from "react-icons/fi";
 import { productSlug, shopProducts } from "./products";
-import { useCurrency } from "../../lib/currency-context";
+import { useCurrency } from "../../../lib/currency-context";
 
 
 const colorOptions = [

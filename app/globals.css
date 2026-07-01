@@ -59,10 +59,13 @@
 
   /* ===========================
      Fonts
-  ============================ */
+   ============================ */
 
   --font-heading: "Cormorant Garamond", serif;
   --font-body: "Inter", sans-serif;
+  --font-bembo: var(--font-bembo);
+  --font-snell: var(--font-snell);
+  --font-gotham: var(--font-gotham);
 
   /* ===========================
      Radius
@@ -275,4 +278,74 @@
 
 .mySwiper .swiper-pagination-bullet:hover {
   background: #c5a86a;
+}
+
+/* ===================================
+   Legacy / Arbitrary Font Mappings
+=================================== */
+
+[class*="font-['Bembo_Std']"], .font-bembo, .font-family-bembo {
+  font-family: var(--font-bembo), serif !important;
+}
+
+[class*="font-['Snell_Roundhand_LT_Std']"], .font-snell {
+  font-family: var(--font-snell), cursive !important;
+}
+
+.font-gotham, [class*="font-['Gotham']"] {
+  font-family: var(--font-gotham), sans-serif !important;
+}
+
+/* ===================================
+   Concave Corner Frames Masking
+=================================== */
+
+.concave-corner-frame {
+  /* Safari / iOS / macOS support */
+  -webkit-mask-image:
+    radial-gradient(circle at 0 0, transparent 40px, black 0),
+    radial-gradient(circle at 100% 0, transparent 40px, black 0),
+    radial-gradient(circle at 0 100%, transparent 40px, black 0),
+    radial-gradient(circle at 100% 100%, transparent 40px, black 0),
+    linear-gradient(black, black),
+    linear-gradient(black, black);
+  -webkit-mask-size:
+    40px 40px,
+    40px 40px,
+    40px 40px,
+    40px 40px,
+    100% calc(100% - 80px),
+    calc(100% - 80px) 100%;
+  -webkit-mask-position:
+    top left,
+    top right,
+    bottom left,
+    bottom right,
+    center,
+    center;
+  -webkit-mask-repeat: no-repeat;
+
+  /* Standard browsers */
+  mask-image:
+    radial-gradient(circle at 0 0, transparent 40px, black 0),
+    radial-gradient(circle at 100% 0, transparent 40px, black 0),
+    radial-gradient(circle at 0 100%, transparent 40px, black 0),
+    radial-gradient(circle at 100% 100%, transparent 40px, black 0),
+    linear-gradient(black, black),
+    linear-gradient(black, black);
+  mask-size:
+    40px 40px,
+    40px 40px,
+    40px 40px,
+    40px 40px,
+    100% calc(100% - 80px),
+    calc(100% - 80px) 100%;
+  mask-position:
+    top left,
+    top right,
+    bottom left,
+    bottom right,
+    center,
+    center;
+  mask-repeat: no-repeat;
 }

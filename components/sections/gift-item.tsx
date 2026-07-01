@@ -59,13 +59,13 @@ export default function GiftItem() {
             >
               {/* Image Container */}
               <div 
-                className="relative w-full max-w-sm aspect-4/5 overflow-hidden"
+                className="relative w-full max-w-sm aspect-4/5 overflow-hidden concave-corner-frame"
               >
                 <Image
                   src={item.image}
                   alt={item.title}
                   fill
-                  className="object-contain hover:scale-110 transition-transform duration-700"
+                  className="object-cover hover:scale-110 transition-transform duration-700"
                   unoptimized
                 />
               </div>
@@ -73,7 +73,7 @@ export default function GiftItem() {
               {/* Red Circular Button - Exact match to reference image */}
               <Link
                 href={item.href}
-                className="absolute bottom-0 w-36 h-36 md:w-40 md:h-40 lg:w-44 lg:h-44 bg-khaki-gold rounded-full flex items-center justify-center text-white hover:bg-[#C62828] transition-all duration-300 shadow-2xl hover:scale-105"
+                className="absolute bottom-0 w-36 h-36 md:w-40 md:h-40 lg:w-44 lg:h-44 bg-linear-[44deg] from-khaki-gold to-sage-gold rounded-full flex items-center justify-center text-white transition-all duration-300 shadow-[0px_0px_40px_0px_rgba(0,0,0,0.40)] hover:scale-105 hover:shadow-[0px_0px_50px_0px_rgba(0,0,0,0.60)]"
               >
                 <svg viewBox="0 0 200 200" className="w-full h-full absolute inset-0 -rotate-90">
                   <defs>
@@ -87,10 +87,10 @@ export default function GiftItem() {
                   {/* Curved Text around circle */}
                   <text 
                     fill="white" 
-                    fontSize="24" 
-                    fontFamily="Georgia, serif"
+                    fontSize="22" 
+                    fontFamily="'Bembo Std', Georgia, serif"
                     fontWeight="400"
-                    letterSpacing="2"
+                    letterSpacing="3.5"
                   >
                     <textPath href={`#circlePath-${item.id}`} startOffset="50%" textAnchor="middle">
                       {item.title}
@@ -98,21 +98,32 @@ export default function GiftItem() {
                   </text>
                 </svg>
                 
-                {/* Bottom Dashed Semicircle */}
+                {/* Bottom Dashed Arc - concentric at radius 70, leaving space at sides to avoid text overlap */}
                 <svg viewBox="0 0 200 200" className="w-full h-full absolute inset-0">
                   <path
-                    d="M 50,135 A 70,70 0 0,0 150,135"
+                    d="M 50,149 A 70,70 0 0,0 150,149"
                     fill="none"
                     stroke="white"
-                    strokeWidth="4"
-                    strokeDasharray="12 12"
+                    strokeWidth="3"
+                    strokeDasharray="6 8"
                     strokeLinecap="round"
                     opacity="1"
                   />
                 </svg>
                 
-                {/* Center Arrow Icon - React Icons */}
-                <IoArrowForward className="w-8 h-8 md:w-14 md:h-14 relative z-10 text-white" />
+                {/* Center Arrow Icon - Custom SVG Line Arrow */}
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-10 h-10 md:w-12 md:h-12 relative z-10 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
               </Link>
             </div>
           ))}

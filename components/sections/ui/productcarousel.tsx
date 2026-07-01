@@ -26,9 +26,23 @@ export default function ProductCarousel({ products, title }: ExtendedProductCaro
               <span className="font-gotham text-dark-charcoal font-medium text-[11px] tracking-[0.2em] uppercase">PREVIOUS</span>
             </button>
 
-            <h2 className="font-['Bembo_Std'] text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-khaki-gold font-normal text-center">
-              {title}
-            </h2>
+            {(() => {
+              const parts = title.trim().split(/\s+/);
+              if (parts.length === 2) {
+                const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+                return (
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-normal text-center">
+                    <span className="font-['Bembo_Std'] text-khaki-gold">{capitalize(parts[0])} </span>
+                    <span className="font-['Snell_Roundhand_LT_Std'] italic text-stone-gray ml-1.5">{capitalize(parts[1])}</span>
+                  </h2>
+                );
+              }
+              return (
+                <h2 className="font-['Bembo_Std'] text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-khaki-gold font-normal text-center">
+                  {title}
+                </h2>
+              );
+            })()}
 
             <button
               className="product-carousel-next flex items-center gap-2 text-stone-850 hover:text-[#B9975B] transition-colors text-xs font-semibold uppercase tracking-wider cursor-pointer select-none"

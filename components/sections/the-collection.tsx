@@ -17,9 +17,9 @@ export default function TheCollection() {
       <div className="relative z-10 container mx-auto px-4 sm:px-6">
         {/* Title Section */}
         <div className="text-center mb-6 md:mb-8">
-          <h2 className="font-['Bembo_Std'] text-4xl md:text-5xl lg:text-6xl mb-3">
-            <span className="text-khaki-gold">The </span>
-            <span className="italic text-stone-gray">Collections</span>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl mb-3">
+            <span className="font-['Bembo_Std'] text-khaki-gold">The </span>
+            <span className="font-['Snell_Roundhand_LT_Std'] italic text-stone-gray">Collections</span>
           </h2>
           <p className="font-gotham text-sm md:text-base text-gray-600 max-w-3xl mx-auto">
             Elegant tea bag presentations featuring rare blends, royal infusions, wellness<br className="hidden sm:block" />
