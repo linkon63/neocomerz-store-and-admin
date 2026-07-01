@@ -11,8 +11,15 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "images.unsplash.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "tinyecomapi.neocomerz.com",
+        pathname: "/**",
       },
     ],
+    domains: ["images.unsplash.com"],
   },
   async rewrites() {
     return [
