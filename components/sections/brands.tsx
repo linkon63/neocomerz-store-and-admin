@@ -18,7 +18,7 @@ export default function Brands() {
       <div className="mx-auto">
         <div className="flex flex-col items-center justify-between gap-8 lg:flex-row lg:gap-12 flex-wrap">
           <div className="shrink-0 text-center lg:text-left">
-            <h2 className="font-family-bembo text-lg font-medium uppercase tracking-wide text-khaki-gold">
+            <h2 className="font-['Bembo_Std'] text-lg font-medium uppercase tracking-wide text-khaki-gold">
               Trusted Across
             </h2>
             <h3 className="mt-1 font-['Snell_Roundhand_LT_Std'] text-4xl text-black md:text-5xl">

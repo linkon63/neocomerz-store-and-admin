@@ -19,9 +19,23 @@ export default function CarouselHeader({ title, onPrevious, onNext }: CarouselHe
           <span>Previous</span>
         </button>
 
-        <h2 className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-['Bembo_Std'] text-[#B9975B]">
-          {title}
-        </h2>
+        {(() => {
+          const parts = title.trim().split(/\s+/);
+          if (parts.length === 2) {
+            const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+            return (
+              <h2 className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-normal">
+                <span className="font-['Bembo_Std'] text-[#B9975B]">{capitalize(parts[0])} </span>
+                <span className="font-['Snell_Roundhand_LT_Std'] italic text-stone-gray ml-1.5">{capitalize(parts[1])}</span>
+              </h2>
+            );
+          }
+          return (
+            <h2 className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-['Bembo_Std'] text-[#B9975B]">
+              {title}
+            </h2>
+          );
+        })()}
 
         <button
           onClick={onNext}

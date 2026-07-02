@@ -13,7 +13,7 @@ const slides = [
   {
     image: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1800&q=85",
     title: "Curated streetwear",
-    copy: "Statement layers, classic silhouettes, and fresh arrivals from the Humana archive.",
+    copy: "Statement layers, classic silhouettes, and fresh arrivals from the London Tea Exchange archive.",
   },
   {
     image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1800&q=85",
@@ -53,7 +53,7 @@ export default function HeroSlider() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
 
         <div className="absolute inset-x-0 bottom-0 px-6 pb-12 text-white sm:px-12 sm:pb-16">
-          <p className="text-xs font-bold uppercase tracking-[0.18em]">Humana Vintage</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em]">London Tea Exchange</p>
           <h1 className="mt-4 max-w-3xl font-bembo text-5xl font-bold leading-none sm:text-7xl">
             {slides[activeSlide].title}
           </h1>
@@ -61,7 +61,7 @@ export default function HeroSlider() {
             {slides[activeSlide].copy}
           </p>
           <Link
-            href="/shop"
+            href="/products"
             className="mt-8 inline-flex bg-white px-8 py-4 text-sm font-bold uppercase tracking-[0.12em] text-black transition hover:bg-black hover:text-white"
           >
             Shop Now
