@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import ProductGallery from './ui/product-gallery';
 import ProductInfo from './ui/product-info';
 import ProductTabs from './ui/product-tabs';
@@ -8,6 +8,7 @@ import RelatedCarousel from './ui/related-carousel';
 import { IoThermometerOutline, IoTimeOutline } from 'react-icons/io5';
 import { fetchShopProductById } from '@/lib/shop-api';
 import { resolveImageUrl } from '@/lib/admin-api';
+import { MappedProduct } from '@/lib/shop-api';
 
 const brewingTips = [
   {
@@ -25,23 +26,6 @@ const brewingTips = [
 interface ProductDetailsProps {
   productId?: string;
 }
-
-type MappedProduct = {
-  id: string;
-  name: string;
-  price: string;
-  originalPrice: string;
-  image: string;
-  collection: string;
-  priceNum: number;
-  category: string;
-  origin: string;
-  subtitle: string;
-  description: string;
-  teas: { name: string; description: string }[];
-  ingredients: string[];
-  galleryImages: string[];
-};
 
 export default function ProductDetails({ productId = '3' }: ProductDetailsProps) {
   const [productData, setProductData] = useState<MappedProduct | null>(null);
@@ -79,6 +63,7 @@ export default function ProductDetails({ productId = '3' }: ProductDetailsProps)
         teas: [],
         ingredients: [],
         galleryImages: allImages,
+        variantId: defaultVariant?.id ?? '',
       });
       setIsLoading(false);
     }
@@ -137,6 +122,14 @@ export default function ProductDetails({ productId = '3' }: ProductDetailsProps)
               originalPrice={productData.originalPrice}
               vatMessage="VAT Included"
               teas={productData.teas}
+              productId={productId}
+              variantId={productData.variantId}
+              productData={{
+                name: productData.name,
+                priceNum: productData.priceNum,
+                image: productData.image,
+                category: productData.category,
+              }}
             />
 
             <ProductTabs

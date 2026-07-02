@@ -2,20 +2,10 @@
 
 import { useState } from 'react';
 import { IoHeartOutline, IoAddOutline, IoRemoveOutline, IoChevronDownOutline } from 'react-icons/io5';
-
-interface TeaItem {
-  name: string;
-  description: string;
-}
-
-interface ProductInfoProps {
-  name: string;
-  subtitle: string;
-  price: string;
-  originalPrice: string;
-  vatMessage: string;
-  teas: TeaItem[];
-}
+import { useCart } from '@/app/_providers/cart-provider';
+import { useWishlist } from '@/app/_providers/wishlist-provider';
+import { useAuth } from '@/app/_providers/auth-provider';
+import { ProductInfoProps } from '@/lib/shop-api';
 
 export default function ProductInfo({
   name,
@@ -24,18 +14,25 @@ export default function ProductInfo({
   originalPrice,
   vatMessage,
   teas,
+  productId,
+  variantId,
+  productData,
 }: ProductInfoProps) {
   const [activeTea, setActiveTea] = useState<number | null>(0);
-  const [quantity, setQuantity] = useState(0);
+  const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
-
+  const { addItem } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const { isAuthenticated, setShowAuthModal } = useAuth();
   const handleQuantityChange = (type: 'inc' | 'dec') => {
     if (type === 'dec') {
-      setQuantity((q) => (q > 0 ? q - 1 : 0));
+      setQuantity((q) => (q > 1 ? q - 1 : 1));
     } else {
       setQuantity((q) => q + 1);
     }
   };
+
+  const isItInWishlist = isInWishlist(productId);
 
   return (
     <div className="w-full flex flex-col gap-6">
@@ -128,17 +125,43 @@ export default function ProductInfo({
 
         {/* Wishlist Button */}
         <button
-          onClick={() => setIsWishlisted(!isWishlisted)}
+          onClick={() =>
+            isAuthenticated
+              ? toggleWishlist({
+                  id: productId,
+                  name: productData.name,
+                  slug: productId,
+                  price: productData.priceNum,
+                  image: productData.image,
+                  color: '',
+                  size: '',
+                  category: productData.category,
+                  team: '',
+                })
+              : setShowAuthModal(true)
+          }
           className={`w-12 h-12 rounded-full flex items-center justify-center shadow-sm border border-stone-200 transition-colors cursor-pointer ${
-            isWishlisted ? 'bg-[#D31F3A] border-[#d3122f] text-white' : 'bg-white text-stone-800 hover:bg-[#d3122f] hover:text-white'
+            isItInWishlist ? 'bg-[#D31F3A] border-[#d3122f] text-white' : 'bg-white text-stone-800 hover:bg-[#d3122f] hover:text-white'
           }`}
           aria-label="Add to wishlist"
         >
-          <IoHeartOutline className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
+          <IoHeartOutline className={`w-5 h-5 ${isItInWishlist ? 'fill-current' : ''}`} />
         </button>
 
         {/* Add to cart Button */}
         <button
+          onClick={() =>
+            addItem({
+              slug: productId,
+              name: productData.name,
+              price: productData.priceNum,
+              image: productData.image,
+              color: '',
+              size: '',
+              variantId: variantId,
+              quantity,
+            })
+          }
           className="flex-1 min-w-[180px] sm:min-w-[220px] px-6 sm:px-10 py-4 whitespace-nowrap bg-[#D31F3A] text-white hover:bg-opacity-95 font-gotham text-sm font-semibold uppercase tracking-wider rounded-full outline outline-1 outline-offset-[-1px] outline-orange-50 flex justify-center items-center shadow-md transition-all cursor-pointer"
         >
           Add to cart

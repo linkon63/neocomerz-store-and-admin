@@ -3,7 +3,10 @@ import Header from '@/components/sections/header';
 import Mainfooter from '@/components/sections/main-footer';
 import Bottomfooter from '@/components/sections/bottom-footer';
 import { AuthProvider } from "../_providers/auth-provider";
+import { CartProvider } from "../_providers/cart-provider";
+import { WishlistProvider } from "../_providers/wishlist-provider";
 import AuthModal from "@/components/auth-modal";
+import { Toaster } from "sonner";
 
 export default function StoreLayout({
   children,
@@ -12,12 +15,17 @@ export default function StoreLayout({
 }>) {
   return (
     <AuthProvider>
-      <TopHeader />
-      <Header />
-      {children}
-      <Mainfooter />
-      <Bottomfooter />
-      <AuthModal />
+      <CartProvider>
+        <WishlistProvider>
+          <TopHeader />
+          <Header />
+          {children}
+          <Mainfooter />
+          <Bottomfooter />
+          <AuthModal />
+          <Toaster richColors closeButton position="top-right" />
+        </WishlistProvider>
+      </CartProvider>
     </AuthProvider>
   );
 }

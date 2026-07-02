@@ -3,9 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FiChevronDown, FiGrid, FiHeart, FiList, FiSearch, FiLoader } from "react-icons/fi";
+import { FiChevronDown, FiGrid, FiHeart, FiList, FiSearch, FiLoader, FiShoppingBag } from "react-icons/fi";
 import { productSlug, shopProducts } from "./products";
 import { useCurrency } from "@/lib/currency-context";
+import { useWishlist } from "@/app/_providers/wishlist-provider";
+import { useCart } from "@/app/_providers/cart-provider";
+import type { WishlistProduct } from "@/lib/types";
 
 
 const colorOptions = [
@@ -34,6 +37,8 @@ type ViewMode = "grid" | "list";
 
 export default function ShopCatalog() {
   const { formatCurrency } = useCurrency();
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const { addItem } = useCart();
   const [selectedCategory, setSelectedCategory] = useState("Football Corner");
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
@@ -357,7 +362,51 @@ export default function ShopCatalog() {
                         {formatCurrency(product.price)}
                       </p>
                     </div>
-                    <FiHeart className="mt-1 shrink-0 text-lg text-neutral-600 cursor-pointer" aria-label="Add to wishlist" />
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() =>
+                          addItem({
+                            slug: productSlug(product),
+                            name: product.name,
+                            price: product.price,
+                            image: product.image,
+                            color: product.color,
+                            size: product.size,
+                            variantId: productSlug(product),
+                            quantity: 1,
+                          })
+                        }
+                        className="p-1.5 text-neutral-500 hover:text-black transition-colors cursor-pointer"
+                        aria-label="Add to cart"
+                      >
+                        <FiShoppingBag className="text-base" />
+                      </button>
+                      <button
+                        onClick={() =>
+                          toggleWishlist({
+                            id: productSlug(product),
+                            name: product.name,
+                            slug: productSlug(product),
+                            price: product.price,
+                            image: product.image,
+                            color: product.color,
+                            size: product.size,
+                            category: product.category,
+                            team: product.team,
+                          })
+                        }
+                        className="p-1.5 transition-colors cursor-pointer"
+                        aria-label="Toggle wishlist"
+                      >
+                        <FiHeart
+                          className={`text-lg ${
+                            isInWishlist(productSlug(product))
+                              ? "text-red-500 fill-red-500"
+                              : "text-neutral-600"
+                          }`}
+                        />
+                      </button>
+                    </div>
                   </div>
                 </article>
               ))}

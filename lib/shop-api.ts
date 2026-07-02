@@ -22,6 +22,46 @@ export type ShopProductsResponse = {
   total: number;
 };
 
+export type MappedProduct = {
+  id: string;
+  name: string;
+  price: string;
+  originalPrice: string;
+  image: string;
+  collection: string;
+  priceNum: number;
+  category: string;
+  origin: string;
+  subtitle: string;
+  description: string;
+  teas: { name: string; description: string }[];
+  ingredients: string[];
+  galleryImages: string[];
+  variantId: string;
+};
+
+export interface TeaItem {
+  name: string;
+  description: string;
+}
+
+export interface ProductInfoProps {
+  name: string;
+  subtitle: string;
+  price: string;
+  originalPrice: string;
+  vatMessage: string;
+  teas: TeaItem[];
+  productId: string;
+  variantId: string;
+  productData: {
+    name: string;
+    priceNum: number;
+    image: string;
+    category: string;
+  };
+}
+
 function mapProduct(product: AdminProduct): ShopProduct {
   const defaultVariant = product.variants?.find((v) => v.isDefault) ?? product.variants?.[0];
 

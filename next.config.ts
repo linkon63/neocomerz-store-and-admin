@@ -18,6 +18,12 @@ const nextConfig: NextConfig = {
         hostname: "tinyecomapi.neocomerz.com",
         pathname: "/**",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "5010",
+        pathname: "/**",
+      },
     ],
     domains: ["images.unsplash.com"],
   },
