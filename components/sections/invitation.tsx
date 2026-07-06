@@ -19,8 +19,8 @@ export default function Invitation() {
   return (
     <section className="relative w-full bg-white py-12 md:py-16 lg:py-28 overflow-hidden">
       {/* Pattern Background Layer with blend mode */}
-      <div 
-        className="absolute inset-0 z-0 opacity-10"
+      <div
+        className="absolute inset-0 z-0 opacity-20"
         style={{
           backgroundImage: "url('/images/pattern/pattern.png')",
           backgroundRepeat: "repeat",
