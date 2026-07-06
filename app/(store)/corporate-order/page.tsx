@@ -1,6 +1,7 @@
 import React from 'react';
 import LuxuryHero from '@/components/sections/luxury-hero-banner';
 import TrustFeatures from '@/components/sections/trust-features';
+import Brands from '@/components/sections/brands';
 import InquiryForm from '@/components/sections/inquiry-form';
 import { Metadata } from 'next';
 
@@ -14,6 +15,7 @@ export default function CorporateOrderPage() {
     <main className="flex-grow bg-white w-full">
       <LuxuryHero />
       <TrustFeatures />
+      <Brands />
       <InquiryForm />
     </main>
   );
