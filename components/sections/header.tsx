@@ -114,7 +114,7 @@ export default function Header() {
               {dropdownOpen && (
                 <div className="absolute right-0 top-full mt-1 w-48 bg-white shadow-lg border border-zinc-200 py-1 z-50">
                   <Link
-                    href="/account"
+                    href="/profile"
                     onClick={() => setDropdownOpen(false)}
                     className="flex items-center gap-2 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 font-gotham"
                   >
@@ -122,7 +122,7 @@ export default function Header() {
                     My Account
                   </Link>
                   <Link
-                    href="/orders"
+                    href="/profile?tab=orders"
                     onClick={() => setDropdownOpen(false)}
                     className="flex items-center gap-2 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 font-gotham"
                   >

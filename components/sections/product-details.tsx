@@ -8,7 +8,6 @@ import RelatedCarousel from './ui/related-carousel';
 import { IoThermometerOutline, IoTimeOutline } from 'react-icons/io5';
 import { fetchShopProductById } from '@/lib/shop-api';
 import { resolveImageUrl } from '@/lib/admin-api';
-import { MappedProduct } from '@/lib/shop-api';
 
 const brewingTips = [
   {
@@ -42,6 +41,7 @@ type MappedProduct = {
   teas: { name: string; description: string }[];
   ingredients: string[];
   galleryImages: string[];
+  variantId: string;
 };
 
 export default function ProductDetails({ productId = '3' }: ProductDetailsProps) {

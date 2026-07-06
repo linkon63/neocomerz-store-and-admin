@@ -20,6 +20,7 @@ export type WishlistProduct = {
   size: string;
   category: string;
   team: string;
+  variantId?: string;
 };
 
 export interface BackendCartItem {

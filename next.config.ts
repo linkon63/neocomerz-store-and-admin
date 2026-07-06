@@ -39,6 +39,20 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: "/account",
+        destination: "/profile",
+        permanent: true,
+      },
+      {
+        source: "/orders",
+        destination: "/profile?tab=orders",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

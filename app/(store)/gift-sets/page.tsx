@@ -74,6 +74,7 @@ export default function GiftsPage() {
               id: p.id,
               name: p.name,
               price: `Tk ${p.price.toLocaleString()}`,
+              originalPrice: p.originalPrice ? `Tk ${p.originalPrice.toLocaleString()}` : undefined,
               image: p.image,
             })));
           } else {
@@ -82,6 +83,7 @@ export default function GiftsPage() {
               id: p.id,
               name: p.name,
               price: `Tk ${p.price.toLocaleString()}`,
+              originalPrice: p.originalPrice ? `Tk ${p.originalPrice.toLocaleString()}` : undefined,
               image: p.image,
             })));
           }
@@ -122,6 +124,7 @@ export default function GiftsPage() {
                 id={product.id}
                 name={product.name}
                 price={product.price}
+                originalPrice={product.originalPrice}
                 image={product.image}
               />
             ))}

@@ -53,6 +53,6 @@ export interface ProductCardProps {
   id?: string;
   name: string;
   price: string;
-  originalPrice: string;
+  originalPrice?: string;
   image: string;
 }

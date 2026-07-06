@@ -9,6 +9,9 @@ import {
   login as apiLogin,
   register as apiRegister,
   getMe,
+  updateProfileDetails,
+  getCustomerToken,
+  getMyProfile,
 } from "@/lib/storefront-api";
 
 interface AuthContextValue {
@@ -20,6 +23,8 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateProfile: (name: string, email: string, phone?: string) => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -64,6 +69,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const updateProfile = useCallback(async (name: string, email: string, phone?: string) => {
+    const updatedUser = await updateProfileDetails({ name, email, phone });
+    const token = getCustomerToken() || "";
+    setCustomerSession(token, updatedUser);
+    setUser(updatedUser);
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    try {
+      const fresh = await getMe();
+      try {
+        const profile = await getMyProfile();
+        fresh.avatarUrl = profile.avatarUrl;
+      } catch {}
+      const token = getCustomerToken() || "";
+      setCustomerSession(token, fresh);
+      setUser(fresh);
+    } catch {}
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -75,6 +100,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         logout,
+        updateProfile,
+        refreshUser,
       }}
     >
       {children}
