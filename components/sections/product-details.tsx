@@ -81,6 +81,7 @@ export default function ProductDetails({ productId = '3' }: ProductDetailsProps)
         ingredients: [],
         galleryImages: allImages,
         variantId: defaultVariant?.id ?? '',
+      });
       setIsLoading(false);
     }
     loadProduct();

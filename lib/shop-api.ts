@@ -9,6 +9,7 @@ export type ShopProduct = {
   category: string;
   team: string;
   price: number;
+  originalPrice?: number;
   image: string;
 };
 
@@ -61,6 +62,39 @@ export interface ProductInfoProps {
     category: string;
   };
 }
+export type ShopBrand = {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl?: string | null;
+};
+
+export type ShopCategory = {
+  id: string;
+  name: string;
+  slug: string;
+  imageUrl?: string | null;
+  parentId?: string | null;
+  children?: ShopCategory[];
+};
+
+export type ShopSettings = {
+  id: string;
+  shopName: string;
+  slogan: string;
+  contactNumber?: any;
+  email?: any;
+  socialContact?: any;
+  currency: string;
+  language: string;
+  deliveryChargeInside: string;
+  deliveryChargeOutside: string;
+  deliveryChargeNearCity: string;
+  youtubeUrl?: string | null;
+  youtubeThumbnailImage?: string | null;
+  youtubeTitle?: string | null;
+  youtubeDescription?: string | null;
+};
 
 function mapProduct(product: AdminProduct): ShopProduct {
   const defaultVariant = product.variants?.find((v) => v.isDefault) ?? product.variants?.[0];
@@ -76,6 +110,7 @@ function mapProduct(product: AdminProduct): ShopProduct {
     category: product.category?.name ?? "",
     team: product.brand?.name ?? "",
     price: Number(defaultVariant?.price ?? 0),
+    originalPrice: defaultVariant?.cost ? Number(defaultVariant.cost) : undefined,
     image: resolveImageUrl(rawImage),
   };
 }
@@ -118,3 +153,33 @@ export async function fetchShopProductById(id: string): Promise<AdminProduct | n
     return null;
   }
 }
+export async function fetchShopBrands(): Promise<ShopBrand[]> {
+  const res = await fetch(`${API_BASE_URL}/brands`, {
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch brands: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function fetchShopCategories(): Promise<ShopCategory[]> {
+  const res = await fetch(`${API_BASE_URL}/category`, {
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch categories: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function fetchShopSettings(): Promise<ShopSettings> {
+  const res = await fetch(`${API_BASE_URL}/settings`, {
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch settings: ${res.status}`);
+  }
+  return res.json();
+}
+

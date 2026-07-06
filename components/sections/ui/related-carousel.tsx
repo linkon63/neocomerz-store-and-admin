@@ -1,80 +1,67 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Swiper as SwiperType } from 'swiper';
 import { Navigation, Autoplay } from 'swiper/modules';
 import ProductCard from './product-card';
+import { fetchShopProducts, ShopProduct } from '@/lib/shop-api';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
 
-interface RelatedProduct {
-  id: string;
-  name: string;
-  price: string;
-  originalPrice: string;
-  image: string;
-}
-
-const relatedProducts: RelatedProduct[] = [
-  {
-    id: '1',
-    name: 'Tea Book Vol. 2 Royal Collection',
-    price: '৳4,950',
-    originalPrice: '৳5,000',
-    image: '/images/products/product-6.webp',
-  },
-  {
-    id: '2',
-    name: 'Assorted Classic Collection',
-    price: '৳2,900',
-    originalPrice: '৳3,000',
-    image: '/images/products/product-3.webp',
-  },
-  {
-    id: '3',
-    name: 'Tea Book Vol. 2 Royal Collection',
-    price: '৳4,950',
-    originalPrice: '৳5,000',
-    image: '/images/products/product-1.webp',
-  },
-  {
-    id: '4',
-    name: 'Tea Book Vol. 2 Royal Collection',
-    price: '৳4,950',
-    originalPrice: '৳5,000',
-    image: '/images/products/product-2.webp',
-  },
-  {
-    id: '5',
-    name: 'Assorted Wild Orchard Collection',
-    price: '৳2,900',
-    originalPrice: '৳3,000',
-    image: '/images/products/gallery-2.webp',
-  },
-  {
-    id: '6',
-    name: 'Tea Book Collection',
-    price: '৳34,650',
-    originalPrice: '৳35,000',
-    image: '/images/products/product-4.webp',
-  },
-];
-
-// Duplicate the list of products to ensure Swiper loop mode works without empty space glitches or warnings.
-const displayProducts = [
-  ...relatedProducts,
-  ...relatedProducts.map((product) => ({
-    ...product,
-    id: product.id + '-dup',
-  })),
-];
-
 export default function RelatedCarousel() {
   const [swiperRef, setSwiperRef] = useState<SwiperType | null>(null);
   const [activeIndex, setActiveIndex] = useState(2);
+  const [products, setProducts] = useState<ShopProduct[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const res = await fetchShopProducts({ limit: 12 });
+        // Reverse or shift elements to show different products in Popular section if needed
+        // Here we just use the fetched products
+        setProducts(res.data);
+      } catch (err) {
+        console.error('Failed to fetch most popular products', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadProducts();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <section className="w-full bg-[#F9F9FB] py-16 sm:py-24 border-t border-stone-100 overflow-hidden">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-center mb-8">
+            <div className="w-64 h-10 bg-stone-200 animate-pulse rounded"></div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-72 bg-stone-200 animate-pulse rounded"></div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (products.length === 0) {
+    return null;
+  }
+
+  // Duplicate the list of products to ensure Swiper loop mode works without empty space glitches or warnings.
+  const displayProducts = [
+    ...products,
+    ...products.map((product) => ({
+      ...product,
+      id: product.id + '-dup',
+    })),
+  ];
 
   return (
     <section className="w-full bg-[#F9F9FB] py-16 sm:py-24 border-t border-stone-100 overflow-hidden">
@@ -165,8 +152,8 @@ export default function RelatedCarousel() {
               <ProductCard
                 id={product.id.replace('-dup', '')}
                 name={product.name}
-                price={product.price}
-                originalPrice={product.originalPrice}
+                price={`৳${product.price.toLocaleString()}`}
+                originalPrice={product.originalPrice ? `৳${product.originalPrice.toLocaleString()}` : ''}
                 image={product.image}
               />
             </SwiperSlide>

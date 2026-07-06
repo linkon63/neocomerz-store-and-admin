@@ -1,9 +1,39 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoCallOutline, IoLocationOutline } from "react-icons/io5";
 import TopSlider from "./ui/topslider";
+import { fetchShopSettings } from "@/lib/shop-api";
 import data from "@/data/data.json";
+
 export default function TopHeader() {
   const { help, selectors } = data;
+  const [shopSettings, setShopSettings] = useState<any>(null);
+
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const settings = await fetchShopSettings();
+        if (settings) {
+          setShopSettings(settings);
+        }
+      } catch (error) {
+        console.error("Failed to load settings:", error);
+      }
+    }
+    loadSettings();
+  }, []);
+
+  const phoneFull = shopSettings?.contactNumber 
+    ? (typeof shopSettings.contactNumber === 'object' ? shopSettings.contactNumber.full : shopSettings.contactNumber)
+    : help.phone.full;
+    
+  const phoneShort = shopSettings?.contactNumber 
+    ? (typeof shopSettings.contactNumber === 'object' ? shopSettings.contactNumber.short : shopSettings.contactNumber)
+    : help.phone.short;
+
+  const branchAddress = shopSettings?.branchAddress || "";
 
   return (
     <section className="w-full bg-sage-gray text-white font-medium px-2 sm:px-4 md:px-6 py-0.5">
@@ -18,12 +48,20 @@ export default function TopHeader() {
             <div className="flex items-center gap-1 sm:gap-1.5 text-white">
               <IoCallOutline className="w-3.5 h-3.5 text-white" />
               <span className="font-['Gotham'] text-white text-xs sm:text-sm hidden md:inline">
-                {help.phone.label} {help.phone.full}
+                {help.phone.label} {phoneFull}
               </span>
               <span className="font-['Gotham'] text-white text-xs sm:text-sm md:hidden">
-                {help.phone.short}
+                {phoneShort}
               </span>
             </div>
+            {branchAddress && (
+              <>
+                <span className="font-['Gotham'] text-white hidden sm:inline">|</span>
+                <span className="font-['Gotham'] text-white hidden sm:inline text-xs truncate max-w-[200px]" title={branchAddress}>
+                  {branchAddress}
+                </span>
+              </>
+            )}
           </div>
 
           {/* Center Section - Promotional Text */}
@@ -84,4 +122,5 @@ export default function TopHeader() {
     </section>
   );
 }
+
 

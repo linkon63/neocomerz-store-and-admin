@@ -1,7 +1,13 @@
-import Image from "next/image";
-import DiscoverMoreButton from "./button";
+"use client";
 
-const teaTypes = [
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import DiscoverMoreButton from "./button";
+import { fetchShopCategories } from "@/lib/shop-api";
+import { resolveImageUrl } from "@/lib/admin-api";
+
+const fallbackTeaTypes = [
   { id: 1, name: "Black tea", image: "/images/tea/tea-1.png" },
   { id: 2, name: "Green Tea", image: "/images/tea/tea-3.png" },
   { id: 3, name: "Oolong tea", image: "/images/tea/tea-2.png" },
@@ -13,6 +19,31 @@ const teaTypes = [
 ];
 
 export default function LooseTea() {
+  const [categories, setCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const fetched = await fetchShopCategories();
+        if (fetched && fetched.length > 0) {
+          setCategories(
+            fetched.map((c, i) => ({
+              id: c.id,
+              name: c.name,
+              image: c.imageUrl ? resolveImageUrl(c.imageUrl) : fallbackTeaTypes[i % fallbackTeaTypes.length].image,
+            }))
+          );
+        } else {
+          setCategories(fallbackTeaTypes);
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+        setCategories(fallbackTeaTypes);
+      }
+    }
+    loadCategories();
+  }, []);
+
   return (
     <section 
       className="relative w-full bg-greenish-gray overflow-hidden flex items-end min-h-175"
@@ -45,7 +76,7 @@ export default function LooseTea() {
             clipPath: "ellipse(110% 100% at 50% 50%)",
           }}
         >
-          {teaTypes.map((tea, index) => {
+          {categories.map((tea, index) => {
             const marginTopClasses = [
               'lg:-mt-14',  
               'lg:-mt-8',   
@@ -58,9 +89,10 @@ export default function LooseTea() {
             ];
             
             return (
-              <div
+              <Link
                 key={tea.id}
-                className={`flex flex-col items-center group cursor-pointer ${marginTopClasses[index]}`}
+                href={`/products?category=${encodeURIComponent(tea.name)}`}
+                className={`flex flex-col items-center group cursor-pointer ${marginTopClasses[index % marginTopClasses.length]}`}
               >
                 <div
                   className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-24 lg:h-24 xl:w-28 xl:h-28 mb-3 md:mb-4 transition-transform duration-300 group-hover:scale-110"
@@ -77,10 +109,10 @@ export default function LooseTea() {
                     unoptimized
                   />
                 </div>
-                <p className="font-gotham text-xs sm:text-sm text-stone-gray text-center">
+                <p className="font-gotham text-xs sm:text-sm text-stone-gray text-center group-hover:text-brand-3 transition-colors">
                   {tea.name}
                 </p>
-              </div>
+              </Link>
             );
           })}
         </div>
@@ -92,3 +124,4 @@ export default function LooseTea() {
     </section>
   );
 }
+

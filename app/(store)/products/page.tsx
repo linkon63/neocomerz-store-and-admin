@@ -77,6 +77,17 @@ export default function ProductsPage() {
     fetchProducts(false);
   }, [fetchProducts]);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const cat = params.get('category');
+      if (cat) {
+        setSelectedCategory(cat);
+      }
+    }
+  }, []);
+
+
   const handleLoadMore = useCallback(() => {
     if (isLoading) return;
     fetchProducts(true);
