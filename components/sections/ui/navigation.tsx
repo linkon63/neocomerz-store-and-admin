@@ -6,16 +6,16 @@ import { usePathname } from "next/navigation";
 import { RiArrowDownSLine } from "react-icons/ri";
 
 const sylhetiTeaItems = [
-  { label: "Black Tea", href: "/sylheti-tea/black-tea" },
-  { label: "Green Tea", href: "/sylheti-tea/green-tea" },
-  { label: "Organic Collection", href: "/sylheti-tea/organic-collection" },
-  { label: "Signature Collection", href: "/sylheti-tea/signature-collection" },
+  { label: "Black Tea", href: "/products?category=Black Tea" },
+  { label: "Green Tea", href: "/products?category=Green Tea" },
+  { label: "Organic Collection", href: "/products?category=Organic Collection" },
+  { label: "Signature Collection", href: "/products?category=Signature Collection" },
 ];
 
 const leftNavItems = [
   { label: "Home", href: "/" },
   { label: "ABOUT US", href: "/about" },
-  { label: "TEAS", href: "/sylheti-tea", hasDropdown: true },
+  { label: "TEAS", href: "/products", hasDropdown: true },
 ];
 
 const rightNavItems = [

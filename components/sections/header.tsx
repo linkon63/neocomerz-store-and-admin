@@ -12,16 +12,16 @@ import { useCart } from "@/app/_providers/cart-provider";
 import { useWishlist } from "@/app/_providers/wishlist-provider";
 
 const sylhetiTeaItems = [
-  { label: "Black Tea", href: "/sylheti-tea/black-tea" },
-  { label: "Green Tea", href: "/sylheti-tea/green-tea" },
-  { label: "Organic Collection", href: "/sylheti-tea/organic-collection" },
-  { label: "Signature Collection", href: "/sylheti-tea/signature-collection" },
+  { label: "Black Tea", href: "/products?category=Black Tea" },
+  { label: "Green Tea", href: "/products?category=Green Tea" },
+  { label: "Organic Collection", href: "/products?category=Organic Collection" },
+  { label: "Signature Collection", href: "/products?category=Signature Collection" },
 ];
 
 const navItems = [
   { label: "Home", href: "/" },
   { label: "ABOUT US", href: "/about" },
-  { label: "TEAS", href: "/sylheti-tea", hasDropdown: true },
+  { label: "TEAS", href: "/products", hasDropdown: true },
   { label: "GIFT SETS", href: "/gift-sets" },
   { label: "CORPORATE ORDER", href: "/corporate-order" },
   { label: "CONTACT", href: "/contact" },

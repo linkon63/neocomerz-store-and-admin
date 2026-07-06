@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/sections/ui/product-card';
 import { InfiniteScroll } from '@/app/admin/_components/infinite-scroll';
 import { fetchShopProducts, type ShopProduct } from '@/lib/shop-api';
@@ -21,7 +22,10 @@ function withinPriceRange(price: number, range: string): boolean {
 
 const NO_IMAGE = '/images/no-image-icon-6.png';
 
-export default function ProductsPage() {
+function ProductsPageContent() {
+  const searchParams = useSearchParams();
+  const catParam = searchParams.get('category');
+
   const [viewMode, setViewMode] = useState<'grid2' | 'grid3'>('grid3');
   const [selectedCollection, setSelectedCollection] = useState<string>('All');
   // const [selectedOrigin] = useState<string>('All');
@@ -78,14 +82,12 @@ export default function ProductsPage() {
   }, [fetchProducts]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const cat = params.get('category');
-      if (cat) {
-        setSelectedCategory(cat);
-      }
+    if (catParam) {
+      setSelectedCategory(catParam);
+    } else {
+      setSelectedCategory('All');
     }
-  }, []);
+  }, [catParam]);
 
 
   const handleLoadMore = useCallback(() => {
@@ -407,5 +409,17 @@ export default function ProductsPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F5]">
+        <div className="w-8 h-8 border-4 border-[#C5B382] border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <ProductsPageContent />
+    </Suspense>
   );
 }
