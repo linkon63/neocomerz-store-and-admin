@@ -117,9 +117,11 @@ export default function ProductCard({
                 <span className="text-stone-800 text-lg md:text-xl font-semibold font-gotham whitespace-nowrap">
                   {price}
                 </span>
-                <span className="text-stone-400 text-sm md:text-base font-normal font-gotham line-through whitespace-nowrap">
-                  {originalPrice}
-                </span>
+                {originalPrice && (
+                  <span className="text-stone-400 text-sm md:text-base font-normal font-gotham line-through whitespace-nowrap">
+                    {originalPrice}
+                  </span>
+                )}
               </div>
               <span className="text-stone-400 text-xs font-medium font-gotham whitespace-nowrap">
                 VAT Included

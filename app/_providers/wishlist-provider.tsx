@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { getCustomerToken } from "@/lib/storefront-api";
 import { resolveImageUrl } from "@/lib/admin-api";
 import type { WishlistProduct, BackendWishlistItem, WishlistContextValue } from "@/lib/types";
+import { useAuth } from "./auth-provider";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5010/api/v1";
 
@@ -32,6 +33,7 @@ function mapBackendItem(item: BackendWishlistItem): WishlistProduct {
     size: defaultVariant?.attributes?.Size ?? defaultVariant?.attributes?.size ?? "",
     category: p.category?.name ?? "",
     team: p.brand?.name ?? "",
+    variantId: defaultVariant?.id,
   };
 }
 
@@ -57,29 +59,17 @@ async function authenticatedRequest<T>(
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<WishlistProduct[]>([]);
-  const [token, setToken] = useState<string | null>(null);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
-    const t = getCustomerToken();
-    setToken(t);
-    if (t) {
+    if (isAuthenticated) {
       authenticatedRequest<BackendWishlistItem[]>("/wishlist")
         .then((data) => setItems(data.map(mapBackendItem)))
         .catch(() => setItems([]));
     } else {
       setItems([]);
     }
-  }, []);
-
-  useEffect(() => {
-    const t = getCustomerToken();
-    if (!t || t === token) return;
-
-    setToken(t);
-    authenticatedRequest<BackendWishlistItem[]>("/wishlist")
-      .then((data) => setItems(data.map(mapBackendItem)))
-      .catch(() => setItems([]));
-  }, [token]);
+  }, [isAuthenticated]);
 
   const isInWishlist = useCallback(
     (productId: string) => items.some((i) => i.id === productId),

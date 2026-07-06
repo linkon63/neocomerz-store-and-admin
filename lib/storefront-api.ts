@@ -6,6 +6,8 @@ export interface CustomerUser {
   id: string;
   name: string;
   email: string;
+  phone?: string | null;
+  avatarUrl?: string | null;
 }
 
 export function getCustomerToken(): string | null {
@@ -122,4 +124,61 @@ export async function register(name: string, email: string, password: string) {
 
 export async function getMe() {
   return customerRequest<CustomerUser>("/auth/me");
+}
+
+export async function updateProfileDetails(data: { name: string; email: string; phone?: string }) {
+  return customerRequest<CustomerUser>("/auth/me", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function changePassword(data: { currentPassword: string; newPassword: string }) {
+  return customerRequest<void>("/auth/change-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+export interface CustomerProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  avatarUrl?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export async function getMyProfile(): Promise<CustomerProfile> {
+  const data = await customerRequest<any>("/profile/me");
+  return {
+    id: data.id,
+    name: data.user?.name ?? "",
+    email: data.user?.email ?? "",
+    phone: data.user?.phone ?? "",
+    avatarUrl: data.avatarMedia?.url ?? null,
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+  };
+}
+
+export async function uploadAvatar(file: File): Promise<{ avatarUrl: string }> {
+  const formData = new FormData();
+  formData.append("avatar", file);
+
+  const data = await customerRequest<any>("/profile/avatar", {
+    method: "POST",
+    body: formData,
+  });
+
+  return { avatarUrl: data.avatarMedia?.url ?? null };
+}
+
+export async function deleteAvatar(): Promise<void> {
+  return customerRequest<void>("/profile/avatar", {
+    method: "DELETE",
+  });
 }
