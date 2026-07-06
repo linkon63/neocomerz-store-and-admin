@@ -20,7 +20,7 @@ const leftNavItems = [
 
 const rightNavItems = [
   { label: "GIFTS", href: "/gift-sets" },
-  { label: "TRADE", href: "/trade" },
+  { label: "CORPORATE ORDER", href: "/corporate-order" },
   { label: "CONTACT", href: "/contact" },
 ];
 

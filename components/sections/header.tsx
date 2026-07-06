@@ -23,7 +23,7 @@ const navItems = [
   { label: "ABOUT US", href: "/about" },
   { label: "TEAS", href: "/sylheti-tea", hasDropdown: true },
   { label: "GIFT SETS", href: "/gift-sets" },
-  { label: "TRADE", href: "/trade" },
+  { label: "CORPORATE ORDER", href: "/corporate-order" },
   { label: "CONTACT", href: "/contact" },
 ];
 
