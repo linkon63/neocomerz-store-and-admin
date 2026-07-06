@@ -26,44 +26,50 @@ export default function ProductTabs({
 
   return (
     <div className="w-full flex flex-col gap-6 pt-4 border-t border-stone-200">
-      {/* Description Accordion Header */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full pt-3 pb-2 border-b border-stone-300 flex justify-between items-center cursor-pointer"
-      >
-        <span className="font-bembo text-lg font-normal text-stone-800 uppercase tracking-wide">
-          Description
-        </span>
-        <IoChevronDownOutline className={`w-4 h-4 text-stone-500 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
+      {description && (
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full pt-3 pb-2 border-b border-stone-300 flex justify-between items-center cursor-pointer"
+        >
+          <span className="font-bembo text-lg font-normal text-stone-800 uppercase tracking-wide">
+            Description
+          </span>
+          <IoChevronDownOutline className={`w-4 h-4 text-stone-500 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+      )}
 
-      {/* Sequential Contents */}
       <div
         className={`flex flex-col gap-6 overflow-hidden transition-all duration-300 ease-in-out ${
           isOpen ? 'max-h-[1500px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
         }`}
       >
-        {/* Description Body */}
-        <div className="flex flex-col gap-4">
-          <p className="font-bembo text-lg text-stone-800 leading-relaxed">
-            {description}
-          </p>
-          <div className="font-bembo text-3xl sm:text-4xl text-stone-800 font-normal">
-            4 Collection:
-          </div>
+        {description && (
           <div className="flex flex-col gap-4">
-            {collections.map((item, idx) => (
-              <div key={idx} className="text-stone-800 leading-relaxed">
-                <span className="font-gotham text-sm font-medium uppercase tracking-wider mr-1.5">
-                  {idx + 1}. {item.title}
-                </span>
-                <span className="font-bembo text-lg font-normal leading-relaxed">
-                  {item.text}
-                </span>
-              </div>
-            ))}
+            <p className="font-bembo text-lg text-stone-800 leading-relaxed">
+              {description}
+            </p>
           </div>
-        </div>
+        )}
+
+        {collections.length > 0 && (
+          <>
+            <div className="font-bembo text-3xl sm:text-4xl text-stone-800 font-normal">
+              {collections.length} Collection:
+            </div>
+            <div className="flex flex-col gap-4">
+              {collections.map((item, idx) => (
+                <div key={idx} className="text-stone-800 leading-relaxed">
+                  <span className="font-gotham text-sm font-medium uppercase tracking-wider mr-1.5">
+                    {idx + 1}. {item.title}
+                  </span>
+                  <span className="font-bembo text-lg font-normal leading-relaxed">
+                    {item.text}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
 
         {/* Ingredients Block */}
         <div className="flex flex-col gap-3">

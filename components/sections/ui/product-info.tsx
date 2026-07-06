@@ -126,22 +126,22 @@ export default function ProductInfo({
           </button>
         </div>
 
-        {/* Shop Now Button */}
-        <button
-          className="flex-1 min-w-[180px] sm:min-w-[220px] px-6 sm:px-10 py-4 whitespace-nowrap bg-brand-primary text-white hover:bg-opacity-95 font-gotham text-sm font-semibold uppercase tracking-wider rounded-full outline outline-1 outline-offset-[-1px] outline-orange-50 flex justify-center items-center shadow-md transition-all cursor-pointer"
-        >
-          SHOP NOW
-        </button>
-
         {/* Wishlist Button */}
         <button
           onClick={() => setIsWishlisted(!isWishlisted)}
           className={`w-12 h-12 rounded-full flex items-center justify-center shadow-sm border border-stone-200 transition-colors cursor-pointer ${
-            isWishlisted ? 'bg-red-50 border-red-200 text-brand-primary' : 'bg-white text-stone-800 hover:bg-stone-50'
+            isWishlisted ? 'bg-[#D31F3A] border-[#d3122f] text-white' : 'bg-white text-stone-800 hover:bg-[#d3122f] hover:text-white'
           }`}
           aria-label="Add to wishlist"
         >
           <IoHeartOutline className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
+        </button>
+
+        {/* Add to cart Button */}
+        <button
+          className="flex-1 min-w-[180px] sm:min-w-[220px] px-6 sm:px-10 py-4 whitespace-nowrap bg-[#D31F3A] text-white hover:bg-opacity-95 font-gotham text-sm font-semibold uppercase tracking-wider rounded-full outline outline-1 outline-offset-[-1px] outline-orange-50 flex justify-center items-center shadow-md transition-all cursor-pointer"
+        >
+          Add to cart
         </button>
       </div>
     </div>

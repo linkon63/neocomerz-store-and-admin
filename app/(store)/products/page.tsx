@@ -1,12 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import TopHeader from '@/components/sections/top-header';
-import Header from '@/components/sections/header';
 import ProductCard from '@/components/sections/ui/product-card';
-import RelatedCarousel from '@/components/sections/ui/related-carousel';
-import Mainfooter from '@/components/sections/main-footer';
-import Bottomfooter from '@/components/sections/bottom-footer';
 import { InfiniteScroll } from '@/app/admin/_components/infinite-scroll';
 import { fetchShopProducts, type ShopProduct } from '@/lib/shop-api';
 
@@ -136,7 +131,7 @@ export default function ProductsPage() {
 
         <div className="w-full border-t border-b border-stone-200 bg-white relative z-40">
           <div className="max-w-[1440px] mx-auto px-5 sm:px-10 md:px-14 lg:px-20 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            
+
             <div className="flex-grow flex items-center justify-between max-w-[850px] gap-4 mr-4 flex-wrap md:flex-nowrap">
               <div className="flex items-center gap-6 md:gap-8 lg:gap-10">
                 <div className="flex items-center gap-1.5 text-stone-855 font-gotham text-sm font-semibold uppercase tracking-wider select-none">
@@ -157,19 +152,6 @@ export default function ProductsPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
-                  {activeDropdown === 'collection' && (
-                    <div className="absolute left-0 mt-3 w-56 bg-white border border-stone-200 shadow-lg py-1.5 z-50 rounded-sm">
-                      {COLLECTION_OPTIONS.map((opt) => (
-                        <button
-                          key={opt}
-                          onClick={() => { setSelectedCollection(opt); setActiveDropdown(null); }}
-                          className={`w-full text-left px-4 py-2 font-gotham text-[11px] uppercase tracking-wider hover:bg-stone-50 transition-colors cursor-pointer ${selectedCollection === opt ? 'text-brand-3 font-bold' : 'text-stone-700'}`}
-                        >
-                          {opt}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </div>
               <div className="flex items-center gap-6 md:gap-8 lg:gap-10">
@@ -199,8 +181,6 @@ export default function ProductsPage() {
                   )}
                 </div>
               </div>
-
-
               <div className="relative filter-dropdown-container">
                 <button
                   onClick={() => toggleDropdown('price')}

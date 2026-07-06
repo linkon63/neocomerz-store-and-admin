@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import ProductGallery from './ui/product-gallery';
 import ProductInfo from './ui/product-info';
 import ProductTabs from './ui/product-tabs';
 import RelatedCarousel from './ui/related-carousel';
 import { IoThermometerOutline, IoTimeOutline } from 'react-icons/io5';
-import { Product, fetchProductById } from '@/lib/api';
+import { fetchShopProductById } from '@/lib/shop-api';
+import { resolveImageUrl } from '@/lib/admin-api';
 
 const brewingTips = [
   {
@@ -25,15 +26,60 @@ interface ProductDetailsProps {
   productId?: string;
 }
 
+type MappedProduct = {
+  id: string;
+  name: string;
+  price: string;
+  originalPrice: string;
+  image: string;
+  collection: string;
+  priceNum: number;
+  category: string;
+  origin: string;
+  subtitle: string;
+  description: string;
+  teas: { name: string; description: string }[];
+  ingredients: string[];
+  galleryImages: string[];
+};
+
 export default function ProductDetails({ productId = '3' }: ProductDetailsProps) {
-  const [productData, setProductData] = useState<Product | null>(null);
+  const [productData, setProductData] = useState<MappedProduct | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     async function loadProduct() {
       setIsLoading(true);
-      const data = await fetchProductById(productId);
-      setProductData(data);
+      const product = await fetchShopProductById(productId);
+      if (!product) {
+        setProductData(null);
+        setIsLoading(false);
+        return;
+      }
+
+      const defaultVariant = product.variants?.find((v) => v.isDefault) ?? product.variants?.[0];
+      const price = Number(defaultVariant?.price ?? 0);
+
+      const allImages = (product.media ?? [])
+        .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+        .map((m) => resolveImageUrl(m.media.url));
+
+      setProductData({
+        id: product.id,
+        name: product.name,
+        price: String(price),
+        originalPrice: product.discountPrice ? String(product.discountPrice) : '',
+        image: allImages[0] ?? '',
+        collection: '',
+        priceNum: price,
+        category: product.category?.name ?? '',
+        origin: '',
+        subtitle: product.shortDescription ?? '',
+        description: product.description ?? '',
+        teas: [],
+        ingredients: [],
+        galleryImages: allImages,
+      });
       setIsLoading(false);
     }
     loadProduct();
@@ -95,10 +141,7 @@ export default function ProductDetails({ productId = '3' }: ProductDetailsProps)
 
             <ProductTabs
               description={productData.description}
-              collections={productData.teas.map((t) => ({
-                title: t.name,
-                text: t.description,
-              }))}
+              collections={[]}
               ingredients={productData.ingredients}
               brewingTips={brewingTips}
             />

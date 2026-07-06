@@ -64,3 +64,17 @@ export async function fetchShopProducts(
     total: paginated.meta.total,
   };
 }
+
+export async function fetchShopProductById(id: string): Promise<AdminProduct | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/products/${id}`, {
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (res.status !== 200) return null;
+
+    return (await res.json()) as AdminProduct;
+  } catch {
+    return null;
+  }
+}
