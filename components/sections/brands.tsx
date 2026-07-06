@@ -1,10 +1,14 @@
 "use client";
+
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
+import { fetchShopBrands } from "@/lib/shop-api";
+import { resolveImageUrl } from "@/lib/admin-api";
 import "swiper/css";
 
-const brands = [
+const fallbackBrands = [
   "/images/brands/brands-1.png",
   "/images/brands/brands-2.png",
   "/images/brands/brands-3.png",
@@ -12,7 +16,42 @@ const brands = [
   "/images/brands/brands-5.png",
   "/images/brands/brands-6.png",
 ];
+
 export default function Brands() {
+  const [brandList, setBrandList] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadBrands() {
+      try {
+        const fetched = await fetchShopBrands();
+        if (fetched && fetched.length > 0) {
+          const hasLogos = fetched.some((b) => b.logoUrl);
+          if (hasLogos) {
+            setBrandList(
+              fetched.map((b) => ({
+                name: b.name,
+                logo: b.logoUrl ? resolveImageUrl(b.logoUrl) : null,
+              }))
+            );
+          } else {
+            setBrandList(
+              fetched.map((b, i) => ({
+                name: b.name,
+                logo: fallbackBrands[i % fallbackBrands.length],
+              }))
+            );
+          }
+        } else {
+          setBrandList(fallbackBrands.map((b, i) => ({ name: `Brand ${i + 1}`, logo: b })));
+        }
+      } catch (error) {
+        console.error("Failed to load brands:", error);
+        setBrandList(fallbackBrands.map((b, i) => ({ name: `Brand ${i + 1}`, logo: b })));
+      }
+    }
+    loadBrands();
+  }, []);
+
   return (
     <section className="w-full py-12 px-6 md:px-12 lg:py-16 bg-[#F6F6F6]">
       <div className="mx-auto">
@@ -26,45 +65,54 @@ export default function Brands() {
             </h3>
           </div>
           <div className="w-full flex-1 lg:max-w-[60%]">
-            <Swiper
-              modules={[Autoplay]}
-              spaceBetween={30}
-              slidesPerView={2}
-              loop={true}
-              speed={800}
-              autoplay={{
-                delay: 2000,
-                disableOnInteraction: false,
-                pauseOnMouseEnter: true,
-              }}
-              breakpoints={{
-                640: {
-                  slidesPerView: 3,
-                  spaceBetween: 40,
-                },
-                1024: {
-                  slidesPerView: 4,
-                  spaceBetween: 50,
-                },
-              }}
-              className="brands-swiper"
-            >
-              {brands.map((brand, index) => (
-                <SwiperSlide key={index}>
-                  <div className="relative h-12 w-full sm:h-14">
-                    <Image
-                      src={brand}
-                      alt={`Brand ${index + 1}`}
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+            {brandList.length > 0 && (
+              <Swiper
+                modules={[Autoplay]}
+                spaceBetween={30}
+                slidesPerView={2}
+                loop={brandList.length >= 2}
+                speed={800}
+                autoplay={{
+                  delay: 2000,
+                  disableOnInteraction: false,
+                  pauseOnMouseEnter: true,
+                }}
+                breakpoints={{
+                  640: {
+                    slidesPerView: Math.min(brandList.length, 3),
+                    spaceBetween: 40,
+                  },
+                  1024: {
+                    slidesPerView: Math.min(brandList.length, 4),
+                    spaceBetween: 50,
+                  },
+                }}
+                className="brands-swiper"
+              >
+                {brandList.map((brand, index) => (
+                  <SwiperSlide key={brand.id || index}>
+                    <div className="relative h-12 w-full sm:h-14 flex items-center justify-center">
+                      {brand.logo ? (
+                        <Image
+                          src={brand.logo}
+                          alt={brand.name}
+                          fill
+                          className="object-contain"
+                        />
+                      ) : (
+                        <span className="font-['Bembo_Std'] text-stone-700 uppercase tracking-widest text-xs font-semibold text-center">
+                          {brand.name}
+                        </span>
+                      )}
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            )}
           </div>
         </div>
       </div>
     </section>
   );
 }
+
