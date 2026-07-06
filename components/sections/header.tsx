@@ -8,6 +8,8 @@ import Navigation from "./ui/navigation";
 import { IoSearchOutline, IoHeartOutline } from "react-icons/io5";
 import { LuShoppingBag, LuUser, LuChevronDown, LuLogOut } from "react-icons/lu";
 import { useAuth } from "@/app/_providers/auth-provider";
+import { useCart } from "@/app/_providers/cart-provider";
+import { useWishlist } from "@/app/_providers/wishlist-provider";
 
 const sylhetiTeaItems = [
   { label: "Black Tea", href: "/sylheti-tea/black-tea" },
@@ -27,6 +29,8 @@ const navItems = [
 
 export default function Header() {
   const { user, isAuthenticated, setShowAuthModal, logout } = useAuth();
+  const { itemCount: cartItemCount } = useCart();
+  const { itemCount: wishlistItemCount } = useWishlist();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -63,6 +67,36 @@ export default function Header() {
         </div>
 
         <div className="w-[220px] flex justify-end items-center gap-1.5">
+          
+        {/* Right Icons */}
+        <div className="w-55 flex justify-end items-center gap-2">
+          <Link
+            href="/wishlist"
+            className="relative p-2 hover:text-brand-primary transition-colors"
+            aria-label="Wishlist"
+          >
+            <IoHeartOutline className="w-5 h-5" />
+            {wishlistItemCount > 0 && (
+              <span className="absolute -top-1 right-0 flex items-center justify-center w-4 h-4 rounded-full bg-brand-primary text-[9px] font-semibold text-white">
+                {wishlistItemCount}
+              </span>
+            )}
+          </Link>
+
+          <Link
+            href="/cart"
+            className="relative p-2 hover:text-brand-primary transition-colors"
+            aria-label="Shopping Cart"
+          >
+            <LuShoppingBag className="w-5 h-5" />
+
+            <span className="absolute -top-1 right-0 flex items-center justify-center w-4 h-4 rounded-full bg-brand-primary text-[9px] font-semibold text-white">
+              {cartItemCount}
+            </span>
+          </Link>
+
+          <div className="w-px h-4 bg-white/30" />  
+
           {isAuthenticated ? (
             <div className="relative" ref={dropdownRef}>
               <button
@@ -118,40 +152,6 @@ export default function Header() {
               <LuUser className="w-5 h-5" />
             </button>
           )}
-
-          {/* <div className="w-px h-4 bg-zinc-300" /> */}
-          
-        {/* Right Icons */}
-        <div className="w-55 flex justify-end items-center gap-2">
-          <Link
-            href="/wishlist"
-            className="p-2 hover:text-brand-primary transition-colors"
-            aria-label="Wishlist"
-          >
-            <IoHeartOutline className="w-5 h-5" />
-          </Link>
-
-          <Link
-            href="/cart"
-            className="relative p-2 hover:text-brand-primary transition-colors"
-            aria-label="Shopping Cart"
-          >
-            <LuShoppingBag className="w-5 h-5" />
-
-            <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 rounded-full bg-brand-primary text-[9px] font-semibold text-white">
-              1
-            </span>
-          </Link>
-
-          <div className="w-px h-4 bg-white/30" />
-
-          <Link
-            href="/account"
-            className="p-2 hover:text-brand-primary transition-colors"
-            aria-label="Account"
-          >
-            <LuUser className="w-5 h-5" />
-          </Link>
         </div>
         </div>
       </div>
@@ -182,7 +182,7 @@ export default function Header() {
           <LuShoppingBag className="w-5 h-5" />
 
           <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 rounded-full bg-white text-[9px] text-black font-semibold">
-            1
+            {cartItemCount}
           </span>
         </Link>
       </div>
