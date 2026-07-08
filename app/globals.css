@@ -27,9 +27,9 @@
   /* ===========================
      Tailwind v4 Theme Brand Mappings
      =========================== */
-  --color-brand-primary: var(--color-dark-crimson);
+  --color-brand-primary: var(--color-khaki-gold);
   --color-brand-2: var(--color-warm-gray);
-  --color-brand-3: var(--color-dark-crimson);
+  --color-brand-3: var(--color-khaki-gold);
   --color-brand-4: var(--color-khaki-gold);
   --color-brand-5: var(--color-khaki-gold);
 
@@ -55,7 +55,7 @@
      Brand Colors
   ============================ */
 
-  --color-primary: var(--color-dark-crimson);
+  --color-primary: var(--color-khaki-gold);
   --color-secondary: var(--color-khaki-gold);
   --color-accent: var(--color-sage-gold);
 

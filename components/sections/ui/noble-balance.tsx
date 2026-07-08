@@ -11,6 +11,8 @@ export default function NobleBalance() {
           backgroundImage: "url('/images/pattern/pattern.png')",
           backgroundRepeat: "repeat",
           backgroundSize: "150px 150px",
+          maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 90%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 90%)',
         }}
       ></div>
 

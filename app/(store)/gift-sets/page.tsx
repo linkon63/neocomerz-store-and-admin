@@ -105,13 +105,14 @@ export default function GiftsPage() {
 
       {/* SECTION 2: Curated Collections */}
       <section className="w-full py-16 md:py-24 bg-white border-t border-stone-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
           {/* Header */}
-          <div className="text-center mb-16">
-            <h2 className="font-['Bembo_Std'] text-4xl sm:text-5xl text-neutral-800 font-normal tracking-wide">
-              Curated <span className="font-['Snell_Roundhand_LT_Std'] italic text-stone-850 lowercase text-5xl sm:text-6xl -ml-1">Collections</span>
+          <div className="text-center mb-16 flex flex-col items-center">
+            <h2 className="inline-flex flex-row justify-center items-baseline gap-2 md:gap-3">
+              <span className="font-['Bembo_Std'] text-[#C6B485] text-4xl sm:text-5xl md:text-6xl font-normal leading-none">Curated</span>
+              <span className="font-['Snell_Roundhand_LT_Std'] italic text-[#8E866B] text-4xl sm:text-5xl md:text-6xl font-normal leading-none lowercase">Collections</span>
             </h2>
-            <p className="font-['Bembo_Std'] text-zinc-650 text-sm sm:text-base tracking-wide mt-4 font-light max-w-xl mx-auto leading-relaxed">
+            <p className="max-w-[600px] text-center text-[#83847e] text-sm sm:text-base md:text-lg font-normal font-['Bembo_Std'] leading-normal px-4 mt-4">
               Designed to make a lasting impression for corporate, seasonal, and personal gifting.
             </p>
           </div>
@@ -141,7 +142,7 @@ export default function GiftsPage() {
           </svg>
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-20">
+        <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 relative z-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             
             {/* Left Title Panel */}
@@ -159,7 +160,7 @@ export default function GiftsPage() {
               {heritageItems.map((item) => (
                 <div key={item.id} className="flex flex-col items-start gap-4 w-full">
                   {/* Image */}
-                  <div className={`relative w-full ${item.aspect} bg-stone-100 overflow-hidden rounded-lg shadow-sm border border-white/50 group`}>
+                  <div className={`relative w-full ${item.aspect} bg-stone-100 overflow-hidden rounded-none shadow-sm border border-white/50 group`}>
                     <Image
                       src={item.image}
                       alt={item.title || "Heritage representation"}
