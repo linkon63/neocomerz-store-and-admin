@@ -133,8 +133,15 @@ export default function GiftsPage() {
       </section>
 
       {/* SECTION 3: Give More Than Tea — Share a Heritage */}
-      <section className="w-full py-20 bg-[#FAF9F5] border-t border-stone-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+      <section className="relative w-full py-24 md:py-36 bg-[#FAF9F5] overflow-hidden">
+        {/* Top Curve Shape */}
+        <div className="absolute top-0 left-0 w-full overflow-hidden leading-none select-none pointer-events-none z-10">
+          <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="relative block w-full h-[60px] sm:h-[80px] md:h-[100px] text-white fill-current">
+            <path d="M0,0 L0,100 Q720,-100 1440,100 L1440,0 Z" />
+          </svg>
+        </div>
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             
             {/* Left Title Panel */}
@@ -178,10 +185,17 @@ export default function GiftsPage() {
 
           </div>
         </div>
+
+        {/* Bottom Curve Shape */}
+        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none select-none pointer-events-none z-10">
+          <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="relative block w-full h-[60px] sm:h-[80px] md:h-[100px] text-white fill-current">
+            <path d="M0,100 Q720,-100 1440,100 Z" />
+          </svg>
+        </div>
       </section>
 
       {/* SECTION 4: Brand Swiper */}
-      <Brands />
+      <Brands bgClassName="bg-white" />
 
       {/* SECTION 5: Instagram Follow Swiper */}
       <Instagram />

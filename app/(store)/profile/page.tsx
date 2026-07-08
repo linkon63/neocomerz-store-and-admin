@@ -68,7 +68,7 @@ function ProfilePageContent() {
       ) : (
         <div className="relative min-h-screen bg-white">
           {/* Background Split Screen Panels */}
-          <div className="absolute inset-0 pointer-events-none grid grid-cols-1 lg:grid-cols-12 z-0">
+          <div className="absolute inset-0 pointer-events-none hidden lg:grid grid-cols-1 lg:grid-cols-12 z-0">
             <div className="lg:col-span-3 bg-[#F7F6F2] lg:border-r lg:border-stone-200/60 h-full" />
             <div className="lg:col-span-9 bg-white h-full" />
           </div>
@@ -77,9 +77,9 @@ function ProfilePageContent() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
               
               {/* LEFT SIDEBAR PANEL */}
-              <aside className="lg:col-span-3 pr-0 lg:pr-8 flex flex-col justify-between gap-6 lg:gap-12 lg:h-[calc(100vh-200px)] lg:sticky lg:top-28 w-full">
-                <div className="mr-4">
-                  <h1 className="font-['Bembo_Std'] text-4xl lg:text-5xl font-normal text-zinc-850 tracking-wide mb-4 lg:mb-8 text-center lg:text-left">
+              <aside className="lg:col-span-3 bg-[#F7F6F2] lg:bg-transparent p-4 sm:p-6 lg:p-0 rounded-2xl lg:rounded-none border border-stone-200/60 lg:border-none shadow-[0_1px_2px_rgba(0,0,0,0.05)] lg:shadow-none pr-0 lg:pr-8 flex flex-col justify-between gap-6 lg:gap-12 lg:h-[calc(100vh-200px)] lg:sticky lg:top-28 w-full">
+                <div className="mr-0 lg:mr-4">
+                  <h1 className="font-['Bembo_Std'] text-3xl lg:text-5xl font-normal text-zinc-850 tracking-wide mb-4 lg:mb-8 text-center lg:text-left">
                     Profile
                   </h1>
                   

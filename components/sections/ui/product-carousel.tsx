@@ -2,20 +2,23 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 import { IoHeartOutline, IoHeart } from "react-icons/io5";
 import type { ExtendedProductCarouselProps } from "@/data/types";
 import CarouselHeader from "./carousel-header";
+import { useWishlist } from "@/app/_providers/wishlist-provider";
+import { useAuth } from "@/app/_providers/auth-provider";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 export default function ProductCarousel({ products, title }: ExtendedProductCarouselProps) {
   const swiperRef = useRef<SwiperType | null>(null);
-  const [wishlist, setWishlist] = useState<string[]>([]);
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const { isAuthenticated, setShowAuthModal } = useAuth();
 
   const handlePrevious = () => {
     swiperRef.current?.slidePrev();
@@ -23,14 +26,6 @@ export default function ProductCarousel({ products, title }: ExtendedProductCaro
 
   const handleNext = () => {
     swiperRef.current?.slideNext();
-  };
-
-  const toggleWishlist = (productId: string) => {
-    setWishlist((prev) =>
-      prev.includes(productId)
-        ? prev.filter((id) => id !== productId)
-        : [...prev, productId]
-    );
   };
 
   return (
@@ -86,28 +81,45 @@ export default function ProductCarousel({ products, title }: ExtendedProductCaro
               </Link>
               <div className="text-left p-8">
                 <Link href={`/products/${product.id}`}>
-                  <h3 className="font-gotham text-text-primary text-base sm:text-lg hover:text-brand-3 transition-colors">
+                  <h3 className="font-gotham text-zinc-850 text-sm sm:text-base md:text-[17px] font-normal hover:text-brand-3 transition-colors leading-snug">
                     {product.name}
                   </h3>
                 </Link>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="font-gotham text-text-primary text-lg sm:text-xl font-medium">
+                    <span className="font-gotham text-zinc-850 text-sm sm:text-base md:text-[17px] font-normal">
                       ৳{product.price.toLocaleString()}
                     </span>
                     {product.originalPrice && (
-                      <span className="font-gotham text-gray-400 text-sm line-through">
+                      <span className="font-gotham text-stone-400 text-xs sm:text-sm font-normal line-through">
                         ৳{product.originalPrice.toLocaleString()}
                       </span>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => toggleWishlist(product.id)}
-                      className="p-2 hover:bg-brand-3 rounded-full transition-colors cursor-pointer"
+                      onClick={() => {
+                        if (!product.id) return;
+                        if (isAuthenticated) {
+                          toggleWishlist({
+                            id: product.id,
+                            name: product.name,
+                            slug: product.id,
+                            price: product.price,
+                            image: product.image,
+                            color: '',
+                            size: '',
+                            category: '',
+                            team: '',
+                          });
+                        } else {
+                          setShowAuthModal(true);
+                        }
+                      }}
+                      className="p-2 hover:bg-zinc-100 rounded-full transition-colors cursor-pointer"
                       aria-label="Add to wishlist"
                     >
-                      {wishlist.includes(product.id) ? (
+                      {isInWishlist(product.id) ? (
                         <IoHeart className="w-8 h-8 text-brand-primary" />
                       ) : (
                         <IoHeartOutline className="w-8 h-8 text-stone-600 hover:text-brand-primary" />
@@ -127,7 +139,7 @@ export default function ProductCarousel({ products, title }: ExtendedProductCaro
                     </button>
                   </div>
                 </div>
-                <p className="font-gotham text-gray-500 text-xs">VAT Included</p>
+                <p className="font-gotham text-stone-400 text-[10px] font-normal">VAT Included</p>
               </div>
             </div>
           </SwiperSlide>
