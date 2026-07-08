@@ -316,7 +316,7 @@ export default function CheckoutPage() {
                     <div className="flex-1">
                       <p className="font-medium text-stone-800">Online Payment</p>
                       <p className="text-xs text-stone-500 mt-1">
-                        After clicking 'Place Order', you will be redirected to online payment to complete your purchase securely.
+                        After clicking &apos;Place Order&apos;, you will be redirected to online payment to complete your purchase securely.
                       </p>
                       <div className="flex items-center gap-2 mt-3">
                         <div className="w-10 h-6 bg-white border border-stone-200 rounded flex items-center justify-center text-[10px] font-bold text-stone-600">

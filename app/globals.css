@@ -25,6 +25,15 @@
   --color-dark-crimson: #d31f3a;
 
   /* ===========================
+     Tailwind v4 Theme Brand Mappings
+     =========================== */
+  --color-brand-primary: var(--color-dark-crimson);
+  --color-brand-2: var(--color-warm-gray);
+  --color-brand-3: var(--color-dark-crimson);
+  --color-brand-4: var(--color-khaki-gold);
+  --color-brand-5: var(--color-khaki-gold);
+
+  /* ===========================
      Text Colors
   ============================ */
 
@@ -352,4 +361,15 @@
     center,
     center;
   mask-repeat: no-repeat;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 25s linear infinite;
 }

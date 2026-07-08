@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Swiper as SwiperType } from 'swiper';
 import { Navigation, Autoplay } from 'swiper/modules';
 import ProductCard from './product-card';
+import DiscoverMoreButton from './button';
 import { fetchShopProducts, ShopProduct } from '@/lib/shop-api';
 
 import 'swiper/css';
@@ -70,23 +70,24 @@ export default function RelatedCarousel() {
         <div className="flex flex-col items-center justify-center gap-2 mb-8">
           <div className="flex items-center justify-center gap-8 sm:gap-12 md:gap-16">
             <button
-              className="related-prev flex items-center gap-2 text-stone-850 hover:text-brand-3 transition-colors text-xs font-semibold uppercase tracking-wider cursor-pointer select-none"
+              className="related-prev flex items-center gap-2 text-stone-850 hover:text-[#B9975B] transition-colors text-xs font-semibold uppercase tracking-wider cursor-pointer select-none"
               aria-label="Previous products"
             >
-              <span className="text-brand-3 text-base font-normal">&lt;</span>
+              <span className="text-[#B9975B] text-base font-normal">&lt;</span>
               <span className="font-gotham font-medium text-[11px] tracking-[0.2em] text-stone-850">PREVIOUS</span>
             </button>
 
-            <h2 className="font-bembo text-3xl sm:text-4xl text-brand-3 font-normal tracking-wide">
-              Most Popular
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-normal text-center">
+              <span className="font-['Bembo_Std'] text-khaki-gold">Most </span>
+              <span className="font-['Snell_Roundhand_LT_Std'] italic text-stone-gray ml-1.5">Popular</span>
             </h2>
 
             <button
-              className="related-next flex items-center gap-2 text-stone-850 hover:text-brand-3 transition-colors text-xs font-semibold uppercase tracking-wider cursor-pointer select-none"
+              className="related-next flex items-center gap-2 text-stone-850 hover:text-[#B9975B] transition-colors text-xs font-semibold uppercase tracking-wider cursor-pointer select-none"
               aria-label="Next products"
             >
               <span className="font-gotham font-medium text-[11px] tracking-[0.2em] text-stone-850">NEXT</span>
-              <span className="text-brand-3 text-base font-normal">&gt;</span>
+              <span className="text-[#B9975B] text-base font-normal">&gt;</span>
             </button>
           </div>
 
@@ -104,10 +105,10 @@ export default function RelatedCarousel() {
                       swiperRef.slideToLoop(i * 2);
                     }
                   }}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
                     isActive
-                      ? 'bg-brand-3 scale-110'
-                      : 'bg-stone-300 hover:bg-stone-400'
+                      ? 'bg-[#B9975B] scale-110'
+                      : 'bg-[#e2e2e2] hover:bg-[#c5a86a]'
                   }`}
                   aria-label={`Go to slide group ${i + 1}`}
                 />
@@ -161,16 +162,8 @@ export default function RelatedCarousel() {
         </Swiper>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6">
-        {/* Discover More Link Centered Below Carousel */}
-        <div className="flex justify-center mt-10">
-          <Link
-            href="/products"
-            className="px-12 py-3.5 bg-brand-3 hover:bg-[#A38148] text-white font-gotham text-xs font-semibold uppercase tracking-[0.2em] rounded-full transition-all duration-300 cursor-pointer shadow-sm text-center"
-          >
-            Discover More
-          </Link>
-        </div>
+      <div className="container mx-auto px-4 sm:px-6 mt-10">
+        <DiscoverMoreButton href="/products" label="DISCOVER MORE" variant="primary" />
       </div>
     </section>
   );

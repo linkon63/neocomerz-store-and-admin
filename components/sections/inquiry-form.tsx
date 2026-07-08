@@ -1,9 +1,17 @@
 'use client';
-
-import React, { useState } from 'react';
+ 
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-
+import { toast } from 'sonner';
+import { useAuth } from '@/app/_providers/auth-provider';
+import { submitWholesaleRequest } from '@/lib/storefront-api';
+import { fetchShopProducts } from '@/lib/shop-api';
+ 
 export default function InquiryForm() {
+  const { isAuthenticated, setShowAuthModal } = useAuth();
+  const [defaultProduct, setDefaultProduct] = useState<{ id: string } | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+ 
   const [formData, setFormData] = useState({
     fullName: '',
     organisation: '',
@@ -16,18 +24,84 @@ export default function InquiryForm() {
     quantity: '',
     requirements: '',
   });
-
-  const handleSubmit = (e: React.FormEvent) => {
+ 
+  useEffect(() => {
+    fetchShopProducts({ page: 1, limit: 1 })
+      .then((res) => {
+        if (res.data && res.data.length > 0) {
+          setDefaultProduct({ id: res.data[0].id });
+        }
+      })
+      .catch((err) => console.error('Failed to fetch default product for inquiry:', err));
+  }, []);
+ 
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Inquiry Form Data Submitted:', formData);
-    alert('Thank you! Your inquiry has been submitted.');
+ 
+    if (!isAuthenticated) {
+      toast.error('Please login to submit your corporate inquiry.');
+      setShowAuthModal(true);
+      return;
+    }
+ 
+    if (!defaultProduct) {
+      toast.error('Retrieving shop catalog, please try again in a moment.');
+      return;
+    }
+ 
+    setSubmitting(true);
+    try {
+      const quantityNum = parseInt(formData.quantity) || 100;
+      const customerNoteText = `
+Corporate Gifting / Event Inquiry Details:
+- Full Name: ${formData.fullName}
+- Company/Organisation: ${formData.organisation}
+- Contact Email: ${formData.email}
+- Purpose of Inquiry: ${formData.purpose || 'N/A'}
+- Preferred Collection: ${formData.preferredCollection || 'N/A'}
+- Required Delivery Date: ${formData.deliveryDate || 'N/A'}
+- Estimated Quantity: ${formData.quantity || 'N/A'}
+- Additional Requirements: ${formData.requirements || 'N/A'}
+      `.trim();
+ 
+      await submitWholesaleRequest({
+        contactPhone: `${formData.countryCode}${formData.phoneNumber}`,
+        customerNote: customerNoteText,
+        items: [
+          {
+            productId: defaultProduct.id,
+            requestedQuantity: quantityNum,
+            note: `Estimated Quantity: ${formData.quantity || '100'}`,
+          },
+        ],
+      });
+ 
+      toast.success('Thank you! Your corporate inquiry has been submitted successfully.');
+      setFormData({
+        fullName: '',
+        organisation: '',
+        email: '',
+        countryCode: '+880',
+        phoneNumber: '',
+        purpose: '',
+        preferredCollection: '',
+        deliveryDate: '',
+        quantity: '',
+        requirements: '',
+      });
+    } catch (err: any) {
+      console.error('Submit inquiry failed:', err);
+      toast.error(err.message || 'Failed to submit inquiry. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
-
+ 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
+ 
   return (
     <section className="w-full bg-[#F9F9FB] py-16 sm:py-24 px-6 md:px-12">
       <div className="container mx-auto max-w-7xl">
@@ -45,7 +119,7 @@ export default function InquiryForm() {
                 solution tailored to your vision.
               </p>
             </div>
-
+ 
             {/* "You may also like" products */}
             <div className="space-y-4 pt-4 border-t border-stone-200">
               <h3 className="font-gotham text-xs font-semibold uppercase tracking-wider text-stone-400">
@@ -66,7 +140,7 @@ export default function InquiryForm() {
                     Best Sellers
                   </h4>
                 </div>
-
+ 
                 {/* New Arrivals */}
                 <div className="group cursor-pointer">
                   <div className="relative aspect-square w-full bg-stone-100 overflow-hidden mb-2">
@@ -84,7 +158,7 @@ export default function InquiryForm() {
               </div>
             </div>
           </div>
-
+ 
           {/* Right Column (Form Card) */}
           <div className="lg:col-span-7">
             <div className="bg-white rounded-2xl p-8 sm:p-10 shadow-lg border border-stone-100">
@@ -96,7 +170,7 @@ export default function InquiryForm() {
                   Our specialists will prepare a personalised recommendation and quotation based on your needs.
                 </p>
               </div>
-
+ 
               <form onSubmit={handleSubmit} className="space-y-6">
                 
                 {/* Contact Information Divider */}
@@ -115,7 +189,7 @@ export default function InquiryForm() {
                         value={formData.fullName}
                         onChange={handleInputChange}
                         placeholder="Enter full name"
-                        className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-800 placeholder-stone-300 focus:outline-none focus:border-stone-400"
+                        className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-850 placeholder-stone-300 focus:outline-none focus:border-stone-400"
                         required
                       />
                     </div>
@@ -127,11 +201,11 @@ export default function InquiryForm() {
                         value={formData.organisation}
                         onChange={handleInputChange}
                         placeholder="Enter organization/company name"
-                        className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-800 placeholder-stone-300 focus:outline-none focus:border-stone-400"
+                        className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-850 placeholder-stone-300 focus:outline-none focus:border-stone-400"
                       />
                     </div>
                   </div>
-
+ 
                   {/* Row 2 */}
                   <div className="space-y-1.5">
                     <label className="font-['Bembo_Std'] text-xs uppercase tracking-wide text-stone-700">Email Address</label>
@@ -141,11 +215,11 @@ export default function InquiryForm() {
                       value={formData.email}
                       onChange={handleInputChange}
                       placeholder="Enter email address"
-                      className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-800 placeholder-stone-300 focus:outline-none focus:border-stone-400"
+                      className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-850 placeholder-stone-300 focus:outline-none focus:border-stone-400"
                       required
                     />
                   </div>
-
+ 
                   {/* Row 3 */}
                   <div className="space-y-1.5">
                     <label className="font-['Bembo_Std'] text-xs uppercase tracking-wide text-stone-700">Phone Number</label>
@@ -167,19 +241,19 @@ export default function InquiryForm() {
                         value={formData.phoneNumber}
                         onChange={handleInputChange}
                         placeholder="Phone Number"
-                        className="w-full px-4 py-3 text-xs font-gotham text-stone-800 placeholder-stone-300 focus:outline-none"
+                        className="w-full px-4 py-3 text-xs font-gotham text-stone-850 placeholder-stone-300 focus:outline-none"
                         required
                       />
                     </div>
                   </div>
                 </div>
-
+ 
                 {/* Inquiry Details Divider */}
                 <div className="space-y-4 pt-2 border-t border-stone-100">
                   <h4 className="font-gotham text-[10px] font-bold uppercase tracking-widest text-stone-400">
                     Inquiry Details
                   </h4>
-
+ 
                   {/* Row 4 */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
@@ -188,7 +262,7 @@ export default function InquiryForm() {
                         name="purpose"
                         value={formData.purpose}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-800 focus:outline-none focus:border-stone-400"
+                        className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-850 focus:outline-none focus:border-stone-400"
                       >
                         <option value="">Select</option>
                         <option value="corporate">Corporate Gifting</option>
@@ -203,7 +277,7 @@ export default function InquiryForm() {
                         name="preferredCollection"
                         value={formData.preferredCollection}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-800 focus:outline-none focus:border-stone-400"
+                        className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-850 focus:outline-none focus:border-stone-400"
                       >
                         <option value="">Select</option>
                         <option value="royal">Royal Collection</option>
@@ -213,7 +287,7 @@ export default function InquiryForm() {
                       </select>
                     </div>
                   </div>
-
+ 
                   {/* Row 5 */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
@@ -238,7 +312,7 @@ export default function InquiryForm() {
                       />
                     </div>
                   </div>
-
+ 
                   {/* Row 6 */}
                   <div className="space-y-1.5">
                     <label className="font-['Bembo_Std'] text-xs uppercase tracking-wide text-stone-700">Additional Requirements</label>
@@ -252,20 +326,21 @@ export default function InquiryForm() {
                     />
                   </div>
                 </div>
-
+ 
                 <div className="pt-2">
                   <button
                     type="submit"
-                    className="px-10 py-3.5 bg-[#C5B382] hover:bg-[#b4a16f] text-white font-gotham text-xs font-semibold uppercase tracking-[0.2em] rounded-full transition-all duration-300 shadow-sm"
+                    disabled={submitting}
+                    className="px-10 py-3.5 bg-[#C5B382] hover:bg-[#b4a16f] text-white font-gotham text-xs font-semibold uppercase tracking-[0.2em] rounded-full transition-all duration-300 shadow-sm disabled:opacity-50"
                   >
-                    Submit
+                    {submitting ? 'SUBMITTING...' : 'Submit'}
                   </button>
                 </div>
-
+ 
               </form>
             </div>
           </div>
-
+ 
         </div>
       </div>
     </section>

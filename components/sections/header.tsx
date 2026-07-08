@@ -77,20 +77,20 @@ export default function Header() {
           >
             <IoHeartOutline className="w-5 h-5" />
             {wishlistItemCount > 0 && (
-              <span className="absolute -top-1 right-0 flex items-center justify-center w-4 h-4 rounded-full bg-brand-primary text-[9px] font-semibold text-white">
+              <span className="absolute -top-1 right-0 flex items-center justify-center w-4 h-4 rounded-full bg-white text-[9px] font-bold text-zinc-800">
                 {wishlistItemCount}
               </span>
             )}
           </Link>
-
+ 
           <Link
             href="/cart"
             className="relative p-2 hover:text-brand-primary transition-colors"
             aria-label="Shopping Cart"
           >
             <LuShoppingBag className="w-5 h-5" />
-
-            <span className="absolute -top-1 right-0 flex items-center justify-center w-4 h-4 rounded-full bg-brand-primary text-[9px] font-semibold text-white">
+ 
+            <span className="absolute -top-1 right-0 flex items-center justify-center w-4 h-4 rounded-full bg-white text-[9px] font-bold text-zinc-800">
               {cartItemCount}
             </span>
           </Link>

@@ -17,7 +17,13 @@ const fallbackBrands = [
   "/images/brands/brands-6.png",
 ];
 
-export default function Brands() {
+export default function Brands({
+  bgClassName = "bg-[#F6F6F6]",
+  variant = "horizontal",
+}: {
+  bgClassName?: string;
+  variant?: "horizontal" | "vertical";
+}) {
   const [brandList, setBrandList] = useState<any[]>([]);
 
   useEffect(() => {
@@ -52,8 +58,51 @@ export default function Brands() {
     loadBrands();
   }, []);
 
+  if (variant === "vertical") {
+    // Duplicate the logos to support smooth infinite marquee loop
+    const marqueeBrands = [...brandList, ...brandList, ...brandList, ...brandList];
+
+    return (
+      <section className="w-full py-16 bg-white flex flex-col justify-center items-center overflow-hidden">
+        <div className="w-full flex flex-col items-center gap-10">
+          {/* Infinite Marquee Logo Row */}
+          <div className="w-full overflow-hidden relative">
+            <div className="flex gap-8 w-max animate-marquee py-2">
+              {marqueeBrands.map((brand, index) => (
+                <div key={index} className="relative h-14 w-40 flex-shrink-0 flex items-center justify-center">
+                  {brand.logo ? (
+                    <Image
+                      src={brand.logo}
+                      alt={brand.name}
+                      fill
+                      className="object-contain"
+                    />
+                  ) : (
+                    <span className="font-['Bembo_Std'] text-stone-700 uppercase tracking-widest text-xs font-semibold text-center">
+                      {brand.name}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Centered Heading */}
+          <div className="flex justify-center items-start gap-1.5 flex-wrap mt-4">
+            <div className="text-stone-400 text-lg font-normal font-['Bembo_Std'] leading-6">
+              Trusted Across
+            </div>
+            <div className="text-neutral-600 text-lg font-bold font-['Snell_Roundhand_LT_Std'] leading-6">
+              Refined Establishments
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="w-full py-12 px-6 md:px-12 lg:py-16 bg-[#F6F6F6]">
+    <section className={`w-full py-12 px-6 md:px-12 lg:py-16 ${bgClassName}`}>
       <div className="mx-auto">
         <div className="flex flex-col items-center justify-between gap-8 lg:flex-row lg:gap-12 flex-wrap">
           <div className="shrink-0 text-center lg:text-left">

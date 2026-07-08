@@ -25,7 +25,7 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
-    domains: ["images.unsplash.com"],
+    domains: ["images.unsplash.com", "tinyecomapi.neocomerz.com"],
   },
   async rewrites() {
     return [

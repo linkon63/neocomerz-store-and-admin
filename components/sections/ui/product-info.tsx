@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { IoHeartOutline, IoAddOutline, IoRemoveOutline, IoChevronDownOutline } from 'react-icons/io5';
+import { IoHeartOutline, IoHeart, IoAddOutline, IoRemoveOutline, IoChevronDownOutline } from 'react-icons/io5';
 import { useCart } from '@/app/_providers/cart-provider';
 import { useWishlist } from '@/app/_providers/wishlist-provider';
 import { useAuth } from '@/app/_providers/auth-provider';
@@ -20,7 +20,6 @@ export default function ProductInfo({
 }: ProductInfoProps) {
   const [activeTea, setActiveTea] = useState<number | null>(0);
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const { addItem } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { isAuthenticated, setShowAuthModal } = useAuth();
@@ -140,13 +139,18 @@ export default function ProductInfo({
                 })
               : setShowAuthModal(true)
           }
-          className={`w-12 h-12 rounded-full flex items-center justify-center shadow-sm border border-stone-200 transition-colors cursor-pointer ${
-            isWishlisted ? 'bg-[#D31F3A] border-[#d3122f] text-white' : 'bg-white text-stone-800 hover:bg-[#d3122f] hover:text-white'
-
+          className={`w-12 h-12 rounded-full flex items-center justify-center shadow-sm border transition-colors cursor-pointer ${
+            isItInWishlist
+              ? 'bg-brand-primary border-brand-primary text-white hover:bg-opacity-95'
+              : 'bg-white text-stone-850 hover:bg-brand-primary hover:text-white border-stone-200'
           }`}
           aria-label="Add to wishlist"
         >
-          <IoHeartOutline className={`w-5 h-5 ${isItInWishlist ? 'fill-current' : ''}`} />
+          {isItInWishlist ? (
+            <IoHeart className="w-5 h-5" />
+          ) : (
+            <IoHeartOutline className="w-5 h-5" />
+          )}
         </button>
 
         {/* Add to cart Button */}
@@ -163,13 +167,6 @@ export default function ProductInfo({
               quantity,
             })
           }
-          className="flex-1 min-w-[180px] sm:min-w-[220px] px-6 sm:px-10 py-4 whitespace-nowrap bg-[#D31F3A] text-white hover:bg-opacity-95 font-gotham text-sm font-semibold uppercase tracking-wider rounded-full outline outline-1 outline-offset-[-1px] outline-orange-50 flex justify-center items-center shadow-md transition-all cursor-pointer"
-        >
-          Add to cart
-        </button>
-
-        {/* Add to cart Button */}
-        <button
           className="flex-1 min-w-[180px] sm:min-w-[220px] px-6 sm:px-10 py-4 whitespace-nowrap bg-[#D31F3A] text-white hover:bg-opacity-95 font-gotham text-sm font-semibold uppercase tracking-wider rounded-full outline outline-1 outline-offset-[-1px] outline-orange-50 flex justify-center items-center shadow-md transition-all cursor-pointer"
         >
           Add to cart

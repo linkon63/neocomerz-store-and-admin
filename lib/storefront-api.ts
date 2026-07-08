@@ -182,3 +182,54 @@ export async function deleteAvatar(): Promise<void> {
     method: "DELETE",
   });
 }
+
+export interface CustomerNotification {
+  id: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export async function getNotifications(): Promise<CustomerNotification[]> {
+  return customerRequest<CustomerNotification[]>("/notifications");
+}
+
+export async function markNotificationAsRead(id: string): Promise<void> {
+  return customerRequest<void>(`/notifications/${id}/read`, {
+    method: "PATCH",
+  });
+}
+
+export async function markAllNotificationsAsRead(): Promise<void> {
+  return customerRequest<void>("/notifications/read-all", {
+    method: "PATCH",
+  });
+}
+
+export async function deleteNotification(id: string): Promise<void> {
+  return customerRequest<void>(`/notifications/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export interface CreateWholesaleRequestItem {
+  productId: string;
+  variantId?: string;
+  requestedQuantity: number;
+  targetPrice?: number;
+  note?: string;
+}
+
+export interface CreateWholesaleRequestDto {
+  customerNote?: string;
+  contactPhone?: string;
+  items: CreateWholesaleRequestItem[];
+}
+
+export async function submitWholesaleRequest(dto: CreateWholesaleRequestDto): Promise<any> {
+  return customerRequest<any>("/wholesale-requests", {
+    method: "POST",
+    body: JSON.stringify(dto),
+  });
+}

@@ -86,7 +86,7 @@ export default function ProductCard({
             >
               <svg
                 className={`w-5 h-5 transition-colors ${
-                  inWishlist ? 'text-red-500 fill-red-500' : 'text-gray-600'
+                  inWishlist ? 'text-brand-primary fill-brand-primary' : 'text-gray-600'
                 }`}
                 fill={inWishlist ? 'currentColor' : 'none'}
                 stroke="currentColor"
@@ -101,12 +101,12 @@ export default function ProductCard({
             <div className="flex-1">
               {id ? (
                 <Link href={`/products/${id}`} className="cursor-pointer">
-                  <h3 className="text-stone-800 hover:text-brand-3 transition-colors duration-200 text-lg md:text-xl lg:text-2xl font-normal font-gotham line-clamp-2 leading-tight">
+                  <h3 className="text-stone-850 hover:text-brand-3 transition-colors duration-200 text-sm sm:text-base md:text-[17px] font-normal font-gotham line-clamp-2 leading-snug">
                     {name}
                   </h3>
                 </Link>
               ) : (
-                <h3 className="text-stone-800 text-lg md:text-xl lg:text-2xl font-normal font-gotham leading-tight">
+                <h3 className="text-stone-850 text-sm sm:text-base md:text-[17px] font-normal font-gotham leading-snug">
                   {name}
                 </h3>
               )}
@@ -114,16 +114,16 @@ export default function ProductCard({
 
             <div className="flex flex-col items-end gap-1 shrink-0">
               <div className="flex justify-end items-baseline gap-2">
-                <span className="text-stone-800 text-lg md:text-xl font-semibold font-gotham whitespace-nowrap">
+                <span className="text-stone-850 text-sm sm:text-base md:text-[17px] font-normal font-gotham whitespace-nowrap">
                   {price}
                 </span>
                 {originalPrice && (
-                  <span className="text-stone-400 text-sm md:text-base font-normal font-gotham line-through whitespace-nowrap">
+                  <span className="text-stone-400 text-xs sm:text-sm font-normal font-gotham line-through whitespace-nowrap">
                     {originalPrice}
                   </span>
                 )}
               </div>
-              <span className="text-stone-400 text-xs font-medium font-gotham whitespace-nowrap">
+              <span className="text-stone-400 text-[10px] font-normal font-gotham whitespace-nowrap">
                 VAT Included
               </span>
             </div>

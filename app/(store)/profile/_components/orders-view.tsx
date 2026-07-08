@@ -100,7 +100,7 @@ export default function OrdersView() {
         <div className="text-center py-16 border border-dashed border-stone-200">
           <FiShoppingBag className="mx-auto text-4xl text-zinc-300 mb-4" />
           <p className="font-sans text-sm text-zinc-500">
-            You haven't placed any orders yet.
+            You haven&apos;t placed any orders yet.
           </p>
         </div>
       ) : (

@@ -15,7 +15,7 @@ export default function CorporateOrderPage() {
     <main className="flex-grow bg-white w-full">
       <LuxuryHero />
       <TrustFeatures />
-      <Brands />
+      <Brands variant="vertical" />
       <InquiryForm />
     </main>
   );

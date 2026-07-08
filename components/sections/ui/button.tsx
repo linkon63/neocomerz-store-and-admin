@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ButtonProps } from "@/data/types";
-
+ 
 export default function Button({ 
   href, 
   label = "DISCOVER MORE",
@@ -11,7 +11,7 @@ export default function Button({
     secondary: "bg-black text-white hover:bg-opacity-90",
     outline: "bg-transparent text-stone-gray border-2 border-[#B9975B] hover:bg-[#B9975B] hover:text-white",
   };
-
+ 
   return (
     <div className="flex justify-center">
       <Link

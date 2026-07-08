@@ -29,54 +29,62 @@ export default function WishlistView() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="flex flex-col gap-4">
           {wishlistItems.map((item) => (
-            <div key={item.id} className="border border-stone-200 p-4 flex flex-col justify-between gap-4 bg-white relative group">
-              <button
-                type="button"
-                onClick={() => toggleWishlist(item)}
-                className="absolute top-2 right-2 bg-stone-50 border border-stone-100 hover:border-red-200 hover:text-red-500 rounded-full p-2 transition z-10 cursor-pointer animate-fadeIn"
-                aria-label={`Remove ${item.name} from wishlist`}
-              >
-                <FiTrash2 className="text-xs" />
-              </button>
-              
-              <div className="relative w-full aspect-square bg-stone-50 flex items-center justify-center border border-stone-100">
-                <ResolvedImage
-                  src={item.image}
-                  alt={item.name}
-                  className="object-contain p-2"
-                />
+            <div
+              key={item.id}
+              className="border border-stone-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white relative hover:shadow-xs transition-all duration-300"
+            >
+              {/* Product Info (Image + Details) */}
+              <div className="flex items-center gap-4 flex-grow min-w-0">
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-stone-50 flex items-center justify-center border border-stone-100 shrink-0">
+                  <ResolvedImage
+                    src={item.image}
+                    alt={item.name}
+                    className="object-contain p-2"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="font-sans font-bold text-xs sm:text-sm uppercase tracking-wider text-zinc-800 line-clamp-2">
+                    {item.name}
+                  </h4>
+                  <p className="font-sans text-xs sm:text-sm text-zinc-500 font-semibold mt-1">
+                    ৳{Number(item.price).toLocaleString()}
+                  </p>
+                </div>
               </div>
 
-              <div className="text-center space-y-1">
-                <h4 className="font-sans font-bold text-xs uppercase tracking-wider text-zinc-800 line-clamp-1">
-                  {item.name}
-                </h4>
-                <p className="font-sans text-xs text-zinc-500 font-semibold">
-                  ${Number(item.price).toFixed(2)}
-                </p>
-              </div>
+              {/* Actions (Add to Cart + Remove) */}
+              <div className="flex items-center gap-3 w-full sm:w-auto shrink-0">
+                <button
+                  onClick={() => {
+                    addItem({
+                      id: item.id,
+                      name: item.name,
+                      slug: item.slug,
+                      price: item.price,
+                      image: item.image,
+                      quantity: 1,
+                      variantId: item.variantId || "",
+                      color: item.color,
+                      size: item.size
+                    });
+                    toast.success("Added to cart!");
+                  }}
+                  className="flex-1 sm:flex-none bg-[#1A1A1A] hover:bg-stone-850 text-white font-sans text-[10px] font-bold tracking-[0.14em] px-6 py-3 rounded transition uppercase cursor-pointer text-center"
+                >
+                  Add to Cart
+                </button>
 
-              <button
-                onClick={() => {
-                  addItem({
-                    id: item.id,
-                    name: item.name,
-                    slug: item.slug,
-                    price: item.price,
-                    image: item.image,
-                    quantity: 1,
-                    variantId: item.variantId || "",
-                    color: item.color,
-                    size: item.size
-                  });
-                  toast.success("Added to cart!");
-                }}
-                className="w-full bg-[#1A1A1A] hover:bg-stone-850 text-white font-sans text-[10px] font-bold tracking-[0.14em] py-2.5 rounded transition uppercase cursor-pointer"
-              >
-                Add to Cart
-              </button>
+                <button
+                  type="button"
+                  onClick={() => toggleWishlist(item)}
+                  className="bg-stone-50 border border-stone-100 hover:border-red-200 hover:text-red-500 rounded-full p-2.5 transition cursor-pointer"
+                  aria-label={`Remove ${item.name} from wishlist`}
+                >
+                  <FiTrash2 className="text-sm" />
+                </button>
+              </div>
             </div>
           ))}
         </div>
