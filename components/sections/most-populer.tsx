@@ -51,8 +51,9 @@ export default function MostPopuler() {
       <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="font-['Bembo_Std'] text-4xl sm:text-5xl text-neutral-800 font-normal tracking-wide">
-            Most <span className="font-['Snell_Roundhand_LT_Std'] italic text-stone-850 lowercase text-5xl sm:text-6xl -ml-1">Popular</span>
+          <h2 className="inline-flex flex-row justify-center items-baseline gap-2 md:gap-3">
+            <span className="font-['Bembo_Std'] text-[#C6B485] text-4xl sm:text-5xl md:text-6xl font-normal leading-none">Most</span>
+            <span className="font-['Snell_Roundhand_LT_Std'] italic text-[#8E866B] text-4xl sm:text-5xl md:text-6xl font-normal leading-none lowercase">Popular</span>
           </h2>
           <p className="font-['Bembo_Std'] text-[#83847e] text-sm sm:text-base md:text-lg font-normal tracking-wide mt-4 font-light max-w-xl mx-auto leading-relaxed">
             Designed to make a lasting impression for corporate, seasonal, and personal gifting.

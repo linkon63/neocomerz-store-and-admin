@@ -44,8 +44,9 @@ export default function LooseTea() {
           <p className="font-['Bembo_Std'] text-xs sm:text-lg uppercase tracking-wider text-gray-600 mb-2">
             THE COLLECTIONS OF
           </p>
-          <h2 className="font-['Bembo_Std'] text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-olive-slate">
-            Loose <span className="italic font-['Snell_Roundhand_LT_Std']">Tea</span>
+          <h2 className="inline-flex flex-row justify-center items-baseline gap-2 md:gap-3 font-normal text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
+            <span className="font-['Bembo_Std'] text-[#C6B485] leading-none">Loose</span>
+            <span className="font-['Snell_Roundhand_LT_Std'] italic text-[#8E866B] leading-none lowercase">Tea</span>
           </h2>
         </div>
         <div 
