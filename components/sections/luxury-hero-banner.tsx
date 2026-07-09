@@ -13,18 +13,20 @@ export default function LuxuryHero() {
           backgroundRepeat: 'repeat',
           backgroundPosition: 'center',
           backgroundSize: '160px auto',
+          maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 90%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 90%)',
         }}
       />
 
       {/* Hero Content Stack */}
       <div className="relative z-10 max-w-4xl mx-auto text-center flex flex-col items-center gap-12">
         {/* Main Icon (Dark Fleur-de-lis centered at the top) */}
-        <div className="text-[#2A2A2A]">
-          <svg className="w-12 h-12" viewBox="0 0 32 32" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path d="M16 2C16 2 14 9 10 12C11 13 12 15 12.5 17C13 15 14 14 16 14C18 14 19 15 19.5 17C20 15 21 13 22 12C18 9 16 2 16 2Z" />
-            <path d="M16 15C14.5 15 11 16 10 20C12 21 13.5 20 14.5 19C15 21 15.5 24 16 27C16.5 24 17 21 17.5 19C18.5 20 20 21 22 20C21 16 17.5 15 16 15Z" />
-            <path d="M9 22C11 23 13.5 22.5 16 22.5C18.5 22.5 21 23 23 22C22.5 21 21 20.5 16 20.5C11 20.5 9.5 21 9 22Z" />
-          </svg>
+        <div>
+          <img 
+            src="/images/icons/icon-3.svg" 
+            alt="Crest Icon" 
+            className="w-12 h-14 object-contain opacity-90" 
+          />
         </div>
 
         {/* Headings */}

@@ -50,38 +50,16 @@ export default function ContactPage() {
   ];
 
   return (
-    <main className="relative w-full bg-[#1C221F] py-16 px-4 sm:px-6 md:px-8 lg:py-24 overflow-hidden">
-      {/* Subtle Repeating Luxury Diamond Pattern with Fleur-de-lis */}
-      <div className="absolute inset-0 z-0 opacity-15 pointer-events-none">
-        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="luxury-dark-pattern" width="120" height="120" patternUnits="userSpaceOnUse">
-              {/* Diamond Border */}
-              <path d="M 60 0 L 120 60 L 60 120 L 0 60 Z" fill="none" stroke="#D2C498" strokeWidth="0.5" strokeOpacity="0.3" />
-              {/* Centered Fleur-de-lis */}
-              <g transform="translate(48, 48) scale(0.75)" fill="#D2C498" fillOpacity="0.25">
-                <path d="M16 4C16 4 14.5 9 11 11.5C12 12.5 13 14 13.5 16C14 14 15 13 16 13C17 13 18 14 18.5 16C19 14 20 12.5 21 11.5C17.5 9 16 4 16 4Z" />
-                <path d="M16 14.5C14.5 14.5 11 15 10 18.5C12 19 13.5 18 14.5 17C15 18.5 15.5 21 16 23.5C16.5 21 17 18.5 17.5 17C18.5 18 20 19 22 18.5C21 15 17.5 14.5 16 14.5Z" />
-                <path d="M9 19.5C11 20 13.5 19.5 16 19.5C18.5 19.5 21 20 23 19.5C22.5 18.5 21 18 16 18C11 18 9.5 18.5 9 19.5Z" />
-              </g>
-              {/* Corner Fleur-de-lis */}
-              <g transform="translate(-12, -12) scale(0.75)" fill="#D2C498" fillOpacity="0.25">
-                <path d="M16 4C16 4 14.5 9 11 11.5C12 12.5 13 14 13.5 16C14 14 15 13 16 13C17 13 18 14 18.5 16C19 14 20 12.5 21 11.5C17.5 9 16 4 16 4Z" />
-              </g>
-              <g transform="translate(108, -12) scale(0.75)" fill="#D2C498" fillOpacity="0.25">
-                <path d="M16 4C16 4 14.5 9 11 11.5C12 12.5 13 14 13.5 16C14 14 15 13 16 13C17 13 18 14 18.5 16C19 14 20 12.5 21 11.5C17.5 9 16 4 16 4Z" />
-              </g>
-              <g transform="translate(-12, 108) scale(0.75)" fill="#D2C498" fillOpacity="0.25">
-                <path d="M16 4C16 4 14.5 9 11 11.5C12 12.5 13 14 13.5 16C14 14 15 13 16 13C17 13 18 14 18.5 16C19 14 20 12.5 21 11.5C17.5 9 16 4 16 4Z" />
-              </g>
-              <g transform="translate(108, 108) scale(0.75)" fill="#D2C498" fillOpacity="0.25">
-                <path d="M16 4C16 4 14.5 9 11 11.5C12 12.5 13 14 13.5 16C14 14 15 13 16 13C17 13 18 14 18.5 16C19 14 20 12.5 21 11.5C17.5 9 16 4 16 4Z" />
-              </g>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#luxury-dark-pattern)" />
-        </svg>
-      </div>
+    <main className="relative w-full bg-[#4A4C48] py-16 px-4 sm:px-6 md:px-8 lg:py-24 overflow-hidden">
+      {/* Repeating Luxury Pattern Image */}
+      <div 
+        className="absolute inset-0 z-0 opacity-30 pointer-events-none"
+        style={{
+          backgroundImage: "url('/images/pattern/pattern.png')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "150px 150px",
+        }}
+      ></div>
 
       <div className="relative z-10 max-w-6xl mx-auto">
         
@@ -207,13 +185,14 @@ export default function ContactPage() {
               </div>
 
               {/* Vertical Crest Divider */}
-              <div className="hidden lg:flex flex-col items-center justify-between py-6 text-[#C5B382] opacity-50 self-stretch">
+              <div className="hidden lg:flex flex-col items-center justify-between py-6 self-stretch">
                 {[...Array(12)].map((_, i) => (
-                  <svg key={i} className="w-7 h-7 my-1 hover:scale-110 transition-transform duration-300" viewBox="0 0 32 32" fill="currentColor">
-                    <path d="M16 4C16 4 14.5 9 11 11.5C12 12.5 13 14 13.5 16C14 14 15 13 16 13C17 13 18 14 18.5 16C19 14 20 12.5 21 11.5C17.5 9 16 4 16 4Z" />
-                    <path d="M16 14.5C14.5 14.5 11 15 10 18.5C12 19 13.5 18 14.5 17C15 18.5 15.5 21 16 23.5C16.5 21 17 18.5 17.5 17C18.5 18 20 19 22 18.5C21 15 17.5 14.5 16 14.5Z" />
-                    <path d="M9 19.5C11 20 13.5 19.5 16 19.5C18.5 19.5 21 20 23 19.5C22.5 18.5 21 18 16 18C11 18 9.5 18.5 9 19.5Z" />
-                  </svg>
+                  <img 
+                    key={i} 
+                    src="/images/icons/icon-3.svg" 
+                    alt="Crest Icon" 
+                    className="w-7 h-8 my-1 hover:scale-110 transition-transform duration-300 opacity-60"
+                  />
                 ))}
               </div>
 

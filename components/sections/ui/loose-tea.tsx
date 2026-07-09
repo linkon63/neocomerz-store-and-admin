@@ -3,52 +3,31 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import DiscoverMoreButton from "./button";
-import { fetchShopCategories } from "@/lib/shop-api";
-import { resolveImageUrl } from "@/lib/admin-api";
+import { fetchShopProducts, ShopProduct } from "@/lib/shop-api";
 
-const fallbackTeaTypes = [
-  { id: 1, name: "Black tea", image: "/images/tea/tea-1.png" },
-  { id: 2, name: "Green Tea", image: "/images/tea/tea-3.png" },
-  { id: 3, name: "Oolong tea", image: "/images/tea/tea-2.png" },
-  { id: 4, name: "White tea", image: "/images/tea/tea-5.png" },
-  { id: 5, name: "Yellow tea", image: "/images/tea/tea-4.png" },
-  { id: 6, name: "Herbal tea", image: "/images/tea/tea-6.png" },
-  { id: 7, name: "Floral tea", image: "/images/tea/tea-7.png" },
-  { id: 8, name: "Fruit tea", image: "/images/tea/tea.png" },
-];
+const NO_IMAGE = '/images/no-image-icon-6.png';
 
 export default function LooseTea() {
-  const [categories, setCategories] = useState<any[]>([]);
+  const [products, setProducts] = useState<ShopProduct[]>([]);
 
   useEffect(() => {
-    async function loadCategories() {
+    async function loadProducts() {
       try {
-        const fetched = await fetchShopCategories();
-        if (fetched && fetched.length > 0) {
-          setCategories(
-            fetched.map((c, i) => ({
-              id: c.id,
-              name: c.name,
-              image: c.imageUrl ? resolveImageUrl(c.imageUrl) : fallbackTeaTypes[i % fallbackTeaTypes.length].image,
-            }))
-          );
-        } else {
-          setCategories(fallbackTeaTypes);
+        const res = await fetchShopProducts({ limit: 8 });
+        if (res && res.data) {
+          setProducts(res.data);
         }
       } catch (error) {
-        console.error("Failed to fetch categories:", error);
-        setCategories(fallbackTeaTypes);
+        console.error("Failed to fetch products for Loose Tea:", error);
       }
     }
-    loadCategories();
+    loadProducts();
   }, []);
 
   return (
     <section 
       className="relative w-full bg-greenish-gray overflow-hidden flex items-end min-h-175"
     >
-      {/* Top SVG Curve */}
       <svg
         className="absolute top-0 left-0 w-full h-32 md:h-45"
         viewBox="0 0 1440 180"
@@ -61,13 +40,13 @@ export default function LooseTea() {
       </svg>
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
-        {/* Title */}
         <div className="text-center mb-10 md:mb-14">
           <p className="font-['Bembo_Std'] text-xs sm:text-lg uppercase tracking-wider text-gray-600 mb-2">
             THE COLLECTIONS OF
           </p>
-          <h2 className="font-['Bembo_Std'] text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-olive-slate">
-            Loose <span className="italic font-['Snell_Roundhand_LT_Std']">Tea</span>
+          <h2 className="inline-flex flex-row justify-center items-baseline gap-2 md:gap-3 font-normal text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
+            <span className="font-['Bembo_Std'] text-[#C6B485] leading-none">Loose</span>
+            <span className="font-['Snell_Roundhand_LT_Std'] italic text-[#8E866B] leading-none lowercase">Tea</span>
           </h2>
         </div>
         <div 
@@ -76,7 +55,7 @@ export default function LooseTea() {
             clipPath: "ellipse(110% 100% at 50% 50%)",
           }}
         >
-          {categories.map((tea, index) => {
+          {products.slice(0, 8).map((product, index) => {
             const marginTopClasses = [
               'lg:-mt-14',  
               'lg:-mt-8',   
@@ -90,8 +69,8 @@ export default function LooseTea() {
             
             return (
               <Link
-                key={tea.id}
-                href={`/products?category=${encodeURIComponent(tea.name)}`}
+                key={product.id}
+                href={`/products/${product.id}`}
                 className={`flex flex-col items-center group cursor-pointer ${marginTopClasses[index % marginTopClasses.length]}`}
               >
                 <div
@@ -101,16 +80,16 @@ export default function LooseTea() {
                   }}
                 >
                   <Image
-                    src={tea.image}
-                    alt={tea.name}
+                    src={product.image || NO_IMAGE}
+                    alt={product.name}
                     fill
                     sizes="(max-width: 640px) 80px, (max-width: 768px) 96px, (max-width: 1024px) 112px, 112px"
                     className="object-cover"
                     unoptimized
                   />
                 </div>
-                <p className="font-gotham text-xs sm:text-sm text-stone-gray text-center group-hover:text-brand-3 transition-colors">
-                  {tea.name}
+                <p className="font-gotham text-xs sm:text-sm text-stone-gray text-center group-hover:text-brand-3 transition-colors line-clamp-2 max-w-[120px] px-1">
+                  {product.name}
                 </p>
               </Link>
             );
@@ -118,7 +97,12 @@ export default function LooseTea() {
         </div>
 
         <div className="flex justify-center mt-6 md:mt-12">
-          <DiscoverMoreButton href="/products" variant="primary" />
+          <Link
+            href="/products"
+            className="bg-transparent text-stone-700 hover:bg-stone-600 hover:text-white border border-stone-500 font-gotham text-xs sm:text-sm uppercase tracking-wider px-8 py-3 rounded-[100px] transition-all duration-300"
+          >
+            SHOW ALL
+          </Link>
         </div>
       </div>
     </section>

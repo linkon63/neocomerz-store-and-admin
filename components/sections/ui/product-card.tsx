@@ -42,7 +42,7 @@ export default function ProductCard({
 
   return (
     <div className="relative w-full bg-white border border-stone-100 gap-8 overflow-hidden flex flex-col justify-start items-start group shadow-sm hover:shadow-md transition-shadow duration-300 mx-auto">
-      <div className="absolute inset-0 pointer-events-none z-10">
+      <div className="absolute inset-2 pointer-events-none z-10">
         <Image
           src="/images/products/product-card-border.png"
           alt="Product Card Border"
@@ -97,7 +97,7 @@ export default function ProductCard({
             </button>
           </div>
 
-          <div className="w-full flex justify-between items-end gap-4 mt-8">
+          <div className="w-full flex justify-between items-end gap-4 mt-12">
             <div className="flex-1">
               {id ? (
                 <Link href={`/products/${id}`} className="cursor-pointer">
