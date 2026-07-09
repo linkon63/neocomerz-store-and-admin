@@ -24,6 +24,7 @@ const navItems = [
   { label: "TEAS", href: "/sylheti-tea", hasDropdown: true },
   { label: "GIFT SETS", href: "/gift-sets" },
   { label: "CORPORATE ORDER", href: "/corporate-order" },
+  { label: "GLOBAL FAIR PAY CHARTER", href: "/global-fair-pay-charter" },
   { label: "CONTACT", href: "/contact" },
 ];
 
@@ -49,14 +50,14 @@ export default function Header() {
       {/* Desktop Header */}
       <div className="hidden xl:flex items-center justify-between w-full max-w-360 mx-auto px-5 py-2.5 gap-4">
         {/* Search */}
-        <div className="w-55 flex justify-start items-center">
-          <div className="flex items-center gap-1.5 pr-6 py-1.5 border-b border-zinc-400">
-            <IoSearchOutline className="w-5 h-5 text-white" />
+        <div className="w-40 flex justify-start items-center shrink-0">
+          <div className="flex items-center gap-1.5 pr-4 py-1.5 border-b border-zinc-400">
+            <IoSearchOutline className="w-4 h-4 text-white" />
 
             <input
               type="text"
               placeholder="SEARCH"
-              className="bg-transparent text-white placeholder:text-neutral-400 text-sm font-medium uppercase tracking-wider outline-none border-none w-28 focus:w-36 transition-all duration-300"
+              className="bg-transparent text-white placeholder:text-neutral-400 text-xs font-medium uppercase tracking-wider outline-none border-none w-20 focus:w-28 transition-all duration-300"
             />
           </div>
         </div>
@@ -66,7 +67,7 @@ export default function Header() {
           <Navigation />
         </div>
 
-        <div className="w-[220px] flex justify-end items-center gap-1.5">
+        <div className="w-[180px] flex justify-end items-center gap-1 shrink-0">
           
         {/* Right Icons */}
         <div className="w-55 flex justify-end items-center gap-2">

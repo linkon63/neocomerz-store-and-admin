@@ -1,0 +1,55 @@
+export default function CharterVideo() {
+  return (
+    <div className="relative" style={{ marginBottom: "50px" }}>
+      <section className="w-full bg-[#212721] pt-20 pb-28 px-6 md:px-12 lg:px-24 text-white text-center relative">
+        {/* Content */}
+        <div className="max-w-4xl mx-auto flex flex-col items-center space-y-6 relative z-10">
+          {/* Title */}
+          <div className="space-y-1">
+            <h2 className="font-bembo text-2xl md:text-[34px] font-normal leading-snug text-[#b4a676]">
+              Introduction to the
+            </h2>
+            <h3 className="font-snell italic text-2xl md:text-[38px] text-[#b4a676] leading-normal block">
+              Fair Pay Charter Foundation
+            </h3>
+          </div>
+
+          {/* Description */}
+          <p className="font-gotham text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-zinc-400 font-semibold max-w-md leading-loose">
+            An overview of the Foundation&apos;s mandate, its monitoring role, and
+            how the eight articles are put into practice on the ground.
+          </p>
+
+          {/* Video Player Box */}
+          <div className="w-full max-w-3xl relative mt-4">
+            <div className="w-full aspect-video bg-zinc-950 rounded-sm overflow-hidden shadow-2xl border border-zinc-800/50">
+              <iframe
+                src="https://www.youtube.com/embed/CFfP9DFeOog?rel=0&modestbranding=1"
+                title="An Introduction to the Global Fair Pay Charter"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full border-none"
+              />
+            </div>
+
+            {/* Caption at bottom-right of video */}
+            <p className="font-gotham text-[9px] text-zinc-500 uppercase tracking-wider text-right mt-2 pr-1">
+              Produced by: Fair Pay Foundation / London Tea Exchange
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Bottom curved dome — dark bg extending downward into the next section */}
+      <div
+        className="absolute left-1/2 -translate-x-1/2 bg-[#212721] pointer-events-none"
+        style={{
+          width: "120%",
+          height: "100px",
+          bottom: "0",
+          borderRadius: "0 0 50% 50%",
+        }}
+      />
+    </div>
+  );
+}
