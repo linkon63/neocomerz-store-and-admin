@@ -49,13 +49,13 @@ export default function CharterTimeline() {
       <div className="max-w-3xl mx-auto">
         {/* Subtitle & Title */}
         <div className="text-left mb-16">
-          <p className="font-gotham text-xs uppercase tracking-[0.25em] text-[#999999] mb-3">
+          <p className="font-['Gotham'] text-xs uppercase tracking-[0.25em] text-neutral-400 mb-3">
             WHO IS BEHIND IT
           </p>
-          <h2 className="font-bembo text-3xl md:text-[40px] font-normal text-[#212721] leading-tight mb-4">
+          <h2 className="font-['Bembo_Std'] text-3xl md:text-[40px] font-normal text-dark-charcoal leading-tight mb-4">
             How the Charter came to be
           </h2>
-          <p className="font-bembo text-[13px] text-[#999999] leading-relaxed max-w-2xl">
+          <p className="font-['Bembo_Std'] text-[13px] text-neutral-400 leading-relaxed max-w-2xl">
             Assembled from public statements, press coverage, and official announcements. Dates marked &quot;as reported&quot; could not be independently cross-verified beyond a single source.
           </p>
         </div>
@@ -65,20 +65,20 @@ export default function CharterTimeline() {
           {timelineEvents.map((event, idx) => (
             <div key={idx} className="relative group">
               {/* Gold marker dot */}
-              <div className="absolute -left-[37px] top-1.5 w-4 h-4 rounded-full border-[3px] border-[#fbfbfa] bg-[#b4a676] shadow-xs group-hover:scale-110 transition-transform duration-200" />
+              <div className="absolute -left-[37px] top-1.5 w-4 h-4 rounded-full border-[3px] border-[#fbfbfa] bg-khaki-gold shadow-xs group-hover:scale-110 transition-transform duration-200" />
 
               {/* Event Content */}
               <div className="space-y-2">
-                <p className="font-gotham text-[11px] font-medium tracking-[0.2em] text-[#999999] uppercase">
+                <p className="font-['Gotham'] text-[11px] font-medium tracking-[0.2em] text-neutral-400 uppercase">
                   {event.date}
                 </p>
-                <h3 className="font-bembo text-lg md:text-xl font-normal text-[#212721]">
+                <h3 className="font-['Bembo_Std'] text-lg md:text-xl font-normal text-dark-charcoal">
                   {event.title}
                 </h3>
-                <p className="font-bembo text-sm md:text-[15px] text-[#665a5d] leading-relaxed font-normal">
+                <p className="font-['Bembo_Std'] text-sm md:text-[15px] text-rich-black leading-relaxed font-normal">
                   {event.description}
                 </p>
-                <p className="font-bembo italic text-[11px] text-[#999999]">
+                <p className="font-['Bembo_Std'] italic text-[11px] text-neutral-400">
                   {event.source}
                 </p>
               </div>

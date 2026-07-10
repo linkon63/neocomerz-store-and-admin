@@ -47,7 +47,7 @@ export default function CharterPrinciples() {
       <div className="max-w-7xl mx-auto">
         {/* Top Banner: Fairness, Equality, Justice */}
         <div className="flex flex-col items-center justify-center mb-16 text-center">
-          <p className="font-gotham text-xs font-semibold tracking-[0.3em] text-[#999999] uppercase mb-4">
+          <p className="font-['Gotham'] text-xs font-semibold tracking-[0.3em] text-neutral-400 uppercase mb-4">
             FAIRNESS &nbsp;•&nbsp; EQUALITY &nbsp;•&nbsp; JUSTICE
           </p>
           <div className="w-full flex items-center justify-center gap-6 max-w-lg">
@@ -66,26 +66,26 @@ export default function CharterPrinciples() {
           {/* Left Column: Heading and Info */}
           <div className="lg:col-span-5 space-y-8 sticky top-32">
             <div>
-              <p className="font-gotham text-xs uppercase tracking-[0.25em] text-[#999999] mb-3">
+              <p className="font-['Gotham'] text-xs uppercase tracking-[0.25em] text-neutral-400 mb-3">
                 THE CHARTER
               </p>
-              <h2 className="font-bembo text-3xl md:text-[44px] font-normal text-[#212721] leading-tight">
+              <h2 className="font-['Bembo_Std'] text-3xl md:text-[44px] font-normal text-dark-charcoal leading-tight">
                 Eight Articles, One Standard
               </h2>
             </div>
 
-            <p className="font-bembo text-sm md:text-[15px] text-[#665a5d] leading-relaxed">
+            <p className="font-['Bembo_Std'] text-sm md:text-[15px] text-rich-black leading-relaxed">
               The Global Fair Pay Charter was established by the Fair Pay Foundation in 2024 and aligns itself with the United Nations Sustainable Development Goals. Signatories — companies, governments, and civic bodies — commit to all eight articles in full.
             </p>
 
             <div className="pt-4 space-y-2">
               <a
                 href="#"
-                className="inline-block font-gotham text-[11px] font-semibold uppercase tracking-wider text-[#212721] border border-zinc-400 rounded-full px-8 py-3.5 hover:bg-[#212721] hover:text-white transition-colors duration-300"
+                className="inline-block font-['Gotham'] text-[11px] font-semibold uppercase tracking-wider text-dark-charcoal border border-neutral-400 rounded-full px-8 py-3.5 hover:bg-dark-charcoal hover:text-white transition-colors duration-300"
               >
                 DOWNLOAD THE OFFICIAL CHARTER (PDF)
               </a>
-              <p className="font-bembo italic text-[11px] text-[#999999] pl-2">
+              <p className="font-['Bembo_Std'] italic text-[11px] text-neutral-400 pl-2">
                 Source: Fair Pay Foundation, hosted via Long Finance
               </p>
             </div>
@@ -100,20 +100,20 @@ export default function CharterPrinciples() {
               >
                 {/* Article Roman Number Block */}
                 <div className="min-w-[80px] shrink-0">
-                  <span className="font-bembo text-[11px] text-zinc-400 uppercase tracking-widest block">
+                  <span className="font-['Bembo_Std'] text-[11px] text-neutral-400 uppercase tracking-widest block">
                     Article.
                   </span>
-                  <span className="font-bembo text-xl md:text-2xl text-zinc-950 font-normal leading-none">
+                  <span className="font-['Bembo_Std'] text-xl md:text-2xl text-dark-charcoal font-normal leading-none">
                     {art.roman}
                   </span>
                 </div>
 
                 {/* Content */}
                 <div className="space-y-1.5">
-                  <h4 className="font-gotham text-xs font-semibold text-zinc-900 uppercase tracking-wide">
+                  <h4 className="font-['Gotham'] text-xs font-semibold text-dark-charcoal uppercase tracking-wide">
                     {art.title}
                   </h4>
-                  <p className="font-bembo text-xs md:text-[13px] text-[#665a5d] leading-relaxed">
+                  <p className="font-['Bembo_Std'] text-xs md:text-[13px] text-rich-black leading-relaxed">
                     {art.desc}
                   </p>
                 </div>

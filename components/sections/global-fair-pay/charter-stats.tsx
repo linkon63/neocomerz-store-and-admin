@@ -19,12 +19,12 @@ export default function CharterStats() {
           <div className="relative w-[280px] h-[400px] md:w-[320px] md:h-[450px] bg-white text-zinc-900 shadow-2xl rounded-sm transform -rotate-3 hover:rotate-0 transition-transform duration-500 overflow-hidden flex flex-col justify-between p-6 border border-zinc-200">
             {/* Top Row: Brand & UN Logo */}
             <div className="flex justify-between items-start">
-              <span className="font-gotham text-[8px] font-bold tracking-widest text-zinc-800 uppercase">
+              <span className="font-['Gotham'] text-[8px] font-bold tracking-widest text-neutral-600 uppercase">
                 FAIR PAY FOUNDATION
               </span>
               <div className="flex items-center gap-1">
-                <span className="font-gotham text-[8px] font-bold text-zinc-800 uppercase">UN</span>
-                <span className="text-[6px] text-zinc-400 font-gotham leading-none block">
+                <span className="font-['Gotham'] text-[8px] font-bold text-neutral-600 uppercase">UN</span>
+                <span className="text-[6px] text-neutral-400 font-['Gotham'] leading-none block">
                   United Nations Institute for Training and Research
                 </span>
               </div>
@@ -32,10 +32,10 @@ export default function CharterStats() {
 
             {/* Title Block */}
             <div className="my-4 text-center">
-              <span className="font-bembo text-xs text-zinc-500 uppercase tracking-widest block mb-2">
+              <span className="font-['Bembo_Std'] text-xs text-neutral-400 uppercase tracking-widest block mb-2">
                 An Introduction to the
               </span>
-              <h3 className="font-bembo text-xl md:text-2xl font-normal leading-tight text-zinc-900">
+              <h3 className="font-['Bembo_Std'] text-xl md:text-2xl font-normal leading-tight text-dark-charcoal">
                 Global Fair Pay Charter
               </h3>
             </div>
@@ -52,7 +52,7 @@ export default function CharterStats() {
 
             {/* Bottom Row: Chairman Attribution */}
             <div className="border-t border-zinc-200 pt-3 text-center">
-              <p className="font-bembo italic text-[10px] text-zinc-800">
+              <p className="font-['Bembo_Std'] italic text-[10px] text-neutral-600">
                 Sheikh Aliur Rahman OBE, Group Chairman
               </p>
             </div>
@@ -61,21 +61,21 @@ export default function CharterStats() {
 
         {/* Right Side: Large Numbers and Stats */}
         <div className="w-full md:w-1/2 flex flex-col justify-center items-start text-left space-y-8">
-          <h2 className="font-bembo text-3xl md:text-[40px] font-normal leading-tight text-zinc-100 max-w-md">
+          <h2 className="font-['Bembo_Std'] text-3xl md:text-[40px] font-normal leading-tight text-zinc-100 max-w-md">
             A stake in the estate, not just the shelf
           </h2>
 
           <div className="space-y-2">
-            <p className="font-bembo text-6xl md:text-8xl font-normal tracking-tight text-white leading-none">
+            <p className="font-['Bembo_Std'] text-6xl md:text-8xl font-normal tracking-tight text-white leading-none">
               3,400+
             </p>
-            <p className="font-bembo text-sm md:text-base text-[#b4a676] tracking-wider uppercase">
+            <p className="font-['Bembo_Std'] text-sm md:text-base text-khaki-gold tracking-wider uppercase">
               rare & premium teas in the collection
             </p>
           </div>
 
           <div className="w-full border-t border-zinc-800 pt-6">
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-[10px] md:text-xs font-gotham font-semibold tracking-[0.2em] text-[#b4a676]">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-[10px] md:text-xs font-['Gotham'] font-semibold tracking-[0.2em] text-khaki-gold">
               <span>40+ COUNTRIES SOURCED</span>
               <span className="text-zinc-700">•</span>
               <span>SINCE 1999</span>

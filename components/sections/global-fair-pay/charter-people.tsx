@@ -77,21 +77,21 @@ export default function CharterPeople() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-16">
-          <p className="font-gotham text-xs uppercase tracking-[0.25em] text-[#999999] mb-3">
+          <p className="font-['Gotham'] text-xs uppercase tracking-[0.25em] text-neutral-400 mb-3">
             WHO IS BEHIND IT
           </p>
-          <h2 className="font-bembo text-3xl md:text-[40px] font-normal text-[#212721] leading-tight mb-4">
+          <h2 className="font-['Bembo_Std'] text-3xl md:text-[40px] font-normal text-dark-charcoal leading-tight mb-4">
             Countries, Founders, & Partners Involved
           </h2>
-          <p className="font-bembo text-sm text-[#999999] leading-relaxed max-w-3xl">
+          <p className="font-['Bembo_Std'] text-sm text-neutral-400 leading-relaxed max-w-3xl">
             Compiled from official announcements, press coverage, and public statements by the individuals and organizations named below.
           </p>
         </div>
 
         {/* Section 1: Countries Involved */}
         <div className="mb-16 space-y-6">
-          <div className="flex items-center gap-2 text-zinc-800 font-gotham text-xs uppercase tracking-wider font-semibold">
-            <FiGlobe className="text-base text-zinc-500" />
+          <div className="flex items-center gap-2 text-dark-charcoal font-['Gotham'] text-xs uppercase tracking-wider font-semibold">
+            <FiGlobe className="text-base text-neutral-400" />
             <span>Countries Involved</span>
           </div>
 
@@ -99,22 +99,22 @@ export default function CharterPeople() {
             {countries.map((country) => (
               <span
                 key={country}
-                className="font-gotham text-[11px] font-medium text-zinc-800 tracking-wider border border-zinc-200 px-4 py-2 rounded-full hover:border-[#b4a676] hover:bg-zinc-50 transition-colors"
+                className="font-['Gotham'] text-[11px] font-medium text-dark-charcoal tracking-wider border border-zinc-200 px-4 py-2 rounded-full hover:border-khaki-gold hover:bg-zinc-50 transition-colors"
               >
                 {country}
               </span>
             ))}
           </div>
 
-          <p className="font-bembo text-xs md:text-sm text-[#665a5d] leading-relaxed max-w-5xl">
+          <p className="font-['Bembo_Std'] text-xs md:text-sm text-rich-black leading-relaxed max-w-5xl">
             The UK and Bangladesh host the Charter&apos;s confirmed launch and partnership activity. The remaining countries listed are major global tea producers that the mission concerns; a public 2025 statement by Dame Lauran Bush referred to active conversations in 17 further countries, which could not be independently itemised at the time of writing.
           </p>
         </div>
 
         {/* Section 2: Founders & Key People */}
         <div className="mb-16 space-y-8">
-          <div className="flex items-center gap-2 text-zinc-800 font-gotham text-xs uppercase tracking-wider font-semibold">
-            <FiUsers className="text-base text-zinc-500" />
+          <div className="flex items-center gap-2 text-dark-charcoal font-['Gotham'] text-xs uppercase tracking-wider font-semibold">
+            <FiUsers className="text-base text-neutral-400" />
             <span>Founders & key people</span>
           </div>
 
@@ -122,13 +122,13 @@ export default function CharterPeople() {
             {founders.map((person, idx) => (
               <div key={idx} className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center shrink-0 border border-zinc-200">
-                  <FiUser className="text-zinc-500 text-lg" />
+                  <FiUser className="text-neutral-400 text-lg" />
                 </div>
                 <div className="space-y-1">
-                  <h4 className="font-gotham text-xs font-semibold text-zinc-800 uppercase tracking-wide">
+                  <h4 className="font-['Gotham'] text-xs font-semibold text-dark-charcoal uppercase tracking-wide">
                     {person.name}
                   </h4>
-                  <p className="font-bembo text-xs md:text-[13px] text-[#665a5d] leading-relaxed">
+                  <p className="font-['Bembo_Std'] text-xs md:text-[13px] text-rich-black leading-relaxed">
                     {person.role}
                   </p>
                 </div>
@@ -139,21 +139,21 @@ export default function CharterPeople() {
 
         {/* Section 3: Partner & Endorsing Organizations */}
         <div className="space-y-8">
-          <div className="flex items-center gap-2 text-zinc-800 font-gotham text-xs uppercase tracking-wider font-semibold">
-            <FiBriefcase className="text-base text-zinc-500" />
+          <div className="flex items-center gap-2 text-dark-charcoal font-['Gotham'] text-xs uppercase tracking-wider font-semibold">
+            <FiBriefcase className="text-base text-neutral-400" />
             <span>Partner & endorsing organizations</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-10">
             {organizations.map((org, idx) => (
               <div key={idx} className="space-y-2">
-                <h4 className="font-gotham text-xs font-semibold text-zinc-800 uppercase tracking-wide">
+                <h4 className="font-['Gotham'] text-xs font-semibold text-dark-charcoal uppercase tracking-wide">
                   {org.name}
                 </h4>
-                <p className="font-gotham text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
+                <p className="font-['Gotham'] text-[10px] font-semibold text-neutral-400 uppercase tracking-wider">
                   {org.subtitle}
                 </p>
-                <p className="font-bembo text-xs md:text-[13px] text-[#665a5d] leading-relaxed">
+                <p className="font-['Bembo_Std'] text-xs md:text-[13px] text-rich-black leading-relaxed">
                   {org.desc}
                 </p>
               </div>

@@ -9,7 +9,7 @@ import CharterQuote from "@/components/sections/global-fair-pay/charter-quote";
 
 export default function GlobalFairPayCharter() {
   return (
-    <div className="bg-[#fbfbfa] min-h-screen">
+    <div className="bg-[#fbfbfa] min-h-screen overflow-x-hidden">
       {/* 1. Hero / Header Area */}
       <CharterHero />
 
