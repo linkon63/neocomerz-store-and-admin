@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
 
@@ -85,14 +86,7 @@ export default function StorefrontFooter() {
               Payment Methods
             </h2>
             <div className="mt-4 flex flex-wrap gap-2">
-              {paymentMethods.map((method) => (
-                <span
-                  key={method}
-                  className="inline-flex h-8 items-center rounded bg-neutral-800 px-3 text-sm font-black text-white"
-                >
-                  {method}
-                </span>
-              ))}
+              <Image src="/images/payment/all-payment.jpg" alt="Payment methods" width={280} height={40} className="object-contain" />
             </div>
           </div>
         </div>

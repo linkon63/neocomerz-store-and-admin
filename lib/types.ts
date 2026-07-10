@@ -118,4 +118,6 @@ export type OrderResult = {
   total: number;
   items: OrderResultItem[];
   address: AddressForm;
+  paymentMethod?: string;
+  orderNote?: string;
 };

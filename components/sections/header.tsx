@@ -166,7 +166,7 @@ export default function Header() {
 
         <Link href="/" className="flex items-center">
           <Image
-            src="/images/logo/uodate-logo.png"
+            src="/images/logo/Logo-update.png"
             alt="London Tea Exchange"
             width={56}
             height={56}
