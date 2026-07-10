@@ -11,15 +11,15 @@ export default function TopSlider() {
   const { slider } = data;
 
   return (
-    <div className="flex items-center gap-2 text-white w-full justify-center">
+    <div className="flex items-center gap-1 sm:gap-2 text-white w-full justify-center">
       <button 
-        className="topslider-prev cursor-pointer hover:opacity-80 transition-opacity shrink-0 flex items-center justify-center text-white px-1"
+        className="topslider-prev cursor-pointer hover:opacity-80 transition-opacity shrink-0 hidden sm:flex items-center justify-center text-white px-0.5 sm:px-1"
         aria-label="Previous slide"
       >
-        <IoChevronBack className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+        <IoChevronBack className="w-3 h-3 sm:w-4 sm:h-4" />
       </button>
 
-      <div className="flex-grow overflow-hidden max-w-lg sm:max-w-xl px-1">
+      <div className="flex-grow overflow-hidden px-0.5 sm:px-1">
         <Swiper
           modules={[Navigation, Autoplay]}
           navigation={{
@@ -37,7 +37,7 @@ export default function TopSlider() {
           {slider.slides.map((text: string, index: number) => (
             <SwiperSlide key={index}>
               <div className="text-center">
-                <span className="font-gotham text-white text-[10px] sm:text-xs md:text-sm font-normal tracking-wide underline cursor-pointer hover:opacity-95 transition-opacity whitespace-nowrap">
+                <span className="font-gotham text-white text-[10px] sm:text-xs md:text-sm font-normal tracking-wide cursor-pointer hover:opacity-95 transition-opacity">
                   {text}
                 </span>
               </div>
@@ -47,10 +47,10 @@ export default function TopSlider() {
       </div>
 
       <button 
-        className="topslider-next cursor-pointer hover:opacity-80 transition-opacity shrink-0 flex items-center justify-center text-white px-1"
+        className="topslider-next cursor-pointer hover:opacity-80 transition-opacity shrink-0 hidden sm:flex items-center justify-center text-white px-0.5 sm:px-1"
         aria-label="Next slide"
       >
-        <IoChevronForward className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+        <IoChevronForward className="w-3 h-3 sm:w-4 sm:h-4" />
       </button>
     </div>
   );
