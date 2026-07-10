@@ -21,11 +21,6 @@ export function usePlaceOrder() {
     setSubmitting(true);
     const token = getCustomerToken();
 
-    const orderPayload = {
-      paymentMethod: extra?.paymentMethod,
-      orderNote: extra?.orderNote,
-    };
-
     try {
       let data: Record<string, unknown>;
 
@@ -64,7 +59,6 @@ export function usePlaceOrder() {
           },
           body: JSON.stringify({
             addressId: savedAddress.id,
-            ...orderPayload,
           }),
         });
 
@@ -75,10 +69,10 @@ export function usePlaceOrder() {
 
         data = await orderRes.json();
       } else {
-        const lineItems = items.map((i) => ({
-          variantId: i.variantId || i.slug,
-          quantity: i.quantity,
-        }));
+        const lineItems = items.map((i) => {
+          if (!i.variantId) throw new Error(`Missing variant for "${i.name}". Please remove and re-add the item.`);
+          return { variantId: i.variantId, quantity: i.quantity };
+        });
 
         const res = await fetch(`${BASE_URL}/orders/guest`, {
           method: "POST",
@@ -96,7 +90,6 @@ export function usePlaceOrder() {
               country: address.country,
             },
             items: lineItems,
-            ...orderPayload,
           }),
         });
 

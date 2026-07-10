@@ -19,14 +19,17 @@ export default function MapPickerModal({ open, onClose, onSelect }: MapPickerMod
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
-  const onSelectRef = useRef(onSelect);
-  useEffect(() => {
-    onSelectRef.current = onSelect;
-  }, [onSelect]);
 
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [leaflet, setLeaflet] = useState<typeof import("leaflet") | null>(null);
+  const [selectedAddress, setSelectedAddress] = useState<{
+    addressLine1: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -99,7 +102,7 @@ export default function MapPickerModal({ open, onClose, onSelect }: MapPickerMod
           const a = addr.address;
           const street = [a.house_number, a.road].filter(Boolean).join(" ");
           const city = a.city || a.town || a.village || "";
-          onSelectRef.current({
+          setSelectedAddress({
             addressLine1: street,
             city,
             state: a.state || "",
@@ -206,15 +209,26 @@ export default function MapPickerModal({ open, onClose, onSelect }: MapPickerMod
 
         {/* Footer */}
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-zinc-200 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
-          <p className="font-gotham text-xs text-[#999999] text-center sm:text-left">
-            Click on the map or drag the marker to set your location
-          </p>
+          {selectedAddress ? (
+            <p className="font-gotham text-xs text-[#4A4A4A] text-center sm:text-left truncate max-w-[250px]">
+              <span className="font-medium">Selected:</span> {selectedAddress.addressLine1}, {selectedAddress.city}
+            </p>
+          ) : (
+            <p className="font-gotham text-xs text-[#999999] text-center sm:text-left">
+              Click on the map or drag the marker to set your location
+            </p>
+          )}
           <button
             type="button"
-            onClick={onClose}
-            className="w-full sm:w-auto px-6 py-2 bg-[#C51E3A] text-white font-gotham text-sm rounded-full hover:bg-opacity-90 transition-colors cursor-pointer"
+            onClick={() => {
+              if (selectedAddress) {
+                onSelect(selectedAddress);
+              }
+            }}
+            disabled={!selectedAddress}
+            className="w-full sm:w-auto px-6 py-2 bg-[#C51E3A] text-white font-gotham text-sm rounded-full hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
-            Done
+            {selectedAddress ? "Confirm Location" : "Select a Location"}
           </button>
         </div>
       </div>

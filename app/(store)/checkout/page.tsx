@@ -108,56 +108,45 @@ export default function CheckoutPage() {
               {/* Dashed Border Billing Box */}
               <div className="border border-dashed border-zinc-300 p-4 rounded-sm space-y-5">
                 {/* User Info */}
-                {isAuthenticated && user ? (
-                  <div className="space-y-1">
-                    <p className="font-gotham text-xl font-medium text-[#222222]">
-                      {user.name}
-                    </p>
-                    <p className="font-gotham text-lg text-[#999999]">
-                      {user.phone || address.phone || "+8801738 552 616"}
-                    </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block font-gotham text-sm font-medium text-[#222222] mb-1">
+                      Full Name *
+                    </label>
+                    <input
+                      required
+                      value={address.fullName}
+                      onChange={(e) => setAddress({ ...address, fullName: e.target.value })}
+                      placeholder="Enter full name"
+                      className="w-full p-3 rounded-md outline outline-1 outline-offset-[-1px] outline-zinc-300 font-gotham text-sm text-[#222222] placeholder:text-zinc-300 placeholder:text-xs placeholder:font-medium placeholder:font-['Gotham'] leading-4 focus:outline-stone-500"
+                    />
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block font-gotham text-sm font-medium text-[#222222] mb-1">
-                        Full Name *
-                      </label>
-                      <input
-                        required
-                        value={address.fullName}
-                        onChange={(e) => setAddress({ ...address, fullName: e.target.value })}
-                        placeholder="Enter full name"
-                        className="w-full p-3 rounded-md outline outline-1 outline-offset-[-1px] outline-zinc-300 font-gotham text-sm text-[#222222] placeholder:text-zinc-300 placeholder:text-xs placeholder:font-medium placeholder:font-['Gotham'] leading-4 focus:outline-stone-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block font-gotham text-sm font-medium text-[#222222] mb-1">
-                        Email *
-                      </label>
-                      <input
-                        required
-                        type="email"
-                        value={address.email}
-                        onChange={(e) => setAddress({ ...address, email: e.target.value })}
-                        placeholder="Enter email address"
-                        className="w-full p-3 rounded-md outline outline-1 outline-offset-[-1px] outline-zinc-300 font-gotham text-sm text-[#222222] placeholder:text-zinc-300 placeholder:text-xs placeholder:font-medium placeholder:font-['Gotham'] leading-4 focus:outline-stone-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block font-gotham text-sm font-medium text-[#222222] mb-1">
-                        Phone *
-                      </label>
-                      <input
-                        required
-                        value={address.phone}
-                        onChange={(e) => setAddress({ ...address, phone: e.target.value })}
-                        placeholder="Enter phone number"
-                        className="w-full p-3 rounded-md outline outline-1 outline-offset-[-1px] outline-zinc-300 font-gotham text-sm text-[#222222] placeholder:text-zinc-300 placeholder:text-xs placeholder:font-medium placeholder:font-['Gotham'] leading-4 focus:outline-stone-500"
-                      />
-                    </div>
+                  <div>
+                    <label className="block font-gotham text-sm font-medium text-[#222222] mb-1">
+                      Email *
+                    </label>
+                    <input
+                      required
+                      type="email"
+                      value={address.email}
+                      onChange={(e) => setAddress({ ...address, email: e.target.value })}
+                      placeholder="Enter email address"
+                      className="w-full p-3 rounded-md outline outline-1 outline-offset-[-1px] outline-zinc-300 font-gotham text-sm text-[#222222] placeholder:text-zinc-300 placeholder:text-xs placeholder:font-medium placeholder:font-['Gotham'] leading-4 focus:outline-stone-500"
+                    />
                   </div>
-                )}
+                  <div>
+                    <label className="block font-gotham text-sm font-medium text-[#222222] mb-1">
+                      Phone *
+                    </label>
+                    <input
+                      required
+                      value={address.phone}
+                      onChange={(e) => setAddress({ ...address, phone: e.target.value })}
+                      placeholder="Enter phone number"
+                      className="w-full p-3 rounded-md outline outline-1 outline-offset-[-1px] outline-zinc-300 font-gotham text-sm text-[#222222] placeholder:text-zinc-300 placeholder:text-xs placeholder:font-medium placeholder:font-['Gotham'] leading-4 focus:outline-stone-500"
+                    />
+                  </div>
+                </div>
 
                 {/* Province, City, Town Row */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -335,14 +324,18 @@ export default function CheckoutPage() {
                 </p>
 
                 <div className="space-y-3">
-                  {/* Online Payment - Selected */}
-                  <label className="flex items-start gap-3 p-4 border border-[#D1D5DB] rounded-md cursor-pointer transition-colors hover:border-stone-400">
+                  {/* Online Payment */}
+                  <label className={`flex items-start gap-3 p-4 border rounded-md cursor-pointer transition-colors hover:border-stone-400 ${paymentMethod === "online" ? "border-[#A3926B]" : "border-[#D1D5DB]"}`}>
                     <div className="mt-0.5 shrink-0">
-                      <div className="w-5 h-5 rounded-full bg-[#A3926B] flex items-center justify-center">
-                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
+                      {paymentMethod === "online" ? (
+                        <div className="w-5 h-5 rounded-full bg-[#A3926B] flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      ) : (
+                        <div className="w-5 h-5 rounded-full border border-zinc-300" />
+                      )}
                     </div>
                     <input
                       type="radio"
@@ -370,9 +363,17 @@ export default function CheckoutPage() {
                   </label>
 
                   {/* Cash on Delivery */}
-                  <label className="flex items-start gap-3 p-4 border border-[#D1D5DB] rounded-md cursor-pointer transition-colors hover:border-stone-400">
+                  <label className={`flex items-start gap-3 p-4 border rounded-md cursor-pointer transition-colors hover:border-stone-400 ${paymentMethod === "cod" ? "border-[#A3926B]" : "border-[#D1D5DB]"}`}>
                     <div className="mt-0.5 shrink-0">
-                      <div className="w-5 h-5 rounded-full border border-zinc-300" />
+                      {paymentMethod === "cod" ? (
+                        <div className="w-5 h-5 rounded-full bg-[#A3926B] flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      ) : (
+                        <div className="w-5 h-5 rounded-full border border-zinc-300" />
+                      )}
                     </div>
                     <input
                       type="radio"

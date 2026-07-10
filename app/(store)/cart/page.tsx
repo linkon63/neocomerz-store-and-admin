@@ -37,8 +37,9 @@ export default function CartPage() {
 
   const handleToggleWishlist = useCallback(
     (item: (typeof items)[0]) => {
+      const productId = item.productId || item.id || item.slug;
       const wishlistItem: WishlistProduct = {
-        id: item.id || item.slug,
+        id: productId,
         name: item.name,
         slug: item.slug,
         price: item.price,
@@ -90,13 +91,12 @@ export default function CartPage() {
 
               <div>
                 {items.map((item) => {
-                  const inWishlist = isInWishlist(item.id || item.slug);
+                  const inWishlist = isInWishlist(item.productId || item.id || item.slug);
                   return (
-                    <div
-                      key={item.slug}
-                      className="border-t border-b border-zinc-100 py-4 sm:py-5 group"
-                    >
-                      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                      <div
+                        key={item.slug}
+                        className="border-t border-b border-zinc-100 py-4 sm:py-5 group"
+                      >
                         <div className="flex gap-4 sm:gap-6">
                           <div className="w-20 sm:w-32 h-28 sm:h-40 relative bg-stone-50 rounded-md shrink-0 shadow-sm">
                             {item.image && (
@@ -110,7 +110,7 @@ export default function CartPage() {
                             )}
                           </div>
 
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0 flex flex-col">
                             <h3 className="font-gotham text-base sm:text-xl text-[#4A4A4A] leading-tight">
                               {item.name}
                             </h3>
@@ -125,61 +125,64 @@ export default function CartPage() {
                             <p className="hidden sm:block font-bembo text-stone-500 text-xs sm:text-sm mt-2 sm:mt-3 leading-relaxed">
                               Each product consists of a beautifully crafted box containing three types of our hand-stitched tea bags.
                             </p>
-                          </div>
-                        </div>
 
-                        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-3 sm:gap-0 sm:min-w-[120px]">
-                          <p className="font-gotham text-lg sm:text-2xl text-[#222222] font-semibold whitespace-nowrap sm:mb-2">
-                            {formatCurrency(item.price)}
-                          </p>
-                          {item.quantity > 1 && (
-                            <p className="font-gotham text-xs text-[#999999] sm:mt-1 sm:mb-4">
-                              Total: {formatCurrency(item.price * item.quantity)}
-                            </p>
-                          )}
+                            <div className="mt-auto pt-3 sm:pt-4">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="font-gotham text-lg sm:text-2xl text-[#222222] font-semibold whitespace-nowrap">
+                                    {formatCurrency(item.price)}
+                                  </p>
+                                  {item.quantity > 1 && (
+                                    <p className="font-gotham text-xs text-[#999999] mt-1">
+                                      Total: {formatCurrency(item.price * item.quantity)}
+                                    </p>
+                                  )}
+                                </div>
 
-                          <div className="flex items-center gap-2 sm:mt-0">
-                            <div className="flex items-center">
-                              <button
-                                onClick={() => handleDecrement(item.slug, item.quantity)}
-                                className="w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white text-stone-800 hover:bg-neutral-100 transition-all cursor-pointer active:scale-95"
-                                aria-label="Decrease quantity"
-                              >
-                                <LuMinus className="w-3 sm:w-4 h-3 sm:h-4" />
-                              </button>
-                              <div className="w-8 sm:w-12 flex justify-center items-center">
-                                <span className="font-gotham text-base sm:text-lg font-normal text-[#222222]">
-                                  {item.quantity}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                  <div className="flex items-center">
+                                    <button
+                                      onClick={() => handleDecrement(item.slug, item.quantity)}
+                                      className="w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white text-stone-800 hover:bg-neutral-100 transition-all cursor-pointer active:scale-95"
+                                      aria-label="Decrease quantity"
+                                    >
+                                      <LuMinus className="w-3 sm:w-4 h-3 sm:h-4" />
+                                    </button>
+                                    <div className="w-8 sm:w-12 flex justify-center items-center">
+                                      <span className="font-gotham text-base sm:text-lg font-normal text-[#222222]">
+                                        {item.quantity}
+                                      </span>
+                                    </div>
+                                    <button
+                                      onClick={() => updateQuantity(item.slug, item.quantity + 1)}
+                                      className="w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white text-stone-800 hover:bg-neutral-100 transition-all cursor-pointer active:scale-95"
+                                      aria-label="Increase quantity"
+                                    >
+                                      <LuPlus className="w-3 sm:w-4 h-3 sm:h-4" />
+                                    </button>
+                                  </div>
+
+                                  <button
+                                    onClick={() => handleToggleWishlist(item)}
+                                    className={`w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white transition-all cursor-pointer active:scale-95 ${
+                                      inWishlist
+                                        ? "text-[#d3122f] border-[#d3122f]"
+                                        : "text-stone-800 hover:bg-[#d3122f] hover:text-white hover:border-[#d3122f]"
+                                    }`}
+                                    aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                                  >
+                                    {inWishlist ? (
+                                      <IoHeart className="w-3 sm:w-4 h-3 sm:h-4" />
+                                    ) : (
+                                      <IoHeartOutline className="w-3 sm:w-4 h-3 sm:h-4" />
+                                    )}
+                                  </button>
+                                </div>
                               </div>
-                              <button
-                                onClick={() => updateQuantity(item.slug, item.quantity + 1)}
-                                className="w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white text-stone-800 hover:bg-neutral-100 transition-all cursor-pointer active:scale-95"
-                                aria-label="Increase quantity"
-                              >
-                                <LuPlus className="w-3 sm:w-4 h-3 sm:h-4" />
-                              </button>
                             </div>
-
-                            <button
-                              onClick={() => handleToggleWishlist(item)}
-                              className={`w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white transition-all cursor-pointer active:scale-95 ${
-                                inWishlist
-                                  ? "text-[#d3122f] border-[#d3122f]"
-                                  : "text-stone-800 hover:bg-[#d3122f] hover:text-white hover:border-[#d3122f]"
-                              }`}
-                              aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
-                            >
-                              {inWishlist ? (
-                                <IoHeart className="w-3 sm:w-4 h-3 sm:h-4" />
-                              ) : (
-                                <IoHeartOutline className="w-3 sm:w-4 h-3 sm:h-4" />
-                              )}
-                            </button>
                           </div>
                         </div>
                       </div>
-                    </div>
                   );
                 })}
               </div>
