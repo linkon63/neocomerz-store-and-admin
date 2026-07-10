@@ -7,6 +7,7 @@ export type CartItem = {
   size: string;
   quantity: number;
   id?: string;
+  productId?: string;
   variantId?: string;
 };
 
@@ -118,4 +119,6 @@ export type OrderResult = {
   total: number;
   items: OrderResultItem[];
   address: AddressForm;
+  paymentMethod?: string;
+  orderNote?: string;
 };

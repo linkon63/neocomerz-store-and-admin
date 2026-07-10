@@ -34,6 +34,7 @@ export function mapBackendCartItem(item: BackendCartItem): CartItem {
     color: "",
     size: "",
     quantity: item.quantity,
+    productId: p.id,
     variantId: item.variantId,
   };
 }

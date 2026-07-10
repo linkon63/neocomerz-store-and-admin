@@ -83,7 +83,7 @@ export default function WishlistPage() {
                         image: product.image,
                         color: product.color,
                         size: product.size,
-                        variantId: product.id,
+                        variantId: product.variantId || product.id,
                       })
                     }
                     className="flex items-center gap-2 px-4 py-2.5 bg-stone-800 text-white text-xs font-semibold uppercase tracking-wider hover:bg-stone-700 transition-colors cursor-pointer whitespace-nowrap"

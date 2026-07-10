@@ -58,6 +58,10 @@ export default function WishlistView() {
               <div className="flex items-center gap-3 w-full sm:w-auto shrink-0">
                 <button
                   onClick={() => {
+                    if (!item.variantId) {
+                      toast.error("Cannot add item: missing variant");
+                      return;
+                    }
                     addItem({
                       id: item.id,
                       name: item.name,
@@ -65,7 +69,7 @@ export default function WishlistView() {
                       price: item.price,
                       image: item.image,
                       quantity: 1,
-                      variantId: item.variantId || "",
+                      variantId: item.variantId,
                       color: item.color,
                       size: item.size
                     });

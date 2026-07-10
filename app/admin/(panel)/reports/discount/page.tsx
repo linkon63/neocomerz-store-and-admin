@@ -129,7 +129,7 @@ export default function DiscountReportPage() {
               <div className="h-12 animate-pulse rounded bg-slate-100" key={i} />
             ))}
           </div>
-        ) : report?.couponBreakdown.length === 0 ? (
+        ) : report?.couponBreakdown?.length === 0 ? (
           <div className="p-6 text-center font-medium text-slate-400">
             No coupons used in this period.
           </div>
@@ -147,7 +147,7 @@ export default function DiscountReportPage() {
                 </tr>
               </thead>
               <tbody>
-                {report?.couponBreakdown.map((coupon) => (
+                {report?.couponBreakdown?.map((coupon) => (
                   <tr
                     className="border-b border-slate-50 font-black transition hover:bg-slate-50/50"
                     key={coupon.id}
@@ -188,7 +188,7 @@ export default function DiscountReportPage() {
               <div className="h-12 animate-pulse rounded bg-slate-100" key={i} />
             ))}
           </div>
-        ) : report?.discountedOrders.items.length === 0 ? (
+        ) : report?.discountedOrders?.items?.length === 0 ? (
           <div className="p-6 text-center font-medium text-slate-400">
             No discounted orders in this period.
           </div>
@@ -205,7 +205,7 @@ export default function DiscountReportPage() {
                 </tr>
               </thead>
               <tbody>
-                {report?.discountedOrders.items.map((order) => (
+                {report?.discountedOrders?.items?.map((order) => (
                   <tr
                     className="border-b border-slate-50 font-black transition hover:bg-slate-50/50"
                     key={order.orderId}
@@ -218,7 +218,7 @@ export default function DiscountReportPage() {
                       -{formatMoney(order.discountAmount, symbol)}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      {formatMoney(order.orderTotal, symbol)}
+                      {formatMoney(order?.orderTotal, symbol)}
                     </td>
                     <td className="px-6 py-4 text-slate-500">
                       {formatDate(order.placedAt)}

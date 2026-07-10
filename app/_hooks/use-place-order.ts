@@ -14,7 +14,10 @@ export function usePlaceOrder() {
 
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
-  const placeOrder = async (address: AddressForm): Promise<OrderResult> => {
+  const placeOrder = async (
+    address: AddressForm,
+    extra?: { paymentMethod?: string; orderNote?: string }
+  ): Promise<OrderResult> => {
     setSubmitting(true);
     const token = getCustomerToken();
 
@@ -54,7 +57,9 @@ export function usePlaceOrder() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ addressId: savedAddress.id }),
+          body: JSON.stringify({
+            addressId: savedAddress.id,
+          }),
         });
 
         if (!orderRes.ok) {
@@ -64,12 +69,10 @@ export function usePlaceOrder() {
 
         data = await orderRes.json();
       } else {
-        const lineItems = items
-          .filter((i) => i.variantId)
-          .map((i) => ({
-            variantId: i.variantId,
-            quantity: i.quantity,
-          }));
+        const lineItems = items.map((i) => {
+          if (!i.variantId) throw new Error(`Missing variant for "${i.name}". Please remove and re-add the item.`);
+          return { variantId: i.variantId, quantity: i.quantity };
+        });
 
         const res = await fetch(`${BASE_URL}/orders/guest`, {
           method: "POST",
@@ -108,6 +111,8 @@ export function usePlaceOrder() {
           image: i.image,
         })),
         address: { ...address },
+        paymentMethod: extra?.paymentMethod,
+        orderNote: extra?.orderNote,
       };
 
       clearCart();
