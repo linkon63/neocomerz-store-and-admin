@@ -61,14 +61,15 @@ const categories = [
 ];
 
 const leftNavItems = [
-  { label: "Home", href: "/" },
-  { label: "ABOUT US", href: "/about" },
+  { label: "HOME", href: "/" },
   { label: "TEAS", href: "/sylheti-tea", hasDropdown: true },
+  { label: "GIFTS", href: "/gift-sets" },
+  { label: "CORPORATE ORDER", href: "/corporate-order" },
 ];
 
 const rightNavItems = [
-  { label: "GIFTS", href: "/gift-sets" },
-  { label: "CORPORATE ORDER", href: "/corporate-order" },
+  { label: "ABOUT US", href: "/about" },
+  { label: "GLOBAL FAIR PAY CHARTER", href: "/global-fair-pay-charter" },
   { label: "CONTACT", href: "/contact" },
 ];
 
@@ -107,7 +108,7 @@ export default function Navigation() {
     >
       <Link
         href={item.href}
-        className={`font-gotham text-sm font-semibold uppercase tracking-wider transition-colors flex items-center gap-1 py-2 ${
+        className={`font-gotham text-[10.5px] font-semibold uppercase tracking-wide whitespace-nowrap transition-colors flex items-center gap-1 py-2 ${
           isActive(item.href)
             ? "text-brand-primary"
             : "text-white hover:text-brand-primary"
@@ -201,12 +202,14 @@ export default function Navigation() {
   );
 
   return (
-    <nav className="relative hidden xl:flex items-center gap-6 xl:gap-8">
-      <div className="flex items-center gap-6 xl:gap-8">
+    <nav className="relative hidden xl:flex items-center justify-center w-full">
+      {/* Left nav group */}
+      <div className="flex items-center justify-end gap-3 xl:gap-5 flex-1">
         {leftNavItems.map(renderNavItem)}
       </div>
 
-      <Link href="/" className="mx-4 shrink-0 transition-transform duration-200 hover:scale-105">
+      {/* Center Logo */}
+      <Link href="/" className="mx-3 xl:mx-5 shrink-0 transition-transform duration-200 hover:scale-105">
         <Image
           src="/images/logo/Logo-update.png"
           alt="London Tea Exchange Logo"
@@ -217,7 +220,8 @@ export default function Navigation() {
         />
       </Link>
 
-      <div className="flex items-center gap-6 xl:gap-8">
+      {/* Right nav group */}
+      <div className="flex items-center justify-start gap-3 xl:gap-5 flex-1">
         {rightNavItems.map(renderNavItem)}
       </div>
     </nav>
