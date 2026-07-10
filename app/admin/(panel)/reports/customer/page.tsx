@@ -60,17 +60,17 @@ export default function CustomerReportPage() {
         {[
           {
             label: "Total Customers",
-            value: report?.summary.totalCustomers,
+            value: report?.summary?.totalCustomers,
             icon: "suppliers" as const,
           },
           {
             label: "New Customers (This Week)",
-            value: report?.summary.newCustomersThisWeek,
+            value: report?.summary?.newCustomersThisWeek,
             icon: "report" as const,
           },
           {
             label: "New Customers (Filtered)",
-            value: report?.summary.totalNewUsers,
+            value: report?.summary?.totalNewUsers,
             icon: "orders" as const,
           },
         ].map(({ label, value, icon }) => (
@@ -105,7 +105,7 @@ export default function CustomerReportPage() {
               <div className="h-12 animate-pulse rounded bg-slate-100" key={i} />
             ))}
           </div>
-        ) : report?.users.items.length === 0 ? (
+        ) : report?.users?.items?.length === 0 ? (
           <div className="p-6 text-center font-medium text-slate-400">
             No users registered in this period.
           </div>
@@ -122,7 +122,7 @@ export default function CustomerReportPage() {
                 </tr>
               </thead>
               <tbody>
-                {report?.users.items.map((user) => (
+                {report?.users?.items?.map((user) => (
                   <tr
                     className="border-b border-slate-50 font-black transition hover:bg-slate-50/50"
                     key={user.id}
