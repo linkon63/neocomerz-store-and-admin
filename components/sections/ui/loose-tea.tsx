@@ -3,29 +3,32 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { fetchShopProducts, ShopProduct } from "@/lib/shop-api";
+import { fetchShopCategories, type ShopCategory } from "@/lib/shop-api";
 
 const NO_IMAGE = '/images/no-image-icon-6.png';
 
 export default function LooseTea() {
-  const [products, setProducts] = useState<ShopProduct[]>([]);
+  const [subcategories, setSubcategories] = useState<ShopCategory[]>([]);
 
   useEffect(() => {
-    async function loadProducts() {
+    async function loadSubcategories() {
       try {
-        const res = await fetchShopProducts({ limit: 8 });
-        if (res && res.data) {
-          setProducts(res.data);
+        const fetched = await fetchShopCategories();
+        const looseTeaParent = fetched.find(
+          c => c.slug === 'loose-tea' || c.slug === 'loose-leaf-tea' || c.name.toLowerCase() === 'loose tea'
+        );
+        if (looseTeaParent && looseTeaParent.children) {
+          setSubcategories(looseTeaParent.children);
         }
       } catch (error) {
-        console.error("Failed to fetch products for Loose Tea:", error);
+        console.error("Failed to fetch subcategories for Loose Tea:", error);
       }
     }
-    loadProducts();
+    loadSubcategories();
   }, []);
 
   return (
-    <section 
+    <section
       className="relative w-full bg-greenish-gray overflow-hidden flex items-end min-h-175"
     >
       <svg
@@ -41,36 +44,36 @@ export default function LooseTea() {
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center mb-10 md:mb-14">
-          <p className="font-['Bembo_Std'] text-xs sm:text-lg uppercase tracking-wider text-gray-600 mb-2">
-            THE COLLECTIONS OF
-          </p>
-          <h2 className="inline-flex flex-row justify-center items-baseline gap-2 md:gap-3 font-normal text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
-            <span className="font-['Bembo_Std'] text-[#C6B485] leading-none">Loose</span>
-            <span className="font-['Snell_Roundhand_LT_Std'] italic text-[#8E866B] leading-none lowercase">Tea</span>
-          </h2>
+          <div className="inline-flex flex-col justify-center items-center gap-3">
+            <div className="text-center justify-start text-neutral-800 text-lg font-normal font-['Bembo_Std'] uppercase leading-6">The Collections Of</div>
+            <div className="inline-flex justify-center items-center gap-1.5">
+              <div className="justify-start text-neutral-600 text-5xl sm:text-6xl font-normal font-['Bembo_Std'] leading-[56px]">Loose</div>
+              <div className="justify-start text-neutral-600 text-5xl sm:text-6xl font-normal font-['Snell_Roundhand_LT_Std'] leading-[56px]">Tea</div>
+            </div>
+          </div>
         </div>
-        <div 
+        <div
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-6 md:gap-8 lg:gap-6"
           style={{
             clipPath: "ellipse(110% 100% at 50% 50%)",
           }}
         >
-          {products.slice(0, 8).map((product, index) => {
+          {subcategories.slice(0, 8).map((subCategory, index) => {
             const marginTopClasses = [
-              'lg:-mt-14',  
-              'lg:-mt-8',   
-              'lg:-mt-4',   
-              'lg:mt-0',    
-              'lg:mt-0',  
-              'lg:-mt-4',   
-              'lg:-mt-8',   
-              'lg:-mt-14',  
+              'lg:-mt-14',
+              'lg:-mt-8',
+              'lg:-mt-4',
+              'lg:mt-0',
+              'lg:mt-0',
+              'lg:-mt-4',
+              'lg:-mt-8',
+              'lg:-mt-14',
             ];
-            
+
             return (
               <Link
-                key={product.id}
-                href={`/products/${product.id}`}
+                key={subCategory.id}
+                href={`/products?category=${encodeURIComponent(subCategory.name)}`}
                 className={`flex flex-col items-center group cursor-pointer ${marginTopClasses[index % marginTopClasses.length]}`}
               >
                 <div
@@ -80,16 +83,16 @@ export default function LooseTea() {
                   }}
                 >
                   <Image
-                    src={product.image || NO_IMAGE}
-                    alt={product.name}
+                    src={subCategory.imageUrl || NO_IMAGE}
+                    alt={subCategory.name}
                     fill
                     sizes="(max-width: 640px) 80px, (max-width: 768px) 96px, (max-width: 1024px) 112px, 112px"
                     className="object-cover"
                     unoptimized
                   />
                 </div>
-                <p className="font-gotham text-xs sm:text-sm text-stone-gray text-center group-hover:text-brand-3 transition-colors line-clamp-2 max-w-[120px] px-1">
-                  {product.name}
+                <p className="font-['Gotham'] text-xl text-neutral-800 text-center group-hover:text-[#b4a676] transition-colors line-clamp-2 max-w-[120px] px-1 leading-6" style={{ fontWeight: 'normal' }}>
+                  {subCategory.name}
                 </p>
               </Link>
             );
@@ -98,7 +101,7 @@ export default function LooseTea() {
 
         <div className="flex justify-center mt-6 md:mt-12">
           <Link
-            href="/products"
+            href="/products?category=Loose%20Tea"
             className="bg-transparent text-stone-700 hover:bg-stone-600 hover:text-white border border-stone-500 font-gotham text-xs sm:text-sm uppercase tracking-wider px-8 py-3 rounded-[100px] transition-all duration-300"
           >
             SHOW ALL
