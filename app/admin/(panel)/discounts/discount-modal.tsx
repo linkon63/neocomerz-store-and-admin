@@ -1,7 +1,7 @@
 "use client";
 
+import { resolveImageUrl, type Product } from "../../../../lib/admin-api";
 import { AdminIcon } from "../../_components/admin-shell";
-import { type Product } from "../../../../lib/admin-api";
 import { useDiscountForm } from "../../_hooks/use-discount-form";
 
 interface DiscountModalProps {
@@ -35,7 +35,7 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
       <img
         alt={product.name}
         className="h-8 w-8 shrink-0 rounded border border-slate-200 object-cover"
-        src={url ?? '/images/no-image-icon-6.png'}
+        src={url ? resolveImageUrl(url) : '/images/no-image-icon-6.png'}
       />
     );
   }

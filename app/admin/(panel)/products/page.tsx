@@ -9,6 +9,7 @@ import { InfiniteScroll } from "../../_components/infinite-scroll";
 import {
   apiRequest,
   formatMoney,
+  resolveImageUrl,
   slugify,
   type Brand,
   type Category,
@@ -150,7 +151,7 @@ function VariantMediaGrid({
           className="group relative overflow-hidden rounded-lg border border-slate-200 bg-white"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img alt="" className="h-28 w-full object-cover" src={item.media.url} />
+          <img alt="" className="h-28 w-full object-cover" src={resolveImageUrl(item.media.url)} />
           <div className="flex items-center justify-between px-3 py-2">
             <span className="text-[11px] font-bold text-slate-500">
               #{index + 1}
@@ -228,11 +229,11 @@ function flattenCategories(categories: Category[], depth = 0): CategoryOption[] 
 }
 
 function getFeaturedMedia(product: Product) {
-  return (
+  const raw =
     product.media?.find((item) => item.isFeatured)?.media.url ??
     product.media?.[0]?.media.url ??
-    null
-  );
+    null;
+  return raw ? resolveImageUrl(raw) : null;
 }
 
 function getDefaultVariant(product: Product): ProductVariant | undefined {

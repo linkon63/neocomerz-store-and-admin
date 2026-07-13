@@ -1,35 +1,30 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { FiShoppingBag, FiLoader, FiClock, FiCheckCircle, FiX, FiTruck } from "react-icons/fi";
+import { FiShoppingBag, FiLoader, FiX, FiPackage, FiMapPin, FiChevronRight } from "react-icons/fi";
 import { getCustomerToken } from "@/lib/storefront-api";
 import ResolvedImage from "./image-resolver";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5010/api/v1";
 
+const SECTION_LABEL = "text-[10px] font-bold tracking-[0.18em] uppercase text-zinc-400";
+
 interface OrderItem {
   id: string;
   quantity: number;
-  price: string;
+  unitPrice?: string;
+  totalPrice?: string;
+  price?: string;
   variant?: {
     image?: string;
     product?: {
-      name: string;
-      image?: string;
-      media?: Array<{
-        isFeatured?: boolean;
-        media?: { url?: string };
-        url?: string;
-      }>;
+      name?: string;
+      media?: Array<{ isFeatured?: boolean; media?: { url?: string }; url?: string }>;
     };
   };
   product?: {
     name?: string;
-    media?: Array<{
-      isFeatured?: boolean;
-      media?: { url?: string };
-      url?: string;
-    }>;
+    media?: Array<{ isFeatured?: boolean; media?: { url?: string }; url?: string }>;
   };
 }
 
@@ -41,208 +36,222 @@ interface Order {
   placedAt: string;
   createdAt: string;
   items?: OrderItem[];
-  shippingAddress?: {
-    fullName: string;
-    phone: string;
-    addressLine1: string;
-    city: string;
-    country: string;
-  };
+  shippingAddress?: { fullName: string; phone: string; addressLine1: string; city: string; country: string };
+  address?: { fullName: string; phone: string; addressLine1: string; city: string; country: string };
+}
+
+function statusStyle(status: string) {
+  switch (status.toLowerCase()) {
+    case "delivered":  return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    case "shipped":    return "bg-sky-50 text-sky-700 border-sky-200";
+    case "processing": return "bg-amber-50 text-amber-700 border-amber-200";
+    case "cancelled":  return "bg-red-50 text-red-700 border-red-200";
+    case "returned":   return "bg-purple-50 text-purple-700 border-purple-200";
+    default:           return "bg-stone-50 text-stone-600 border-stone-200";
+  }
+}
+
+function resolveItemImage(item: OrderItem): string | null {
+  const media = item.variant?.product?.media ?? item.product?.media;
+  return (
+    (Array.isArray(media) && (
+      media.find((m) => m.isFeatured)?.media?.url ??
+      media[0]?.media?.url ??
+      media[0]?.url
+    )) ||
+    item.variant?.image ||
+    null
+  );
 }
 
 export default function OrdersView() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [ordersLoading, setOrdersLoading] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [orders, setOrders]   = useState<Order[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selected, setSelected] = useState<Order | null>(null);
 
   const fetchOrders = useCallback(async () => {
     const token = getCustomerToken();
     if (!token) return;
-
-    setOrdersLoading(true);
+    setLoading(true);
     try {
-      const res = await fetch(`${BASE_URL}/orders`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+      const res = await fetch(`${BASE_URL}/orders/my-orders`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
-        setOrders(data);
+        setOrders(Array.isArray(data) ? data : (data?.data ?? []));
       }
-    } catch (err) {
-      console.error("Failed to load orders history:", err);
-    } finally {
-      setOrdersLoading(false);
-    }
+    } catch { /* silent */ }
+    finally { setLoading(false); }
   }, []);
 
-  useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+  useEffect(() => { fetchOrders(); }, [fetchOrders]);
+
+  const shippingAddr = selected?.shippingAddress ?? selected?.address;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
+
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div>
-        <h2 className="text-[10px] font-bold tracking-[0.16em] uppercase text-zinc-400 mb-1">
-          Order History
+        <p className={SECTION_LABEL}>Purchase History</p>
+        <h2 className="font-['Bembo_Std'] text-2xl text-zinc-850 font-normal mt-1">
+          My Orders
+          {orders.length > 0 && (
+            <span className="ml-3 font-sans text-sm font-normal text-zinc-400">({orders.length})</span>
+          )}
         </h2>
-        <p className="font-['Bembo_Std'] text-zinc-650 text-base italic">
-          Review details and tracking information for your store orders.
+        <p className="font-['Bembo_Std'] text-zinc-400 text-sm italic mt-0.5">
+          Review and track all your store purchases.
         </p>
       </div>
 
-      {ordersLoading ? (
-        <div className="flex justify-center py-16">
-          <FiLoader className="w-8 h-8 text-[#C5B382] animate-spin" />
+      {/* ── List ────────────────────────────────────────────────────────────── */}
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <FiLoader className="w-7 h-7 text-[#C5B382] animate-spin" />
         </div>
       ) : orders.length === 0 ? (
-        <div className="text-center py-16 border border-dashed border-stone-200">
-          <FiShoppingBag className="mx-auto text-4xl text-zinc-300 mb-4" />
-          <p className="font-sans text-sm text-zinc-500">
-            You haven&apos;t placed any orders yet.
+        <div className="flex flex-col items-center justify-center py-20 border border-dashed border-stone-200 rounded-xl">
+          <FiShoppingBag className="text-4xl text-zinc-200 mb-4" />
+          <p className="font-['Bembo_Std'] text-zinc-400 text-base italic">No orders placed yet.</p>
+          <p className="font-sans text-xs text-zinc-300 mt-1">
+            Your order history will appear here after your first purchase.
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {orders.map((order) => {
-            const formattedDate = new Date(order.placedAt || order.createdAt).toLocaleDateString();
-            const formattedTotal = Number(order.total).toFixed(2);
-            const badgeTone = order.status === "delivered"
-              ? "bg-green-150 text-green-800"
-              : order.status === "shipped"
-              ? "bg-blue-150 text-blue-800"
-              : "bg-amber-150 text-amber-800";
+            const date  = new Date(order.placedAt || order.createdAt).toLocaleDateString("en-US", {
+              day: "numeric", month: "short", year: "numeric",
+            });
 
             return (
-              <div
+              <button
                 key={order.id}
-                onClick={() => setSelectedOrder(order)}
-                className="flex flex-wrap items-center justify-between border border-stone-200 px-5 py-4 hover:border-[#C5B382] transition cursor-pointer bg-white rounded-lg shadow-xs"
+                onClick={() => setSelected(order)}
+                className="w-full text-left flex items-center gap-4 border border-stone-200 bg-white hover:border-stone-300 hover:shadow-sm rounded-xl px-5 py-4 transition-all duration-200 cursor-pointer group"
               >
-                <div className="space-y-1">
-                  <h3 className="font-sans font-bold text-xs uppercase text-zinc-800 tracking-wider">
-                    Order {order.orderNumber}
-                  </h3>
-                  <p className="font-sans text-[10px] text-zinc-400">
-                    Placed on: {formattedDate}
+                {/* Icon */}
+                <div className="w-10 h-10 rounded-full bg-stone-50 border border-stone-100 flex items-center justify-center shrink-0">
+                  <FiPackage className="text-zinc-400 text-base" />
+                </div>
+
+                {/* Info */}
+                <div className="flex-grow min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-sans font-bold text-xs uppercase tracking-wider text-zinc-800">
+                      {order.orderNumber}
+                    </p>
+                    <span className={`border font-sans text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full ${statusStyle(order.status)}`}>
+                      {order.status}
+                    </span>
+                  </div>
+                  <p className="font-sans text-[10px] text-zinc-400 mt-0.5">
+                    {date}
+                    {order.items?.length ? ` · ${order.items.length} item${order.items.length !== 1 ? "s" : ""}` : ""}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-6">
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase font-sans tracking-wide ${badgeTone}`}>
-                    {order.status}
+                {/* Total + chevron */}
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="font-sans font-bold text-sm text-zinc-800">
+                    ৳{Number(order.total || 0).toLocaleString()}
                   </span>
-                  <span className="font-sans text-sm font-bold text-neutral-800">
-                    ${formattedTotal}
-                  </span>
+                  <FiChevronRight className="text-zinc-300 group-hover:text-zinc-500 transition text-base" />
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
       )}
 
-      {/* Selected Order Detailed Drawer Panel Overlay */}
-      {selectedOrder && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white border border-stone-250 max-w-lg w-full rounded shadow-xl overflow-hidden relative animate-fadeIn">
-            <button
-              onClick={() => setSelectedOrder(null)}
-              className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-650 transition cursor-pointer"
-              aria-label="Close details modal"
-            >
-              <FiX className="w-5 h-5" />
-            </button>
+      {/* ── Detail Modal ─────────────────────────────────────────────────────── */}
+      {selected && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
 
-            <div className="p-6 md:p-8 space-y-6">
-              <div className="flex items-center justify-between border-b border-stone-150 pb-4">
-                <div>
-                  <h3 className="font-sans font-bold text-sm uppercase text-neutral-800 tracking-wider">
-                    Invoice: {selectedOrder.orderNumber}
-                  </h3>
-                  <p className="font-sans text-[10px] text-zinc-400 mt-1">
-                    Placed on: {new Date(selectedOrder.placedAt || selectedOrder.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase font-sans tracking-wide ${
-                  selectedOrder.status === "delivered"
-                    ? "bg-green-150 text-green-800"
-                    : selectedOrder.status === "shipped"
-                    ? "bg-blue-150 text-blue-800"
-                    : "bg-amber-150 text-amber-800"
-                }`}>
-                  {selectedOrder.status}
+            {/* Modal header */}
+            <div className="flex items-start justify-between px-7 py-5 border-b border-stone-100">
+              <div>
+                <p className={SECTION_LABEL}>Order Details</p>
+                <h3 className="font-['Bembo_Std'] text-xl text-zinc-850 mt-0.5">{selected.orderNumber}</h3>
+                <p className="font-sans text-[10px] text-zinc-400 mt-0.5">
+                  Placed{" "}
+                  {new Date(selected.placedAt || selected.createdAt).toLocaleDateString("en-US", {
+                    day: "numeric", month: "long", year: "numeric",
+                  })}
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className={`border font-sans text-[9px] font-bold tracking-wider uppercase px-3 py-1 rounded-full ${statusStyle(selected.status)}`}>
+                  {selected.status}
                 </span>
+                <button
+                  onClick={() => setSelected(null)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-stone-100 text-zinc-400 hover:text-zinc-700 transition cursor-pointer"
+                  aria-label="Close"
+                >
+                  <FiX className="w-4 h-4" />
+                </button>
               </div>
+            </div>
 
-              {/* Order Items List */}
-              <div className="space-y-4 max-h-48 overflow-y-auto pr-1">
-                <h4 className="font-sans font-bold text-xs uppercase tracking-wider text-zinc-400">
-                  Items Purchased
-                </h4>
-                {selectedOrder.items?.map((item) => {
-                  // Resolve item product media url cleanly in Javascript logic block
-                  const media = item.variant?.product?.media;
-                  const itemMediaUrl = item.variant?.product?.image
-                    || (Array.isArray(media) && (media.find((m: any) => m.isFeatured)?.media?.url || media[0]?.media?.url || media[0]?.url))
-                    || (Array.isArray(item.product?.media) && (item.product.media.find((m: any) => m.isFeatured)?.media?.url || item.product.media[0]?.media?.url))
-                    || item.variant?.image
-                    || null;
+            {/* Modal body */}
+            <div className="px-7 py-6 space-y-6 max-h-[65vh] overflow-y-auto">
 
-                  return (
-                    <div key={item.id} className="flex items-center justify-between border-b border-stone-100 pb-3 gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="relative w-12 h-12 bg-stone-50 border border-stone-200 rounded">
-                          <ResolvedImage
-                            src={itemMediaUrl}
-                            alt={item.variant?.product?.name || item.product?.name || "Product"}
-                            className="object-contain"
-                          />
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-neutral-800 font-sans">
-                            {item.variant?.product?.name || item.product?.name || "Product"}
-                          </p>
-                          <p className="text-xs text-zinc-500 font-sans">
-                            Quantity: {item.quantity}
+              {/* Items */}
+              {selected.items && selected.items.length > 0 && (
+                <div>
+                  <p className="font-sans text-[10px] font-bold tracking-[0.16em] uppercase text-zinc-400 mb-3">
+                    Items ({selected.items.length})
+                  </p>
+                  <div className="space-y-3">
+                    {selected.items.map((item) => {
+                      const name  = item.variant?.product?.name ?? item.product?.name ?? "Product";
+                      const price = Number(item.totalPrice ?? item.unitPrice ?? item.price ?? 0);
+                      return (
+                        <div key={item.id} className="flex items-center gap-3 pb-3 border-b border-stone-100 last:border-0 last:pb-0">
+                          <div className="w-11 h-11 bg-stone-50 border border-stone-100 rounded-lg overflow-hidden shrink-0 relative">
+                            <ResolvedImage src={resolveItemImage(item)} alt={name} className="object-contain p-1" />
+                          </div>
+                          <div className="flex-grow min-w-0">
+                            <p className="font-sans font-bold text-xs text-zinc-800 truncate">{name}</p>
+                            <p className="font-sans text-[10px] text-zinc-400 mt-0.5">Qty: {item.quantity}</p>
+                          </div>
+                          <p className="font-sans font-bold text-xs text-zinc-800 shrink-0">
+                            ৳{Number(price || 0).toLocaleString()}
                           </p>
                         </div>
-                      </div>
-                      <span className="font-sans text-xs font-bold text-zinc-800">
-                        ${Number(item.price).toFixed(2)}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Address details */}
-              {selectedOrder.shippingAddress && (
-                <div className="pt-4 border-t border-stone-150 space-y-2">
-                  <h4 className="font-sans font-bold text-xs uppercase tracking-wider text-zinc-400">
-                    Delivery Address
-                  </h4>
-                  <p className="font-sans text-xs text-zinc-800 font-semibold">
-                    {selectedOrder.shippingAddress.fullName}
-                  </p>
-                  <p className="font-sans text-xs text-zinc-500">
-                    {selectedOrder.shippingAddress.addressLine1}, {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.country}
-                  </p>
-                  <p className="font-sans text-xs text-zinc-500">
-                    Phone: {selectedOrder.shippingAddress.phone}
-                  </p>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
-              {/* Total Row */}
-              <div className="pt-4 border-t border-stone-150 flex justify-between items-center">
-                <span className="font-sans font-bold text-xs uppercase tracking-wider text-zinc-400">
+              {/* Shipping address */}
+              {shippingAddr && (
+                <div>
+                  <p className="font-sans text-[10px] font-bold tracking-[0.16em] uppercase text-zinc-400 mb-3 flex items-center gap-1.5">
+                    <FiMapPin className="text-xs" /> Delivery Address
+                  </p>
+                  <div className="bg-stone-50 border border-stone-100 rounded-xl px-4 py-3 space-y-0.5">
+                    <p className="font-sans font-bold text-xs text-zinc-800">{shippingAddr.fullName}</p>
+                    <p className="font-sans text-xs text-zinc-500">{shippingAddr.addressLine1}</p>
+                    <p className="font-sans text-xs text-zinc-500">{shippingAddr.city}, {shippingAddr.country}</p>
+                    <p className="font-sans text-xs text-zinc-500">{shippingAddr.phone}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Total */}
+              <div className="flex items-center justify-between pt-1 border-t border-stone-100">
+                <p className="font-sans text-[10px] font-bold tracking-[0.16em] uppercase text-zinc-400">
                   Total Paid
-                </span>
-                <span className="font-sans text-lg font-black text-[#1A1A1A]">
-                  ${Number(selectedOrder.total).toFixed(2)}
-                </span>
+                </p>
+                <p className="font-['Bembo_Std'] text-xl text-zinc-850">
+                  ৳{Number(selected.total).toLocaleString()}
+                </p>
               </div>
             </div>
           </div>

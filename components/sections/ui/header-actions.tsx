@@ -1,42 +1,68 @@
 'use client';
 
-import { IoSearchOutline, IoHeartOutline } from "react-icons/io5";
-import { LuShoppingBag, LuUser } from "react-icons/lu";
+import Link from 'next/link';
+import { IoSearchOutline, IoHeartOutline, IoHeart } from 'react-icons/io5';
+import { LuShoppingBag, LuUser } from 'react-icons/lu';
+import { useCart } from '@/app/_providers/cart-provider';
+import { useWishlist } from '@/app/_providers/wishlist-provider';
+import { useAuth } from '@/app/_providers/auth-provider';
 
 export default function HeaderActions() {
+  const { itemCount: cartCount }    = useCart();
+  const { itemCount: wishlistCount } = useWishlist();
+  const { isAuthenticated }          = useAuth();
+
   return (
     <>
-      <button
-        className="text-text-primary hover:text-brand-3 transition-colors hidden sm:block cursor-pointer"
-        aria-label="Search"
+      {/* Search */}
+      <Link
+        href="/products"
+        className="text-text-primary hover:text-brand-3 transition-colors hidden sm:flex items-center cursor-pointer"
+        aria-label="Search products"
       >
-        <IoSearchOutline className="w-5 h-5 sm:w-6 sm:h-6" />
-      </button>
+        <IoSearchOutline className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
+      </Link>
 
-      <button
-        className="text-text-primary hover:text-brand-3 transition-colors hidden sm:block cursor-pointer"
-        aria-label="Wishlist"
+      {/* Wishlist */}
+      <Link
+        href="/wishlist"
+        className="text-text-primary hover:text-brand-3 transition-colors hidden sm:flex items-center relative cursor-pointer"
+        aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} items` : ''}`}
       >
-        <IoHeartOutline className="w-5 h-5 sm:w-6 sm:h-6" />
-      </button>
+        {wishlistCount > 0 ? (
+          <IoHeart className="w-5 h-5 sm:w-[22px] sm:h-[22px] text-[#C5A880]" />
+        ) : (
+          <IoHeartOutline className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
+        )}
+        {wishlistCount > 0 && (
+          <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-[#C5A880] text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
+            {wishlistCount > 99 ? '99+' : wishlistCount}
+          </span>
+        )}
+      </Link>
 
-      <button
-        className="text-text-primary hover:text-brand-3 transition-colors relative cursor-pointer"
-        aria-label="Shopping Cart"
+      {/* Cart */}
+      <Link
+        href="/cart"
+        className="text-text-primary hover:text-brand-3 transition-colors relative flex items-center cursor-pointer"
+        aria-label={`Shopping cart${cartCount > 0 ? `, ${cartCount} items` : ''}`}
       >
-        <LuShoppingBag className="w-5 h-5 sm:w-6 sm:h-6" />
+        <LuShoppingBag className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
+        {cartCount > 0 && (
+          <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-[#C5A880] text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
+            {cartCount > 99 ? '99+' : cartCount}
+          </span>
+        )}
+      </Link>
 
-        <span className="absolute -top-1 -right-1 bg-white text-black text-xs rounded-full w-4 h-4 flex items-center justify-center">
-          0
-        </span>
-      </button>
-
-      <button
-        className="text-text-primary hover:text-brand-3 transition-colors cursor-pointer"
-        aria-label="User Account"
+      {/* Profile */}
+      <Link
+        href="/profile"
+        className="text-text-primary hover:text-brand-3 transition-colors flex items-center cursor-pointer"
+        aria-label={isAuthenticated ? 'My account' : 'Sign in'}
       >
-        <LuUser className="w-5 h-5 sm:w-6 sm:h-6" />
-      </button>
+        <LuUser className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
+      </Link>
     </>
   );
 }

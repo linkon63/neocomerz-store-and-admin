@@ -4,86 +4,373 @@
 @source "../node_modules/react-tailwindcss-datepicker/dist";
 
 @theme {
-  /* ===========================
-     Brand Colors
-  ============================ */
+  /* ======================================================
+     🎨 LONDON TEA EXCHANGE — GLOBAL DESIGN TOKEN SYSTEM
+     Spec: Luxury Boutique Tea · 1440px Grid · Premium Identity
+  ====================================================== */
 
-  --color-white: #ffffff;
-  --color-platinum-gray: #f0f0f0;
-  --color-off-white: #f6f6f6;
-  --color-stone-gray: #999999;
-  --color-rich-black: #665a5d;
-  --color-pearl-gray: #d9d9d6;
-  --color-greenish-gray: #bdbdb5;
-  --color-warm-gray: #c5b9ac;
-  --color-sage-gray: #83847e;
-  --color-olive-slate: #51524e;
-  --color-dark-brown: #4b3729;
-  --color-dark-charcoal: #212721;
-  --color-khaki-gold: #b4a676;
-  --color-sage-gold: #d2c494;
-  --color-dark-crimson: #d31f3a;
+  /* ── Core Luxury Neutrals (from spec: Primary Luxury Neutrals) ─────────── */
+  --color-white:          #ffffff;
+  --color-platinum-gray:  #f0f0f0;
+  --color-off-white:      #f6f6f6;
+  --color-stone-gray:     #999999;    /* neutralMuted — captions, subtitles   */
+  --color-rich-black:     #665a5d;    /* stoneText — headings highlight       */
+  --color-pearl-gray:     #d9d9d6;
+  --color-greenish-gray:  #bdbdb5;
+  --color-warm-gray:      #c5b9ac;
+  --color-sage-gray:      #83847e;    /* body description text                */
+  --color-olive-slate:    #51524e;    /* text-secondary                       */
 
-  /* ===========================
-     Tailwind v4 Theme Brand Mappings
-     =========================== */
-  --color-brand-primary: var(--color-khaki-gold);
-  --color-brand-2: var(--color-warm-gray);
-  --color-brand-3: var(--color-khaki-gold);
-  --color-brand-4: var(--color-khaki-gold);
-  --color-brand-5: var(--color-khaki-gold);
+  /* spec: darkBg — footer & premium section backgrounds */
+  --color-footer-dark:    #3F423E;
 
-  /* ===========================
-     Text Colors
-  ============================ */
+  /* spec: neutralDark — primary text color */
+  --color-neutral-dark:   #262626;
 
-  --color-text-primary: var(--color-rich-black);
+  /* spec: neutralMuted — small captions & subtitles */
+  --color-neutral-muted:  #A3A3A3;
+
+  --color-dark-brown:     #4b3729;
+  --color-dark-charcoal:  #212721;
+  --color-dark-crimson:   #d31f3a;
+
+  /* ── Luxury Gold Accents ────────────────────────────────────────────────── */
+  /* spec: khaki-gold gradient from */
+  --color-khaki-gold:     #C5A880;
+
+  /* spec: sage-gold gradient to */
+  --color-sage-gold:      #A89F91;
+
+  /* spec: orangeAccent — borders, lines, light text accent */
+  --color-orange-accent:  #FED7AA;
+
+  /* secondary display gold (used in current components) */
+  --color-warm-gold:      #b4a676;
+  --color-light-gold:     #d2c494;
+  --color-mid-gold:       #C6B485;
+  --color-script-gold:    #8E866B;
+
+  /* ── Button Gradient Tokens ─────────────────────────────────────────────── */
+  /* spec: bg-gradient-to-r from-[#C5A880] to-[#A89F91] */
+  --color-btn-gold-from:  #C5A880;
+  --color-btn-gold-to:    #A89F91;
+
+  /* ── Brand Semantic Mappings ────────────────────────────────────────────── */
+  --color-brand-primary:  var(--color-warm-gold);
+  --color-brand-2:        var(--color-warm-gray);
+  --color-brand-3:        var(--color-warm-gold);
+  --color-brand-4:        var(--color-warm-gold);
+  --color-brand-5:        var(--color-warm-gold);
+
+  /* ── Text Colors ────────────────────────────────────────────────────────── */
+  --color-text-primary:   var(--color-rich-black);
   --color-text-secondary: var(--color-olive-slate);
-  --color-text-muted: var(--color-stone-gray);
-  --color-text-light: var(--color-white);
+  --color-text-muted:     var(--color-stone-gray);
+  --color-text-light:     var(--color-white);
 
-  /* ===========================
-     Background Colors
-  ============================ */
+  /* ── Background Colors ──────────────────────────────────────────────────── */
+  --color-bg-primary:     var(--color-white);
+  --color-bg-secondary:   var(--color-off-white);
+  --color-bg-muted:       var(--color-pearl-gray);
+  --color-bg-dark:        var(--color-dark-charcoal);
 
-  --color-bg-primary: var(--color-white);
-  --color-bg-secondary: var(--color-off-white);
-  --color-bg-muted: var(--color-pearl-gray);
-  --color-bg-dark: var(--color-dark-charcoal);
+  /* ── Semantic Aliases ───────────────────────────────────────────────────── */
+  --color-primary:        var(--color-warm-gold);
+  --color-secondary:      var(--color-warm-gold);
+  --color-accent:         var(--color-light-gold);
 
-  /* ===========================
-     Brand Colors
-  ============================ */
+  /* ── Border Colors ──────────────────────────────────────────────────────── */
+  --color-border:         var(--color-pearl-gray);
+  --color-border-dark:    var(--color-greenish-gray);
 
-  --color-primary: var(--color-khaki-gold);
-  --color-secondary: var(--color-khaki-gold);
-  --color-accent: var(--color-sage-gold);
-
-  /* ===========================
-     Border Colors
-  ============================ */
-
-  --color-border: var(--color-pearl-gray);
-  --color-border-dark: var(--color-greenish-gray);
-
-  /* ===========================
-     Fonts
-   ============================ */
-
+  /* ── Typography ─────────────────────────────────────────────────────────── */
+  /* spec roles:
+     - Bembo Std        → Primary Display Serif (headings, titles, statements)
+     - Snell Roundhand  → Decorative Elegant Script (section title secondary part)
+     - Gotham           → Modern Sans-Serif (buttons, body, labels)
+  */
   --font-heading: "Cormorant Garamond", serif;
-  --font-body: "Inter", sans-serif;
-  --font-bembo: var(--font-bembo);
-  --font-snell: var(--font-snell);
-  --font-gotham: var(--font-gotham);
+  --font-body:    "Inter", sans-serif;
+  --font-bembo:   var(--font-bembo);
+  --font-snell:   var(--font-snell);
+  --font-gotham:  var(--font-gotham);
 
-  /* ===========================
-     Radius
-  ============================ */
+  /* ── Radius ─────────────────────────────────────────────────────────────── */
+  --radius-sm:    4px;
+  --radius-md:    8px;
+  --radius-lg:    16px;
+  --radius-xl:    24px;
 
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  /* ── Spacing Tokens (spec: luxury breathing room) ───────────────────────── */
+  /* Section vertical: pt-36 pb-24 (144px / 96px) */
+  --spacing-section-top:    9rem;     /* 144px */
+  --spacing-section-bottom: 6rem;     /* 96px  */
+
+  /* Footer: pt-36 pb-12 */
+  --spacing-footer-top:     9rem;     /* 144px */
+  --spacing-footer-bottom:  3rem;     /* 48px  */
+
+  /* ── Extra Stone / Zinc shades used across profile & admin ─────────────── */
+  --color-stone-850:   #1c1917;
+  --color-zinc-850:    #1f1f1f;
+  --color-zinc-650:    #52525b;
+}
+
+/* ======================================================
+   🏗️ LTE LAYOUT UTILITIES
+   Reusable wrappers that enforce the 1440px grid and
+   the luxury breathing-room spacing from the spec.
+====================================================== */
+
+/* Full-width section wrapper with max-width container */
+.lte-section {
+  width: 100%;
+  padding-top: var(--spacing-section-top);     /* 144px */
+  padding-bottom: var(--spacing-section-bottom); /* 96px */
+}
+
+.lte-container {
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem;   /* px-5 */
+  padding-right: 1.25rem;
+}
+
+@media (min-width: 640px)  { .lte-container { padding-left: 2.5rem; padding-right: 2.5rem; } }
+@media (min-width: 1024px) { .lte-container { padding-left: 3rem;   padding-right: 3rem;   } }
+@media (min-width: 1280px) { .lte-container { padding-left: 5rem;   padding-right: 5rem;   } }
+
+/* Footer wrapper */
+.lte-footer {
+  width: 100%;
+  background-color: var(--color-footer-dark);  /* #3F423E */
+  padding-top: var(--spacing-footer-top);       /* 144px */
+  padding-bottom: var(--spacing-footer-bottom); /* 48px  */
+}
+
+/* ======================================================
+   ✍️  TYPOGRAPHY UTILITIES
+   Spec-compliant type scale for every role in the system.
+====================================================== */
+
+/* Hero title — 96px Bembo Std, normal weight */
+.lte-hero-title {
+  font-family: var(--font-bembo), serif;
+  font-size: 6rem;          /* 96px / text-8xl */
+  font-weight: 400;
+  line-height: 7rem;        /* 112px */
+}
+
+/* Hero script overlay — 96px Snell Roundhand, italic */
+.lte-hero-script {
+  font-family: var(--font-snell), cursive;
+  font-size: 6rem;
+  font-weight: 700;
+  font-style: italic;
+  line-height: 7rem;
+}
+
+/* Section title serif — 60px Bembo Std, center */
+.lte-section-title {
+  font-family: var(--font-bembo), serif;
+  font-size: 3.75rem;       /* 60px / text-6xl */
+  font-weight: 400;
+  line-height: 3.5rem;      /* 56px */
+  text-align: center;
+}
+
+/* Section title script — 60px Snell Roundhand */
+.lte-section-script {
+  font-family: var(--font-snell), cursive;
+  font-size: 3.75rem;
+  font-weight: 400;
+  line-height: 3.5rem;
+  text-align: center;
+}
+
+/* Section subtitle / badge — 18px Bembo Std, uppercase */
+.lte-section-subtitle {
+  font-family: var(--font-bembo), serif;
+  font-size: 1.125rem;      /* 18px / text-lg */
+  font-weight: 400;
+  line-height: 1.5rem;      /* 24px */
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Product card title — 20px Gotham, line-clamp-2 */
+.lte-card-title {
+  font-family: var(--font-gotham), sans-serif;
+  font-size: 1.25rem;       /* 20px / text-xl */
+  font-weight: 400;
+  line-height: 1.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Product price — 18px Bembo Std, with ৳ symbol */
+.lte-price {
+  font-family: var(--font-bembo), serif;
+  font-size: 1.125rem;      /* 18px */
+  font-weight: 400;
+  line-height: 1.5rem;
+}
+
+/* Button text — 16px Gotham Medium, uppercase */
+.lte-btn-text {
+  font-family: var(--font-gotham), sans-serif;
+  font-size: 1rem;          /* 16px */
+  font-weight: 500;
+  line-height: 1.25rem;     /* 20px */
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Body / description — Gotham or Bembo, 18px–20px */
+.lte-body {
+  font-family: var(--font-gotham), sans-serif;
+  font-size: 1.125rem;      /* 18px */
+  font-weight: 400;
+  line-height: 1.5rem;
+}
+
+/* Footer headings — Bembo, uppercase, white */
+.lte-footer-heading {
+  font-family: var(--font-bembo), serif;
+  font-size: 1.125rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #ffffff;
+}
+
+/* Footer info text — uses orange-accent (#FED7AA) */
+.lte-footer-text {
+  font-family: var(--font-gotham), sans-serif;
+  font-size: 1.125rem;
+  font-weight: 400;
+  color: var(--color-orange-accent); /* #FED7AA */
+}
+
+/* ======================================================
+   🔘 BUTTON UTILITIES
+   spec: px-6 py-5 · rounded-[100px] · gold gradient
+====================================================== */
+
+.lte-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.25rem 1.5rem;   /* py-5 px-6 */
+  border-radius: 100px;       /* rounded-[100px] capsule */
+  font-family: var(--font-gotham), sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+  white-space: nowrap;
+}
+
+.lte-btn:hover { opacity: 0.88; }
+.lte-btn:active { transform: scale(0.98); }
+
+/* Gold gradient variant — the primary store CTA */
+.lte-btn-gold {
+  background: linear-gradient(to right, #C5A880, #A89F91);
+}
+
+/* Dark / solid variant */
+.lte-btn-dark {
+  background-color: #1A1A1A;
+}
+.lte-btn-dark:hover { background-color: #2d2d2d; opacity: 1; }
+
+/* Outline variant */
+.lte-btn-outline {
+  background: transparent;
+  border: 2px solid var(--color-warm-gold);
+  color: var(--color-stone-gray);
+}
+.lte-btn-outline:hover {
+  background-color: var(--color-warm-gold);
+  color: #ffffff;
+  opacity: 1;
+}
+
+/* ======================================================
+   📦 PRODUCT CARD TOKENS
+   spec: size-[453px] · image h-[345px] · content px-10
+====================================================== */
+
+.lte-product-card {
+  width: 453px;
+  max-width: 100%;
+  background-color: #ffffff;
+  overflow: hidden;
+  position: relative;
+}
+
+.lte-product-card-image {
+  width: 100%;
+  height: 345px;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.lte-product-card-body {
+  padding: 1.25rem 2.5rem 2.5rem;   /* pt-5 px-10 pb-10 */
+  background-color: #ffffff;
+  position: relative;
+}
+
+/* Cart icon overlay — spec: absolute left-[373px] top-[-29px] */
+.lte-card-cart-btn {
+  position: absolute;
+  left: 373px;
+  top: -29px;
+  width: 46px;
+  height: 46px;
+  border-radius: 9999px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem; /* p-2.5 */
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+.lte-card-cart-btn:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.16); }
+
+/* ======================================================
+   ─── LUXURY DIVIDER
+   spec: w-11 h-[1.58px] bg-orange-200 · rotate-180 pair
+====================================================== */
+
+.lte-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.lte-divider-line {
+  width: 2.75rem;   /* w-11 = 44px */
+  height: 1.58px;
+  background-color: var(--color-orange-accent); /* #FED7AA */
+  display: block;
 }
 
 /* ── Admin Dashboard Clean Typography & Reset ── */
