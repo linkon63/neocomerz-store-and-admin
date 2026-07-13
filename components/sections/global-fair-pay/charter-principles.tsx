@@ -43,7 +43,7 @@ const articles = [
 
 export default function CharterPrinciples() {
   return (
-    <section className="w-full bg-[#fbfbfa] pt-28 md:pt-36 lg:pt-44 pb-36 md:pb-44 lg:pb-48 px-6 md:px-12 lg:px-24 relative">
+    <section className="w-full bg-[#fbfbfa] pt-20 md:pt-32 lg:pt-44 pb-24 md:pb-36 lg:pb-48 px-6 md:px-12 lg:px-24 relative">
       <div className="max-w-7xl mx-auto">
         {/* Top Banner: Fairness, Equality, Justice */}
         <div className="flex flex-col items-center justify-center mb-16 text-center">
@@ -65,26 +65,26 @@ export default function CharterPrinciples() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-start">
           {/* Left Column: Heading and Info */}
           <div className="lg:col-span-5 lg:sticky lg:top-36 lg:h-fit space-y-8">
-            <div className="self-stretch flex flex-col justify-start items-start gap-6">
-              <div className="text-neutral-400 text-lg font-normal font-['Bembo_Std'] uppercase leading-6">
+            <div className="self-stretch flex flex-col justify-start items-start gap-4 md:gap-6">
+              <div className="text-neutral-400 text-base md:text-lg font-normal font-['Bembo_Std'] uppercase leading-6">
                 The Charter
               </div>
               <h2 className="self-stretch justify-start text-neutral-600 text-4xl md:text-5xl lg:text-6xl font-normal font-['Bembo_Std'] leading-tight lg:leading-[56px]">
                 Eight Articles, One Standard
               </h2>
-              <div className="self-stretch justify-start text-zinc-600 text-base md:text-lg font-normal font-['Bembo_Std'] leading-relaxed lg:leading-6">
+              <div className="self-stretch justify-start text-zinc-600 text-base lg:text-lg font-normal font-['Bembo_Std'] leading-relaxed lg:leading-7">
                 The Global Fair Pay Charter was established by the Fair Pay Foundation in 2024 and aligns itself with the United Nations Sustainable Development Goals. Signatories — companies, governments, and civic bodies — commit to all eight articles in full.
               </div>
             </div>
 
-            <div className="flex flex-col justify-start items-start gap-2">
+            <div className="flex flex-col justify-start items-start gap-3 w-full sm:w-auto">
               <a
                 href="#"
-                className="px-6 py-5 bg-white rounded-[100px] border border-neutral-600 inline-flex justify-center items-center hover:bg-neutral-800 hover:border-neutral-800 text-neutral-600 hover:text-white transition-all duration-300 text-base font-medium font-['Gotham'] uppercase leading-5"
+                className="px-6 md:px-8 py-3.5 md:py-4 bg-white rounded-[100px] border border-neutral-600 inline-flex justify-center items-center hover:bg-neutral-800 hover:border-neutral-800 text-neutral-600 hover:text-white transition-all duration-300 text-xs md:text-sm lg:text-base font-medium font-['Gotham'] uppercase leading-tight tracking-wider w-full sm:w-auto text-center"
               >
                 Download the official Charter (PDF)
               </a>
-              <div className="justify-start text-neutral-400 text-xs font-medium font-['Gotham'] leading-4 pl-2">
+              <div className="justify-start text-neutral-400 text-[10px] md:text-xs font-medium font-['Gotham'] leading-4 pl-2">
                 Source: Fair Pay Foundation, hosted via Long Finance
               </div>
             </div>
@@ -95,24 +95,24 @@ export default function CharterPrinciples() {
             {articles.map((art, idx) => (
               <div
                 key={idx}
-                className="self-stretch p-6 bg-neutral-100 rounded-xl flex justify-start items-start gap-6 hover:shadow-xs transition-shadow duration-200"
+                className="self-stretch p-5 md:p-6 lg:p-8 bg-neutral-100 rounded-xl flex justify-start items-start gap-4 md:gap-6 hover:shadow-xs transition-shadow duration-200"
               >
                 {/* Article Roman Number Block */}
-                <div className="w-16 shrink-0 flex flex-col justify-start items-start gap-2">
-                  <div className="justify-start text-neutral-500 text-xs font-medium font-['Gotham'] leading-4">
+                <div className="w-14 md:w-16 shrink-0 flex flex-col justify-start items-start gap-1 md:gap-2">
+                  <div className="justify-start text-neutral-500 text-[10px] md:text-xs font-medium font-['Gotham'] leading-4">
                     Article.
                   </div>
-                  <div className="justify-start text-neutral-800 text-4xl font-normal font-['Bembo_Std'] leading-10">
+                  <div className="justify-start text-neutral-800 text-2xl md:text-3xl lg:text-4xl font-normal font-['Bembo_Std'] leading-tight">
                     {art.roman}
                   </div>
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 flex flex-col justify-start items-start gap-2">
-                  <div className="justify-start text-neutral-800 text-base md:text-lg font-normal font-['Bembo_Std'] uppercase leading-6">
+                <div className="flex-1 flex flex-col justify-start items-start gap-1 md:gap-2">
+                  <div className="justify-start text-neutral-800 text-base lg:text-lg font-normal font-['Bembo_Std'] uppercase leading-snug lg:leading-6">
                     {art.title}
                   </div>
-                  <div className="self-stretch justify-start text-zinc-600 text-base md:text-lg font-normal font-['Bembo_Std'] leading-relaxed lg:leading-6">
+                  <div className="self-stretch justify-start text-zinc-600 text-sm md:text-base lg:text-lg font-normal font-['Bembo_Std'] leading-relaxed lg:leading-7">
                     {art.desc}
                   </div>
                 </div>
