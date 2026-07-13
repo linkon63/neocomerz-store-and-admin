@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const backendApiUrl = process.env.API_BASE_URL ?? "http://localhost:5010/api/v1";
+// Origin only (no /api/v1) — used for proxying static file paths like /products/*.webp
+const backendOrigin = backendApiUrl.replace(/\/api\/v\d+$/, "");
 
 const nextConfig: NextConfig = {
   turbopack: {
@@ -19,23 +21,35 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
       {
+        protocol: "https",
+        hostname: "api-lte.neocomerz.com",
+        pathname: "/**",
+      },
+      // localhost images are proxied through Next.js rewrites below,
+      // so next/image only ever sees relative or HTTPS URLs in production.
+      // Keep this entry so the dev server itself can still serve them directly
+      // if needed (e.g. plain <img> tags in admin).
+      {
         protocol: "http",
         hostname: "localhost",
         port: "5010",
         pathname: "/**",
       },
     ],
-    domains: ["images.unsplash.com", "tinyecomapi.neocomerz.com"],
+    domains: ["images.unsplash.com", "tinyecomapi.neocomerz.com", "api-lte.neocomerz.com"],
   },
   async rewrites() {
     return [
+      // API calls
       {
         source: "/api/v1/:path*",
         destination: `${backendApiUrl}/:path*`,
       },
+      // Global static assets proxy (products, uploads, brands, variants, categories, etc.)
+      // Matches any path ending with a common image extension, routing it to the NestJS backend.
       {
-        source: "/brands/:path*",
-        destination: `${backendApiUrl.replace("/api/v1", "")}/brands/:path*`,
+        source: "/:path*\\.:ext(png|jpg|jpeg|gif|webp|svg|ico|PNG|JPG|JPEG|WEBP|SVG|ICO)",
+        destination: `${backendOrigin}/:path*.:ext`,
       },
     ];
   },

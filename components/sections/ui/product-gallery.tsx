@@ -1,15 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
 
 interface ProductGalleryProps {
   images: string[];
+  activeImage?: string;
 }
 
-export default function ProductGallery({ images }: ProductGalleryProps) {
+export default function ProductGallery({ images, activeImage }: ProductGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+
+  // Sync index if activeImage changes from parent (e.g. variant select)
+  useEffect(() => {
+    if (activeImage) {
+      const idx = images.indexOf(activeImage);
+      if (idx !== -1) {
+        setActiveIndex(idx);
+      }
+    }
+  }, [activeImage, images]);
 
   const handlePrev = () => {
     setActiveIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -29,7 +40,7 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
           fill
           priority
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 50vw"
-          className="object-cover transition-all duration-300"
+          className="object-contain p-4 transition-all duration-300"
         />
         
         {/* Navigation Arrows overlayed at bottom center */}
@@ -69,7 +80,7 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
                 alt={`Thumbnail ${idx + 1}`}
                 fill
                 sizes="64px"
-                className="object-cover"
+                className="object-contain p-1"
               />
             </button>
           ))}

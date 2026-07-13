@@ -656,20 +656,30 @@ export async function apiRequest<T>(
     });
 
     const contentType = response.headers.get("content-type");
-    const payload = contentType?.includes("application/json")
-      ? await response.json()
-      : await response.text();
+    const text = await response.text();
 
     if (!response.ok) {
-      const message =
-        typeof payload === "object" && payload && "message" in payload
-          ? Array.isArray(payload.message)
-            ? payload.message.join(", ")
-            : String(payload.message)
-          : `Request failed with status ${response.status}`;
-
+      let message = `Request failed with status ${response.status}`;
+      if (text) {
+        try {
+          const parsed = JSON.parse(text);
+          if (parsed && "message" in parsed) {
+            message = Array.isArray(parsed.message)
+              ? parsed.message.join(", ")
+              : String(parsed.message);
+          }
+        } catch {
+          message = text;
+        }
+      }
       throw new Error(message);
     }
+
+    if (!text) return undefined as T;
+
+    const payload = contentType?.includes("application/json")
+      ? JSON.parse(text)
+      : text;
 
     return payload as T;
   } catch (err) {
@@ -792,30 +802,59 @@ export function formatMoney(value?: string | number | null, symbol?: string) {
   })}`;
 }
 
+/**
+ * Resolves a raw image URL from the API into a URL safe for use with next/image.
+ *
+ * Problem: next/image fetches images server-side during optimisation. When the
+ * raw URL contains `localhost`, the Next.js server resolves it to a private IP
+ * (127.0.0.1 / ::1) and rejects it with "resolved to private ip".
+ *
+ * Solution: static files served by the NestJS backend (e.g. /products/*.webp)
+ * are proxied through a Next.js rewrite rule (`/products/:path*` → NestJS).
+ * So we strip the localhost origin from those URLs, leaving a relative path
+ * like `/products/abc.webp`. next/image treats relative paths as same-origin
+ * and never makes a cross-host fetch, sidestepping the private-IP block.
+ *
+ * On production the raw URL already contains the real HTTPS hostname (from
+ * NEXT_PUBLIC_API_BASE_URL), so the relative-path logic never fires and the
+ * full URL is returned unchanged.
+ */
 export function resolveImageUrl(url?: string | null): string {
   if (!url) return "";
 
-  // Get API origin from environment variable
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "https://tinyecomapi.neocomerz.com/api/v1";
-  let apiOrigin = "https://tinyecomapi.neocomerz.com";
-  try {
-    const parsed = new URL(apiBaseUrl);
-    apiOrigin = parsed.origin;
-  } catch (e) {
-    // Fallback if parsing fails
+  // ── 1. Already a relative or data URI — return as-is ──────────────────────
+  if (
+    url.startsWith("/") ||
+    url.startsWith("data:") ||
+    url.startsWith("blob:")
+  ) {
+    return url;
   }
 
-  let resolvedUrl = url;
-  if (resolvedUrl.includes("localhost:")) {
-    resolvedUrl = resolvedUrl.replace(/^https?:\/\/localhost:\d+/, apiOrigin);
+  // ── 2. Localhost URL — strip the origin so it becomes a relative path ──────
+  // The Next.js rewrite `/products/:path*` proxies this back to the NestJS
+  // backend, so next/image only ever sees a same-origin path.
+  if (/https?:\/\/localhost(:\d+)?/.test(url)) {
+    return url.replace(/^https?:\/\/localhost(:\d+)?/, "");
   }
 
-  if (!resolvedUrl.startsWith("http://") && !resolvedUrl.startsWith("https://") && !resolvedUrl.startsWith("data:")) {
-    const separator = resolvedUrl.startsWith("/") ? "" : "/";
-    resolvedUrl = `${apiOrigin}${separator}${resolvedUrl}`;
+  // ── 3. Absolute HTTPS/HTTP URL (production) — return unchanged ────────────
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
   }
 
-  return resolvedUrl;
+  // ── 4. Bare path without a leading slash — derive origin from env ─────────
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  let apiOrigin = "http://localhost:5010";
+  if (apiBaseUrl) {
+    try {
+      apiOrigin = new URL(apiBaseUrl).origin;
+    } catch {
+      // ignore malformed env value
+    }
+  }
+
+  return `${apiOrigin}/${url}`;
 }
 
 // ─── News / Blog ───────────────────────────────────────────────────────────

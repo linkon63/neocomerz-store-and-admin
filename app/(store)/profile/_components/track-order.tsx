@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { FiLoader, FiCheckCircle, FiTruck, FiClock } from "react-icons/fi";
+import { FiLoader, FiCheckCircle, FiTruck, FiClock, FiSearch, FiPackage } from "react-icons/fi";
 import { toast } from "sonner";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5010/api/v1";
+
+const SECTION_LABEL = "text-[10px] font-bold tracking-[0.18em] uppercase text-zinc-400";
 
 interface Order {
   id: string;
@@ -15,129 +17,178 @@ interface Order {
   createdAt: string;
 }
 
+const STEPS = [
+  { label: "Order Placed",  statuses: ["pending", "processing", "shipped", "delivered"], Icon: FiClock        },
+  { label: "Processing",    statuses: ["processing", "shipped", "delivered"],             Icon: FiPackage      },
+  { label: "Shipped",       statuses: ["shipped", "delivered"],                           Icon: FiTruck        },
+  { label: "Delivered",     statuses: ["delivered"],                                      Icon: FiCheckCircle  },
+] as const;
+
+function statusBadgeClass(status: string) {
+  switch (status.toLowerCase()) {
+    case "delivered":  return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    case "shipped":    return "bg-sky-50 text-sky-700 border-sky-200";
+    case "processing": return "bg-amber-50 text-amber-700 border-amber-200";
+    case "cancelled":  return "bg-red-50 text-red-700 border-red-200";
+    case "returned":   return "bg-purple-50 text-purple-700 border-purple-200";
+    default:           return "bg-stone-50 text-stone-600 border-stone-200";
+  }
+}
+
 export default function TrackOrderView() {
-  const [trackInvoiceId, setTrackInvoiceId] = useState("");
-  const [trackedOrder, setTrackedOrder] = useState<Order | null>(null);
-  const [trackingLoading, setTrackingLoading] = useState(false);
-  const [trackingSearched, setTrackingSearched] = useState(false);
+  const [invoiceId, setInvoiceId] = useState("");
+  const [order, setOrder]         = useState<Order | null>(null);
+  const [loading, setLoading]     = useState(false);
+  const [searched, setSearched]   = useState(false);
 
-  const handleOrderTrack = async (e: React.FormEvent) => {
+  const handleTrack = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!trackInvoiceId.trim()) return;
-
-    setTrackingLoading(true);
-    setTrackingSearched(false);
-    setTrackedOrder(null);
-
+    if (!invoiceId.trim()) return;
+    setLoading(true);
+    setSearched(false);
+    setOrder(null);
     try {
-      const res = await fetch(`${BASE_URL}/orders/${trackInvoiceId.trim()}`, {
-        headers: { "Content-Type": "application/json" }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setTrackedOrder(data);
-      } else {
-        toast.error("Order not found.");
-      }
-    } catch (err) {
-      toast.error("Failed to track order. Please try again.");
+      const res = await fetch(`${BASE_URL}/orders/${invoiceId.trim()}`);
+      if (res.ok) setOrder(await res.json());
+      else toast.error("Order not found. Please check your Invoice ID.");
+    } catch {
+      toast.error("Failed to reach the server. Please try again.");
     } finally {
-      setTrackingLoading(false);
-      setTrackingSearched(true);
+      setLoading(false);
+      setSearched(true);
     }
   };
 
+  const isCancelled = order?.status?.toLowerCase() === "cancelled";
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
+
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div>
-        <h2 className="text-[10px] font-bold tracking-[0.16em] uppercase text-zinc-400 mb-1">
-          Track Order
+        <p className={SECTION_LABEL}>Shipment</p>
+        <h2 className="font-['Bembo_Std'] text-2xl text-zinc-850 font-normal mt-1">
+          Track Your Order
         </h2>
-        <p className="font-['Bembo_Std'] text-zinc-650 text-base italic">
-          Track the shipment status of your purchase.
+        <p className="font-['Bembo_Std'] text-zinc-400 text-sm italic mt-0.5">
+          Enter your invoice ID to see real-time shipment status.
         </p>
       </div>
 
-      <form onSubmit={handleOrderTrack} className="flex gap-4 max-w-lg items-end">
-        <div className="relative flex-grow border border-stone-200 focus-within:border-stone-400 rounded">
+      {/* ── Search Form ─────────────────────────────────────────────────────── */}
+      <form onSubmit={handleTrack} className="flex gap-3 max-w-xl">
+        <div className="flex-grow relative">
+          <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 text-sm pointer-events-none" />
           <input
             type="text"
-            value={trackInvoiceId}
-            onChange={(e) => setTrackInvoiceId(e.target.value)}
-            placeholder="Enter Invoice ID / Order Number"
-            className="w-full px-4 py-3 text-sm outline-none font-sans"
+            value={invoiceId}
+            onChange={(e) => setInvoiceId(e.target.value)}
+            placeholder="Enter Invoice ID or Order Number"
+            className="w-full pl-10 pr-4 py-3 border border-stone-200 bg-white text-sm font-sans text-zinc-800 outline-none focus:border-stone-400 transition rounded-xl placeholder:text-zinc-300"
             required
           />
         </div>
         <button
           type="submit"
-          disabled={trackingLoading}
-          className="bg-[#1A1A1A] hover:bg-stone-850 text-white font-sans text-xs font-semibold tracking-wider uppercase py-3.5 px-8 shadow-sm transition cursor-pointer shrink-0"
+          disabled={loading}
+          className="shrink-0 inline-flex items-center gap-2 bg-[#1A1A1A] hover:bg-stone-800 text-white font-sans text-[10px] font-bold tracking-[0.16em] uppercase px-7 py-3 rounded-xl transition cursor-pointer shadow-sm disabled:opacity-60"
         >
-          {trackingLoading ? <FiLoader className="animate-spin text-white w-4 h-4" /> : "Track"}
+          {loading ? <FiLoader className="animate-spin w-3.5 h-3.5" /> : "Track"}
         </button>
       </form>
 
-      {trackingSearched && (
-        <div className="pt-6 border-t border-stone-150">
-          {trackedOrder ? (
-            <div className="space-y-8 animate-fadeIn">
-              <div className="flex justify-between items-center flex-wrap gap-4 border-b border-stone-150 pb-4">
+      {/* ── Result ──────────────────────────────────────────────────────────── */}
+      {searched && (
+        <div className="border-t border-stone-100 pt-10">
+          {order ? (
+            <div className="space-y-8">
+
+              {/* Summary card */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-stone-50 border border-stone-200 rounded-xl px-6 py-5">
                 <div>
-                  <h3 className="font-sans font-bold text-xs uppercase text-zinc-800 tracking-wider">
-                    Invoice: {trackedOrder.orderNumber}
-                  </h3>
+                  <p className="font-sans font-bold text-xs uppercase tracking-wider text-zinc-800">
+                    {order.orderNumber}
+                  </p>
                   <p className="font-sans text-[10px] text-zinc-400 mt-1">
-                    Placed on: {new Date(trackedOrder.placedAt || trackedOrder.createdAt).toLocaleDateString()}
+                    Placed{" "}
+                    {new Date(order.placedAt || order.createdAt).toLocaleDateString("en-US", {
+                      day: "numeric", month: "long", year: "numeric",
+                    })}
                   </p>
                 </div>
-                <span className="bg-stone-100 border border-stone-200 text-zinc-800 text-xs px-3 py-1 rounded font-sans font-semibold uppercase">
-                  {trackedOrder.status}
-                </span>
+                <div className="flex items-center gap-4">
+                  <span className={`border font-sans text-[9px] font-bold tracking-wider uppercase px-3 py-1 rounded-full ${statusBadgeClass(order.status)}`}>
+                    {order.status}
+                  </span>
+                  <span className="font-sans font-bold text-sm text-zinc-800">
+                    ৳{Number(order.total).toLocaleString()}
+                  </span>
+                </div>
               </div>
 
-              {/* Order status tracking visual bar */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
-                {[
-                  { label: "Ordered", statusKey: ["pending", "processing", "shipped", "delivered"] },
-                  { label: "Processing", statusKey: ["processing", "shipped", "delivered"] },
-                  { label: "Shipped", statusKey: ["shipped", "delivered"] },
-                  { label: "Delivered", statusKey: ["delivered"] }
-                ].map((step, idx) => {
-                  const isActive = step.statusKey.includes(trackedOrder.status.toLowerCase());
-                  return (
-                    <div key={idx} className="flex gap-6 items-start">
-                      <div className={`w-8 h-8 rounded-full border flex items-center justify-center z-15 ${isActive
-                        ? "bg-[#C5B382] border-[#C5B382] text-black"
-                        : "bg-white border-stone-200 text-stone-300"
-                        }`}>
-                      {idx === 3 ? (
-                        <FiCheckCircle className="text-sm" />
-                      ) : idx === 2 ? (
-                        <FiTruck className="text-sm" />
-                      ) : idx === 1 ? (
-                        <FiLoader className="text-sm" />
-                      ) : (
-                        <FiClock className="text-sm" />
-                      )}
-                      </div>
-                      <div>
-                        <h4 className={`font-sans font-bold text-xs uppercase tracking-wider ${isActive ? "text-zinc-800" : "text-stone-350"}`}>
-                          {step.label}
-                        </h4>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              {/* Progress tracker */}
+              {!isCancelled ? (
+                <div>
+                  <p className="font-sans text-[10px] font-bold tracking-[0.18em] uppercase text-zinc-400 mb-7">
+                    Delivery Progress
+                  </p>
+
+                  {/* Desktop horizontal / mobile 2-col grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 relative">
+
+                    {/* Connector lines — desktop only */}
+                    <div className="absolute hidden sm:block top-[18px] left-[calc(12.5%+18px)] right-[calc(12.5%+18px)] h-px bg-stone-200 -z-0" />
+
+                    {STEPS.map((step, idx) => {
+                      const { Icon } = step;
+                      const isActive  = step.statuses.includes(order.status.toLowerCase() as any);
+                      const isCurrent = (
+                        isActive &&
+                        !STEPS[idx + 1]?.statuses.includes(order.status.toLowerCase() as any)
+                      );
+                      return (
+                        <div key={step.label} className="flex flex-col items-center gap-2 text-center relative z-10">
+                          <div className={`w-9 h-9 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                            isActive
+                              ? isCurrent
+                                ? "bg-[#C5B382] border-[#C5B382] text-white shadow-md shadow-[#C5B382]/30 scale-110"
+                                : "bg-[#C5B382] border-[#C5B382] text-white"
+                              : "bg-white border-stone-200 text-stone-300"
+                          }`}>
+                            <Icon className="text-sm" />
+                          </div>
+                          <p className={`font-sans text-[10px] font-bold tracking-wider uppercase transition-colors ${
+                            isActive ? "text-zinc-800" : "text-stone-300"
+                          }`}>
+                            {step.label}
+                          </p>
+                          {isCurrent && (
+                            <span className="font-sans text-[9px] text-[#C5B382] font-bold tracking-wider uppercase">
+                              Current
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-10 border border-dashed border-red-200 rounded-xl bg-red-50/40">
+                  <p className="font-sans font-bold text-xs uppercase tracking-wider text-red-500 mb-1">
+                    Order Cancelled
+                  </p>
+                  <p className="font-sans text-xs text-zinc-400">
+                    This order has been cancelled and will not be shipped.
+                  </p>
+                </div>
+              )}
             </div>
           ) : (
-            <div className="text-center py-12 border border-stone-150 rounded">
-              <p className="font-sans text-sm text-zinc-500 font-semibold mb-2">
-                Order Not Found
-              </p>
-              <p className="font-sans text-xs text-zinc-400 max-w-xs mx-auto">
-                Please verify your Invoice ID / Order Number and try again.
+            <div className="flex flex-col items-center justify-center py-16 border border-dashed border-stone-200 rounded-xl">
+              <FiSearch className="text-3xl text-zinc-200 mb-4" />
+              <p className="font-['Bembo_Std'] text-zinc-500 text-base italic">Order not found.</p>
+              <p className="font-sans text-xs text-zinc-300 mt-1 text-center max-w-xs">
+                Please verify your Invoice ID or Order Number and try again.
               </p>
             </div>
           )}

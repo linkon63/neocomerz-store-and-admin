@@ -22,7 +22,6 @@ import {
   type Unit,
 } from "../../../../../../lib/admin-api";
 import { EditProductSkeleton } from "./EditProductSkeleton";
-import { SupplierModal } from "./SupplierModal";
 
 type CategoryOption = Category & { depth: number };
 
@@ -135,9 +134,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   const [imagesList, setImagesList] = useState<ImageItem[]>([]);
   const [isDirty, setIsDirty] = useState(false);
-
   const imageInputRef = useRef<HTMLInputElement>(null);
-  const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
+
   const [isConfirmLeaveOpen, setIsConfirmLeaveOpen] = useState(false);
 
   const { deleteMedia } = useDeleteProductMedia();
@@ -311,8 +309,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           unitId: product.unit?.id ?? product.unitId ?? "",
           baseUnitId: "",
           tagIds: product.tags?.map((t) => t.id) ?? [],
-          supplierId: "",
-          supplierPrice: "",
+          supplierId: (product as any).supplierId ?? "",
+          supplierPrice: (product as any).supplierPrice ? String((product as any).supplierPrice) : "",
           branchId: (product as any).branchId ?? "",
           channelIds: [],
           vatId: "",
@@ -809,6 +807,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           categoryId: form.categoryId || undefined,
           unitId: form.unitId || undefined,
           tagIds: form.tagIds,
+          supplierId: form.supplierId || undefined,
+          supplierPrice: form.supplierPrice ? Number(form.supplierPrice) : undefined,
         }),
       });
 
@@ -1399,16 +1399,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               </h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <div className="mb-2 flex items-center justify-between">
+                  <div className="mb-2">
                     <span className="block text-xs font-semibold text-slate-700">Supplier Name</span>
-                    <button
-                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-700"
-                      onClick={() => setIsSupplierModalOpen(true)}
-                      type="button"
-                    >
-                      <AdminIcon className="h-3.5 w-3.5" name="plus" />
-                      Add New
-                    </button>
                   </div>
                   <select
                     className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
@@ -1679,16 +1671,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         )}
       </form>
 
-      {/* Supplier Modal */}
-      <SupplierModal
-        isOpen={isSupplierModalOpen}
-        onClose={() => setIsSupplierModalOpen(false)}
-        onSuccess={(created) => {
-          setSuppliers((current) => [...current, created]);
-          setForm((current) => ({ ...current, supplierId: created.id }));
-          setIsSupplierModalOpen(false);
-        }}
-      />
+
 
       {/* Confirm Leave Modal */}
       <ConfirmModal

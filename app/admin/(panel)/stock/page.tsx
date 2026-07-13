@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { resolveImageUrl } from "../../../../lib/admin-api";
 import { AdminIcon, PageHeader, ProductThumb } from "../../_components/admin-shell";
 import { AdjustInventoryModal } from "../../_components/adjust-inventory-modal";
 import { InfiniteScroll } from "../../_components/infinite-scroll";
@@ -33,7 +34,7 @@ export default function StockPage() {
         id: variant.product.id,
         name: variant.product.name,
         slug: variant.product.slug,
-        imageUrl: variant.product.media?.[0]?.media?.url,
+        imageUrl: resolveImageUrl(variant.product.media?.[0]?.media?.url),
       },
       variant: {
         id: variant.id,

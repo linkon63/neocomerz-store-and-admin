@@ -1,59 +1,61 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { FiLoader, FiEdit2, FiTrash2, FiChevronDown } from "react-icons/fi";
+import { FiLoader, FiCamera, FiTrash2, FiChevronDown, FiUser, FiLock } from "react-icons/fi";
 import { toast } from "sonner";
 import { useAuth } from "@/app/_providers/auth-provider";
 import { uploadAvatar, deleteAvatar, changePassword } from "@/lib/storefront-api";
 import ResolvedImage from "./image-resolver";
 
+// ─── Shared design tokens ────────────────────────────────────────────────────
+const SECTION_LABEL = "text-[10px] font-bold tracking-[0.18em] uppercase text-zinc-400";
+const FIELD_LABEL   = "block text-[10px] font-bold tracking-[0.14em] uppercase text-zinc-400 mb-1.5";
+const INPUT_BASE    = "w-full border border-stone-200 bg-white px-4 py-3 text-sm font-sans text-zinc-800 outline-none transition focus:border-stone-400 focus:ring-0 rounded-lg placeholder:text-zinc-300";
+const BTN_PRIMARY   = "inline-flex items-center gap-2 bg-[#1A1A1A] hover:bg-stone-800 text-white font-sans text-[10px] font-bold tracking-[0.16em] uppercase px-10 py-3.5 rounded-full transition cursor-pointer shadow-sm disabled:opacity-50";
+const BTN_SECONDARY = "inline-flex items-center gap-2 bg-white hover:bg-stone-50 border border-stone-200 text-zinc-700 font-sans text-[10px] font-bold tracking-[0.16em] uppercase px-10 py-3.5 rounded-full transition cursor-pointer shadow-sm disabled:opacity-50";
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function AccountDetailsView() {
   const { user, updateProfile, refreshUser } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Profile data states
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [countryCode, setCountryCode] = useState("+880");
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [firstName, setFirstName]           = useState("");
+  const [lastName, setLastName]             = useState("");
+  const [phoneNumber, setPhoneNumber]       = useState("");
+  const [countryCode, setCountryCode]       = useState("+880");
+  const [avatarUrl, setAvatarUrl]           = useState<string | null>(null);
   const [updatingProfile, setUpdatingProfile] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
-  // Password update form state
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
+  const [currentPassword, setCurrentPassword]   = useState("");
+  const [newPassword, setNewPassword]           = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [updatingPassword, setUpdatingPassword] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      const nameParts = (user.name || "").trim().split(/\s+/);
-      setFirstName(nameParts[0] || "");
-      setLastName(nameParts.slice(1).join(" ") || "");
+    if (!user) return;
+    const parts = (user.name || "").trim().split(/\s+/);
+    setFirstName(parts[0] || "");
+    setLastName(parts.slice(1).join(" ") || "");
 
-      let phoneStr = user.phone || "";
-      if (phoneStr.startsWith("+")) {
-        const match = phoneStr.match(/^(\+\d{1,4})(.*)$/);
-        if (match) {
-          setCountryCode(match[1]);
-          phoneStr = match[2];
-        }
-      }
-      setPhoneNumber(phoneStr);
-      setAvatarUrl(user.avatarUrl || null);
+    let phone = user.phone || "";
+    if (phone.startsWith("+")) {
+      const m = phone.match(/^(\+\d{1,4})(.*)$/);
+      if (m) { setCountryCode(m[1]); phone = m[2]; }
     }
+    setPhoneNumber(phone);
+    setAvatarUrl(user.avatarUrl || null);
   }, [user]);
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setUpdatingProfile(true);
     try {
-      const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
-      const fullPhone = `${countryCode}${phoneNumber.trim()}`;
-      await updateProfile(fullName, user?.email || "", fullPhone);
+      const name  = `${firstName.trim()} ${lastName.trim()}`.trim();
+      const phone = `${countryCode}${phoneNumber.trim()}`;
+      await updateProfile(name, user?.email || "", phone);
       await refreshUser();
-      toast.success("Profile details updated successfully!");
+      toast.success("Profile updated successfully.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to update profile.");
     } finally {
@@ -64,21 +66,18 @@ export default function AccountDetailsView() {
   const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentPassword || !newPassword) {
-      toast.error("Please fill in current and new passwords.");
+      toast.error("Please fill in all password fields.");
       return;
     }
     if (newPassword !== confirmNewPassword) {
-      toast.error("Confirm passwords do not match.");
+      toast.error("New passwords do not match.");
       return;
     }
-
     setUpdatingPassword(true);
     try {
       await changePassword({ currentPassword, newPassword });
-      toast.success("Password changed successfully!");
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmNewPassword("");
+      toast.success("Password changed successfully.");
+      setCurrentPassword(""); setNewPassword(""); setConfirmNewPassword("");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to change password.");
     } finally {
@@ -89,18 +88,13 @@ export default function AccountDetailsView() {
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select a valid image file.");
-      return;
-    }
-
+    if (!file.type.startsWith("image/")) { toast.error("Please select a valid image file."); return; }
     setUploadingAvatar(true);
     try {
       const res = await uploadAvatar(file);
       setAvatarUrl(res.avatarUrl);
       await refreshUser();
-      toast.success("Profile picture updated!");
+      toast.success("Profile photo updated.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to upload photo.");
     } finally {
@@ -109,32 +103,35 @@ export default function AccountDetailsView() {
   };
 
   const handleDeleteAvatar = async () => {
-    if (!confirm("Delete profile picture?")) return;
+    if (!confirm("Remove your profile photo?")) return;
     try {
       await deleteAvatar();
       setAvatarUrl(null);
       await refreshUser();
-      toast.success("Profile photo deleted.");
+      toast.success("Profile photo removed.");
     } catch {
-      toast.error("Failed to delete photo.");
+      toast.error("Failed to remove photo.");
     }
   };
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-14">
+
+      {/* ── Page Header ──────────────────────────────────────────────────── */}
       <div>
-        <h2 className="text-[10px] font-bold tracking-[0.16em] uppercase text-zinc-400 mb-1">
-          Personal Information
+        <p className={SECTION_LABEL}>Personal Information</p>
+        <h2 className="font-['Bembo_Std'] text-2xl text-zinc-850 font-normal mt-1">
+          Account Details
         </h2>
-        <p className="font-['Bembo_Std'] text-zinc-650 text-base italic">
-          To track your order please enter your invoice ID.
+        <p className="font-['Bembo_Std'] text-zinc-400 text-sm italic mt-0.5">
+          Manage your personal information and login credentials.
         </p>
       </div>
 
-      {/* Avatar Uploader Section */}
-      <div className="flex justify-center">
-        <div className="relative w-24 h-24 rounded-full">
-          <div className="w-full h-full rounded-full overflow-hidden border border-stone-200 bg-stone-50 flex items-center justify-center shadow-xs">
+      {/* ── Avatar ───────────────────────────────────────────────────────── */}
+      <div className="flex items-center gap-6">
+        <div className="relative w-20 h-20 shrink-0">
+          <div className="w-full h-full rounded-full overflow-hidden border-2 border-stone-100 bg-stone-50 shadow-sm flex items-center justify-center">
             {uploadingAvatar ? (
               <FiLoader className="w-6 h-6 text-[#C5B382] animate-spin" />
             ) : (
@@ -145,181 +142,132 @@ export default function AccountDetailsView() {
               />
             )}
           </div>
-          
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="absolute bottom-0 right-0 w-8 h-8 bg-white border border-stone-300 rounded-full flex items-center justify-center shadow-sm hover:scale-105 transition cursor-pointer"
-            title="Update profile picture"
+            className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#1A1A1A] text-white rounded-full flex items-center justify-center shadow hover:bg-stone-700 transition cursor-pointer"
+            title="Change photo"
           >
-            <FiEdit2 className="text-stone-600 text-xs" />
+            <FiCamera className="text-[11px]" />
           </button>
-          
-          {avatarUrl && (
-            <button
-              type="button"
-              onClick={handleDeleteAvatar}
-              className="absolute top-0 right-0 w-6 h-6 bg-white border border-red-200 hover:border-red-450 hover:bg-red-50 text-red-500 rounded-full flex items-center justify-center shadow-sm transition cursor-pointer"
-              title="Delete photo"
-            >
-              <FiTrash2 className="text-[10px]" />
-            </button>
-          )}
-        </div>
-        
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleAvatarChange}
-          className="hidden"
-          aria-label="Upload profile image"
-        />
-      </div>
-
-      {/* Profile Details Edit Form */}
-      <form onSubmit={handleProfileUpdate} className="space-y-6 max-w-2xl pt-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label className="block font-['Bembo_Std'] text-zinc-800 text-base italic mb-1.5">
-              First Name
-            </label>
-            <input
-              type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              className="w-full border border-stone-200 px-4 py-3 rounded-lg text-sm focus:border-stone-400 outline-none font-sans font-semibold text-zinc-800 bg-white"
-              required
-              placeholder="First Name"
-            />
-          </div>
-          <div>
-            <label className="block font-['Bembo_Std'] text-zinc-800 text-base italic mb-1.5">
-              Last Name
-            </label>
-            <input
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              className="w-full border border-stone-200 px-4 py-3 rounded-lg text-sm focus:border-stone-400 outline-none font-sans font-semibold text-zinc-800 bg-white"
-              required
-              placeholder="Last Name"
-            />
-          </div>
         </div>
 
         <div>
-          <label className="block font-['Bembo_Std'] text-zinc-800 text-base italic mb-1.5">
-            Phone Number
-          </label>
-          <div className="flex w-full border border-stone-200 rounded-lg overflow-hidden bg-white">
-            <div className="relative flex items-center bg-stone-50 border-r border-stone-200 px-3 cursor-pointer">
-              <select
-                value={countryCode}
-                onChange={(e) => setCountryCode(e.target.value)}
-                className="bg-transparent text-xs font-sans font-semibold appearance-none pr-6 outline-none cursor-pointer text-zinc-800"
-                aria-label="Select Country Code"
-              >
-                <option value="+880">+880</option>
-                <option value="+1">+1</option>
-                <option value="+44">+44</option>
-                <option value="+86">+86</option>
-                <option value="+91">+91</option>
-              </select>
-              <FiChevronDown className="absolute right-2 text-zinc-400 text-xs pointer-events-none" />
-            </div>
-            <input
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ""))}
-              className="flex-grow px-4 py-3 text-sm focus:border-stone-400 outline-none font-sans font-semibold text-zinc-800"
-              placeholder="Phone Number (e.g. 1738552161)"
-            />
-          </div>
-        </div>
-
-        <div className="flex justify-start pt-4">
-          <button
-            type="submit"
-            disabled={updatingProfile}
-            className="bg-white hover:bg-stone-50 border border-stone-200 px-10 py-3 rounded-full text-zinc-800 font-sans text-xs font-bold tracking-[0.14em] uppercase transition shadow-md shadow-zinc-150/40 flex items-center gap-2 cursor-pointer"
-          >
-            {updatingProfile ? (
-              <>
-                <FiLoader className="animate-spin text-black w-4 h-4" />
-                UPDATING...
-              </>
-            ) : (
-              "UPDATE"
-            )}
-          </button>
-        </div>
-      </form>
-
-      {/* Change Password Section */}
-      <div className="border-t border-stone-150 pt-10">
-        <h3 className="text-[10px] font-bold tracking-[0.16em] uppercase text-zinc-400 mb-6">
-          Change Password
-        </h3>
-        
-        <form onSubmit={handlePasswordUpdate} className="space-y-6 max-w-2xl">
-          <div>
-            <label className="block font-['Bembo_Std'] text-zinc-800 text-base italic mb-1.5">
-              Current Password
-            </label>
-            <input
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full border border-stone-200 px-4 py-3 rounded-lg text-sm focus:border-stone-400 outline-none font-sans bg-white"
-              required
-              placeholder="Current Password"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label className="block font-['Bembo_Std'] text-zinc-800 text-base italic mb-1.5">
-                New Password
-              </label>
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full border border-stone-200 px-4 py-3 rounded-lg text-sm focus:border-stone-400 outline-none font-sans bg-white"
-                required
-                placeholder="New Password"
-              />
-            </div>
-            <div>
-              <label className="block font-['Bembo_Std'] text-zinc-800 text-base italic mb-1.5">
-                Confirm New Password
-              </label>
-              <input
-                type="password"
-                value={confirmNewPassword}
-                onChange={(e) => setConfirmNewPassword(e.target.value)}
-                className="w-full border border-stone-200 px-4 py-3 rounded-lg text-sm focus:border-stone-400 outline-none font-sans bg-white"
-                required
-                placeholder="Confirm New Password"
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-start pt-4">
+          <p className="font-sans font-bold text-sm text-zinc-800">{user?.name || "—"}</p>
+          <p className="font-sans text-xs text-zinc-400 mt-0.5">{user?.email || "—"}</p>
+          <div className="flex items-center gap-3 mt-2.5">
             <button
-              type="submit"
-              disabled={updatingPassword}
-              className="bg-white hover:bg-stone-50 border border-stone-200 px-10 py-3.5 rounded-full text-zinc-800 font-sans text-xs font-bold tracking-[0.14em] uppercase transition shadow-md shadow-zinc-150/40 flex items-center gap-2 cursor-pointer"
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="font-sans text-[10px] font-bold tracking-wider uppercase text-[#C5B382] hover:text-stone-800 transition cursor-pointer"
             >
-              {updatingPassword ? (
-                <>
-                  <FiLoader className="animate-spin text-black w-4 h-4" />
-                  CHANGING...
-                </>
-              ) : (
-                "Save Password"
-              )}
+              Change Photo
+            </button>
+            {avatarUrl && (
+              <>
+                <span className="text-stone-200">|</span>
+                <button
+                  type="button"
+                  onClick={handleDeleteAvatar}
+                  className="font-sans text-[10px] font-bold tracking-wider uppercase text-red-400 hover:text-red-600 transition cursor-pointer flex items-center gap-1"
+                >
+                  <FiTrash2 className="text-[10px]" /> Remove
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" aria-label="Upload profile image" />
+      </div>
+
+      {/* ── Profile Form ─────────────────────────────────────────────────── */}
+      <div className="border-t border-stone-100 pt-10">
+        <div className="flex items-center gap-2.5 mb-6">
+          <FiUser className="text-zinc-300 text-sm" />
+          <p className={SECTION_LABEL}>Profile Details</p>
+        </div>
+
+        <form onSubmit={handleProfileUpdate} className="space-y-5 max-w-2xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className={FIELD_LABEL}>First Name</label>
+              <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} className={INPUT_BASE} placeholder="First name" required />
+            </div>
+            <div>
+              <label className={FIELD_LABEL}>Last Name</label>
+              <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} className={INPUT_BASE} placeholder="Last name" required />
+            </div>
+          </div>
+
+          <div>
+            <label className={FIELD_LABEL}>Email Address</label>
+            <input type="email" value={user?.email || ""} className={`${INPUT_BASE} bg-stone-50 text-zinc-400 cursor-not-allowed`} disabled />
+          </div>
+
+          <div>
+            <label className={FIELD_LABEL}>Phone Number</label>
+            <div className="flex border border-stone-200 rounded-lg overflow-hidden bg-white focus-within:border-stone-400 transition">
+              <div className="relative flex items-center bg-stone-50 border-r border-stone-200 px-3 shrink-0">
+                <select
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  className="bg-transparent text-xs font-sans font-bold appearance-none pr-5 outline-none cursor-pointer text-zinc-700"
+                  aria-label="Country code"
+                >
+                  <option value="+880">🇧🇩 +880</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+44">🇬🇧 +44</option>
+                  <option value="+91">🇮🇳 +91</option>
+                  <option value="+86">🇨🇳 +86</option>
+                </select>
+                <FiChevronDown className="absolute right-1.5 text-zinc-400 text-[10px] pointer-events-none" />
+              </div>
+              <input
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ""))}
+                className="flex-grow px-4 py-3 text-sm outline-none font-sans text-zinc-800 placeholder:text-zinc-300"
+                placeholder="01xxxxxxxxx"
+              />
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <button type="submit" disabled={updatingProfile} className={BTN_PRIMARY}>
+              {updatingProfile ? <><FiLoader className="animate-spin w-3.5 h-3.5" /> Saving…</> : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* ── Password Form ─────────────────────────────────────────────────── */}
+      <div className="border-t border-stone-100 pt-10">
+        <div className="flex items-center gap-2.5 mb-6">
+          <FiLock className="text-zinc-300 text-sm" />
+          <p className={SECTION_LABEL}>Change Password</p>
+        </div>
+
+        <form onSubmit={handlePasswordUpdate} className="space-y-5 max-w-2xl">
+          <div>
+            <label className={FIELD_LABEL}>Current Password</label>
+            <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className={INPUT_BASE} placeholder="••••••••" required />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className={FIELD_LABEL}>New Password</label>
+              <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className={INPUT_BASE} placeholder="••••••••" required />
+            </div>
+            <div>
+              <label className={FIELD_LABEL}>Confirm New Password</label>
+              <input type="password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} className={INPUT_BASE} placeholder="••••••••" required />
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <button type="submit" disabled={updatingPassword} className={BTN_SECONDARY}>
+              {updatingPassword ? <><FiLoader className="animate-spin w-3.5 h-3.5" /> Updating…</> : "Update Password"}
             </button>
           </div>
         </form>

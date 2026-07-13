@@ -52,9 +52,17 @@ export default function ProductCard({
         />
       </div>
 
+      {id && (
+        <Link
+          href={`/products/${id}`}
+          className="absolute inset-0 z-20 cursor-pointer"
+          aria-label={`View details for ${name}`}
+        />
+      )}
+
       <div className="w-full h-full flex flex-col justify-start items-start">
         {id ? (
-          <Link href={`/products/${id}`} className="self-stretch h-[290px] flex flex-col justify-center items-center relative overflow-hidden cursor-pointer w-full">
+          <div className="self-stretch h-[290px] flex flex-col justify-center items-center relative overflow-hidden w-full">
             <Image
               src={image || NO_IMAGE}
               alt={name}
@@ -63,7 +71,7 @@ export default function ProductCard({
               className="object-contain group-hover:scale-105 transition-transform duration-300"
               onError={handleImageError}
             />
-          </Link>
+          </div>
         ) : (
           <div className="self-stretch h-[290px] flex flex-col justify-center items-center relative overflow-hidden w-full">
             <Image
@@ -77,8 +85,8 @@ export default function ProductCard({
           </div>
         )}
 
-        <div className="self-stretch px-6 md:px-9 pt-4 pb-6 md:pb-9 flex flex-col justify-between z-20 w-full relative">
-          <div className="absolute top-4 right-6 md:right-9">
+        <div className="self-stretch px-6 md:px-9 pt-4 pb-6 md:pb-9 flex flex-col justify-between w-full relative">
+          <div className="absolute top-4 right-6 md:right-9 z-30">
             <button
               onClick={() => id && (isAuthenticated ? toggleWishlist(wishlistProduct) : setShowAuthModal(true))}
               className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-md hover:shadow-lg hover:scale-110 transition-all cursor-pointer"
@@ -99,17 +107,9 @@ export default function ProductCard({
 
           <div className="w-full flex justify-between items-end gap-4 mt-12">
             <div className="flex-1">
-              {id ? (
-                <Link href={`/products/${id}`} className="cursor-pointer">
-                  <h3 className="text-stone-850 hover:text-brand-3 transition-colors duration-200 text-sm sm:text-base md:text-[17px] font-normal font-gotham line-clamp-2 leading-snug">
-                    {name}
-                  </h3>
-                </Link>
-              ) : (
-                <h3 className="text-stone-850 text-sm sm:text-base md:text-[17px] font-normal font-gotham leading-snug">
-                  {name}
-                </h3>
-              )}
+              <h3 className="text-stone-850 hover:text-brand-3 transition-colors duration-200 text-sm sm:text-base md:text-[17px] font-normal font-gotham line-clamp-2 leading-snug">
+                {name}
+              </h3>
             </div>
 
             <div className="flex flex-col items-end gap-1 shrink-0">

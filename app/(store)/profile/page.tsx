@@ -52,9 +52,9 @@ function ProfilePageContent() {
       // Check if user has orders to show the inline dot badge
       const token = getCustomerToken();
       if (token) {
-        fetch(`${BASE_URL}/orders`, { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${BASE_URL}/orders/my-orders`, { headers: { Authorization: `Bearer ${token}` } })
           .then((res) => (res.ok ? res.json() : []))
-          .then((data) => setHasOrders(Array.isArray(data) && data.length > 0))
+          .then((data) => setHasOrders(Array.isArray(data) ? data.length > 0 : (data?.data?.length ?? 0) > 0))
           .catch(() => {});
       }
     }
@@ -105,6 +105,9 @@ function ProfilePageContent() {
                             return;
                           }
                           setActiveTab(item.key as ProfileTab);
+                          const url = new URL(window.location.href);
+                          url.searchParams.set("tab", item.key);
+                          window.history.pushState(null, "", url.pathname + url.search);
                         }}
                         className={`flex items-center gap-3 px-6 py-3.5 rounded-full transition-all duration-300 font-sans text-xs tracking-widest font-bold cursor-pointer shrink-0 snap-start text-left ${
                           item.isLogout

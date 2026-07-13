@@ -9,6 +9,8 @@ export type CartItem = {
   id?: string;
   productId?: string;
   variantId?: string;
+  attributes?: Record<string, string>;
+  [key: string]: any;
 };
 
 export type WishlistProduct = {
@@ -22,6 +24,8 @@ export type WishlistProduct = {
   category: string;
   team: string;
   variantId?: string;
+  attributes?: Record<string, string>;
+  [key: string]: any;
 };
 
 export interface BackendCartItem {
@@ -38,6 +42,7 @@ export interface BackendCartItem {
     stockAlertThreshold: number;
     isDefault: boolean;
     productId: string;
+    attributes?: Record<string, string>;
     product: {
       id: string;
       name: string;

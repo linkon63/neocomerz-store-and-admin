@@ -50,6 +50,7 @@ const menuGroups: {
         children: [
           { label: "Brands", href: "/admin/brands", icon: "brand" },
           { label: "Categories", href: "/admin/categories", icon: "category" },
+          { label: "Suppliers", href: "/admin/suppliers", icon: "suppliers" },
           { label: "Tags", href: "/admin/tags", icon: "tag" },
           { label: "Units of Measurement", href: "/admin/units", icon: "units" },
           { label: "Variant Options", href: "/admin/variant-options", icon: "variants" },

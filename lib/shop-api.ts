@@ -124,20 +124,23 @@ export async function fetchShopProducts(
   searchParams.set("page", String(page));
   searchParams.set("limit", String(limit));
 
-  const res = await fetch(`${API_BASE_URL}/products?${searchParams.toString()}`, {
-    headers: { "Content-Type": "application/json" },
-  });
+  try {
+    const res = await fetch(`${API_BASE_URL}/products?${searchParams.toString()}`, {
+      headers: { "Content-Type": "application/json" },
+    });
 
-  if (res.status !== 200) {
-    throw new Error(`Failed to fetch products: ${res.status}`);
+    if (res.status !== 200) {
+      return { data: [], total: 0 };
+    }
+
+    const paginated: PaginatedProducts = await res.json();
+    return {
+      data: (paginated.data ?? []).map(mapProduct),
+      total: paginated.meta?.total ?? 0,
+    };
+  } catch {
+    return { data: [], total: 0 };
   }
-
-  const paginated: PaginatedProducts = await res.json();
-
-  return {
-    data: paginated.data.map(mapProduct),
-    total: paginated.meta.total,
-  };
 }
 
 export async function fetchShopProductById(id: string): Promise<AdminProduct | null> {
@@ -148,38 +151,32 @@ export async function fetchShopProductById(id: string): Promise<AdminProduct | n
 
     if (res.status !== 200) return null;
 
-    return (await res.json()) as AdminProduct;
+    return await res.json() as AdminProduct;
   } catch {
     return null;
   }
 }
-export async function fetchShopBrands(): Promise<ShopBrand[]> {
-  const res = await fetch(`${API_BASE_URL}/brands`, {
-    headers: { "Content-Type": "application/json" },
-  });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch brands: ${res.status}`);
+async function safeFetchJson<T>(url: string, fallback: T): Promise<T> {
+  try {
+    const res = await fetch(url, {
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!res.ok) return fallback;
+    return await res.json() as T;
+  } catch {
+    return fallback;
   }
-  return res.json();
 }
 
-export async function fetchShopCategories(): Promise<ShopCategory[]> {
-  const res = await fetch(`${API_BASE_URL}/category`, {
-    headers: { "Content-Type": "application/json" },
-  });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch categories: ${res.status}`);
-  }
-  return res.json();
+export function fetchShopBrands(): Promise<ShopBrand[]> {
+  return safeFetchJson<ShopBrand[]>(`${API_BASE_URL}/brands`, []);
 }
 
-export async function fetchShopSettings(): Promise<ShopSettings> {
-  const res = await fetch(`${API_BASE_URL}/settings`, {
-    headers: { "Content-Type": "application/json" },
-  });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch settings: ${res.status}`);
-  }
-  return res.json();
+export function fetchShopCategories(): Promise<ShopCategory[]> {
+  return safeFetchJson<ShopCategory[]>(`${API_BASE_URL}/category`, []);
+}
+
+export function fetchShopSettings(): Promise<ShopSettings | null> {
+  return safeFetchJson<ShopSettings | null>(`${API_BASE_URL}/settings`, null);
 }
 
