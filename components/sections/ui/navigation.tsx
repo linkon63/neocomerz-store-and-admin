@@ -1,64 +1,11 @@
 'use client';
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { RiArrowDownSLine } from "react-icons/ri";
-
-const categories = [
-  {
-    id: "assorted",
-    label: "Assorted Collections",
-    items: [
-      { label: "Assorted Classic Collection", href: "/products?category=Assorted%20Classic" },
-      { label: "Assorted Royal Collection", href: "/products?category=Assorted%20Royal" },
-      { label: "Assorted Super Fruit Collection", href: "/products?category=Assorted%20Super%20Fruit" },
-      { label: "Assorted Black Tea Collection", href: "/products?category=Assorted%20Black%20Tea" },
-      { label: "Assorted Wellness Collection", href: "/products?category=Assorted%20Wellness" },
-      { label: "Assorted Oolong Collection", href: "/products?category=Assorted%20Oolong" },
-      { label: "Assorted Festive Collection", href: "/products?category=Assorted%20Festive" },
-      { label: "Assorted Wild Meadows Collection", href: "/products?category=Assorted%20Wild%20Meadows" },
-      { label: "Assorted Wild Orchard Collection", href: "/products?category=Assorted%20Wild%20Orchard" },
-    ],
-  },
-  {
-    id: "tea-books",
-    label: "Tea Book Collections",
-    items: [
-      { label: "Velvet Bound Tea Book", href: "/products?category=Tea%20Books" },
-      { label: "Royal Tea Book Collection", href: "/products?category=Tea%20Books" },
-      { label: "Classic Tea Book Volume I", href: "/products?category=Tea%20Books" },
-      { label: "Classic Tea Book Volume II", href: "/products?category=Tea%20Books" },
-      { label: "Heritage Tea Book Volume III", href: "/products?category=Tea%20Books" },
-      { label: "Midnight Tea Book Volume IV", href: "/products?category=Tea%20Books" },
-    ],
-  },
-  {
-    id: "tea-chests",
-    label: "Tea chests",
-    items: [
-      { label: "Imperial Wooden Chest", href: "/products?category=Tea%20Chests" },
-      { label: "Royal Brass Tea Chest", href: "/products?category=Tea%20Chests" },
-      { label: "Classic Mahogany Chest", href: "/products?category=Tea%20Chests" },
-      { label: "Heritage Bamboo Chest", href: "/products?category=Tea%20Chests" },
-      { label: "Gilded Tea Chest Collection", href: "/products?category=Tea%20Chests" },
-    ],
-  },
-  {
-    id: "loose-tea",
-    label: "Loose Tea",
-    items: [
-      { label: "Sylhet Imperial Noir", href: "/products?category=Loose%20Tea" },
-      { label: "Sovereign Black Blend", href: "/products?category=Loose%20Tea" },
-      { label: "Classic English Breakfast", href: "/products?category=Loose%20Tea" },
-      { label: "Organic Darjeeling Second Flush", href: "/products?category=Loose%20Tea" },
-      { label: "First Flush Reserve", href: "/products?category=Loose%20Tea" },
-      { label: "Wild Jasmine Green", href: "/products?category=Loose%20Tea" },
-      { label: "Premium Sencha Green", href: "/products?category=Loose%20Tea" },
-    ],
-  },
-];
+import { fetchShopCategories, type ShopCategory } from "@/lib/shop-api";
 
 const leftNavItems = [
   { label: "HOME", href: "/" },
@@ -75,9 +22,27 @@ const rightNavItems = [
 
 export default function Navigation() {
   const pathname = usePathname();
-  const [activeCategory, setActiveCategory] = useState("assorted");
+  const [categories, setCategories] = useState<ShopCategory[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>("");
   const [isTeasHovered, setIsTeasHovered] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const fetched = await fetchShopCategories();
+        // Filters only main categories (e.g. parentId is null)
+        const mainCategories = fetched.filter(c => !c.parentId);
+        setCategories(mainCategories);
+        if (mainCategories.length > 0) {
+          setActiveCategory(mainCategories[0].id);
+        }
+      } catch (err) {
+        console.error("Failed to load categories for menu:", err);
+      }
+    }
+    loadCategories();
+  }, []);
 
   const handleMouseEnter = () => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
@@ -97,7 +62,7 @@ export default function Navigation() {
     return pathname.startsWith(href);
   };
 
-  const currentCategoryData = categories.find((cat) => cat.id === activeCategory) || categories[0];
+  const currentCategoryData = categories.find((cat) => cat.id === activeCategory) || categories[0] || null;
 
   const renderNavItem = (item: typeof leftNavItems[0]) => (
     <div 
@@ -131,33 +96,35 @@ export default function Navigation() {
                   {categories.map((category) => {
                     const isCatActive = category.id === activeCategory;
                     return (
-                      <button
+                      <Link
                         key={category.id}
-                        type="button"
+                        href={`/products?category=${encodeURIComponent(category.name)}`}
                         onMouseEnter={() => setActiveCategory(category.id)}
+                        onClick={() => setIsTeasHovered(false)}
                         className={`w-full py-2.5 flex items-center justify-start text-left transition-all duration-200 cursor-pointer border-none bg-transparent ${
                           isCatActive
                             ? "font-['Snell_Roundhand_LT_Std'] text-[#b4a676] text-2xl xl:text-3xl font-normal leading-normal flex items-center gap-3"
                             : "font-['Bembo_Std'] text-stone-gray text-2xl xl:text-3xl font-normal leading-normal hover:text-stone-600"
                         }`}
                       >
-                        <span>{category.label}</span>
+                        <span>{category.name}</span>
                         {isCatActive && (
                           <span className="text-[#b4a676] text-xl font-normal leading-none self-center">⚜</span>
                         )}
-                      </button>
+                      </Link>
                     );
                   })}
                 </div>
 
                 <div className="flex-1 pt-2 flex flex-col justify-start items-start">
-                  {currentCategoryData.items.map((subItem) => (
+                  {currentCategoryData?.children?.map((subItem) => (
                     <Link
-                      key={subItem.label}
-                      href={subItem.href}
+                      key={subItem.id}
+                      href={`/products?category=${encodeURIComponent(subItem.name)}`}
+                      onClick={() => setIsTeasHovered(false)}
                       className="self-stretch py-1.5 flex flex-col justify-start items-start gap-1 font-['Bembo_Std'] text-stone-gray hover:text-[#b4a676] text-sm lg:text-base font-normal leading-normal transition-colors"
                     >
-                      {subItem.label}
+                      {subItem.name}
                     </Link>
                   ))}
                 </div>
@@ -168,6 +135,7 @@ export default function Navigation() {
               <div className="flex-1 flex justify-start items-center gap-6">
                 <Link 
                   href="/products" 
+                  onClick={() => setIsTeasHovered(false)}
                   className="flex-1 flex flex-col justify-center items-start gap-3 group/promo"
                 >
                   <img 
@@ -181,6 +149,7 @@ export default function Navigation() {
                 </Link>
                 <Link 
                   href="/products" 
+                  onClick={() => setIsTeasHovered(false)}
                   className="flex-1 flex flex-col justify-center items-start gap-3 group/promo"
                 >
                   <img 
@@ -193,7 +162,6 @@ export default function Navigation() {
                   </div>
                 </Link>
               </div>
-
             </div>
           </div>
         </div>
