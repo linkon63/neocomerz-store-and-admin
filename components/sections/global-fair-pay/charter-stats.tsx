@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function CharterStats() {
   return (
-    <section className="w-full bg-[#1C221F] py-20 md:py-28 px-6 md:px-12 lg:px-24 text-white overflow-hidden relative">
+    <section className="w-full bg-[#212721] py-20 md:py-28 px-6 md:px-12 lg:px-24 text-white overflow-hidden relative">
       {/* Decorative patterns */}
       <div
         className="absolute inset-0 z-0 opacity-5 pointer-events-none"
