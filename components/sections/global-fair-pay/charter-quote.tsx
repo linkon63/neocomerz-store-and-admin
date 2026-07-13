@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 export default function CharterQuote() {
   return (
     <section className="w-full bg-white py-16 md:py-24 px-6 md:px-12 flex flex-col items-center justify-center text-center">
@@ -15,7 +13,7 @@ export default function CharterQuote() {
 
         {/* Quote Text */}
         <p className="font-['Bembo_Std'] text-2xl md:text-[32px] font-normal text-dark-charcoal leading-[1.45] tracking-wide mb-8 max-w-3xl">
-          Signing the Charter at Mansion House was a chance to put the City of London's name behind something concrete: fair pay for tea workers, not as a slogan, but as a written commitment with named signatories attached to it.
+          Signing the Charter at Mansion House was a chance to put the City of London&apos;s name behind something concrete: fair pay for tea workers, not as a slogan, but as a written commitment with named signatories attached to it.
         </p>
 
         {/* Author / Attribution */}

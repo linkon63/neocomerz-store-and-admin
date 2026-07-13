@@ -1,7 +1,7 @@
 export default function CharterVideo() {
   return (
-    <div className="relative" style={{ marginBottom: "50px" }}>
-      <section className="w-full bg-[#212721] pt-20 pb-28 px-6 md:px-12 lg:px-24 text-white text-center relative">
+    <div className="relative">
+      <section className="w-full bg-[#212721] pt-20 pb-16 px-6 md:px-12 lg:px-24 text-white text-center relative">
         {/* Content */}
         <div className="max-w-4xl mx-auto flex flex-col items-center space-y-6 relative z-10">
           {/* Title */}
@@ -40,16 +40,15 @@ export default function CharterVideo() {
         </div>
       </section>
 
-      {/* Bottom curved dome — dark bg extending downward into the next section */}
-      <div
-        className="absolute left-1/2 -translate-x-1/2 bg-[#212721] pointer-events-none"
-        style={{
-          width: "120%",
-          height: "100px",
-          bottom: "0",
-          borderRadius: "0 0 50% 50%",
-        }}
-      />
+      {/* Bottom curved shape */}
+      <div className="absolute left-0 right-0 top-full -mt-[1px] z-10 pointer-events-none">
+        <img
+          src="/images/icons/top-svg.svg"
+          alt=""
+          className="w-full h-auto block"
+        />
+      </div>
     </div>
   );
 }
+
