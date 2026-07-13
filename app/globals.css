@@ -10,78 +10,82 @@
   ====================================================== */
 
   /* ── Core Luxury Neutrals (from spec: Primary Luxury Neutrals) ─────────── */
-  --color-white:          #ffffff;
-  --color-platinum-gray:  #f0f0f0;
-  --color-off-white:      #f6f6f6;
-  --color-stone-gray:     #999999;    /* neutralMuted — captions, subtitles   */
-  --color-rich-black:     #665a5d;    /* stoneText — headings highlight       */
-  --color-pearl-gray:     #d9d9d6;
-  --color-greenish-gray:  #bdbdb5;
-  --color-warm-gray:      #c5b9ac;
-  --color-sage-gray:      #83847e;    /* body description text                */
-  --color-olive-slate:    #51524e;    /* text-secondary                       */
+  --color-white: #ffffff;
+  --color-platinum-gray: #f0f0f0;
+  --color-off-white: #f6f6f6;
+  --color-stone-gray: #999999;
+  /* neutralMuted — captions, subtitles   */
+  --color-rich-black: #665a5d;
+  /* stoneText — headings highlight       */
+  --color-pearl-gray: #d9d9d6;
+  --color-greenish-gray: #bdbdb5;
+  --color-warm-gray: #c5b9ac;
+  --color-sage-gray: #83847e;
+  /* body description text                */
+  --color-olive-slate: #51524e;
+  /* text-secondary                       */
 
   /* spec: darkBg — footer & premium section backgrounds */
-  --color-footer-dark:    #3F423E;
+  --color-footer-dark: #3F423E;
 
   /* spec: neutralDark — primary text color */
-  --color-neutral-dark:   #262626;
+  --color-neutral-dark: #262626;
 
   /* spec: neutralMuted — small captions & subtitles */
-  --color-neutral-muted:  #A3A3A3;
+  --color-neutral-muted: #A3A3A3;
 
-  --color-dark-brown:     #4b3729;
-  --color-dark-charcoal:  #212721;
-  --color-dark-crimson:   #d31f3a;
+  --color-dark-brown: #4b3729;
+  --color-dark-charcoal: #212721;
+  --color-dark-crimson: #d31f3a;
 
   /* ── Luxury Gold Accents ────────────────────────────────────────────────── */
   /* spec: khaki-gold gradient from */
-  --color-khaki-gold:     #C5A880;
+  --color-khaki-gold: #C5A880;
 
   /* spec: sage-gold gradient to */
-  --color-sage-gold:      #A89F91;
+  --color-sage-gold: #A89F91;
 
   /* spec: orangeAccent — borders, lines, light text accent */
-  --color-orange-accent:  #FED7AA;
+  --color-orange-accent: #FED7AA;
 
   /* secondary display gold (used in current components) */
-  --color-warm-gold:      #b4a676;
-  --color-light-gold:     #d2c494;
-  --color-mid-gold:       #C6B485;
-  --color-script-gold:    #8E866B;
+  --color-warm-gold: #b4a676;
+  --color-light-gold: #d2c494;
+  --color-mid-gold: #C6B485;
+  --color-script-gold: #8E866B;
 
   /* ── Button Gradient Tokens ─────────────────────────────────────────────── */
   /* spec: bg-gradient-to-r from-[#C5A880] to-[#A89F91] */
-  --color-btn-gold-from:  #C5A880;
-  --color-btn-gold-to:    #A89F91;
+  --color-btn-gold-from: #C5A880;
+  --color-btn-gold-to: #A89F91;
 
   /* ── Brand Semantic Mappings ────────────────────────────────────────────── */
-  --color-brand-primary:  var(--color-warm-gold);
-  --color-brand-2:        var(--color-warm-gray);
-  --color-brand-3:        var(--color-warm-gold);
-  --color-brand-4:        var(--color-warm-gold);
-  --color-brand-5:        var(--color-warm-gold);
+  --color-brand-primary: var(--color-warm-gold);
+  --color-brand-2: var(--color-warm-gray);
+  --color-brand-3: var(--color-warm-gold);
+  --color-brand-4: var(--color-warm-gold);
+  --color-brand-5: var(--color-warm-gold);
 
   /* ── Text Colors ────────────────────────────────────────────────────────── */
-  --color-text-primary:   var(--color-rich-black);
+  --color-text-primary: var(--color-rich-black);
   --color-text-secondary: var(--color-olive-slate);
-  --color-text-muted:     var(--color-stone-gray);
-  --color-text-light:     var(--color-white);
+  --color-text-muted: var(--color-stone-gray);
+  --color-text-light: var(--color-white);
 
   /* ── Background Colors ──────────────────────────────────────────────────── */
-  --color-bg-primary:     var(--color-white);
-  --color-bg-secondary:   var(--color-off-white);
-  --color-bg-muted:       var(--color-pearl-gray);
-  --color-bg-dark:        var(--color-dark-charcoal);
+  --color-bg-primary: var(--color-white);
+  --color-bg-secondary: var(--color-off-white);
+  --color-bg-muted: var(--color-pearl-gray);
+  --color-bg-dark: var(--color-dark-charcoal);
 
   /* ── Semantic Aliases ───────────────────────────────────────────────────── */
-  --color-primary:        var(--color-warm-gold);
-  --color-secondary:      var(--color-warm-gold);
-  --color-accent:         var(--color-light-gold);
+  --color-primary: var(--color-warm-gold);
+  --color-secondary: var(--color-warm-gold);
+  --color-accent: var(--color-light-gold);
 
   /* ── Border Colors ──────────────────────────────────────────────────────── */
-  --color-border:         var(--color-pearl-gray);
-  --color-border-dark:    var(--color-greenish-gray);
+  --color-border: var(--color-pearl-gray);
+  --color-border-dark: var(--color-greenish-gray);
 
   /* ── Typography ─────────────────────────────────────────────────────────── */
   /* spec roles:
@@ -90,30 +94,34 @@
      - Gotham           → Modern Sans-Serif (buttons, body, labels)
   */
   --font-heading: "Cormorant Garamond", serif;
-  --font-body:    "Inter", sans-serif;
-  --font-bembo:   var(--font-bembo);
-  --font-snell:   var(--font-snell);
-  --font-gotham:  var(--font-gotham);
+  --font-body: "Inter", sans-serif;
+  --font-bembo: var(--font-bembo);
+  --font-snell: var(--font-snell);
+  --font-gotham: var(--font-gotham);
 
   /* ── Radius ─────────────────────────────────────────────────────────────── */
-  --radius-sm:    4px;
-  --radius-md:    8px;
-  --radius-lg:    16px;
-  --radius-xl:    24px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
 
   /* ── Spacing Tokens (spec: luxury breathing room) ───────────────────────── */
   /* Section vertical: pt-36 pb-24 (144px / 96px) */
-  --spacing-section-top:    9rem;     /* 144px */
-  --spacing-section-bottom: 6rem;     /* 96px  */
+  --spacing-section-top: 9rem;
+  /* 144px */
+  --spacing-section-bottom: 6rem;
+  /* 96px  */
 
   /* Footer: pt-36 pb-12 */
-  --spacing-footer-top:     9rem;     /* 144px */
-  --spacing-footer-bottom:  3rem;     /* 48px  */
+  --spacing-footer-top: 9rem;
+  /* 144px */
+  --spacing-footer-bottom: 3rem;
+  /* 48px  */
 
   /* ── Extra Stone / Zinc shades used across profile & admin ─────────────── */
-  --color-stone-850:   #1c1917;
-  --color-zinc-850:    #1f1f1f;
-  --color-zinc-650:    #52525b;
+  --color-stone-850: #1c1917;
+  --color-zinc-850: #1f1f1f;
+  --color-zinc-650: #52525b;
 }
 
 /* ======================================================
@@ -125,28 +133,51 @@
 /* Full-width section wrapper with max-width container */
 .lte-section {
   width: 100%;
-  padding-top: var(--spacing-section-top);     /* 144px */
-  padding-bottom: var(--spacing-section-bottom); /* 96px */
+  padding-top: var(--spacing-section-top);
+  /* 144px */
+  padding-bottom: var(--spacing-section-bottom);
+  /* 96px */
 }
 
 .lte-container {
   max-width: 1440px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1.25rem;   /* px-5 */
+  padding-left: 1.25rem;
+  /* px-5 */
   padding-right: 1.25rem;
 }
 
-@media (min-width: 640px)  { .lte-container { padding-left: 2.5rem; padding-right: 2.5rem; } }
-@media (min-width: 1024px) { .lte-container { padding-left: 3rem;   padding-right: 3rem;   } }
-@media (min-width: 1280px) { .lte-container { padding-left: 5rem;   padding-right: 5rem;   } }
+@media (min-width: 640px) {
+  .lte-container {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .lte-container {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .lte-container {
+    padding-left: 5rem;
+    padding-right: 5rem;
+  }
+}
 
 /* Footer wrapper */
 .lte-footer {
   width: 100%;
-  background-color: var(--color-footer-dark);  /* #3F423E */
-  padding-top: var(--spacing-footer-top);       /* 144px */
-  padding-bottom: var(--spacing-footer-bottom); /* 48px  */
+  background-color: var(--color-footer-dark);
+  /* #3F423E */
+  padding-top: var(--spacing-footer-top);
+  /* 144px */
+  padding-bottom: var(--spacing-footer-bottom);
+  /* 48px  */
 }
 
 /* ======================================================
@@ -157,9 +188,11 @@
 /* Hero title — 96px Bembo Std, normal weight */
 .lte-hero-title {
   font-family: var(--font-bembo), serif;
-  font-size: 6rem;          /* 96px / text-8xl */
+  font-size: 6rem;
+  /* 96px / text-8xl */
   font-weight: 400;
-  line-height: 7rem;        /* 112px */
+  line-height: 7rem;
+  /* 112px */
 }
 
 /* Hero script overlay — 96px Snell Roundhand, italic */
@@ -174,9 +207,11 @@
 /* Section title serif — 60px Bembo Std, center */
 .lte-section-title {
   font-family: var(--font-bembo), serif;
-  font-size: 3.75rem;       /* 60px / text-6xl */
+  font-size: 3.75rem;
+  /* 60px / text-6xl */
   font-weight: 400;
-  line-height: 3.5rem;      /* 56px */
+  line-height: 3.5rem;
+  /* 56px */
   text-align: center;
 }
 
@@ -192,9 +227,11 @@
 /* Section subtitle / badge — 18px Bembo Std, uppercase */
 .lte-section-subtitle {
   font-family: var(--font-bembo), serif;
-  font-size: 1.125rem;      /* 18px / text-lg */
+  font-size: 1.125rem;
+  /* 18px / text-lg */
   font-weight: 400;
-  line-height: 1.5rem;      /* 24px */
+  line-height: 1.5rem;
+  /* 24px */
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -202,7 +239,8 @@
 /* Product card title — 20px Gotham, line-clamp-2 */
 .lte-card-title {
   font-family: var(--font-gotham), sans-serif;
-  font-size: 1.25rem;       /* 20px / text-xl */
+  font-size: 1.25rem;
+  /* 20px / text-xl */
   font-weight: 400;
   line-height: 1.5rem;
   display: -webkit-box;
@@ -214,7 +252,8 @@
 /* Product price — 18px Bembo Std, with ৳ symbol */
 .lte-price {
   font-family: var(--font-bembo), serif;
-  font-size: 1.125rem;      /* 18px */
+  font-size: 1.125rem;
+  /* 18px */
   font-weight: 400;
   line-height: 1.5rem;
 }
@@ -222,9 +261,11 @@
 /* Button text — 16px Gotham Medium, uppercase */
 .lte-btn-text {
   font-family: var(--font-gotham), sans-serif;
-  font-size: 1rem;          /* 16px */
+  font-size: 1rem;
+  /* 16px */
   font-weight: 500;
-  line-height: 1.25rem;     /* 20px */
+  line-height: 1.25rem;
+  /* 20px */
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -232,7 +273,8 @@
 /* Body / description — Gotham or Bembo, 18px–20px */
 .lte-body {
   font-family: var(--font-gotham), sans-serif;
-  font-size: 1.125rem;      /* 18px */
+  font-size: 1.125rem;
+  /* 18px */
   font-weight: 400;
   line-height: 1.5rem;
 }
@@ -252,7 +294,8 @@
   font-family: var(--font-gotham), sans-serif;
   font-size: 1.125rem;
   font-weight: 400;
-  color: var(--color-orange-accent); /* #FED7AA */
+  color: var(--color-orange-accent);
+  /* #FED7AA */
 }
 
 /* ======================================================
@@ -265,8 +308,10 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 1.25rem 1.5rem;   /* py-5 px-6 */
-  border-radius: 100px;       /* rounded-[100px] capsule */
+  padding: 1.25rem 1.5rem;
+  /* py-5 px-6 */
+  border-radius: 100px;
+  /* rounded-[100px] capsule */
   font-family: var(--font-gotham), sans-serif;
   font-size: 1rem;
   font-weight: 500;
@@ -279,8 +324,13 @@
   white-space: nowrap;
 }
 
-.lte-btn:hover { opacity: 0.88; }
-.lte-btn:active { transform: scale(0.98); }
+.lte-btn:hover {
+  opacity: 0.88;
+}
+
+.lte-btn:active {
+  transform: scale(0.98);
+}
 
 /* Gold gradient variant — the primary store CTA */
 .lte-btn-gold {
@@ -291,7 +341,11 @@
 .lte-btn-dark {
   background-color: #1A1A1A;
 }
-.lte-btn-dark:hover { background-color: #2d2d2d; opacity: 1; }
+
+.lte-btn-dark:hover {
+  background-color: #2d2d2d;
+  opacity: 1;
+}
 
 /* Outline variant */
 .lte-btn-outline {
@@ -299,6 +353,7 @@
   border: 2px solid var(--color-warm-gold);
   color: var(--color-stone-gray);
 }
+
 .lte-btn-outline:hover {
   background-color: var(--color-warm-gold);
   color: #ffffff;
@@ -330,7 +385,8 @@
 }
 
 .lte-product-card-body {
-  padding: 1.25rem 2.5rem 2.5rem;   /* pt-5 px-10 pb-10 */
+  padding: 1.25rem 2.5rem 2.5rem;
+  /* pt-5 px-10 pb-10 */
   background-color: #ffffff;
   position: relative;
 }
@@ -344,15 +400,19 @@
   height: 46px;
   border-radius: 9999px;
   background-color: #ffffff;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.625rem; /* p-2.5 */
+  padding: 0.625rem;
+  /* p-2.5 */
   cursor: pointer;
   transition: box-shadow 0.2s;
 }
-.lte-card-cart-btn:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.16); }
+
+.lte-card-cart-btn:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.16);
+}
 
 /* ======================================================
    ─── LUXURY DIVIDER
@@ -367,9 +427,11 @@
 }
 
 .lte-divider-line {
-  width: 2.75rem;   /* w-11 = 44px */
+  width: 2.75rem;
+  /* w-11 = 44px */
   height: 1.58px;
-  background-color: var(--color-orange-accent); /* #FED7AA */
+  background-color: var(--color-orange-accent);
+  /* #FED7AA */
   display: block;
 }
 
@@ -463,6 +525,7 @@
 .animate-fade-up {
   animation: fade-up-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
 /* ===================================
    Hero Slider Pagination
 =================================== */
@@ -584,15 +647,19 @@
    Legacy / Arbitrary Font Mappings
 =================================== */
 
-[class*="font-['Bembo_Std']"], .font-bembo, .font-family-bembo {
+[class*="font-['Bembo_Std']"],
+.font-bembo,
+.font-family-bembo {
   font-family: var(--font-bembo), serif !important;
 }
 
-[class*="font-['Snell_Roundhand_LT_Std']"], .font-snell {
+[class*="font-['Snell_Roundhand_LT_Std']"],
+.font-snell {
   font-family: var(--font-snell), cursive !important;
 }
 
-.font-gotham, [class*="font-['Gotham']"] {
+.font-gotham,
+[class*="font-['Gotham']"] {
   font-family: var(--font-gotham), sans-serif !important;
 }
 
@@ -651,8 +718,13 @@
 }
 
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .animate-marquee {
