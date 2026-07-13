@@ -18,22 +18,30 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5010/
 
 const WishlistContext = createContext<WishlistContextValue | null>(null);
 
+/**
+ * Dynamically extracts an attribute value using a case-insensitive regular expression match.
+ * Returns an empty string if no matching attribute key is found.
+ */
 function mapBackendItem(item: BackendWishlistItem): WishlistProduct {
   const p = item.product;
   const defaultVariant = p.variants?.find((v) => v.isDefault) ?? p.variants?.[0];
   const featured = p.media?.find((m) => m.isFeatured);
   const first = p.media?.[0];
+  const attributes = defaultVariant?.attributes ?? {};
+
   return {
     id: p.id,
     name: p.name,
     slug: p.slug,
     price: Number(defaultVariant?.price ?? p.price ?? 0),
     image: resolveImageUrl(featured?.media.url ?? first?.media.url ?? ""),
-    color: defaultVariant?.attributes?.Color ?? defaultVariant?.attributes?.Colour ?? "",
-    size: defaultVariant?.attributes?.Size ?? defaultVariant?.attributes?.size ?? "",
+    color: attributes.Color ?? attributes.Colour ?? attributes.color ?? '',
+    size: attributes.Size ?? attributes.size ?? '',
     category: p.category?.name ?? "",
     team: p.brand?.name ?? "",
     variantId: defaultVariant?.id,
+    attributes,
+    ...attributes,
   };
 }
 

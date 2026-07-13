@@ -109,13 +109,12 @@ export default function ProductInfo({
 
   const handleAddToCart = () => {
     const finalPrice = selectedVariant ? selectedVariant.priceNum : productData.priceNum;
-    const colorVal = selectedVariant?.attributes.Color ?? selectedVariant?.attributes.Colour ?? '';
-    const sizeVal = selectedVariant?.attributes.Size ?? selectedVariant?.attributes.size ?? '';
+    const attributes = selectedVariant?.attributes ?? {};
     const activeVarId = activeVariantId ?? '';
 
     // Append options to display name to make it clear in cart
     const optionSummary = selectedVariant 
-      ? Object.entries(selectedVariant.attributes).map(([_, v]) => v).join(', ')
+      ? Object.values(selectedVariant.attributes).join(', ')
       : '';
     const finalName = optionSummary 
       ? `${productData.name} (${optionSummary})` 
@@ -126,21 +125,22 @@ export default function ProductInfo({
       name: finalName,
       price: finalPrice,
       image: productData.image,
-      color: colorVal,
-      size: sizeVal,
+      color: attributes.Color ?? attributes.Colour ?? attributes.color ?? '',
+      size: attributes.Size ?? attributes.size ?? '',
       variantId: activeVarId,
       quantity,
+      attributes,
+      ...attributes,
     });
   };
 
   const handleToggleWishlist = () => {
     const finalPrice = selectedVariant ? selectedVariant.priceNum : productData.priceNum;
-    const colorVal = selectedVariant?.attributes.Color ?? selectedVariant?.attributes.Colour ?? '';
-    const sizeVal = selectedVariant?.attributes.Size ?? selectedVariant?.attributes.size ?? '';
+    const attributes = selectedVariant?.attributes ?? {};
     const activeVarId = activeVariantId ?? '';
 
     const optionSummary = selectedVariant 
-      ? Object.entries(selectedVariant.attributes).map(([_, v]) => v).join(', ')
+      ? Object.values(selectedVariant.attributes).join(', ')
       : '';
     const finalName = optionSummary 
       ? `${productData.name} (${optionSummary})` 
@@ -152,11 +152,13 @@ export default function ProductInfo({
       slug: productSlug ?? productId,
       price: finalPrice,
       image: productData.image,
-      color: colorVal,
-      size: sizeVal,
+      color: attributes.Color ?? attributes.Colour ?? attributes.color ?? '',
+      size: attributes.Size ?? attributes.size ?? '',
       category: productData.category,
       team: '',
       variantId: activeVarId,
+      attributes,
+      ...attributes,
     });
   };
 

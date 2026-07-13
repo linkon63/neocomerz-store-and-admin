@@ -25,17 +25,21 @@ export function mapBackendCartItem(item: BackendCartItem): CartItem {
   const p = item.variant.product;
   const featured = p.media?.find((m) => m.isFeatured);
   const first = p.media?.[0];
+  const attributes = item.variant.attributes ?? {};
+
   return {
     id: item.id,
     slug: p.slug,
     name: p.name,
     price: Number(item.variant.price),
     image: resolveImageUrl(featured?.media.url ?? first?.media.url ?? ""),
-    color: "",
-    size: "",
+    color: attributes.Color ?? attributes.Colour ?? attributes.color ?? '',
+    size: attributes.Size ?? attributes.size ?? '',
     quantity: item.quantity,
     productId: p.id,
     variantId: item.variantId,
+    attributes,
+    ...attributes,
   };
 }
 

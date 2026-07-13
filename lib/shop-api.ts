@@ -133,10 +133,7 @@ export async function fetchShopProducts(
       return { data: [], total: 0 };
     }
 
-    const text = await res.text();
-    if (!text) return { data: [], total: 0 };
-
-    const paginated: PaginatedProducts = JSON.parse(text);
+    const paginated: PaginatedProducts = await res.json();
     return {
       data: (paginated.data ?? []).map(mapProduct),
       total: paginated.meta?.total ?? 0,
@@ -154,8 +151,7 @@ export async function fetchShopProductById(id: string): Promise<AdminProduct | n
 
     if (res.status !== 200) return null;
 
-    const text = await res.text();
-    return text ? (JSON.parse(text) as AdminProduct) : null;
+    return await res.json() as AdminProduct;
   } catch {
     return null;
   }
@@ -166,9 +162,7 @@ async function safeFetchJson<T>(url: string, fallback: T): Promise<T> {
       headers: { "Content-Type": "application/json" },
     });
     if (!res.ok) return fallback;
-    const text = await res.text();
-    if (!text) return fallback;
-    return JSON.parse(text) as T;
+    return await res.json() as T;
   } catch {
     return fallback;
   }

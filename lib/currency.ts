@@ -16,7 +16,7 @@ let fetchPromise: Promise<void> | null = null;
 export function ensureCurrencyLoaded(): Promise<void> {
   if (fetchPromise) return fetchPromise;
   fetchPromise = fetch(`${API_BASE_URL}/settings`)
-    .then((res) => (res.ok ? res.text() : null))
+    .then((res) => (res.status === 200 ? res.text() : null))
     .then((text) => (text ? JSON.parse(text) : null))
     .then((data) => {
       if (data?.currency) cachedCurrency = data.currency;
