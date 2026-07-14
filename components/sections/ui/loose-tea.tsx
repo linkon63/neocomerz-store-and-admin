@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { fetchShopCategories, type ShopCategory } from "@/lib/shop-api";
+import { resolveImageUrl } from "@/lib/admin-api";
 
 const NO_IMAGE = '/images/no-image-icon-6.png';
 
@@ -83,7 +84,7 @@ export default function LooseTea() {
                   }}
                 >
                   <Image
-                    src={subCategory.imageUrl || NO_IMAGE}
+                    src={resolveImageUrl(subCategory.imageUrl) || NO_IMAGE}
                     alt={subCategory.name}
                     fill
                     sizes="(max-width: 640px) 80px, (max-width: 768px) 96px, (max-width: 1024px) 112px, 112px"
