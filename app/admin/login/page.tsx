@@ -3,8 +3,8 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { FiLoader, FiEye, FiEyeOff } from "react-icons/fi";
 import { apiRequest, setAdminSession, type AdminUser } from "../../../lib/admin-api";
-import { useCurrency } from "../../../lib/currency-context";
 
 type LoginResponse = {
   accessToken: string;
@@ -12,10 +12,10 @@ type LoginResponse = {
 };
 
 export default function AdminLoginPage() {
-  const { symbol } = useCurrency();
   const router = useRouter();
   const [email, setEmail] = useState("david.brown@example.com");
   const [password, setPassword] = useState("password123");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -48,90 +48,82 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="admin-dashboard grid min-h-screen bg-[#f7f8fb] text-slate-950 lg:grid-cols-[0.95fr_1.05fr]">
-      <section className="hidden bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
-        <Link className="text-5xl font-black italic tracking-tight" href="/">
-          Mock
+    <main className="min-h-screen flex items-center justify-center bg-[#FAF9F5] py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-[450px] bg-white border border-stone-200 p-8 shadow-sm flex flex-col items-center rounded-lg animate-fadeIn">
+        <Link
+          href="/"
+          className="font-['Bembo_Std'] text-3xl font-normal text-zinc-800 tracking-wide mb-2"
+        >
+          NeoComerz
         </Link>
-        <div>
-          <p className="mb-4 inline-flex rounded-full bg-blue-500 px-4 py-2 text-sm font-black">
-            NeoComerz Admin
-          </p>
-          <h1 className="max-w-xl text-6xl font-black leading-[1.03] tracking-normal">
-            Manage orders, catalog, stock, and customers in one place.
-          </h1>
-          <div className="mt-10 grid max-w-xl grid-cols-3 gap-4">
-            {[
-              [`${symbol}482k`, "sales tracked"],
-              ["1.2k", "orders"],
-              ["346", "products"],
-            ].map(([value, label]) => (
-              <div className="rounded-2xl bg-white/10 p-5" key={label}>
-                <p className="text-2xl font-black">{value}</p>
-                <p className="mt-1 text-sm font-medium text-slate-300">{label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-        <p className="text-sm font-medium text-slate-400">
-          Connected to `/api/v1/auth/login` and restricted to admin users.
-        </p>
-      </section>
+        <h1 className="font-['Bembo_Std'] text-3xl font-normal text-zinc-800 tracking-wide mb-6">
+          Admin Login
+        </h1>
 
-      <section className="flex items-center justify-center p-5">
-        <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-900/5">
-          <div className="mb-8">
-            <Link className="text-4xl font-black italic lg:hidden" href="/">
-              Mock
-            </Link>
-            <h2 className="mt-6 text-3xl font-black">Admin login</h2>
-            <p className="mt-2 text-base font-medium text-slate-600">
-              Sign in with an admin email and password.
-            </p>
-          </div>
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <label className="block">
-              <span className="mb-2 block text-sm font-black text-slate-700">
-                Email address
-              </span>
-              <input
-                className="h-13 w-full rounded-xl border border-slate-300 px-4 font-medium outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                onChange={(event) => setEmail(event.target.value)}
-                required
-                type="email"
-                value={email}
-              />
-            </label>
-            <label className="block">
-              <span className="mb-2 block text-sm font-black text-slate-700">
-                Password
-              </span>
-              <input
-                className="h-13 w-full rounded-xl border border-slate-300 px-4 font-medium outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                onChange={(event) => setPassword(event.target.value)}
-                required
-                type="password"
-                value={password}
-              />
-            </label>
-            {error && (
-              <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
-                {error}
-              </p>
-            )}
-            <button
-              className="flex h-13 w-full items-center justify-center rounded-xl bg-blue-600 text-base font-black text-white shadow-lg shadow-blue-600/20 disabled:cursor-not-allowed disabled:bg-slate-400"
-              disabled={isSubmitting}
-              type="submit"
-            >
-              {isSubmitting ? "Signing in..." : "Login to dashboard"}
-            </button>
-            <p className="rounded-xl bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600">
-              Seed admin: david.brown@example.com / password123
-            </p>
-          </form>
+        <div className="flex mb-8 border-b border-stone-150 w-full justify-center">
+          <span className="pb-2 text-xs font-bold tracking-wider uppercase border-b-2 border-stone-850 text-black">
+            Administrator Access
+          </span>
         </div>
-      </section>
+
+        <form onSubmit={handleSubmit} className="w-full space-y-4">
+          <div>
+            <label className="block text-[10px] font-bold tracking-wider uppercase text-zinc-500 mb-1">
+              Email Address
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              className="w-full border border-stone-200 px-4 py-3 text-sm focus:border-stone-400 outline-none"
+              required
+              placeholder="Email Address"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-bold tracking-wider uppercase text-zinc-500 mb-1">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                className="w-full border border-stone-200 px-4 py-3 pr-10 text-sm focus:border-stone-400 outline-none"
+                required
+                placeholder="Password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-650 transition cursor-pointer"
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          {error && (
+            <p className="border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold tracking-wide text-red-700">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-[#1A1A1A] hover:bg-stone-850 text-white font-sans text-xs font-semibold tracking-[0.16em] uppercase py-4 shadow transition duration-200 flex items-center justify-center gap-2 cursor-pointer mt-4 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isSubmitting ? (
+              <FiLoader className="animate-spin text-white w-4 h-4" />
+            ) : (
+              "Log In"
+            )}
+          </button>
+        </form>
+      </div>
     </main>
   );
 }
