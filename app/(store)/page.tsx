@@ -15,27 +15,61 @@ import LooseTea from '@/components/sections/ui/loose-tea';
 import GiftItem from '@/components/sections/gift-item';
 import MostPopuler from '@/components/sections/most-populer';
 import TheCollection from '@/components/sections/the-collection';
+import ScrollAnimate from '@/components/ui/scroll-animate';
 
 export default function Home() {
   return (
     <div>
       <Hero />
-      <Invitation />
-      <TheCollection />
-      <NewArrival />
-      <LooseTea />
-      <Subtract />
-      <MostPopuler />
-      <GiftItem />
-      <WorldAssembly />
-      <NobleBalance />
-      <PresenceImage />
-      <Presence />
-      <Prestige />
-      <TeaCollection />
-      <Brands />
-      <Testimonial />
-      <Instagram />
+      <ScrollAnimate variant="fade-in-up">
+        <Invitation />
+      </ScrollAnimate>
+      <ScrollAnimate variant="fade-in-up">
+        <TheCollection />
+      </ScrollAnimate>
+      <ScrollAnimate variant="fade-in-up">
+        <NewArrival />
+      </ScrollAnimate>
+      <ScrollAnimate variant="fade-in-up">
+        <LooseTea />
+      </ScrollAnimate>
+      <ScrollAnimate variant="fade-in-up">
+        <Subtract />
+      </ScrollAnimate>
+      <ScrollAnimate variant="fade-in-up">
+        <MostPopuler />
+      </ScrollAnimate>
+      <ScrollAnimate variant="fade-in-up">
+        <GiftItem />
+      </ScrollAnimate>
+      <ScrollAnimate variant="fade-in-up">
+        <WorldAssembly />
+      </ScrollAnimate>
+      <ScrollAnimate variant="fade-in-up">
+        <NobleBalance />
+      </ScrollAnimate>
+      <ScrollAnimate variant="fade-in-up">
+        <PresenceImage />
+      </ScrollAnimate>
+      <ScrollAnimate variant="fade-in-up">
+        <Presence />
+      </ScrollAnimate>
+      <ScrollAnimate variant="fade-in-up">
+        <Prestige />
+      </ScrollAnimate>
+      <ScrollAnimate variant="fade-in-up">
+        <TeaCollection />
+      </ScrollAnimate>
+      <ScrollAnimate variant="fade-in-up">
+        <Brands />
+      </ScrollAnimate>
+      <ScrollAnimate variant="fade-in-up">
+        <Testimonial />
+      </ScrollAnimate>
+      <ScrollAnimate variant="fade-in-up">
+        <Instagram />
+      </ScrollAnimate>
     </div>
   );
 }
+

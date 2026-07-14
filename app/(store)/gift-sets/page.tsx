@@ -7,6 +7,7 @@ import { FiHeart, FiShoppingCart } from "react-icons/fi";
 import GiftItem from "@/components/sections/gift-item";
 import Brands from "@/components/sections/brands";
 import Instagram from "@/components/sections/instagram";
+import ScrollAnimate from "@/components/ui/scroll-animate";
 
 import ProductCard from "@/components/sections/ui/product-card";
 import { fetchShopProducts, type ShopProduct } from "@/lib/shop-api";
@@ -101,105 +102,115 @@ export default function GiftsPage() {
     <main className="relative w-full bg-[#FAF9F5] overflow-hidden">
       
       {/* SECTION 1: Top Gifting Items (Using existing premium section layout) */}
-      <GiftItem />
+      <ScrollAnimate variant="fade-in-up">
+        <GiftItem />
+      </ScrollAnimate>
 
       {/* SECTION 2: Curated Collections */}
-      <section className="w-full py-16 md:py-24 bg-white border-t border-stone-100">
-        <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
-          {/* Header */}
-          <div className="text-center mb-16 flex flex-col items-center">
-            <h2 className="inline-flex flex-row justify-center items-baseline gap-2 md:gap-3">
-              <span className="font-['Bembo_Std'] text-[#C6B485] text-4xl sm:text-5xl md:text-6xl font-normal leading-none">Curated</span>
-              <span className="font-['Snell_Roundhand_LT_Std'] italic text-[#8E866B] text-4xl sm:text-5xl md:text-6xl font-normal leading-none lowercase">Collections</span>
-            </h2>
-            <p className="max-w-[600px] text-center text-[#83847e] text-sm sm:text-base md:text-lg font-normal font-['Bembo_Std'] leading-normal px-4 mt-4">
-              Designed to make a lasting impression for corporate, seasonal, and personal gifting.
-            </p>
-          </div>
-
-          {/* Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                id={product.id}
-                name={product.name}
-                price={product.price}
-                originalPrice={product.originalPrice}
-                image={product.image}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 3: Give More Than Tea — Share a Heritage */}
-      <section className="relative w-full py-24 md:py-36 bg-[#FAF9F5] overflow-hidden">
-        {/* Top Curve Shape */}
-        <div className="absolute top-0 left-0 w-full overflow-hidden leading-none select-none pointer-events-none z-10">
-          <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="relative block w-full h-[60px] sm:h-[80px] md:h-[100px] text-white fill-current">
-            <path d="M0,0 L0,100 Q720,-100 1440,100 L1440,0 Z" />
-          </svg>
-        </div>
-
-        <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 relative z-20">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-            
-            {/* Left Title Panel */}
-            <div className="lg:col-span-4 flex flex-col justify-start items-start gap-4">
-              <h2 className="text-[#1C1C1C] text-3xl sm:text-4xl md:text-5xl font-normal font-['Bembo_Std'] leading-tight tracking-wide">
-                Give More Than Tea—
-                <span className="block mt-2 font-['Snell_Roundhand_LT_Std'] italic text-[#C5B382] text-4xl sm:text-5xl md:text-6xl lowercase leading-none">
-                  share a heritage
-                </span>
+      <ScrollAnimate variant="fade-in-up">
+        <section className="w-full py-16 md:py-24 bg-white border-t border-stone-100">
+          <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
+            {/* Header */}
+            <div className="text-center mb-16 flex flex-col items-center">
+              <h2 className="inline-flex flex-row justify-center items-baseline gap-2 md:gap-3">
+                <span className="font-['Bembo_Std'] text-[#C6B485] text-4xl sm:text-5xl md:text-6xl font-normal leading-none">Curated</span>
+                <span className="font-['Snell_Roundhand_LT_Std'] italic text-[#8E866B] text-4xl sm:text-5xl md:text-6xl font-normal leading-none lowercase">Collections</span>
               </h2>
+              <p className="max-w-[600px] text-center text-[#83847e] text-sm sm:text-base md:text-lg font-normal font-['Bembo_Std'] leading-normal px-4 mt-4">
+                Designed to make a lasting impression for corporate, seasonal, and personal gifting.
+              </p>
             </div>
 
-            {/* Right Images & Details Row */}
-            <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-4 gap-6 items-start">
-              {heritageItems.map((item) => (
-                <div key={item.id} className="flex flex-col items-start gap-4 w-full">
-                  {/* Image */}
-                  <div className={`relative w-full ${item.aspect} bg-stone-100 overflow-hidden rounded-none shadow-sm border border-white/50 group`}>
-                    <Image
-                      src={item.image}
-                      alt={item.title || "Heritage representation"}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-
-                  {/* Text details (only if title is defined) */}
-                  {item.title && (
-                    <div className="space-y-2">
-                      <h4 className="font-['Snell_Roundhand_LT_Std'] italic text-2xl text-[#C5B382] tracking-wide font-normal leading-tight lowercase">
-                        {item.title}
-                      </h4>
-                      <p className="font-['Bembo_Std'] text-zinc-650 text-xs sm:text-sm leading-relaxed font-light">
-                        {item.desc}
-                      </p>
-                    </div>
-                  )}
-                </div>
+            {/* Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {products.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  id={product.id}
+                  name={product.name}
+                  price={product.price}
+                  originalPrice={product.originalPrice}
+                  image={product.image}
+                />
               ))}
             </div>
-
           </div>
-        </div>
+        </section>
+      </ScrollAnimate>
 
-        {/* Bottom Curve Shape */}
-        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none select-none pointer-events-none z-10">
-          <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="relative block w-full h-[60px] sm:h-[80px] md:h-[100px] text-white fill-current">
-            <path d="M0,100 Q720,-100 1440,100 Z" />
-          </svg>
-        </div>
-      </section>
+      {/* SECTION 3: Give More Than Tea — Share a Heritage */}
+      <ScrollAnimate variant="fade-in-up">
+        <section className="relative w-full py-24 md:py-36 bg-[#FAF9F5] overflow-hidden">
+          {/* Top Curve Shape */}
+          <div className="absolute top-0 left-0 w-full overflow-hidden leading-none select-none pointer-events-none z-10">
+            <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="relative block w-full h-[60px] sm:h-[80px] md:h-[100px] text-white fill-current">
+              <path d="M0,0 L0,100 Q720,-100 1440,100 L1440,0 Z" />
+            </svg>
+          </div>
+
+          <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 relative z-20">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+              
+              {/* Left Title Panel */}
+              <div className="lg:col-span-4 flex flex-col justify-start items-start gap-4">
+                <h2 className="text-[#1C1C1C] text-3xl sm:text-4xl md:text-5xl font-normal font-['Bembo_Std'] leading-tight tracking-wide">
+                  Give More Than Tea—
+                  <span className="block mt-2 font-['Snell_Roundhand_LT_Std'] italic text-[#C5B382] text-4xl sm:text-5xl md:text-6xl lowercase leading-none">
+                    share a heritage
+                  </span>
+                </h2>
+              </div>
+
+              {/* Right Images & Details Row */}
+              <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-4 gap-6 items-start">
+                {heritageItems.map((item) => (
+                  <div key={item.id} className="flex flex-col items-start gap-4 w-full">
+                    {/* Image */}
+                    <div className={`relative w-full ${item.aspect} bg-stone-100 overflow-hidden rounded-none shadow-sm border border-white/50 group`}>
+                      <Image
+                        src={item.image}
+                        alt={item.title || "Heritage representation"}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+
+                    {/* Text details (only if title is defined) */}
+                    {item.title && (
+                      <div className="space-y-2">
+                        <h4 className="font-['Snell_Roundhand_LT_Std'] italic text-2xl text-[#C5B382] tracking-wide font-normal leading-tight lowercase">
+                          {item.title}
+                        </h4>
+                        <p className="font-['Bembo_Std'] text-zinc-650 text-xs sm:text-sm leading-relaxed font-light">
+                          {item.desc}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+            </div>
+          </div>
+
+          {/* Bottom Curve Shape */}
+          <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none select-none pointer-events-none z-10">
+            <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="relative block w-full h-[60px] sm:h-[80px] md:h-[100px] text-white fill-current">
+              <path d="M0,100 Q720,-100 1440,100 Z" />
+            </svg>
+          </div>
+        </section>
+      </ScrollAnimate>
 
       {/* SECTION 4: Brand Swiper */}
-      <Brands bgClassName="bg-white" />
+      <ScrollAnimate variant="fade-in-up">
+        <Brands bgClassName="bg-white" />
+      </ScrollAnimate>
 
       {/* SECTION 5: Instagram Follow Swiper */}
-      <Instagram />
+      <ScrollAnimate variant="fade-in-up">
+        <Instagram />
+      </ScrollAnimate>
 
     </main>
   );

@@ -27,7 +27,7 @@ export default function MostPopuler() {
 
   if (isLoading) {
     return (
-      <section className="w-full bg-white py-16 md:py-24 border-t border-stone-100">
+      <section className="w-full bg-[#F9F9FB] py-16 md:py-24 border-t border-stone-100">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
           <div className="flex justify-center mb-8">
             <div className="h-10 bg-stone-200 animate-pulse rounded w-64"></div>
@@ -47,8 +47,8 @@ export default function MostPopuler() {
   }
 
   return (
-    <section className="w-full py-16 md:py-24 bg-white border-t border-stone-100">
-      <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
+    <section className="relative w-full py-16 md:py-24 bg-[#F9F9FB] border-t border-stone-100 overflow-hidden">
+      <div className="relative z-10 w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="inline-flex flex-row justify-center items-baseline gap-2 md:gap-3">

@@ -2,6 +2,7 @@ import TopHeader from '@/components/sections/top-header';
 import Header from '@/components/sections/header';
 import Mainfooter from '@/components/sections/main-footer';
 import Bottomfooter from '@/components/sections/bottom-footer';
+import ScrollAnimate from '@/components/ui/scroll-animate';
 import { AuthProvider } from "../_providers/auth-provider";
 import { CartProvider } from "../_providers/cart-provider";
 import { WishlistProvider } from "../_providers/wishlist-provider";
@@ -20,8 +21,12 @@ export default function StoreLayout({
           <TopHeader />
           <Header />
           {children}
-          <Mainfooter />
-          <Bottomfooter />
+          <ScrollAnimate variant="fade-in-up" className="reveal-footer">
+            <Mainfooter />
+          </ScrollAnimate>
+          <ScrollAnimate variant="fade-in-up" className="reveal-bottom-footer">
+            <Bottomfooter />
+          </ScrollAnimate>
           <AuthModal />
           <Toaster richColors closeButton position="top-right" />
         </WishlistProvider>
