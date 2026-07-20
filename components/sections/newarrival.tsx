@@ -26,11 +26,11 @@ export default function NewArrival() {
   if (isLoading) {
     return (
       <section className="w-full bg-[#F9F9FB] py-16 md:py-24 border-t border-stone-100">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
+        <div className="max-w-[1440px] mx-auto px-5 sm:px-10 md:px-14 lg:px-20">
           <div className="flex justify-center mb-8">
             <div className="h-10 bg-stone-200 animate-pulse rounded w-64"></div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="h-72 bg-stone-200 animate-pulse rounded"></div>
             ))}
@@ -57,7 +57,7 @@ export default function NewArrival() {
         }}
       ></div>
 
-      <div className="relative z-10 w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
+      <div className="relative z-10 w-full max-w-[1440px] mx-auto px-5 sm:px-10 md:px-14 lg:px-20">
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="inline-flex flex-row justify-center items-baseline gap-2 md:gap-3">
@@ -70,7 +70,7 @@ export default function NewArrival() {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {products.map((product) => (
             <ProductCard
               key={product.id}

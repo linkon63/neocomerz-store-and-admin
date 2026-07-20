@@ -1,6 +1,6 @@
 export default function Sustainable() {
   return (
-    <section className="relative w-full overflow-hidden py-10">
+    <section className="relative w-full overflow-hidden">
       <div
         className="relative h-full min-h-162.5 w-full overflow-hidden py-16 md:py-24"
         style={{

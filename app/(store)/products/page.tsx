@@ -166,7 +166,7 @@ export default function ProductsPage() {
                 </div>
               </div>
               <div className="flex items-center gap-6 md:gap-8 lg:gap-10">
-                <div className="relative filter-dropdown-container">
+                <div className="static md:relative filter-dropdown-container">
                   <button
                     className="flex items-center gap-1 text-stone-400 font-gotham text-xs font-semibold uppercase tracking-wider cursor-not-allowed opacity-50"
                     disabled
@@ -178,7 +178,7 @@ export default function ProductsPage() {
                     </svg>
                   </button>
                   {activeDropdown === 'collection' && (
-                    <div className="absolute left-0 mt-3 w-56 bg-white border border-stone-200 shadow-lg py-1.5 z-50 rounded-sm">
+                    <div className="absolute left-4 right-4 md:left-0 md:right-auto md:w-56 mt-3 bg-white border border-stone-200 shadow-lg py-1.5 z-50 rounded-sm">
                       {COLLECTION_OPTIONS.map((opt) => (
                         <button
                           key={opt}
@@ -192,7 +192,7 @@ export default function ProductsPage() {
                   )}
                 </div>
               </div>
-              <div className="relative filter-dropdown-container">
+              <div className="static md:relative filter-dropdown-container">
                 <button
                   onClick={() => toggleDropdown('price')}
                   className="flex items-center gap-1 text-stone-700 hover:text-stone-900 font-gotham text-xs font-semibold uppercase tracking-wider cursor-pointer transition-colors duration-200"
@@ -203,7 +203,7 @@ export default function ProductsPage() {
                   </svg>
                 </button>
                 {activeDropdown === 'price' && (
-                  <div className="absolute left-0 mt-3 w-56 bg-white border border-stone-200 shadow-lg py-1.5 z-50 rounded-sm">
+                  <div className="absolute left-4 right-4 md:left-0 md:right-auto md:w-56 mt-3 bg-white border border-stone-200 shadow-lg py-1.5 z-50 rounded-sm">
                     {PRICE_OPTIONS.map((opt) => (
                       <button
                         key={opt}
@@ -217,7 +217,7 @@ export default function ProductsPage() {
                 )}
               </div>
 
-              <div className="relative filter-dropdown-container">
+              <div className="static md:relative filter-dropdown-container">
                 <button
                   onClick={() => toggleDropdown('category')}
                   className="flex items-center gap-1 text-stone-700 hover:text-stone-900 font-gotham text-xs font-semibold uppercase tracking-wider cursor-pointer transition-colors duration-200"
@@ -228,7 +228,7 @@ export default function ProductsPage() {
                   </svg>
                 </button>
                 {activeDropdown === 'category' && (
-                  <div className="absolute left-0 mt-3 w-56 bg-white border border-stone-200 shadow-lg py-1.5 z-50 rounded-sm">
+                  <div className="absolute left-4 right-4 md:right-0 md:left-auto md:w-56 mt-3 bg-white border border-stone-200 shadow-lg py-1.5 z-50 rounded-sm">
                     {categoryOptions.map((opt) => (
                       <button
                         key={opt}
@@ -242,7 +242,7 @@ export default function ProductsPage() {
                 )}
               </div>
 
-              <div className="relative filter-dropdown-container">
+              <div className="static md:relative filter-dropdown-container">
                 <button
                   onClick={() => toggleDropdown('brand')}
                   className="flex items-center gap-1 text-stone-700 hover:text-stone-900 font-gotham text-xs font-semibold uppercase tracking-wider cursor-pointer transition-colors duration-200"
@@ -253,7 +253,7 @@ export default function ProductsPage() {
                   </svg>
                 </button>
                 {activeDropdown === 'brand' && (
-                  <div className="absolute left-0 mt-3 w-56 bg-white border border-stone-200 shadow-lg py-1.5 z-50 rounded-sm">
+                  <div className="absolute left-4 right-4 md:right-0 md:left-auto md:w-56 mt-3 bg-white border border-stone-200 shadow-lg py-1.5 z-50 rounded-sm">
                     {brandOptions.map((opt) => (
                       <button
                         key={opt}
@@ -347,7 +347,7 @@ export default function ProductsPage() {
         <div className="w-full bg-white py-12 md:py-16">
           <div className="max-w-[1440px] mx-auto px-5 sm:px-10 md:px-14 lg:px-20">
             {isLoading && products.length === 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 lg:gap-12 w-full">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="w-full max-w-[453px] h-[453px] bg-stone-50 animate-pulse border border-stone-100 flex flex-col justify-between p-6 mx-auto rounded-none">
                     <div className="w-full h-[250px] bg-stone-200 rounded-none" />
@@ -361,7 +361,7 @@ export default function ProductsPage() {
               </div>
             ) : filteredProducts.length > 0 ? (
               <>
-                <div className={`grid grid-cols-1 md:grid-cols-2 ${viewMode === 'grid3' ? 'lg:grid-cols-3' : ''} gap-8 md:gap-10 lg:gap-12`}>
+                <div className={`grid grid-cols-1 md:grid-cols-2 ${viewMode === 'grid3' ? 'lg:grid-cols-3' : ''} gap-4 md:gap-6`}>
                   {filteredProducts.map((product) => (
                     <ProductCard
                       key={product.id}
