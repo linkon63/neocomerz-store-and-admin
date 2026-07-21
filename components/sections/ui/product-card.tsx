@@ -74,7 +74,7 @@ export default function ProductCard({
               alt={name}
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-contain group-hover:scale-105 transition-transform duration-300"
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
               onError={handleImageError}
             />
           </div>
