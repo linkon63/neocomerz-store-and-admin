@@ -2,7 +2,7 @@ import { type PaginatedProducts, type Product as AdminProduct, resolveImageUrl }
 
 const API_BASE_URL =
   typeof window === "undefined"
-    ? (process.env.API_BASE_URL ?? "http://localhost:5010/api/v1")
+    ? (process.env.API_BASE_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5010/api/v1")
     : (process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/v1");
 
 export type ShopProduct = {
