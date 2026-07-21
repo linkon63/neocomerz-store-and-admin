@@ -25,6 +25,11 @@ const nextConfig: NextConfig = {
         hostname: "api-lte.neocomerz.com",
         pathname: "/**",
       },
+       {
+        protocol: "https",
+        hostname: "api-lte-bd.neocomerz.com",
+        pathname: "/**",
+      },
       // localhost images are proxied through Next.js rewrites below,
       // so next/image only ever sees relative or HTTPS URLs in production.
       // Keep this entry so the dev server itself can still serve them directly
@@ -36,7 +41,7 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
-    domains: ["images.unsplash.com", "tinyecomapi.neocomerz.com", "api-lte.neocomerz.com"],
+    domains: ["images.unsplash.com", "tinyecomapi.neocomerz.com","api-lte.neocomerz.com" ,"api-lte-bd.neocomerz.com"],
   },
   async rewrites() {
     return [
