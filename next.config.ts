@@ -15,16 +15,19 @@ const nextConfig: NextConfig = {
         hostname: "images.unsplash.com",
         pathname: "/**",
       },
+      // production path resolver for TinyEcom API - Humana Vintage
       {
         protocol: "https",
         hostname: "tinyecomapi.neocomerz.com",
         pathname: "/**",
       },
+      // development path resolver for LTE
       {
         protocol: "https",
         hostname: "api-lte.neocomerz.com",
         pathname: "/**",
       },
+      // main production path resolver for LTE
        {
         protocol: "https",
         hostname: "api-lte-bd.neocomerz.com",
@@ -41,7 +44,6 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
-    domains: ["images.unsplash.com", "tinyecomapi.neocomerz.com","api-lte.neocomerz.com" ,"api-lte-bd.neocomerz.com"],
   },
   async rewrites() {
     return [

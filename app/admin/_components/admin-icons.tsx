@@ -16,6 +16,7 @@ export type AdminIconName =
   | "discount"
   | "download"
   | "edit"
+  | "grip"
   | "filter"
   | "image"
   | "info"
@@ -54,6 +55,16 @@ const iconPaths: Record<AdminIconName, ReactNode> = {
     </>
   ),
   "arrow-left": <path d="M19 12H5M12 19l-7-7 7-7" />,
+  grip: (
+    <>
+      <circle cx="9" cy="6" r="1" fill="currentColor" stroke="none" />
+      <circle cx="9" cy="12" r="1" fill="currentColor" stroke="none" />
+      <circle cx="9" cy="18" r="1" fill="currentColor" stroke="none" />
+      <circle cx="15" cy="6" r="1" fill="currentColor" stroke="none" />
+      <circle cx="15" cy="12" r="1" fill="currentColor" stroke="none" />
+      <circle cx="15" cy="18" r="1" fill="currentColor" stroke="none" />
+    </>
+  ),
   "arrow-right": <path d="M5 12h14M12 5l7 7-7 7" />,
   brand: (
     <>

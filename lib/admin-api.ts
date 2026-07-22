@@ -23,10 +23,32 @@ export type Category = {
   slug: string;
   parentId?: string | null;
   imageUrl?: string | null;
+  sortOrder?: number;
   createdAt?: string;
   children?: Category[];
   products?: unknown[];
 };
+
+export type ReorderCategoryItem = {
+  id: string;
+  parentId: string | null;
+  sortOrder: number;
+};
+
+/**
+ * Persist a new category tree layout. Send the full flat list of categories
+ * with their new parentId and zero-based sortOrder; the API applies every
+ * change in one transaction and returns the freshly ordered tree.
+ */
+export async function reorderCategories(
+  items: ReorderCategoryItem[],
+): Promise<Category[]> {
+  return apiRequest<Category[]>("/category/reorder", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ items }),
+  });
+}
 
 export type Tag = {
   id: string;

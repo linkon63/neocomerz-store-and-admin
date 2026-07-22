@@ -6,9 +6,11 @@ import { ConfirmModal } from "../../_components/confirm-modal";
 import {
   apiRequest,
   formatDate,
+  reorderCategories,
   resolveImageUrl,
   slugify,
   type Category,
+  type ReorderCategoryItem,
 } from "../../../../lib/admin-api";
 
 const PAGE_SIZE = 8;
@@ -48,6 +50,90 @@ function flattenCategories(
   ]);
 }
 
+// ─── Drag-and-drop tree helpers ──────────────────────────────────────────────
+
+type DropMode = "before" | "after" | "inside";
+
+/** Flatten the tree into the {id, parentId, sortOrder} list the API expects. */
+function flattenForReorder(
+  categories: Category[],
+  parentId: string | null = null,
+): ReorderCategoryItem[] {
+  return categories.flatMap((category, index) => [
+    { id: category.id, parentId, sortOrder: index },
+    ...flattenForReorder(category.children ?? [], category.id),
+  ]);
+}
+
+/** Find a node anywhere in the tree by id. */
+function findNode(categories: Category[], id: string): Category | null {
+  for (const category of categories) {
+    if (category.id === id) return category;
+    const found = findNode(category.children ?? [], id);
+    if (found) return found;
+  }
+  return null;
+}
+
+/** True when `id` is `node` itself or one of its descendants. */
+function containsId(node: Category, id: string): boolean {
+  if (node.id === id) return true;
+  return (node.children ?? []).some((child) => containsId(child, id));
+}
+
+/** Return a new tree with `id` removed, plus the removed node (immutably). */
+function removeNode(
+  categories: Category[],
+  id: string,
+): { tree: Category[]; node: Category | null } {
+  let removed: Category | null = null;
+
+  const walk = (nodes: Category[]): Category[] => {
+    const result: Category[] = [];
+    for (const node of nodes) {
+      if (node.id === id) {
+        removed = node;
+        continue;
+      }
+      result.push({ ...node, children: walk(node.children ?? []) });
+    }
+    return result;
+  };
+
+  return { tree: walk(categories), node: removed };
+}
+
+/** Insert `node` relative to `targetId` per the drop mode (immutably). */
+function insertNode(
+  categories: Category[],
+  node: Category,
+  targetId: string,
+  mode: DropMode,
+): Category[] {
+  const walk = (nodes: Category[]): Category[] => {
+    const result: Category[] = [];
+    for (const current of nodes) {
+      if (current.id === targetId) {
+        if (mode === "before") result.push(node);
+        if (mode === "inside") {
+          result.push({
+            ...current,
+            children: [...(current.children ?? []), node],
+          });
+        } else {
+          result.push({ ...current, children: walk(current.children ?? []) });
+        }
+        if (mode === "after") result.push(node);
+        continue;
+      }
+      result.push({ ...current, children: walk(current.children ?? []) });
+    }
+    return result;
+  };
+
+  return walk(categories);
+}
+
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [form, setForm] = useState<CategoryForm>(emptyForm);
@@ -66,6 +152,12 @@ export default function CategoriesPage() {
   );
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<{
+    id: string;
+    mode: DropMode;
+  } | null>(null);
+  const [isReordering, setIsReordering] = useState(false);
 
   const rows = useMemo(() => flattenCategories(categories), [categories]);
   const filteredRows = useMemo(() => {
@@ -288,6 +380,82 @@ export default function CategoriesPage() {
     setError("");
   }
 
+  // ─── Drag-and-drop reordering ──────────────────────────────────────────────
+  // Reordering is only enabled when the list is unfiltered, so the tree we
+  // mutate matches exactly what the user sees.
+  const canReorder = search.trim() === "" && !isReordering;
+
+  function handleDragStart(event: React.DragEvent, id: string) {
+    setDraggingId(id);
+    event.dataTransfer.effectAllowed = "move";
+    // Firefox requires data to be set for a drag to start.
+    event.dataTransfer.setData("text/plain", id);
+  }
+
+  function handleDragOver(event: React.DragEvent, targetId: string) {
+    if (!draggingId || draggingId === targetId) {
+      setDropTarget(null);
+      return;
+    }
+
+    // Never allow dropping a category into itself or one of its descendants.
+    const dragged = findNode(categories, draggingId);
+    if (dragged && containsId(dragged, targetId)) {
+      setDropTarget(null);
+      return;
+    }
+
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const ratio = (event.clientY - rect.top) / rect.height;
+    const mode: DropMode =
+      ratio < 0.3 ? "before" : ratio > 0.7 ? "after" : "inside";
+    setDropTarget({ id: targetId, mode });
+  }
+
+  function handleDragEnd() {
+    setDraggingId(null);
+    setDropTarget(null);
+  }
+
+  async function persistReorder(nextTree: Category[]) {
+    const previous = categories;
+    setCategories(nextTree);
+    setIsReordering(true);
+    setError("");
+    try {
+      const updated = await reorderCategories(flattenForReorder(nextTree));
+      setCategories(updated);
+    } catch (err) {
+      setCategories(previous);
+      setError(
+        err instanceof Error ? err.message : "Failed to reorder categories",
+      );
+    } finally {
+      setIsReordering(false);
+    }
+  }
+
+  function handleDrop(event: React.DragEvent, targetId: string) {
+    event.preventDefault();
+    const dragId = draggingId;
+    setDraggingId(null);
+    setDropTarget(null);
+
+    if (!dragId || dragId === targetId) return;
+
+    const mode: DropMode = dropTarget?.id === targetId ? dropTarget.mode : "after";
+
+    const { tree: without, node } = removeNode(categories, dragId);
+    // Guard against dropping a node into its own subtree.
+    if (!node || containsId(node, targetId)) return;
+
+    const nextTree = insertNode(without, node, targetId, mode);
+    void persistReorder(nextTree);
+  }
+
   return (
     <>
       <PageHeader
@@ -341,16 +509,35 @@ export default function CategoriesPage() {
 
       <section>
         <div className="overflow-hidden rounded-xl bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
+          <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-3">
             <p className="text-sm font-medium text-slate-500">
               {filteredRows.length} {filteredRows.length === 1 ? "category" : "categories"}
             </p>
+            {isReordering ? (
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600">
+                <svg className="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Saving order...
+              </span>
+            ) : canReorder ? (
+              <span className="hidden items-center gap-1.5 text-xs font-medium text-slate-400 sm:inline-flex">
+                <AdminIcon className="h-3.5 w-3.5" name="grip" />
+                Drag the handle to reorder, or drop onto a row to nest it
+              </span>
+            ) : search.trim() !== "" ? (
+              <span className="text-xs font-medium text-amber-600">
+                Clear the search to reorder categories
+              </span>
+            ) : null}
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full min-w-[840px] text-left">
               <thead className="bg-slate-50">
                 <tr>
+                  <th className="w-10 px-2 py-4" aria-label="Reorder" />
                   {[
                     "Name",
                     "Image",
@@ -371,7 +558,7 @@ export default function CategoriesPage() {
                   <tr>
                     <td
                       className="px-5 py-8 text-slate-500"
-                      colSpan={7}
+                      colSpan={8}
                     >
                       Loading categories...
                     </td>
@@ -380,17 +567,66 @@ export default function CategoriesPage() {
                   <tr>
                     <td
                       className="px-5 py-8 text-slate-500"
-                      colSpan={7}
+                      colSpan={8}
                     >
                       No categories found.
                     </td>
                   </tr>
                 ) : (
-                  paginatedRows.map((category) => (
+                  paginatedRows.map((category) => {
+                    const isDragging = draggingId === category.id;
+                    const indicator =
+                      dropTarget?.id === category.id ? dropTarget.mode : null;
+                    return (
                     <tr
-                      className="odd:bg-white even:bg-slate-50/70"
+                      className={`odd:bg-white even:bg-slate-50/70 transition-colors ${
+                        isDragging ? "opacity-40" : ""
+                      } ${indicator === "inside" ? "!bg-blue-50 ring-1 ring-inset ring-blue-300" : ""} ${
+                        indicator === "before"
+                          ? "shadow-[inset_0_2px_0_0_#2563eb]"
+                          : ""
+                      } ${
+                        indicator === "after"
+                          ? "shadow-[inset_0_-2px_0_0_#2563eb]"
+                          : ""
+                      }`}
                       key={category.id}
+                      onDragOver={
+                        canReorder
+                          ? (event) => handleDragOver(event, category.id)
+                          : undefined
+                      }
+                      onDrop={
+                        canReorder
+                          ? (event) => handleDrop(event, category.id)
+                          : undefined
+                      }
                     >
+                      <td className="w-10 px-2 py-4 align-middle">
+                        <button
+                          type="button"
+                          aria-label={`Drag to reorder ${category.name}`}
+                          title={
+                            canReorder
+                              ? "Drag to reorder or nest"
+                              : "Clear search to reorder categories"
+                          }
+                          draggable={canReorder}
+                          onDragStart={
+                            canReorder
+                              ? (event) => handleDragStart(event, category.id)
+                              : undefined
+                          }
+                          onDragEnd={handleDragEnd}
+                          className={`grid h-8 w-6 place-items-center rounded-md text-slate-400 ${
+                            canReorder
+                              ? "cursor-grab hover:bg-slate-100 hover:text-slate-600 active:cursor-grabbing"
+                              : "cursor-not-allowed opacity-40"
+                          }`}
+                        >
+                          <AdminIcon className="h-4 w-4" name="grip" />
+                        </button>
+                      </td>
                       <td className="px-5 py-4 text-sm text-slate-800">
                         <span
                            style={{ paddingLeft: `${category.depth * 18}px` }}
@@ -449,7 +685,8 @@ export default function CategoriesPage() {
                         </div>
                       </td>
                     </tr>
-                  ))
+                    );
+                  })
                 )}
               </tbody>
             </table>
