@@ -1,3 +1,5 @@
+import ScrollReveal from "@/components/ui/scroll-reveal";
+
 const timelineEvents = [
   {
     date: "1999",
@@ -45,47 +47,69 @@ const timelineEvents = [
 
 export default function CharterTimeline() {
   return (
-    <section className="w-full bg-[#fbfbfa] py-20 px-6 md:px-12">
-      <div className="max-w-3xl mx-auto">
+    <section className="w-full bg-[#F6F6F6] py-28 md:py-36 px-6 md:px-12 relative overflow-hidden">
+      {/* Top curved shape transition */}
+      <div className="absolute left-0 right-0 top-0 -mt-[1px] pointer-events-none z-10">
+        <svg width="1920" height="94" viewBox="0 0 1920 94" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto block">
+          <path d="M1920 0H0C0 0 429.807 94 960 94C1490.19 94 1920 0 1920 0Z" fill="#ffffff"/>
+        </svg>
+      </div>
+
+      <div className="max-w-3xl mx-auto relative z-20">
         {/* Subtitle & Title */}
-        <div className="text-left mb-16">
-          <p className="font-['Gotham'] text-xs uppercase tracking-[0.25em] text-neutral-400 mb-3">
+        <ScrollReveal delay={0} direction="up" distance={20} duration={650} className="text-left mb-16 space-y-2">
+          <p className="font-['Gotham'] text-xs uppercase tracking-[0.25em] text-neutral-400">
             WHO IS BEHIND IT
           </p>
-          <h2 className="font-['Bembo_Std'] text-3xl md:text-[40px] font-normal text-dark-charcoal leading-tight mb-4">
+          <h2 className="font-['Bembo_Std'] text-3xl md:text-5xl font-normal text-dark-charcoal leading-tight">
             How the Charter came to be
           </h2>
-          <p className="font-['Bembo_Std'] text-[13px] text-neutral-400 leading-relaxed max-w-2xl">
+          <p className="font-['Bembo_Std'] text-xs md:text-sm text-neutral-400 leading-relaxed max-w-2xl pt-1">
             Assembled from public statements, press coverage, and official announcements. Dates marked &quot;as reported&quot; could not be independently cross-verified beyond a single source.
           </p>
-        </div>
+        </ScrollReveal>
 
         {/* Vertical Timeline */}
-        <div className="relative border-l border-zinc-200 ml-3 pl-8 space-y-12">
+        <div className="relative border-l border-[#C5A880]/30 ml-4 pl-8 space-y-12">
           {timelineEvents.map((event, idx) => (
-            <div key={idx} className="relative group">
-              {/* Gold marker dot */}
-              <div className="absolute -left-[37px] top-1.5 w-4 h-4 rounded-full border-[3px] border-[#fbfbfa] bg-khaki-gold shadow-xs group-hover:scale-110 transition-transform duration-200" />
+            <ScrollReveal
+              key={idx}
+              delay={idx * 80}
+              direction="up"
+              distance={20}
+              duration={650}
+            >
+              <div className="relative group">
+                {/* Gold Ring Marker Dot (matches Red Box in reference image) */}
+                <div className="absolute -left-[43px] top-0.5 w-5 h-5 rounded-full border border-[#C5A880] bg-[#F6F6F6] flex items-center justify-center shadow-2xs group-hover:scale-110 transition-transform duration-200">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#C5A880]" />
+                </div>
 
-              {/* Event Content */}
-              <div className="space-y-2">
-                <p className="font-['Gotham'] text-[11px] font-medium tracking-[0.2em] text-neutral-400 uppercase">
-                  {event.date}
-                </p>
-                <h3 className="font-['Bembo_Std'] text-lg md:text-xl font-normal text-dark-charcoal">
-                  {event.title}
-                </h3>
-                <p className="font-['Bembo_Std'] text-sm md:text-[15px] text-rich-black leading-relaxed font-normal">
-                  {event.description}
-                </p>
-                <p className="font-['Bembo_Std'] italic text-[11px] text-neutral-400">
-                  {event.source}
-                </p>
+                {/* Inline Date (matches Blue Box in reference image) */}
+                <div className="flex items-center gap-3">
+                  <p className="font-['Gotham'] text-xs font-medium tracking-[0.1em] text-neutral-400">
+                    {event.date}
+                  </p>
+                </div>
+
+                {/* Event Content */}
+                <div className="space-y-1.5 mt-2">
+                  <h3 className="font-['Bembo_Std'] text-lg md:text-xl font-normal text-dark-charcoal">
+                    {event.title}
+                  </h3>
+                  <p className="font-['Bembo_Std'] text-sm md:text-[15px] text-neutral-600 leading-relaxed font-normal">
+                    {event.description}
+                  </p>
+                  <p className="font-['Bembo_Std'] italic text-xs text-neutral-400 underline underline-offset-2">
+                    {event.source}
+                  </p>
+                </div>
               </div>
-            </div>
+            </ScrollReveal>
           ))}
         </div>
       </div>
+
     </section>
   );
 }

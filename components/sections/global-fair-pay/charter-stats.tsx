@@ -1,4 +1,5 @@
 import Image from "next/image";
+import ScrollReveal from "@/components/ui/scroll-reveal";
 
 export default function CharterStats() {
   return (
@@ -15,7 +16,7 @@ export default function CharterStats() {
 
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-16 relative z-10">
         {/* Left Side: HTML/CSS Leaflet Booklet Cover Representation */}
-        <div className="w-full md:w-1/2 flex justify-center md:justify-start">
+        <ScrollReveal delay={0} direction="up" distance={20} duration={650} className="w-full md:w-1/2 flex justify-center md:justify-start">
           <div className="relative w-[280px] h-[400px] md:w-[320px] md:h-[450px] bg-white text-zinc-900 shadow-2xl rounded-sm transform -rotate-3 hover:rotate-0 transition-transform duration-500 overflow-hidden flex flex-col justify-between p-6 border border-zinc-200">
             {/* Top Row: Brand & UN Logo */}
             <div className="flex justify-between items-start">
@@ -57,10 +58,10 @@ export default function CharterStats() {
               </p>
             </div>
           </div>
-        </div>
+        </ScrollReveal>
 
         {/* Right Side: Large Numbers and Stats */}
-        <div className="w-full md:w-1/2 flex flex-col justify-center items-start text-left space-y-8">
+        <ScrollReveal delay={120} direction="up" distance={20} duration={650} className="w-full md:w-1/2 flex flex-col justify-center items-start text-left space-y-8">
           <h2 className="font-['Bembo_Std'] text-3xl md:text-[40px] font-normal leading-tight text-zinc-100 max-w-md">
             A stake in the estate, not just the shelf
           </h2>
@@ -83,7 +84,7 @@ export default function CharterStats() {
               <span>GOLDEN BENGAL, BANGLADESH</span>
             </div>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );
