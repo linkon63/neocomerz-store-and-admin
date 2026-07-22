@@ -41,8 +41,11 @@ export default function ProductCard({
   };
 
   return (
-    <div className="relative w-full bg-white border border-stone-100 gap-8 overflow-hidden flex flex-col justify-start items-start group shadow-sm hover:shadow-md transition-shadow duration-300 mx-auto">
-      <div className="absolute inset-2 pointer-events-none z-10">
+    <div className="relative z-0 w-full bg-white border border-stone-100 gap-8 overflow-hidden flex flex-col justify-start items-start group shadow-sm hover:shadow-md transition-shadow duration-300 mx-auto">
+      <div 
+        className="absolute inset-2 pointer-events-none z-30"
+        style={{ transform: 'translateZ(0)' }}
+      >
         <Image
           src="/images/products/product-card-border.png"
           alt="Product Card Border"
@@ -62,18 +65,24 @@ export default function ProductCard({
 
       <div className="w-full h-full flex flex-col justify-start items-start">
         {id ? (
-          <div className="self-stretch h-[290px] flex flex-col justify-center items-center relative overflow-hidden w-full">
+          <div 
+            className="self-stretch h-[290px] flex flex-col justify-center items-center relative overflow-hidden w-full z-0"
+            style={{ clipPath: 'inset(8px 8px 8px 8px)' }}
+          >
             <Image
               src={image || NO_IMAGE}
               alt={name}
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-contain group-hover:scale-105 transition-transform duration-300"
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
               onError={handleImageError}
             />
           </div>
         ) : (
-          <div className="self-stretch h-[290px] flex flex-col justify-center items-center relative overflow-hidden w-full">
+          <div 
+            className="self-stretch h-[290px] flex flex-col justify-center items-center relative overflow-hidden w-full z-0"
+            style={{ clipPath: 'inset(8px 8px 8px 8px)' }}
+          >
             <Image
               src={image || '/images/no-image-icon-6.png'}
               alt={name}
@@ -86,7 +95,7 @@ export default function ProductCard({
         )}
 
         <div className="self-stretch px-6 md:px-9 pt-4 pb-6 md:pb-9 flex flex-col justify-between w-full relative">
-          <div className="absolute top-4 right-6 md:right-9 z-30">
+          <div className="absolute top-4 right-4 md:right-6 z-40">
             <button
               onClick={() => id && (isAuthenticated ? toggleWishlist(wishlistProduct) : setShowAuthModal(true))}
               className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-md hover:shadow-lg hover:scale-110 transition-all cursor-pointer"
