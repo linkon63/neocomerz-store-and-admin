@@ -30,6 +30,7 @@ export function useOrders({ fixedStatus }: UseOrdersOptions = {}) {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [error, setError] = useState("");
 
   const searchParams = useSearchParams();
@@ -81,7 +82,8 @@ export function useOrders({ fixedStatus }: UseOrdersOptions = {}) {
   }, [page, status, paymentStatus, search]);
 
   async function updateOrderStatus(newStatus: OrderStatus) {
-    if (!selectedId) return;
+    if (!selectedId || isUpdatingStatus) return;
+    setIsUpdatingStatus(true);
     setError("");
     try {
       await apiRequest(`/orders/${selectedId}/status`, {
@@ -99,16 +101,19 @@ export function useOrders({ fixedStatus }: UseOrdersOptions = {}) {
       toast.success(msg);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update order status");
+    } finally {
+      setIsUpdatingStatus(false);
     }
   }
 
   async function updatePaymentStatus(newPaymentStatus: OrderPaymentStatus) {
-    if (!selectedId) return;
+    if (!selectedId || isUpdatingStatus) return;
     const order = orders.find((o) => o.id === selectedId);
     if (order && order.status !== "delivered") {
       toast.error("Payment status can only be changed for delivered orders.");
       return;
     }
+    setIsUpdatingStatus(true);
     setError("");
     try {
       await apiRequest(`/orders/${selectedId}/status`, {
@@ -120,6 +125,8 @@ export function useOrders({ fixedStatus }: UseOrdersOptions = {}) {
       toast.success("Payment status updated.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update payment status");
+    } finally {
+      setIsUpdatingStatus(false);
     }
   }
 
@@ -161,6 +168,7 @@ export function useOrders({ fixedStatus }: UseOrdersOptions = {}) {
     total,
     isLoading,
     error,
+    isUpdatingStatus,
     totalPages,
     hasMore,
     totals,

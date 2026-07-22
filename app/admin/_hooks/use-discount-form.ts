@@ -45,9 +45,11 @@ export function useDiscountForm({
   async function loadProducts() {
     setIsLoadingProducts(true);
     try {
-      const res = await apiRequest<{ data: Product[] }>("/products?limit=200");
-      setProducts(res.data);
+      const res = await apiRequest<{ data: Product[] } | Product[]>("/products?limit=200");
+      const list = Array.isArray(res) ? res : (res?.data ?? []);
+      setProducts(list);
     } catch {
+      setProducts([]);
     } finally {
       setIsLoadingProducts(false);
     }
@@ -99,6 +101,20 @@ export function useDiscountForm({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+
+    if (!form.name.trim()) {
+      setError("Discount name is required.");
+      return;
+    }
+    if (!form.value || Number(form.value) <= 0) {
+      setError("Discount value must be greater than 0.");
+      return;
+    }
+    if (form.productIds.length === 0) {
+      setError("Please select at least one product to apply this discount.");
+      return;
+    }
+
     setIsSaving(true);
 
     try {

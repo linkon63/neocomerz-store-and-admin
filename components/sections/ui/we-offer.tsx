@@ -32,7 +32,7 @@ export default function WeOffer() {
             </p>
             <div className="mt-2 flex justify-center lg:justify-start">
               <Button 
-                href="/teas" 
+                href="/products" 
                 label="EXPLORE TEAS"
                 variant="primary"
               />
