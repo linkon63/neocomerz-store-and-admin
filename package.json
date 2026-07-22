@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@react-oauth/google": "^0.13.5",
     "dayjs": "^1.11.21",
     "leaflet": "^1.9.4",
     "next": "16.0.10",

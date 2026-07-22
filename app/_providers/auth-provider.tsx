@@ -8,6 +8,7 @@ import {
   clearCustomerSession,
   login as apiLogin,
   register as apiRegister,
+  googleLogin as apiGoogleLogin,
   getMe,
   updateProfileDetails,
   getCustomerToken,
@@ -22,6 +23,7 @@ interface AuthContextValue {
   setShowAuthModal: (show: boolean) => void;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
+  loginWithGoogle: (googleAccessToken: string) => Promise<void>;
   logout: () => void;
   updateProfile: (name: string, email: string, phone?: string) => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -64,6 +66,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setShowAuthModal(false);
   }, []);
 
+  const loginWithGoogle = useCallback(async (googleAccessToken: string) => {
+    const { accessToken, user: googleUser } = await apiGoogleLogin(googleAccessToken);
+    // Surface the Google profile picture as the display avatar.
+    const normalized = { ...googleUser, avatarUrl: googleUser.avatarUrl ?? googleUser.avatar ?? null };
+    setCustomerSession(accessToken, normalized);
+    setUser(normalized);
+    setShowAuthModal(false);
+  }, []);
+
   const logout = useCallback(() => {
     clearCustomerSession();
     setUser(null);
@@ -81,7 +92,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const fresh = await getMe();
       try {
         const profile = await getMyProfile();
-        fresh.avatarUrl = profile.avatarUrl;
+        // Prefer an uploaded avatar, but keep the Google picture when none exists.
+        fresh.avatarUrl = profile.avatarUrl ?? fresh.avatarUrl ?? null;
       } catch {}
       const token = getCustomerToken() || "";
       setCustomerSession(token, fresh);
@@ -99,6 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setShowAuthModal,
         login,
         register,
+        loginWithGoogle,
         logout,
         updateProfile,
         refreshUser,

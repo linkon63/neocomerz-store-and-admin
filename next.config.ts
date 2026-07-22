@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
         hostname: "images.unsplash.com",
         pathname: "/**",
       },
+      // Google account profile pictures (OAuth avatars)
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        pathname: "/**",
+      },
       // production path resolver for TinyEcom API - Humana Vintage
       {
         protocol: "https",

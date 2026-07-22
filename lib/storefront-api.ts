@@ -8,6 +8,8 @@ export interface CustomerUser {
   email: string;
   phone?: string | null;
   avatarUrl?: string | null;
+  // Social-login avatar (e.g. Google profile picture); used as a fallback for avatarUrl.
+  avatar?: string | null;
 }
 
 export function getCustomerToken(): string | null {
@@ -122,8 +124,23 @@ export async function register(name: string, email: string, password: string) {
   return data;
 }
 
+export async function googleLogin(googleAccessToken: string) {
+  const data = await customerRequest<{ accessToken: string; user: CustomerUser }>(
+    "/auth/google",
+    {
+      auth: false,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accessToken: googleAccessToken }),
+    },
+  );
+  return data;
+}
+
 export async function getMe() {
-  return customerRequest<CustomerUser>("/auth/me");
+  const data = await customerRequest<CustomerUser>("/auth/me");
+  // Fall back to the social-login avatar when no uploaded profile picture exists.
+  return { ...data, avatarUrl: data.avatarUrl ?? data.avatar ?? null };
 }
 
 export async function updateProfileDetails(data: { name: string; email: string; phone?: string }) {

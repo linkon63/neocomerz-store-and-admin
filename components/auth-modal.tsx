@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useAuth } from "@/app/_providers/auth-provider";
+import { useGoogleLogin } from "@react-oauth/google";
 import { LuX, LuEye, LuEyeOff, LuLoader } from "react-icons/lu";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF } from "react-icons/fa";
@@ -9,7 +10,7 @@ import { FaFacebookF } from "react-icons/fa";
 type AuthView = "login" | "register";
 
 export default function AuthModal() {
-  const { showAuthModal, setShowAuthModal, login, register } = useAuth();
+  const { showAuthModal, setShowAuthModal, login, register, loginWithGoogle } = useAuth();
 
   const [view, setView] = useState<AuthView>("login");
   const [name, setName] = useState("");
@@ -21,6 +22,25 @@ export default function AuthModal() {
   const [rememberLogin, setRememberLogin] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  const signInWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setError("");
+      setGoogleLoading(true);
+      try {
+        await loginWithGoogle(tokenResponse.access_token);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Google sign-in failed. Please try again.");
+      } finally {
+        setGoogleLoading(false);
+      }
+    },
+    onError: () => {
+      setGoogleLoading(false);
+      setError("Google sign-in was cancelled or failed.");
+    },
+  });
 
   if (!showAuthModal) return null;
 
@@ -272,18 +292,20 @@ export default function AuthModal() {
             <div className="mt-4 flex gap-3">
               <button
                 type="button"
-                className="flex-1 flex items-center justify-center gap-2 border border-zinc-300 py-2.5 rounded-lg hover:bg-zinc-50 transition-colors font-gotham text-sm text-zinc-700 cursor-pointer"
+                onClick={() => signInWithGoogle()}
+                disabled={googleLoading || submitting}
+                className="flex-1 flex items-center justify-center gap-2 border border-zinc-300 py-2.5 rounded-lg hover:bg-zinc-50 transition-colors font-gotham text-sm text-zinc-700 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <FcGoogle className="w-5 h-5" />
-                Google
+                {googleLoading ? <LuLoader className="w-5 h-5 animate-spin" /> : <FcGoogle className="w-5 h-5" />}
+                {googleLoading ? "Connecting..." : "Google"}
               </button>
-              <button
+              {/* <button
                 type="button"
                 className="flex-1 flex items-center justify-center gap-2 border border-zinc-300 py-2.5 rounded-lg hover:bg-zinc-50 transition-colors font-gotham text-sm text-zinc-700 cursor-pointer"
               >
                 <FaFacebookF className="w-5 h-5 text-blue-600" />
                 Facebook
-              </button>
+              </button> */}
             </div>
           </div>
 

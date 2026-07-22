@@ -17,7 +17,6 @@ import { toast } from "sonner";
 import { useAuth } from "@/app/_providers/auth-provider";
 import { getCustomerToken } from "@/lib/storefront-api";
 
-import AuthView from "./_components/auth-view";
 import AccountDetailsView from "./_components/account-details";
 import OrdersView from "./_components/orders-view";
 import AddressBookView from "./_components/address-book";
@@ -29,7 +28,7 @@ type ProfileTab = "details" | "orders" | "address" | "wishlist" | "notifications
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5010/api/v1";
 
 function ProfilePageContent() {
-  const { user, isAuthenticated, logout, refreshUser } = useAuth();
+  const { user, isAuthenticated, loading, logout, refreshUser, setShowAuthModal } = useAuth();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab") as ProfileTab | null;
 
@@ -43,6 +42,15 @@ function ProfilePageContent() {
       setActiveTab(tabParam);
     }
   }, [tabParam]);
+
+  // Not logged in → open the shared auth modal (same as the header profile icon)
+  // instead of rendering an inline login page. Wait for auth to resolve first so
+  // a returning user isn't briefly shown the modal.
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      setShowAuthModal(true);
+    }
+  }, [loading, isAuthenticated, setShowAuthModal]);
 
   // Sync profile details on page load / authentication changes
   useEffect(() => {
@@ -64,7 +72,33 @@ function ProfilePageContent() {
   return (
     <div className="relative min-h-screen bg-white">
       {!isAuthenticated ? (
-        <AuthView />
+        // The AuthModal (rendered in the store layout) is opened via the effect above.
+        // Behind it we show a minimal prompt with a button to reopen the modal in case
+        // the visitor dismisses it without signing in.
+        <main className="min-h-[70vh] flex items-center justify-center bg-[#FAF9F5] px-4">
+          {loading ? (
+            <FiLoader className="w-8 h-8 text-[#C5B382] animate-spin" />
+          ) : (
+            <div className="flex flex-col items-center gap-5 text-center animate-fadeIn">
+              <FiUser className="w-10 h-10 text-[#C5B382]" />
+              <div>
+                <h1 className="font-['Bembo_Std'] text-3xl font-normal text-zinc-800 tracking-wide">
+                  Sign in to your account
+                </h1>
+                <p className="mt-2 font-sans text-sm text-zinc-500">
+                  Please sign in to view your profile, orders and wishlist.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAuthModal(true)}
+                className="bg-[#1A1A1A] hover:bg-stone-850 text-white font-sans text-xs font-semibold tracking-[0.16em] uppercase py-3.5 px-8 shadow transition duration-200 cursor-pointer"
+              >
+                Sign In
+              </button>
+            </div>
+          )}
+        </main>
       ) : (
         <div className="relative min-h-screen bg-white">
           {/* Background Split Screen Panels */}
