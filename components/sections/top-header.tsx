@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { IoIosArrowDown } from "react-icons/io";
 import { IoCallOutline, IoLocationOutline } from "react-icons/io5";
 import TopSlider from "./ui/topslider";
 import { fetchShopSettings } from "@/lib/shop-api";
 import data from "@/data/data.json";
 
 export default function TopHeader() {
-  const { help, selectors } = data;
+  const { help } = data;
   const [shopSettings, setShopSettings] = useState<any>(null);
 
   useEffect(() => {
@@ -33,7 +32,7 @@ export default function TopHeader() {
     ? (typeof shopSettings.contactNumber === 'object' ? shopSettings.contactNumber.short : shopSettings.contactNumber)
     : help.phone.short;
 
-  const branchAddress = shopSettings?.branchAddress || "";
+
 
   return (
     <section className="w-full bg-sage-gray text-white font-medium px-2 sm:px-4 md:px-6 py-0.5 relative">
@@ -54,14 +53,7 @@ export default function TopHeader() {
                 {phoneShort}
               </span>
             </div>
-            {branchAddress && (
-              <>
-                <span className="font-['Gotham'] text-white hidden sm:inline">|</span>
-                <span className="font-['Gotham'] text-white hidden sm:inline text-xs truncate max-w-[200px]" title={branchAddress}>
-                  {branchAddress}
-                </span>
-              </>
-            )}
+
           </div>
 
           {/* Center Section - Promotional Text (Absolutely Centered) */}
@@ -69,48 +61,12 @@ export default function TopHeader() {
             <TopSlider />
           </div>
 
-          {/* Right Section - Location, Language & Currency */}
-          <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-white z-10">
-            {/* Location Icon */}
-            <IoLocationOutline className="w-4 h-4 text-white hidden sm:inline" />
-            
-            {/* Language Selector */}
-            <div className="flex items-center gap-0.5 cursor-pointer">
-              <select
-                className="bg-transparent text-white border-none outline-none cursor-pointer font-['Gotham'] text-xs sm:text-sm appearance-none pr-0.5"
-                defaultValue={selectors.language.default}
-              >
-                {selectors.language.options.map((option: { value: string; label: string }) => (
-                  <option
-                    key={option.value}
-                    value={option.value}
-                    className="text-black bg-white"
-                  >
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <IoIosArrowDown className="w-2.5 h-2.5 text-white" />
-            </div>
-
-            {/* Currency Selector */}
-            <div className="flex items-center gap-0.5 cursor-pointer">
-              <select
-                className="bg-transparent text-white border-none outline-none cursor-pointer font-['Gotham'] text-xs appearance-none pr-0.5"
-                defaultValue={selectors.currency.default}
-              >
-                {selectors.currency.options.map((option: { value: string; label: string }) => (
-                  <option
-                    key={option.value}
-                    value={option.value}
-                    className="text-black bg-white"
-                  >
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <IoIosArrowDown className="w-2.5 h-2.5 text-white" />
-            </div>
+          {/* Right Section - Location */}
+          <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm text-white z-10">
+            <IoLocationOutline className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+            <span className="font-['Gotham'] text-white text-[11px] sm:text-xs">
+              Pan Pacific Sonargaon
+            </span>
           </div>
         </div>
 

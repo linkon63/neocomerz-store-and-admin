@@ -87,7 +87,7 @@ export default function Navigation() {
       </Link>
 
       {item.hasDropdown && isTeasHovered && (
-        <div className="absolute left-1/2 -translate-x-1/2 top-full pt-4 z-50">
+        <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2.5 z-50">
           <div className="w-[92vw] max-w-[1400px] bg-white shadow-[0px_12px_48px_0px_rgba(0,0,0,0.08)] rounded-none border border-zinc-100">
             <div className="px-10 py-12 flex justify-start items-start gap-12 text-zinc-800">
               

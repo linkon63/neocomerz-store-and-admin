@@ -175,17 +175,32 @@ export default function Header() {
           />
         </Link>
 
-        <Link
-          href="/cart"
-          className="relative p-2 hover:text-brand-primary transition-colors"
-          aria-label="Shopping Cart"
-        >
-          <LuShoppingBag className="w-5 h-5" />
+        <div className="flex items-center gap-1.5">
+          <Link
+            href="/wishlist"
+            className="relative p-2 hover:text-brand-primary transition-colors"
+            aria-label="Wishlist"
+          >
+            <IoHeartOutline className="w-5 h-5" />
+            {wishlistItemCount > 0 && (
+              <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 rounded-full bg-white text-[9px] text-zinc-800 font-bold">
+                {wishlistItemCount}
+              </span>
+            )}
+          </Link>
 
-          <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 rounded-full bg-white text-[9px] text-black font-semibold">
-            {cartItemCount}
-          </span>
-        </Link>
+          <Link
+            href="/cart"
+            className="relative p-2 hover:text-brand-primary transition-colors"
+            aria-label="Shopping Cart"
+          >
+            <LuShoppingBag className="w-5 h-5" />
+
+            <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 rounded-full bg-white text-[9px] text-zinc-800 font-bold">
+              {cartItemCount}
+            </span>
+          </Link>
+        </div>
       </div>
     </header>
   );

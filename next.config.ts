@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const backendApiUrl = process.env.API_BASE_URL ?? "http://localhost:5010/api/v1";
+const backendApiUrl = process.env.API_BASE_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5010/api/v1";
 // Origin only (no /api/v1) — used for proxying static file paths like /products/*.webp
 const backendOrigin = backendApiUrl.replace(/\/api\/v\d+$/, "");
 
