@@ -50,7 +50,7 @@ export default function OrderPageView({ title, description, fixedStatus }: Order
     orders, selected, selectedId, setSelectedId,
     status, setStatus, paymentStatus, setPaymentStatus,
     search, setSearch, page, setPage,
-    total, isLoading, error,
+    total, isLoading, error, isUpdatingStatus,
     totalPages, hasMore, totals,
     updateOrderStatus, updatePaymentStatus,
   } = useOrders({ fixedStatus });
@@ -202,6 +202,7 @@ export default function OrderPageView({ title, description, fixedStatus }: Order
                             symbol={symbol}
                             onUpdateOrderStatus={updateOrderStatus}
                             onUpdatePaymentStatus={updatePaymentStatus}
+                            isUpdatingStatus={isUpdatingStatus}
                           />
                         </div>
                       )}
@@ -236,6 +237,7 @@ export default function OrderPageView({ title, description, fixedStatus }: Order
                 symbol={symbol}
                 onUpdateOrderStatus={updateOrderStatus}
                 onUpdatePaymentStatus={updatePaymentStatus}
+                isUpdatingStatus={isUpdatingStatus}
               />
             )}
           </section>

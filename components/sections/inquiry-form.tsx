@@ -103,7 +103,7 @@ Corporate Gifting / Event Inquiry Details:
   };
  
   return (
-    <section className="w-full bg-[#F9F9FB] py-16 sm:py-24 px-6 md:px-12">
+    <section id="inquiry-form" className="w-full bg-[#F9F9FB] py-16 sm:py-24 px-6 md:px-12">
       <div className="container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           

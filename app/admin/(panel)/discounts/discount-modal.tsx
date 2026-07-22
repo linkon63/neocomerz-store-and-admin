@@ -78,7 +78,9 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
         <div className="flex-1 modal-body p-6">
           <div className="space-y-4">
             <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-slate-700">Name</span>
+              <span className="mb-2 block text-sm font-semibold text-slate-700">
+                Name <span className="text-red-500">*</span>
+              </span>
               <input
                 autoFocus
                 required
@@ -105,7 +107,7 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
 
               <label className="block">
                 <span className="mb-2 block text-sm font-semibold text-slate-700">
-                  Value {form.type === "percentage" ? "(%)" : "(৳)"}
+                  Value {form.type === "percentage" ? "(%)" : "(৳)"} <span className="text-red-500">*</span>
                 </span>
                 <input
                   className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
@@ -157,7 +159,7 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
 
             <div className="block">
               <span className="mb-2 block text-sm font-semibold text-slate-700">
-                Linked Products ({form.productIds.length} selected)
+                Linked Products <span className="text-red-500">*</span> ({form.productIds.length} selected)
               </span>
               <div className="rounded-lg border border-slate-300">
                 <div className="flex items-center gap-3 border-b border-slate-200 p-3">
@@ -256,8 +258,8 @@ export function DiscountModal({ isOpen, discountId, onClose, onSaved }: Discount
             Cancel
           </button>
           <button
-            className={`inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white disabled:bg-slate-400 hover:bg-blue-700 transition-colors ${!canSubmit || isSaving ? "cursor-not-allowed" : "cursor-pointer"}`}
-            disabled={!canSubmit || isSaving}
+            className={`inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white disabled:bg-slate-400 hover:bg-blue-700 transition-colors ${isSaving ? "cursor-not-allowed" : "cursor-pointer"}`}
+            disabled={isSaving}
             type="submit"
           >
             <AdminIcon className="h-4 w-4" name={form.id ? "check" : "plus"} />

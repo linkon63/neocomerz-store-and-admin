@@ -1,8 +1,16 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 
 export default function LuxuryHero() {
+  const scrollToForm = () => {
+    const element = document.getElementById('inquiry-form');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <section className="relative w-full flex items-center justify-center bg-[#C2B687] py-36 px-6 overflow-hidden">
       {/* Repeating Luxury Pattern Image */}
@@ -22,6 +30,7 @@ export default function LuxuryHero() {
       <div className="relative z-10 max-w-4xl mx-auto text-center flex flex-col items-center gap-12">
         {/* Main Icon (Dark Fleur-de-lis centered at the top) */}
         <div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img 
             src="/images/icons/icon-3.svg" 
             alt="Crest Icon" 
@@ -46,16 +55,23 @@ export default function LuxuryHero() {
 
         {/* Buttons (Arranged vertically with a gap) */}
         <div className="flex flex-col gap-4 w-full max-w-xs justify-center items-center">
-          <button className="w-full px-12 py-4 bg-[#4A4A4A] hover:bg-[#3E3E3E] rounded-full transition-all duration-300 shadow-md border border-amber-200/10 cursor-pointer flex justify-center items-center">
+          <button 
+            type="button"
+            onClick={scrollToForm}
+            className="w-full px-12 py-4 bg-[#4A4A4A] hover:bg-[#3E3E3E] rounded-full transition-all duration-300 shadow-md border border-amber-200/10 cursor-pointer flex justify-center items-center"
+          >
             <span className="justify-start text-white text-base font-medium font-gotham uppercase leading-5">
               Begin Consultation
             </span>
           </button>
-          <button className="w-full px-12 py-4 bg-white hover:bg-stone-50 rounded-full transition-all duration-300 shadow-sm cursor-pointer flex justify-center items-center">
+          <Link 
+            href="/products"
+            className="w-full px-12 py-4 bg-white hover:bg-stone-50 rounded-full transition-all duration-300 shadow-sm cursor-pointer flex justify-center items-center"
+          >
             <span className="justify-start text-[#2A2A2A] text-base font-medium font-gotham uppercase leading-5">
               Explore Teas
             </span>
-          </button>
+          </Link>
         </div>
       </div>
     </section>

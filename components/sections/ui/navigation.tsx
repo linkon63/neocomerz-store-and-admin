@@ -52,7 +52,7 @@ export default function Navigation() {
   const handleMouseLeave = () => {
     hoverTimeoutRef.current = setTimeout(() => {
       setIsTeasHovered(false);
-    }, 150);
+    }, 250);
   };
 
   const isActive = (href: string) => {
@@ -87,7 +87,11 @@ export default function Navigation() {
       </Link>
 
       {item.hasDropdown && isTeasHovered && (
-        <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2.5 z-50">
+        <div 
+          className="absolute left-1/2 -translate-x-1/2 top-full pt-2 z-50"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           <div className="w-[92vw] max-w-[1400px] bg-white shadow-[0px_12px_48px_0px_rgba(0,0,0,0.08)] rounded-none border border-zinc-100">
             <div className="px-10 py-12 flex justify-start items-start gap-12 text-zinc-800">
               
@@ -103,8 +107,8 @@ export default function Navigation() {
                         onClick={() => setIsTeasHovered(false)}
                         className={`w-full py-2.5 flex items-center justify-start text-left transition-all duration-200 cursor-pointer border-none bg-transparent ${
                           isCatActive
-                            ? "font-['Snell_Roundhand_LT_Std'] text-[#b4a676] text-2xl xl:text-3xl font-normal leading-normal flex items-center gap-3"
-                            : "font-['Bembo_Std'] text-stone-gray text-2xl xl:text-3xl font-normal leading-normal hover:text-stone-600"
+                            ? "font-['Snell_Roundhand_LT_Std'] text-[#b4a676] text-2xl xl:text-3xl font-normal leading-normal flex items-center gap-3 translate-x-1"
+                            : "font-['Bembo_Std'] text-stone-gray text-2xl xl:text-3xl font-normal leading-normal hover:text-[#b4a676] hover:translate-x-1"
                         }`}
                       >
                         <span>{category.name}</span>
@@ -117,16 +121,23 @@ export default function Navigation() {
                 </div>
 
                 <div className="flex-1 pt-2 flex flex-col justify-start items-start">
-                  {currentCategoryData?.children?.map((subItem) => (
-                    <Link
-                      key={subItem.id}
-                      href={`/products?category=${encodeURIComponent(subItem.name)}`}
-                      onClick={() => setIsTeasHovered(false)}
-                      className="self-stretch py-1.5 flex flex-col justify-start items-start gap-1 font-['Bembo_Std'] text-stone-gray hover:text-[#b4a676] text-sm lg:text-base font-normal leading-normal transition-colors"
-                    >
-                      {subItem.name}
-                    </Link>
-                  ))}
+                  {currentCategoryData?.children && currentCategoryData.children.length > 0 ? (
+                    currentCategoryData.children.map((subItem) => (
+                      <Link
+                        key={subItem.id}
+                        href={`/products?category=${encodeURIComponent(subItem.name)}`}
+                        onClick={() => setIsTeasHovered(false)}
+                        className="group/sub py-1.5 flex items-center gap-2 font-['Bembo_Std'] text-stone-gray hover:text-[#b4a676] text-sm lg:text-base font-normal leading-normal transition-all duration-200 hover:translate-x-1.5"
+                      >
+                        <span className="transition-transform duration-200">{subItem.name}</span>
+                        <span className="opacity-0 -translate-x-2 text-xs transition-all duration-200 group-hover/sub:opacity-100 group-hover/sub:translate-x-0 text-[#b4a676]">→</span>
+                      </Link>
+                    ))
+                  ) : (
+                    <span className="py-2 text-sm text-stone-400 font-['Bembo_Std']">
+                      No subcategories available
+                    </span>
+                  )}
                 </div>
               </div>
 

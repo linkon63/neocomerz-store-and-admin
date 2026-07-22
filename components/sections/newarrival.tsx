@@ -46,17 +46,6 @@ export default function NewArrival() {
 
   return (
     <section className="relative w-full py-16 md:py-24 bg-[#F9F9FB] border-t border-stone-100 overflow-hidden">
-      <div
-        className="absolute inset-0 z-0 opacity-20 pointer-events-none"
-        style={{
-          backgroundImage: "url('/images/pattern/pattern.png')",
-          backgroundRepeat: "repeat",
-          backgroundSize: "150px 150px",
-          maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%)',
-        }}
-      ></div>
-
       <div className="relative z-10 w-full max-w-[1440px] mx-auto px-5 sm:px-10 md:px-14 lg:px-20">
         {/* Header */}
         <div className="text-center mb-16">

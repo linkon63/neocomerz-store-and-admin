@@ -15,7 +15,7 @@ export default function DiscountsPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [discountToDelete, setDiscountToDelete] = useState<ProductDiscount | null>(null);
   const [error, setError] = useState("");
-  const { discounts, isLoading, loadDiscounts, deleteDiscount, toggleStatus, search, setSearch, page, setPage, total, hasMore } = useDiscounts();
+  const { discounts, isLoading, loadDiscounts, refreshDiscounts, deleteDiscount, toggleStatus, search, setSearch, page, setPage, total, hasMore } = useDiscounts();
 
   function openAddModal() {
     setEditingDiscountId(null);
@@ -160,7 +160,7 @@ export default function DiscountsPage() {
         isOpen={isModalOpen}
         discountId={editingDiscountId}
         onClose={closeModal}
-        onSaved={loadDiscounts}
+        onSaved={refreshDiscounts}
       />
 
       <ConfirmModal

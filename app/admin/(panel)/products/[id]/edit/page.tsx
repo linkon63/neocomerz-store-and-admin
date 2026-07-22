@@ -917,7 +917,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <label className="block md:col-span-2">
-                <span className="mb-2 block text-xs font-semibold text-slate-700">Name</span>
+                <span className="mb-2 block text-xs font-semibold text-slate-700">
+                  Name <span className="text-red-500">*</span>
+                </span>
                 <input
                   autoFocus
                   className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
@@ -928,7 +930,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-xs font-semibold text-slate-700">Slug</span>
+                <span className="mb-2 block text-xs font-semibold text-slate-700">
+                  Slug <span className="text-red-500">*</span>
+                </span>
                 <input
                   className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   onChange={(e) => {
@@ -960,7 +964,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 </select>
               </label>
               <label className="block">
-                <span className="mb-2 block text-xs font-semibold text-slate-700">Brand</span>
+                <span className="mb-2 block text-xs font-semibold text-slate-700">
+                  Brand <span className="text-red-500">*</span>
+                </span>
                 <select
                   className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   onChange={(e) => {
@@ -976,7 +982,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 </select>
               </label>
               <label className="block">
-                <span className="mb-2 block text-xs font-semibold text-slate-700">Category</span>
+                <span className="mb-2 block text-xs font-semibold text-slate-700">
+                  Category <span className="text-red-500">*</span>
+                </span>
                 <select
                   className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   onChange={(e) => {
@@ -1355,7 +1363,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <div className="mt-6 grid gap-4 md:grid-cols-2">
                 <label className="block">
                   <div className="mb-2 flex items-center justify-between">
-                    <span className="block text-xs font-semibold text-slate-700">SKU</span>
+                    <span className="block text-xs font-semibold text-slate-700">
+                      SKU <span className="text-red-500">*</span>
+                    </span>
                     <button
                       className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-700"
                       onClick={generateSku}
@@ -1523,7 +1533,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 </div>
                 <div>
                   <span className="mb-2 block text-xs font-semibold text-slate-700 flex items-center">
-                    Retail Price
+                    Retail Price <span className="text-red-500 ml-0.5">*</span>
                     <span className="group relative ml-1.5 inline-block cursor-pointer text-slate-400 hover:text-slate-600">
                       <AdminIcon className="h-3.5 w-3.5" name="info" />
                       <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-48 -translate-x-1/2 rounded bg-slate-800 p-2 text-center text-[10px] font-medium text-white opacity-0 shadow-md transition-opacity group-hover:opacity-100">
@@ -1866,7 +1876,9 @@ function VariantDraftCard({
 
       <div className="mt-4 grid gap-4 md:grid-cols-[1.3fr_repeat(3,0.7fr)]">
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold text-slate-600">SKU</span>
+          <span className="mb-1 block text-xs font-semibold text-slate-600">
+            SKU <span className="text-red-500">*</span>
+          </span>
           <input
             className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm font-semibold uppercase outline-none focus:border-blue-500"
             value={v.sku}
@@ -1887,7 +1899,9 @@ function VariantDraftCard({
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold text-slate-600">Price</span>
+          <span className="mb-1 block text-xs font-semibold text-slate-600">
+            Price <span className="text-red-500">*</span>
+          </span>
           <input
             className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm font-semibold outline-none focus:border-blue-500"
             min="0"

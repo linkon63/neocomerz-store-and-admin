@@ -24,12 +24,14 @@ export function useDiscounts() {
     try {
       const params = new URLSearchParams({ page: String(page), limit: String(PAGE_SIZE) });
       if (search.trim()) params.set("search", search.trim());
-      const res = await apiRequest<PaginatedDiscounts>(`/product-discounts?${params.toString()}`);
+      const res = await apiRequest<PaginatedDiscounts | ProductDiscount[]>(`/product-discounts?${params.toString()}`);
       if (myReq !== reqRef.current) return;
+      const list = Array.isArray(res) ? res : (res?.data ?? []);
+      const totalCount = Array.isArray(res) ? res.length : (res?.meta?.total ?? list.length);
       setDiscounts((prev) =>
-        page === 1 ? res.data : [...prev, ...res.data.filter((d) => !prev.some((p) => p.id === d.id))],
+        page === 1 ? list : [...prev, ...list.filter((d) => !prev.some((p) => p.id === d.id))],
       );
-      setTotal(res.meta.total);
+      setTotal(totalCount);
     } catch (err) {
       if (myReq !== reqRef.current) return;
       setError(err instanceof Error ? err.message : "Failed to load discounts");
@@ -38,6 +40,28 @@ export function useDiscounts() {
       if (myReq === reqRef.current) setIsLoading(false);
     }
   }, [page, search]);
+
+  const refreshDiscounts = useCallback(async () => {
+    setPage(1);
+    const myReq = ++reqRef.current;
+    setIsLoading(true);
+    setError("");
+    try {
+      const params = new URLSearchParams({ page: "1", limit: String(PAGE_SIZE) });
+      if (search.trim()) params.set("search", search.trim());
+      const res = await apiRequest<PaginatedDiscounts | ProductDiscount[]>(`/product-discounts?${params.toString()}`);
+      if (myReq !== reqRef.current) return;
+      const list = Array.isArray(res) ? res : (res?.data ?? []);
+      const totalCount = Array.isArray(res) ? res.length : (res?.meta?.total ?? list.length);
+      setDiscounts(list);
+      setTotal(totalCount);
+    } catch (err) {
+      if (myReq !== reqRef.current) return;
+      setError(err instanceof Error ? err.message : "Failed to load discounts");
+    } finally {
+      if (myReq === reqRef.current) setIsLoading(false);
+    }
+  }, [search]);
 
   useEffect(() => {
     if (prevSearchRef.current !== search) {
@@ -72,6 +96,7 @@ export function useDiscounts() {
     isLoading,
     error,
     loadDiscounts,
+    refreshDiscounts,
     deleteDiscount,
     toggleStatus,
     search,

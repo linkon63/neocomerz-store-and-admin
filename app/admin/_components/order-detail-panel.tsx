@@ -63,6 +63,7 @@ interface OrderDetailPanelProps {
   symbol: string;
   onUpdateOrderStatus: (status: OrderStatus) => void;
   onUpdatePaymentStatus: (paymentStatus: OrderPaymentStatus) => void;
+  isUpdatingStatus?: boolean;
 }
 
 export function OrderDetailPanel({
@@ -71,6 +72,7 @@ export function OrderDetailPanel({
   symbol,
   onUpdateOrderStatus,
   onUpdatePaymentStatus,
+  isUpdatingStatus = false,
 }: OrderDetailPanelProps) {
   return (
     <>
@@ -117,15 +119,17 @@ export function OrderDetailPanel({
             <div className="flex items-end gap-2">
               <button
                 type="button"
+                disabled={isUpdatingStatus}
                 onClick={() => onUpdateOrderStatus(order.status === "pending" ? "processing" : "shipped")}
-                className="h-11 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 cursor-pointer"
+                className="h-11 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
-                Accept
+                {isUpdatingStatus ? "Processing..." : "Accept"}
               </button>
               <button
                 type="button"
+                disabled={isUpdatingStatus}
                 onClick={() => onUpdateOrderStatus("cancelled")}
-                className="h-11 rounded-lg bg-red-600 px-5 text-sm font-semibold text-white transition hover:bg-red-700 cursor-pointer"
+                className="h-11 rounded-lg bg-red-600 px-5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 Cancel
               </button>
@@ -135,10 +139,11 @@ export function OrderDetailPanel({
             <div className="flex items-end">
               <button
                 type="button"
+                disabled={isUpdatingStatus}
                 onClick={() => onUpdateOrderStatus("delivered")}
-                className="h-11 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 cursor-pointer"
+                className="h-11 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
-                Accept
+                {isUpdatingStatus ? "Processing..." : "Accept"}
               </button>
             </div>
           )}
@@ -146,10 +151,11 @@ export function OrderDetailPanel({
             <div className="flex items-end">
               <button
                 type="button"
+                disabled={isUpdatingStatus}
                 onClick={() => onUpdateOrderStatus("returned")}
-                className="h-10 rounded-lg bg-amber-500 px-5 text-sm font-semibold text-white transition hover:bg-amber-600 cursor-pointer"
+                className="h-10 rounded-lg bg-amber-500 px-5 text-sm font-semibold text-white transition hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
-                Return
+                {isUpdatingStatus ? "Processing..." : "Return"}
               </button>
             </div>
           )}

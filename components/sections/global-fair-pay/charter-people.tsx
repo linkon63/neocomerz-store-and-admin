@@ -1,4 +1,5 @@
 import { FiGlobe, FiUsers, FiBriefcase, FiUser } from "react-icons/fi";
+import ScrollReveal from "@/components/ui/scroll-reveal";
 
 const countries = [
   "UNITED KINGDOM",
@@ -76,7 +77,7 @@ export default function CharterPeople() {
     <section className="w-full bg-white py-20 px-6 md:px-12 lg:px-24">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-16">
+        <ScrollReveal delay={0} direction="up" distance={20} duration={650} className="mb-16">
           <p className="font-['Gotham'] text-xs uppercase tracking-[0.25em] text-neutral-400 mb-3">
             WHO IS BEHIND IT
           </p>
@@ -86,10 +87,10 @@ export default function CharterPeople() {
           <p className="font-['Bembo_Std'] text-sm text-neutral-400 leading-relaxed max-w-3xl">
             Compiled from official announcements, press coverage, and public statements by the individuals and organizations named below.
           </p>
-        </div>
+        </ScrollReveal>
 
         {/* Section 1: Countries Involved */}
-        <div className="mb-16 space-y-6">
+        <ScrollReveal delay={80} direction="up" distance={20} duration={650} className="mb-16 space-y-6">
           <div className="flex items-center gap-2 text-dark-charcoal font-['Gotham'] text-xs uppercase tracking-wider font-semibold">
             <FiGlobe className="text-base text-neutral-400" />
             <span>Countries Involved</span>
@@ -109,10 +110,10 @@ export default function CharterPeople() {
           <p className="font-['Bembo_Std'] text-xs md:text-sm text-rich-black leading-relaxed max-w-5xl">
             The UK and Bangladesh host the Charter&apos;s confirmed launch and partnership activity. The remaining countries listed are major global tea producers that the mission concerns; a public 2025 statement by Dame Lauran Bush referred to active conversations in 17 further countries, which could not be independently itemised at the time of writing.
           </p>
-        </div>
+        </ScrollReveal>
 
         {/* Section 2: Founders & Key People */}
-        <div className="mb-16 space-y-8">
+        <ScrollReveal delay={160} direction="up" distance={20} duration={650} className="mb-16 space-y-8">
           <div className="flex items-center gap-2 text-dark-charcoal font-['Gotham'] text-xs uppercase tracking-wider font-semibold">
             <FiUsers className="text-base text-neutral-400" />
             <span>Founders & key people</span>
@@ -135,10 +136,10 @@ export default function CharterPeople() {
               </div>
             ))}
           </div>
-        </div>
+        </ScrollReveal>
 
         {/* Section 3: Partner & Endorsing Organizations */}
-        <div className="space-y-8">
+        <ScrollReveal delay={240} direction="up" distance={20} duration={650} className="space-y-8">
           <div className="flex items-center gap-2 text-dark-charcoal font-['Gotham'] text-xs uppercase tracking-wider font-semibold">
             <FiBriefcase className="text-base text-neutral-400" />
             <span>Partner & endorsing organizations</span>
@@ -159,7 +160,7 @@ export default function CharterPeople() {
               </div>
             ))}
           </div>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );

@@ -41,11 +41,9 @@ export default function ProductCard({
   };
 
   return (
-    <div className="relative z-0 w-full bg-white border border-stone-100 gap-8 overflow-hidden flex flex-col justify-start items-start group shadow-sm hover:shadow-md transition-shadow duration-300 mx-auto">
-      <div 
-        className="absolute inset-2 pointer-events-none z-30"
-        style={{ transform: 'translateZ(0)' }}
-      >
+    <div className="relative z-0 w-full bg-white border border-stone-100 gap-8 overflow-hidden flex flex-col justify-start items-start group shadow-xs hover:shadow-lg transition-all duration-300 mx-auto">
+      {/* Decorative Border Overlay */}
+      <div className="absolute inset-2 pointer-events-none z-30">
         <Image
           src="/images/products/product-card-border.png"
           alt="Product Card Border"
@@ -64,35 +62,18 @@ export default function ProductCard({
       )}
 
       <div className="w-full h-full flex flex-col justify-start items-start">
-        {id ? (
-          <div 
-            className="self-stretch h-[290px] flex flex-col justify-center items-center relative overflow-hidden w-full z-0"
-            style={{ clipPath: 'inset(8px 8px 8px 8px)' }}
-          >
+        <div className="self-stretch h-[290px] p-2 flex flex-col justify-center items-center relative overflow-hidden w-full z-0">
+          <div className="w-full h-full relative overflow-hidden rounded-xs">
             <Image
               src={image || NO_IMAGE}
               alt={name}
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              className="object-cover group-hover:scale-108 transition-transform duration-500 ease-out transform-gpu"
               onError={handleImageError}
             />
           </div>
-        ) : (
-          <div 
-            className="self-stretch h-[290px] flex flex-col justify-center items-center relative overflow-hidden w-full z-0"
-            style={{ clipPath: 'inset(8px 8px 8px 8px)' }}
-          >
-            <Image
-              src={image || '/images/no-image-icon-6.png'}
-              alt={name}
-              fill
-              sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
-              onError={handleImageError}
-            />
-          </div>
-        )}
+        </div>
 
         <div className="self-stretch px-6 md:px-9 pt-4 pb-6 md:pb-9 flex flex-col justify-between w-full relative">
           <div className="absolute top-4 right-4 md:right-6 z-40">

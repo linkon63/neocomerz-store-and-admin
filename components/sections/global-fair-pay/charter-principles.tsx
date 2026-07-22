@@ -1,3 +1,5 @@
+import ScrollReveal from "@/components/ui/scroll-reveal";
+
 const articles = [
   {
     roman: "I",
@@ -43,10 +45,10 @@ const articles = [
 
 export default function CharterPrinciples() {
   return (
-    <section className="w-full bg-[#fbfbfa] pt-20 md:pt-32 lg:pt-44 pb-24 md:pb-36 lg:pb-48 px-6 md:px-12 lg:px-24 relative">
+    <section id="eight-articles" className="w-full bg-[#fbfbfa] pt-20 md:pt-32 lg:pt-44 pb-24 md:pb-36 lg:pb-48 px-6 md:px-12 lg:px-24 relative scroll-mt-10">
       <div className="max-w-7xl mx-auto">
         {/* Top Banner: Fairness, Equality, Justice */}
-        <div className="flex flex-col items-center justify-center mb-16 text-center">
+        <ScrollReveal delay={0} direction="up" distance={20} duration={650} className="flex flex-col items-center justify-center mb-16 text-center">
           <p className="font-['Bembo_Std'] text-[13px] md:text-[15px] font-normal tracking-[0.35em] text-neutral-400 uppercase mb-4">
             FAIRNESS &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; EQUALITY &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; JUSTICE
           </p>
@@ -59,12 +61,12 @@ export default function CharterPrinciples() {
             />
             <div className="h-px bg-zinc-200 flex-1" />
           </div>
-        </div>
+        </ScrollReveal>
 
         {/* Two-Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-start">
           {/* Left Column: Heading and Info */}
-          <div className="lg:col-span-5 lg:sticky lg:top-36 lg:h-fit space-y-8">
+          <ScrollReveal delay={80} direction="up" distance={20} duration={650} className="lg:col-span-5 lg:sticky lg:top-36 lg:h-fit space-y-8">
             <div className="self-stretch flex flex-col justify-start items-start gap-4 md:gap-6">
               <div className="text-neutral-400 text-base md:text-lg font-normal font-['Bembo_Std'] uppercase leading-6">
                 The Charter
@@ -88,47 +90,51 @@ export default function CharterPrinciples() {
                 Source: Fair Pay Foundation, hosted via Long Finance
               </div>
             </div>
-          </div>
+          </ScrollReveal>
 
-          {/* Right Column: 8 Article Cards */}
+          {/* Right Column: 8 Article Cards with Staggered Scroll Reveal */}
           <div className="lg:col-span-7 space-y-4">
             {articles.map((art, idx) => (
-              <div
+              <ScrollReveal
                 key={idx}
-                className="self-stretch p-5 md:p-6 lg:p-8 bg-neutral-100 rounded-xl flex justify-start items-start gap-4 md:gap-6 hover:shadow-xs transition-shadow duration-200"
+                delay={idx * 80}
+                direction="up"
+                distance={20}
+                duration={650}
               >
-                {/* Article Roman Number Block */}
-                <div className="w-14 md:w-16 shrink-0 flex flex-col justify-start items-start gap-1 md:gap-2">
-                  <div className="justify-start text-neutral-500 text-[10px] md:text-xs font-medium font-['Gotham'] leading-4">
-                    Article.
+                <div className="self-stretch p-5 md:p-6 lg:p-8 bg-neutral-100 rounded-xl flex justify-start items-start gap-4 md:gap-6 hover:shadow-xs transition-shadow duration-200">
+                  {/* Article Roman Number Block */}
+                  <div className="w-14 md:w-16 shrink-0 flex flex-col justify-start items-start gap-1 md:gap-2">
+                    <div className="justify-start text-neutral-500 text-[10px] md:text-xs font-medium font-['Gotham'] leading-4">
+                      Article.
+                    </div>
+                    <div className="justify-start text-neutral-800 text-2xl md:text-3xl lg:text-4xl font-normal font-['Bembo_Std'] leading-tight">
+                      {art.roman}
+                    </div>
                   </div>
-                  <div className="justify-start text-neutral-800 text-2xl md:text-3xl lg:text-4xl font-normal font-['Bembo_Std'] leading-tight">
-                    {art.roman}
-                  </div>
-                </div>
 
-                {/* Content */}
-                <div className="flex-1 flex flex-col justify-start items-start gap-1 md:gap-2">
-                  <div className="justify-start text-neutral-800 text-base lg:text-lg font-normal font-['Bembo_Std'] uppercase leading-snug lg:leading-6">
-                    {art.title}
-                  </div>
-                  <div className="self-stretch justify-start text-zinc-600 text-sm md:text-base lg:text-lg font-normal font-['Bembo_Std'] leading-relaxed lg:leading-7">
-                    {art.desc}
+                  {/* Content */}
+                  <div className="flex-1 flex flex-col justify-start items-start gap-1 md:gap-2">
+                    <div className="justify-start text-neutral-800 text-base lg:text-lg font-normal font-['Bembo_Std'] uppercase leading-snug lg:leading-6">
+                      {art.title}
+                    </div>
+                    <div className="self-stretch justify-start text-zinc-600 text-sm md:text-base lg:text-lg font-normal font-['Bembo_Std'] leading-relaxed lg:leading-7">
+                      {art.desc}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Bottom curved shape */}
-      <div className="absolute left-0 right-0 bottom-0 pointer-events-none z-10">
-        <img
-          src="/images/icons/bottom-shape.svg"
-          alt=""
-          className="w-full h-auto block"
-        />
+      {/* Instant Inline Bottom curved shape with zero reload animation / shift */}
+      <div className="absolute left-0 right-0 bottom-0 pointer-events-none z-10 select-none">
+        <svg width="1920" height="94" viewBox="0 0 1920 94" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto block">
+          <path d="M0 0C0 0 429.807 94 960 94H0V0Z" fill="#212721"/>
+          <path d="M1920 94H960C1490.19 94 1920 0 1920 0V94Z" fill="#212721"/>
+        </svg>
       </div>
     </section>
   );

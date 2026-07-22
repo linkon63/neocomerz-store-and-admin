@@ -66,7 +66,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`h-full antialiased ${bembo.variable} ${snell.variable} ${gotham.variable}`}>
+    <html lang="en" className={`h-full antialiased scroll-smooth ${bembo.variable} ${snell.variable} ${gotham.variable}`}>
       <body className="min-h-full flex flex-col">
         {children}
       </body>
