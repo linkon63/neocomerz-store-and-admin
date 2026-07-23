@@ -10,7 +10,7 @@ import { useAuth } from '@/app/_providers/auth-provider';
 export default function HeaderActions() {
   const { itemCount: cartCount }    = useCart();
   const { itemCount: wishlistCount } = useWishlist();
-  const { isAuthenticated }          = useAuth();
+  const { user, isAuthenticated }          = useAuth();
 
   return (
     <>
@@ -61,7 +61,31 @@ export default function HeaderActions() {
         className="text-text-primary hover:text-brand-3 transition-colors flex items-center cursor-pointer"
         aria-label={isAuthenticated ? 'My account' : 'Sign in'}
       >
-        <LuUser className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
+        {isAuthenticated ? (
+          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#C5B382] text-zinc-950 flex items-center justify-center font-bold text-[10px] sm:text-xs overflow-hidden border border-white/20">
+            {user?.avatarUrl || (user as any)?.avatar ? (
+              <img
+                src={user?.avatarUrl || (user as any)?.avatar}
+                alt={user?.name || 'User'}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span>
+                {user?.name
+                  ? user.name
+                      .trim()
+                      .split(/\s+/)
+                      .map((n) => n[0])
+                      .slice(0, 2)
+                      .join('')
+                      .toUpperCase()
+                  : 'U'}
+              </span>
+            )}
+          </div>
+        ) : (
+          <LuUser className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
+        )}
       </Link>
     </>
   );

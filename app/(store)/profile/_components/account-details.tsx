@@ -17,6 +17,11 @@ const BTN_SECONDARY = "inline-flex items-center gap-2 bg-white hover:bg-stone-50
 
 export default function AccountDetailsView() {
   const { user, updateProfile, refreshUser } = useAuth();
+  const isSocialLogin = 
+    (user as any)?.provider === "google" || 
+    (user as any)?.provider === "facebook" || 
+    !!(user as any)?.googleId || 
+    !!(user as any)?.avatar;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [firstName, setFirstName]           = useState("");
@@ -242,36 +247,38 @@ export default function AccountDetailsView() {
       </div>
 
       {/* ── Password Form ─────────────────────────────────────────────────── */}
-      <div className="border-t border-stone-100 pt-10">
-        <div className="flex items-center gap-2.5 mb-6">
-          <FiLock className="text-zinc-300 text-sm" />
-          <p className={SECTION_LABEL}>Change Password</p>
+      {!isSocialLogin && (
+        <div className="border-t border-stone-100 pt-10">
+          <div className="flex items-center gap-2.5 mb-6">
+            <FiLock className="text-zinc-300 text-sm" />
+            <p className={SECTION_LABEL}>Change Password</p>
+          </div>
+
+          <form onSubmit={handlePasswordUpdate} className="space-y-5 max-w-2xl">
+            <div>
+              <label className={FIELD_LABEL}>Current Password</label>
+              <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className={INPUT_BASE} placeholder="••••••••" required />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className={FIELD_LABEL}>New Password</label>
+                <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className={INPUT_BASE} placeholder="••••••••" required />
+              </div>
+              <div>
+                <label className={FIELD_LABEL}>Confirm New Password</label>
+                <input type="password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} className={INPUT_BASE} placeholder="••••••••" required />
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <button type="submit" disabled={updatingPassword} className={BTN_SECONDARY}>
+                {updatingPassword ? <><FiLoader className="animate-spin w-3.5 h-3.5" /> Updating…</> : "Update Password"}
+              </button>
+            </div>
+          </form>
         </div>
-
-        <form onSubmit={handlePasswordUpdate} className="space-y-5 max-w-2xl">
-          <div>
-            <label className={FIELD_LABEL}>Current Password</label>
-            <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className={INPUT_BASE} placeholder="••••••••" required />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div>
-              <label className={FIELD_LABEL}>New Password</label>
-              <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className={INPUT_BASE} placeholder="••••••••" required />
-            </div>
-            <div>
-              <label className={FIELD_LABEL}>Confirm New Password</label>
-              <input type="password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} className={INPUT_BASE} placeholder="••••••••" required />
-            </div>
-          </div>
-
-          <div className="pt-2">
-            <button type="submit" disabled={updatingPassword} className={BTN_SECONDARY}>
-              {updatingPassword ? <><FiLoader className="animate-spin w-3.5 h-3.5" /> Updating…</> : "Update Password"}
-            </button>
-          </div>
-        </form>
-      </div>
+      )}
     </div>
   );
 }
