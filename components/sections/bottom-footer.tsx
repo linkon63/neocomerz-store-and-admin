@@ -1,8 +1,8 @@
 import FooterNewsletter from "./ui/footer-newsletter";
 import FooterPayment from "./ui/footer-payment";
 import FooterLinks from "./ui/footer-links";
-import Link from "next/dist/client/link";
-import { FaFacebookF, FaInstagram, FaLinkedinIn, FaWhatsapp } from "react-icons/fa6";
+import Link from "next/link";
+import { FaFacebookF, FaInstagram, FaYoutube, FaWhatsapp } from "react-icons/fa6";
 
 export default function Bottomfooter() {
 
@@ -35,16 +35,16 @@ export default function Bottomfooter() {
               <div className="flex items-center justify-center gap-2">
                 <p className="text-white text-sm font-['Gotham']">Follow Us on</p>
                 <div className="flex items-center justify-center gap-4">
-                  <Link href="https://facebook.com" target="_blank" className="text-white hover:text-brand-3 transition-colors">
+                  <Link href="https://www.facebook.com/share/18CfeyLYXR/" target="_blank" className="text-white hover:text-brand-3 transition-colors">
                     <FaFacebookF className="w-5 h-5" />
                   </Link>
-                  <Link href="https://linkedin.com" target="_blank" className="text-white hover:text-brand-3 transition-colors">
-                    <FaLinkedinIn className="w-5 h-5" />
+                  <Link href="https://youtube.com/@londonteaexchangebd?si=V35c1RZnSdp07n8o" target="_blank" className="text-white hover:text-brand-3 transition-colors">
+                    <FaYoutube className="w-5 h-5" />
                   </Link>
-                  <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-brand-3 transition-colors">
+                  <Link href="https://www.instagram.com/lte_bd?igsh=MWRuZGo4bXc1cTl2Zw==" target="_blank" rel="noopener noreferrer" className="text-white hover:text-brand-3 transition-colors">
                     <FaInstagram className="w-5 h-5" />
                   </Link>
-                  <Link href="https://wa.me/+8801711992256" target="_blank" className="text-white hover:text-brand-3 transition-colors">
+                  <Link href="https://wa.me/8801339879494" target="_blank" className="text-white hover:text-brand-3 transition-colors">
                     <FaWhatsapp className="w-5 h-5" />
                   </Link>
                 </div>
@@ -53,8 +53,9 @@ export default function Bottomfooter() {
               <FooterNewsletter />
             </div>
             <div className="text-center md:text-right">
-              <p className="text-white text-sm font-['Gotham'] mb-1">Customer Service</p>
-              <p className="text-white text-lg font-['Gotham'] font-medium">Hours: M-F 9AM-5PM</p>
+              <p className="text-white text-sm font-['Gotham'] mb-1">Showroom Hours</p>
+              <p className="text-white text-lg font-['Gotham'] font-medium">Sat – Thu: 11:00 AM – 8:00 PM</p>
+              <p className="text-white/70 text-xs font-['Gotham']">Friday: Closed</p>
             </div>
 
           </div>
