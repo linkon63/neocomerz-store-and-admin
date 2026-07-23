@@ -5,6 +5,7 @@ import Link from "next/link";
 import { LuPrinter } from "react-icons/lu";
 import { FiInfo } from "react-icons/fi";
 import type { OrderResult } from "@/lib/types";
+import InvoiceModal from "@/components/invoice-modal";
 
 export default function ConfirmationPage() {
   const [order] = useState<OrderResult | null>(() => {
@@ -19,6 +20,7 @@ export default function ConfirmationPage() {
     }
     return null;
   });
+  const [invoiceOpen, setInvoiceOpen] = useState(false);
 
   if (!order) {
     return (
@@ -29,7 +31,7 @@ export default function ConfirmationPage() {
   }
 
   const handlePrintInvoice = () => {
-    window.print();
+    setInvoiceOpen(true);
   };
 
   return (
@@ -87,6 +89,12 @@ export default function ConfirmationPage() {
           </Link>
         </div>
       </div>
+
+      <InvoiceModal
+        order={order}
+        open={invoiceOpen}
+        onClose={() => setInvoiceOpen(false)}
+      />
     </main>
   );
 }
