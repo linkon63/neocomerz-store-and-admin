@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { IoIosArrowDown } from "react-icons/io";
 import { IoLocationOutline } from "react-icons/io5";
 
 export default function FooterLinks() {
@@ -13,27 +12,10 @@ export default function FooterLinks() {
     { label: "Integrity Compliance", href: "/compliance" },
   ];
 
-  const selectors = {
-    language: {
-      default: "en",
-      options: [
-        { value: "en", label: "EN" },
-        { value: "bn", label: "BN" },
-      ],
-    },
-    currency: {
-      default: "bd",
-      options: [
-        { value: "bd", label: "BD" },
-        { value: "usd", label: "USD" },
-      ],
-    },
-  };
-
   return (
     <div className="pt-6 border-t border-white/20">
       <div className="flex flex-col gap-4">
-        {/* Links & Selectors Row */}
+        {/* Links & Location Row */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex"></div>
           {/* Links */}
@@ -53,47 +35,12 @@ export default function FooterLinks() {
             ))}
           </div>
 
-          {/* Language & Currency Selectors */}
-          <div className="flex items-center justify-between gap-3">
-            <IoLocationOutline className="w-4 h-4 text-white" />
-            <div className="flex"></div>
-            {/* Language Selector */}
-            <div className="flex items-center gap-0.5">
-              <select
-                className="bg-transparent text-white border-none outline-none cursor-pointer font-['Gotham'] text-xs appearance-none pr-0.5"
-                defaultValue={selectors.language.default}
-              >
-                {selectors.language.options.map((option: { value: string; label: string }) => (
-                  <option
-                    key={option.value}
-                    value={option.value}
-                    className="text-black bg-white"
-                  >
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <IoIosArrowDown className="w-3 h-3 text-white" />
-            </div>
-            
-            {/* Currency Selector */}
-            <div className="flex items-center gap-0.5">
-              <select
-                className="bg-transparent text-white border-none outline-none cursor-pointer font-['Gotham'] text-xs appearance-none pr-0.5"
-                defaultValue={selectors.currency.default}
-              >
-                {selectors.currency.options.map((option: { value: string; label: string }) => (
-                  <option
-                    key={option.value}
-                    value={option.value}
-                    className="text-black bg-white"
-                  >
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <IoIosArrowDown className="w-3 h-3 text-white" />
-            </div>
+          {/* Static Shop Location */}
+          <div className="flex items-center gap-1 sm:gap-1.5 text-xs text-white">
+            <IoLocationOutline className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+            <span className="font-['Gotham'] text-white text-[11px] sm:text-xs">
+              Pan Pacific Sonargaon
+            </span>
           </div>
         </div>
 

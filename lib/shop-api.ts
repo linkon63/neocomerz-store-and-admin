@@ -183,3 +183,11 @@ export function fetchShopSettings(): Promise<ShopSettings | null> {
   return safeFetchJson<ShopSettings | null>(`${API_BASE_URL}/settings`, null);
 }
 
+export function fetchShopTags(): Promise<any[]> {
+  return safeFetchJson<any[]>(`${API_BASE_URL}/tags`, []);
+}
+
+export function fetchShopAttributes(): Promise<any[]> {
+  return safeFetchJson<any[]>(`${API_BASE_URL}/attributes`, []);
+}
+

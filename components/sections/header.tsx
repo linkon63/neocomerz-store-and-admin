@@ -22,7 +22,7 @@ const sylhetiTeaItems = [
 const navItems = [
   { label: "Home", href: "/" },
   { label: "ABOUT US", href: "/about" },
-  { label: "TEAS", href: "/sylheti-tea", hasDropdown: true },
+  { label: "TEAS", href: "/products", hasDropdown: true },
   { label: "GIFT SETS", href: "/gift-sets" },
   { label: "CORPORATE ORDER", href: "/corporate-order" },
   { label: "GLOBAL FAIR PAY CHARTER", href: "/global-fair-pay-charter" },
