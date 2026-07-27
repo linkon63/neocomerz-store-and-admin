@@ -6,7 +6,7 @@ import { MdOutlineArrowOutward } from "react-icons/md";
 export default function Mainfooter() {
   const supportLinks = [
     { label: "Help Center", href: "/help" },
-    { label: "Live chat", href: "/chat" },
+    { label: "Delivery Information", href: "/delivery" },
     { label: "Check order status", href: "/order-status" },
     { label: "Refunds", href: "/refunds" },
     { label: "Report abuse", href: "/report" },
@@ -88,15 +88,17 @@ export default function Mainfooter() {
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2 text-lg text-sage-gold font-normal">
                   <HiPhone className="w-4 h-4 mt-0.5 shrink-0" />
-                  <span className="font-['Gotham'] font-normal">+8801339-879491</span>
+                  <span className="font-['Gotham'] font-normal">+880 13 3987 9494</span>
                 </div>
                 <div className="flex items-center gap-2 text-lg text-sage-gold">
                   <HiMail className="w-4 h-4 mt-0.5 shrink-0" />
-                  <span className="font-['Gotham']">store@londonteaexchange.com</span>
+                  <span className="font-['Gotham']">store@londonteaexchangebd.com</span>
                 </div>
-                <div className="flex items-center gap-2 text-lg font-normal text-sage-gold">
-                  <HiLocationMarker className="w-4 h-4 mt-0.5 shrink-0" />
-                  <span className="font-['Gotham']">Pan Pacific Sonargaon, Dhaka- 107 Kazi Nazrul Islam Ave, Dhaka 1215, Bangladesh</span>
+                <div className="flex items-start gap-2 text-lg font-normal text-sage-gold">
+                  <HiLocationMarker className="w-4 h-4 mt-1.5 shrink-0" />
+                  <span className="font-['Gotham'] leading-normal">
+                    London Tea Exchange, Room H-125A, Pan Pacific Sonargaon Hotel, 107, Kazi Nazrul Islam Avenue, Dhaka-1215, Bangladesh
+                  </span>
                 </div>
               </div>
             </div>

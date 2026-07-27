@@ -58,7 +58,7 @@ export default function ContactPage() {
     },
     {
       question: 'HOW LONG DOES DELIVERY TAKE?',
-      answer: 'Standard domestic deliveries within the country typically take 2-4 business days. International deliveries may take 7-14 business days depending on customs processing and shipping methods.',
+      answer: 'We offer nationwide delivery across Bangladesh. Within Dhaka, estimated delivery is within 2–4 business days. Outside Dhaka, estimated delivery is within 3–7 business days. Delivery times may vary depending on the destination, courier operations, and public holidays.',
     },
     {
       question: 'ARE YOUR TEAS ETHICALLY SOURCED?',
@@ -220,13 +220,15 @@ export default function ContactPage() {
                 {/* Right Column (Contact & Address) */}
                 <div className="flex-1 w-full inline-flex flex-col justify-start items-start gap-12 lg:pl-12">
                   <div className="self-stretch flex flex-col justify-start items-start gap-6">
-                    <div className="justify-start text-neutral-800 text-4xl font-normal font-['Bembo_Std'] leading-10">Contact</div>
+                    <div className="justify-start text-neutral-800 text-4xl font-normal font-['Bembo_Std'] leading-10">Contact & Order</div>
                     <div className="self-stretch flex flex-col justify-start items-start gap-2">
                       <div className="p-1 inline-flex justify-start items-center gap-3">
                         <div className="w-4 h-4 relative overflow-hidden flex items-center justify-center text-[#A38148]">
                           <FiPhone className="w-4 h-4" />
                         </div>
-                        <div className="justify-start text-neutral-800 text-lg font-normal font-['Bembo_Std'] leading-6">+8801339-879494</div>
+                        <div className="justify-start text-neutral-800 text-lg font-normal font-['Bembo_Std'] leading-6">
+                          +880 13 3987 9494 <span className="text-xs text-neutral-500 font-sans ml-1">(bKash & WhatsApp)</span>
+                        </div>
                       </div>
                       <div className="p-1 inline-flex justify-start items-center gap-3">
                         <div className="w-4 h-4 relative overflow-hidden flex items-center justify-center text-[#A38148]">
@@ -246,7 +248,28 @@ export default function ContactPage() {
                         <FiMapPin className="w-4 h-4" />
                       </div>
                       <div className="flex-1 justify-start text-neutral-800 text-lg font-normal font-['Bembo_Std'] leading-6">
-                        Pan Pacific Sonargaon, Dhaka. 107 Kazi Nazrul Islam Ave, Dhaka 1215, Bangladesh
+                        London Tea Exchange
+                        <br />
+                        Room H-125A, Pan Pacific Sonargaon Hotel
+                        <br />
+                        107, Kazi Nazrul Islam Avenue
+                        <br />
+                        Dhaka-1215, Bangladesh
+                      </div>
+                    </div>
+
+                    <div className="self-stretch p-1 inline-flex justify-start items-start gap-3 mt-1">
+                      <div className="w-4 h-4 relative overflow-hidden flex items-center justify-center text-[#A38148] mt-1">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1 justify-start text-neutral-800 text-lg font-normal font-['Bembo_Std'] leading-6">
+                        <span className="font-semibold text-neutral-900">Showroom Hours:</span>
+                        <br />
+                        Saturday – Thursday: 11:00 AM – 8:00 PM
+                        <br />
+                        Friday: Closed
                       </div>
                     </div>
                   </div>
