@@ -12,7 +12,7 @@ export default function CharterQuote() {
 
       {/* Main Quote Container */}
       <div className="w-full max-w-[700px] mx-auto flex flex-col justify-start items-start gap-8 sm:gap-10 md:gap-12 relative z-20 text-left group px-1 sm:px-0">
-        <ScrollReveal delay={0} direction="up" distance={20} duration={650}>
+        <ScrollReveal delay={0} direction="up">
           <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-[100px] border border-neutral-300 flex items-center justify-center bg-white shadow-2xs group-hover:border-khaki-gold group-hover:shadow-md group-hover:scale-105 transition-all duration-300 shrink-0">
             <img
               src="/images/icons/icon-3.svg"
@@ -22,13 +22,13 @@ export default function CharterQuote() {
           </div>
         </ScrollReveal>
 
-        <ScrollReveal delay={80} direction="up" distance={20} duration={650}>
+        <ScrollReveal delay={80} direction="up">
           <div className="self-stretch text-left text-neutral-600 text-xl sm:text-2xl md:text-3xl lg:text-4xl font-normal font-['Bembo_Std'] leading-[30px] sm:leading-[34px] md:leading-[38px]">
             Signing the Charter at Mansion House was a chance to put the City of London&apos;s name behind something concrete: fair pay for tea workers, not as a slogan, but as a written commitment with named signatories attached to it.
           </div>
         </ScrollReveal>
 
-        <ScrollReveal delay={160} direction="up" distance={20} duration={650}>
+        <ScrollReveal delay={160} direction="up">
           <div className="self-stretch text-left text-neutral-400 text-[11px] sm:text-xs font-normal font-['Gotham'] underline leading-relaxed hover:text-neutral-600 transition-colors duration-200">
             — Paraphrased from remarks by Professor Michael Mainelli, Lord Mayor of the City of London, on signing the Charter, May 2024
           </div>

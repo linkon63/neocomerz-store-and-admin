@@ -33,9 +33,7 @@ export default function Home() {
       <ScrollAnimate variant="fade-in-up">
         <LooseTea />
       </ScrollAnimate>
-      <ScrollAnimate variant="fade-in-up">
-        <Subtract />
-      </ScrollAnimate>
+      <Subtract />
       <ScrollAnimate variant="fade-in-up">
         <MostPopuler />
       </ScrollAnimate>

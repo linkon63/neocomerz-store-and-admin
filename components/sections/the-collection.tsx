@@ -2,22 +2,26 @@
 
 import { useState, Fragment } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const TABS = [
   {
     id: 'assorted',
     label: 'Assorted Collections',
     image: '/images/footer/footerright.png',
+    href: '/products?category=Assorted+Collections',
   },
   {
     id: 'tea-books',
     label: 'Tea Book Collections',
     image: '/images/gift/item-2.png',
+    href: '/products?category=Tea+Books+Collections',
   },
   {
     id: 'tea-chests',
     label: 'Tea chests',
     image: '/images/gift/item-1.png',
+    href: '/products?category=Tea+Chests',
   },
 ];
 
@@ -26,7 +30,7 @@ export default function TheCollection() {
 
   return (
     <section className="relative w-full py-16 md:py-24 bg-white overflow-hidden">
-      <div 
+      <div
         className="absolute inset-0 z-0 opacity-20 pointer-events-none"
         style={{
           backgroundImage: "url('/images/pattern/pattern.png')",
@@ -82,10 +86,11 @@ export default function TheCollection() {
 
         <div className="relative w-full aspect-[1400/846] overflow-hidden rounded-xl">
           {TABS.map((tab) => (
-            <div
+            <Link
               key={tab.id}
+              href={tab.href}
               className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-                activeTab === tab.id ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                activeTab === tab.id ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
               }`}
             >
               <Image
@@ -95,7 +100,7 @@ export default function TheCollection() {
                 className="object-cover"
                 priority={tab.id === 'assorted'}
               />
-            </div>
+            </Link>
           ))}
         </div>
       </div>

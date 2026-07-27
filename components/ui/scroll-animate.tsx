@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { MOTION } from '@/lib/motion.config';
 
 interface ScrollAnimateProps {
   children: React.ReactNode;
   variant?: 'fade-in-up' | 'fade-in-down' | 'fade-in-left' | 'fade-in-right' | 'fade-in';
-  delay?: number; // ms delay
+  delay?: number;
   className?: string;
   direct?: boolean;
 }
@@ -21,21 +22,29 @@ export default function ScrollAnimate({
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
+    // Respect user's reduced-motion preference — skip animation entirely
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) {
+      setIsActive(true);
+      return;
+    }
+
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           if (delay > 0) {
-            setTimeout(() => setIsActive(true), delay);
+            timeoutId = setTimeout(() => setIsActive(true), delay);
           } else {
             setIsActive(true);
           }
-          // Once animated, we don't need to observe anymore
           observer.unobserve(entry.target);
         }
       },
       {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px', // trigger slightly before entering viewport
+        threshold: MOTION.threshold,
+        rootMargin: MOTION.rootMargin,
       }
     );
 
@@ -45,11 +54,14 @@ export default function ScrollAnimate({
 
     return () => {
       observer.disconnect();
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId);
+      }
     };
   }, [delay]);
 
   const baseClass = direct ? 'reveal-direct' : 'reveal';
-  const variantClass = 
+  const variantClass =
     variant === 'fade-in-up' ? (direct ? 'reveal-fade-in-up-direct' : 'reveal-fade-in-up') :
     variant === 'fade-in-down' ? (direct ? 'reveal-fade-in-down-direct' : 'reveal-fade-in-down') :
     variant === 'fade-in-left' ? (direct ? 'reveal-fade-in-left-direct' : 'reveal-fade-in-left') :

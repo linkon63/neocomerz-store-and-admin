@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { MOTION } from "@/lib/motion.config";
 
 interface ScrollRevealProps {
   children: React.ReactNode;
   className?: string;
-  delay?: number; // Delay in milliseconds
+  delay?: number;
   direction?: "up" | "down" | "left" | "right" | "fade" | "scale";
-  distance?: number; // Translation distance in px
-  duration?: number; // Duration in ms
-  once?: boolean; // Animate only on first scroll
+  distance?: number;
+  duration?: number;
+  once?: boolean;
 }
 
 export default function ScrollReveal({
@@ -17,14 +18,20 @@ export default function ScrollReveal({
   className = "",
   delay = 0,
   direction = "up",
-  distance = 20,
-  duration = 650,
+  distance = MOTION.distance.sm,
+  duration = MOTION.duration.section,
   once = true,
 }: ScrollRevealProps) {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced) {
+      setIsVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -37,8 +44,8 @@ export default function ScrollReveal({
         }
       },
       {
-        threshold: 0.05,
-        rootMargin: "0px 0px -25px 0px",
+        threshold: MOTION.threshold,
+        rootMargin: MOTION.rootMargin,
       }
     );
 
@@ -54,7 +61,7 @@ export default function ScrollReveal({
     };
   }, [once]);
 
-  const getTransform = () => {
+  const getTransform = (): string => {
     if (isVisible) return "translate3d(0, 0, 0) scale(1)";
     switch (direction) {
       case "up":
@@ -66,7 +73,7 @@ export default function ScrollReveal({
       case "right":
         return `translate3d(-${distance}px, 0, 0)`;
       case "scale":
-        return "scale(0.96)";
+        return "scale(0.97)";
       case "fade":
       default:
         return "translate3d(0, 0, 0)";
@@ -79,13 +86,12 @@ export default function ScrollReveal({
       className={className}
       style={{
         opacity: isVisible ? 1 : 0,
-        filter: isVisible ? "blur(0px)" : "blur(4px)",
         transform: getTransform(),
-        transitionProperty: "opacity, transform, filter",
+        transitionProperty: "opacity, transform",
         transitionDuration: `${duration}ms`,
-        transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
+        transitionTimingFunction: MOTION.easing,
         transitionDelay: `${delay}ms`,
-        willChange: isVisible ? "auto" : "opacity, transform, filter",
+        willChange: isVisible ? "auto" : "opacity, transform",
       }}
     >
       {children}

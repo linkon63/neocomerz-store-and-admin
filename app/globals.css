@@ -1,142 +1,85 @@
 @import "tailwindcss";
+@import "./animations.css";
 
-/* Tailwind v4 Source */
 @source "../node_modules/react-tailwindcss-datepicker/dist";
 
 @theme {
-  /* ======================================================
-     🎨 LONDON TEA EXCHANGE — GLOBAL DESIGN TOKEN SYSTEM
-     Spec: Luxury Boutique Tea · 1440px Grid · Premium Identity
-  ====================================================== */
-
-  /* ── Core Luxury Neutrals (from spec: Primary Luxury Neutrals) ─────────── */
   --color-white: #ffffff;
   --color-platinum-gray: #f0f0f0;
   --color-off-white: #f6f6f6;
   --color-stone-gray: #999999;
-  /* neutralMuted — captions, subtitles   */
   --color-rich-black: #665a5d;
-  /* stoneText — headings highlight       */
   --color-pearl-gray: #d9d9d6;
   --color-greenish-gray: #bdbdb5;
   --color-warm-gray: #c5b9ac;
   --color-sage-gray: #83847e;
-  /* body description text                */
   --color-olive-slate: #51524e;
-  /* text-secondary                       */
-
-  /* spec: darkBg — footer & premium section backgrounds */
   --color-footer-dark: #3F423E;
-
-  /* spec: neutralDark — primary text color */
   --color-neutral-dark: #262626;
-
-  /* spec: neutralMuted — small captions & subtitles */
   --color-neutral-muted: #A3A3A3;
-
   --color-dark-brown: #4b3729;
   --color-dark-charcoal: #212721;
   --color-dark-crimson: #d31f3a;
 
-  /* ── Luxury Gold Accents ────────────────────────────────────────────────── */
-  /* spec: khaki-gold gradient from */
   --color-khaki-gold: #C5A880;
-
-  /* spec: sage-gold gradient to */
   --color-sage-gold: #A89F91;
-
-  /* spec: orangeAccent — borders, lines, light text accent */
   --color-orange-accent: #FED7AA;
-
-  /* secondary display gold (used in current components) */
   --color-warm-gold: #b4a676;
   --color-light-gold: #d2c494;
   --color-mid-gold: #C6B485;
   --color-script-gold: #8E866B;
 
-  /* ── Button Gradient Tokens ─────────────────────────────────────────────── */
-  /* spec: bg-gradient-to-r from-[#C5A880] to-[#A89F91] */
   --color-btn-gold-from: #C5A880;
   --color-btn-gold-to: #A89F91;
 
-  /* ── Brand Semantic Mappings ────────────────────────────────────────────── */
   --color-brand-primary: var(--color-warm-gold);
   --color-brand-2: var(--color-warm-gray);
   --color-brand-3: var(--color-warm-gold);
   --color-brand-4: var(--color-warm-gold);
   --color-brand-5: var(--color-warm-gold);
 
-  /* ── Text Colors ────────────────────────────────────────────────────────── */
   --color-text-primary: var(--color-rich-black);
   --color-text-secondary: var(--color-olive-slate);
   --color-text-muted: var(--color-stone-gray);
   --color-text-light: var(--color-white);
 
-  /* ── Background Colors ──────────────────────────────────────────────────── */
   --color-bg-primary: var(--color-white);
   --color-bg-secondary: var(--color-off-white);
   --color-bg-muted: var(--color-pearl-gray);
   --color-bg-dark: var(--color-dark-charcoal);
 
-  /* ── Semantic Aliases ───────────────────────────────────────────────────── */
   --color-primary: var(--color-warm-gold);
   --color-secondary: var(--color-warm-gold);
   --color-accent: var(--color-light-gold);
 
-  /* ── Border Colors ──────────────────────────────────────────────────────── */
   --color-border: var(--color-pearl-gray);
   --color-border-dark: var(--color-greenish-gray);
 
-  /* ── Typography ─────────────────────────────────────────────────────────── */
-  /* spec roles:
-     - Bembo Std        → Primary Display Serif (headings, titles, statements)
-     - Snell Roundhand  → Decorative Elegant Script (section title secondary part)
-     - Gotham           → Modern Sans-Serif (buttons, body, labels)
-  */
   --font-heading: "Cormorant Garamond", serif;
   --font-body: "Inter", sans-serif;
   --font-bembo: var(--font-bembo);
   --font-snell: var(--font-snell);
   --font-gotham: var(--font-gotham);
 
-  /* ── Radius ─────────────────────────────────────────────────────────────── */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 16px;
   --radius-xl: 24px;
 
-  /* ── Spacing Tokens (spec: luxury breathing room) ───────────────────────── */
-  /* Section vertical: pt-36 pb-24 (144px / 96px) */
   --spacing-section-top: 9rem;
-  /* 144px */
   --spacing-section-bottom: 6rem;
-  /* 96px  */
-
-  /* Footer: pt-36 pb-12 */
   --spacing-footer-top: 9rem;
-  /* 144px */
   --spacing-footer-bottom: 3rem;
-  /* 48px  */
 
-  /* ── Extra Stone / Zinc shades used across profile & admin ─────────────── */
   --color-stone-850: #1c1917;
   --color-zinc-850: #1f1f1f;
   --color-zinc-650: #52525b;
 }
 
-/* ======================================================
-   🏗️ LTE LAYOUT UTILITIES
-   Reusable wrappers that enforce the 1440px grid and
-   the luxury breathing-room spacing from the spec.
-====================================================== */
-
-/* Full-width section wrapper with max-width container */
 .lte-section {
   width: 100%;
   padding-top: var(--spacing-section-top);
-  /* 144px */
   padding-bottom: var(--spacing-section-bottom);
-  /* 96px */
 }
 
 .lte-container {
@@ -144,7 +87,6 @@
   margin-left: auto;
   margin-right: auto;
   padding-left: 1.25rem;
-  /* px-5 */
   padding-right: 1.25rem;
 }
 
@@ -169,33 +111,20 @@
   }
 }
 
-/* Footer wrapper */
 .lte-footer {
   width: 100%;
   background-color: var(--color-footer-dark);
-  /* #3F423E */
   padding-top: var(--spacing-footer-top);
-  /* 144px */
   padding-bottom: var(--spacing-footer-bottom);
-  /* 48px  */
 }
 
-/* ======================================================
-   ✍️  TYPOGRAPHY UTILITIES
-   Spec-compliant type scale for every role in the system.
-====================================================== */
-
-/* Hero title — 96px Bembo Std, normal weight */
 .lte-hero-title {
   font-family: var(--font-bembo), serif;
   font-size: 6rem;
-  /* 96px / text-8xl */
   font-weight: 400;
   line-height: 7rem;
-  /* 112px */
 }
 
-/* Hero script overlay — 96px Snell Roundhand, italic */
 .lte-hero-script {
   font-family: var(--font-snell), cursive;
   font-size: 6rem;
@@ -204,18 +133,14 @@
   line-height: 7rem;
 }
 
-/* Section title serif — 60px Bembo Std, center */
 .lte-section-title {
   font-family: var(--font-bembo), serif;
   font-size: 3.75rem;
-  /* 60px / text-6xl */
   font-weight: 400;
   line-height: 3.5rem;
-  /* 56px */
   text-align: center;
 }
 
-/* Section title script — 60px Snell Roundhand */
 .lte-section-script {
   font-family: var(--font-snell), cursive;
   font-size: 3.75rem;
@@ -224,23 +149,18 @@
   text-align: center;
 }
 
-/* Section subtitle / badge — 18px Bembo Std, uppercase */
 .lte-section-subtitle {
   font-family: var(--font-bembo), serif;
   font-size: 1.125rem;
-  /* 18px / text-lg */
   font-weight: 400;
   line-height: 1.5rem;
-  /* 24px */
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
-/* Product card title — 20px Gotham, line-clamp-2 */
 .lte-card-title {
   font-family: var(--font-gotham), sans-serif;
   font-size: 1.25rem;
-  /* 20px / text-xl */
   font-weight: 400;
   line-height: 1.5rem;
   display: -webkit-box;
@@ -249,37 +169,29 @@
   overflow: hidden;
 }
 
-/* Product price — 18px Bembo Std, with ৳ symbol */
 .lte-price {
   font-family: var(--font-bembo), serif;
   font-size: 1.125rem;
-  /* 18px */
   font-weight: 400;
   line-height: 1.5rem;
 }
 
-/* Button text — 16px Gotham Medium, uppercase */
 .lte-btn-text {
   font-family: var(--font-gotham), sans-serif;
   font-size: 1rem;
-  /* 16px */
   font-weight: 500;
   line-height: 1.25rem;
-  /* 20px */
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
-/* Body / description — Gotham or Bembo, 18px–20px */
 .lte-body {
   font-family: var(--font-gotham), sans-serif;
   font-size: 1.125rem;
-  /* 18px */
   font-weight: 400;
   line-height: 1.5rem;
 }
 
-/* Footer headings — Bembo, uppercase, white */
 .lte-footer-heading {
   font-family: var(--font-bembo), serif;
   font-size: 1.125rem;
@@ -289,19 +201,12 @@
   color: #ffffff;
 }
 
-/* Footer info text — uses orange-accent (#FED7AA) */
 .lte-footer-text {
   font-family: var(--font-gotham), sans-serif;
   font-size: 1.125rem;
   font-weight: 400;
   color: var(--color-orange-accent);
-  /* #FED7AA */
 }
-
-/* ======================================================
-   🔘 BUTTON UTILITIES
-   spec: px-6 py-5 · rounded-[100px] · gold gradient
-====================================================== */
 
 .lte-btn {
   display: inline-flex;
@@ -309,9 +214,7 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 1.25rem 1.5rem;
-  /* py-5 px-6 */
   border-radius: 100px;
-  /* rounded-[100px] capsule */
   font-family: var(--font-gotham), sans-serif;
   font-size: 1rem;
   font-weight: 500;
@@ -324,46 +227,24 @@
   white-space: nowrap;
 }
 
-.lte-btn:hover {
-  opacity: 0.88;
-}
+.lte-btn:hover { opacity: 0.88; }
+.lte-btn:active { transform: scale(0.98); }
 
-.lte-btn:active {
-  transform: scale(0.98);
-}
+.lte-btn-gold { background: linear-gradient(to right, #C5A880, #A89F91); }
 
-/* Gold gradient variant — the primary store CTA */
-.lte-btn-gold {
-  background: linear-gradient(to right, #C5A880, #A89F91);
-}
+.lte-btn-dark { background-color: #1A1A1A; }
+.lte-btn-dark:hover { background-color: #2d2d2d; opacity: 1; }
 
-/* Dark / solid variant */
-.lte-btn-dark {
-  background-color: #1A1A1A;
-}
-
-.lte-btn-dark:hover {
-  background-color: #2d2d2d;
-  opacity: 1;
-}
-
-/* Outline variant */
 .lte-btn-outline {
   background: transparent;
   border: 2px solid var(--color-warm-gold);
   color: var(--color-stone-gray);
 }
-
 .lte-btn-outline:hover {
   background-color: var(--color-warm-gold);
   color: #ffffff;
   opacity: 1;
 }
-
-/* ======================================================
-   📦 PRODUCT CARD TOKENS
-   spec: size-[453px] · image h-[345px] · content px-10
-====================================================== */
 
 .lte-product-card {
   width: 453px;
@@ -386,12 +267,10 @@
 
 .lte-product-card-body {
   padding: 1.25rem 2.5rem 2.5rem;
-  /* pt-5 px-10 pb-10 */
   background-color: #ffffff;
   position: relative;
 }
 
-/* Cart icon overlay — spec: absolute left-[373px] top-[-29px] */
 .lte-card-cart-btn {
   position: absolute;
   left: 373px;
@@ -405,19 +284,10 @@
   align-items: center;
   justify-content: center;
   padding: 0.625rem;
-  /* p-2.5 */
   cursor: pointer;
   transition: box-shadow 0.2s;
 }
-
-.lte-card-cart-btn:hover {
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.16);
-}
-
-/* ======================================================
-   ─── LUXURY DIVIDER
-   spec: w-11 h-[1.58px] bg-orange-200 · rotate-180 pair
-====================================================== */
+.lte-card-cart-btn:hover { box-shadow: 0 6px 24px rgba(0, 0, 0, 0.16); }
 
 .lte-divider {
   display: flex;
@@ -428,14 +298,11 @@
 
 .lte-divider-line {
   width: 2.75rem;
-  /* w-11 = 44px */
   height: 1.58px;
   background-color: var(--color-orange-accent);
-  /* #FED7AA */
   display: block;
 }
 
-/* ── Admin Dashboard Clean Typography & Reset ── */
 .admin-dashboard {
   --radius-sm: 0.125rem;
   --radius-md: 0.375rem;
@@ -457,38 +324,19 @@
   font-weight: 500 !important;
 }
 
-/* ── Modal Animations ── */
 @keyframes modal-backdrop-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes modal-panel-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-.modal-backdrop {
-  animation: modal-backdrop-in 0.2s ease-out both;
-}
+.modal-backdrop { animation: modal-backdrop-in 0.2s ease-out both; }
+.modal-panel { animation: modal-panel-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
-.modal-panel {
-  animation: modal-panel-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-/* Smooth scrolling inside modals */
 .modal-body {
   scroll-behavior: smooth;
   overflow-y: auto;
@@ -496,39 +344,19 @@
   scrollbar-color: #cbd5e1 transparent;
 }
 
-.modal-body::-webkit-scrollbar {
-  width: 5px;
-}
-
-.modal-body::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+.modal-body::-webkit-scrollbar { width: 5px; }
+.modal-body::-webkit-scrollbar-track { background: transparent; }
 .modal-body::-webkit-scrollbar-thumb {
   background-color: #cbd5e1;
   border-radius: 9999px;
 }
 
-/* ── Lazy Load Product Animations ── */
 @keyframes fade-up-in {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.animate-fade-up {
-  animation: fade-up-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-/* ===================================
-   Hero Slider Pagination
-=================================== */
+.animate-fade-up { animation: fade-up-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
 .hero-slider .swiper-pagination {
   bottom: 45px !important;
@@ -537,8 +365,6 @@
   align-items: center;
   gap: 12px;
 }
-
-/* Default Dot */
 
 .hero-slider .hero-bullet {
   position: relative;
@@ -552,15 +378,11 @@
   transition: all .3s ease;
 }
 
-/* Active */
-
 .hero-slider .hero-bullet-active {
   width: 20px;
   height: 20px;
   background: transparent;
 }
-
-/* Center Circle */
 
 .hero-slider .hero-bullet-active::before {
   content: "";
@@ -573,8 +395,6 @@
   border-radius: 999px;
   background: #b7ab74;
 }
-
-/* Arc */
 
 .hero-slider .hero-bullet-active::after {
   content: "";
@@ -591,18 +411,9 @@
   border-radius: 999px;
 }
 
-.hero-slider .hero-bullet:hover {
-  background: #d6ca95;
-}
-
-.hero-slider .hero-bullet-active:hover {
-  background: transparent;
-}
-
-.hero-slider .hero-bullet-active:hover::before {
-  background: #d6ca95;
-}
-
+.hero-slider .hero-bullet:hover { background: #d6ca95; }
+.hero-slider .hero-bullet-active:hover { background: transparent; }
+.hero-slider .hero-bullet-active:hover::before { background: #d6ca95; }
 .hero-slider .hero-bullet-active:hover::after {
   border-top-color: #d6ca95;
   border-right-color: #d6ca95;
@@ -613,11 +424,6 @@
 .hero-slider .hero-bullet::after {
   transition: all .3s ease;
 }
-
-
-/* ===================================
-   Product Carousel Pagination
-=================================== */
 
 .mySwiper .swiper-pagination-bullet,
 .swiper-pagination-bullet {
@@ -643,10 +449,6 @@
   background: #c5a86a;
 }
 
-/* ===================================
-   Legacy / Arbitrary Font Mappings
-=================================== */
-
 [class*="font-['Bembo_Std']"],
 .font-bembo,
 .font-family-bembo {
@@ -663,12 +465,7 @@
   font-family: var(--font-gotham), sans-serif !important;
 }
 
-/* ===================================
-   Concave Corner Frames Masking
-=================================== */
-
 .concave-corner-frame {
-  /* Safari / iOS / macOS support */
   -webkit-mask-image:
     radial-gradient(circle at 0 0, transparent 40px, black 0),
     radial-gradient(circle at 100% 0, transparent 40px, black 0),
@@ -677,22 +474,11 @@
     linear-gradient(black, black),
     linear-gradient(black, black);
   -webkit-mask-size:
-    40px 40px,
-    40px 40px,
-    40px 40px,
-    40px 40px,
-    100% calc(100% - 80px),
-    calc(100% - 80px) 100%;
+    40px 40px, 40px 40px, 40px 40px, 40px 40px,
+    100% calc(100% - 80px), calc(100% - 80px) 100%;
   -webkit-mask-position:
-    top left,
-    top right,
-    bottom left,
-    bottom right,
-    center,
-    center;
+    top left, top right, bottom left, bottom right, center, center;
   -webkit-mask-repeat: no-repeat;
-
-  /* Standard browsers */
   mask-image:
     radial-gradient(circle at 0 0, transparent 40px, black 0),
     radial-gradient(circle at 100% 0, transparent 40px, black 0),
@@ -701,168 +487,9 @@
     linear-gradient(black, black),
     linear-gradient(black, black);
   mask-size:
-    40px 40px,
-    40px 40px,
-    40px 40px,
-    40px 40px,
-    100% calc(100% - 80px),
-    calc(100% - 80px) 100%;
+    40px 40px, 40px 40px, 40px 40px, 40px 40px,
+    100% calc(100% - 80px), calc(100% - 80px) 100%;
   mask-position:
-    top left,
-    top right,
-    bottom left,
-    bottom right,
-    center,
-    center;
+    top left, top right, bottom left, bottom right, center, center;
   mask-repeat: no-repeat;
 }
-
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
-  }
-
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-marquee {
-  display: flex;
-  width: max-content;
-  animation: marquee 25s linear infinite;
-}
-
-/* ======================================================
-   ✨ SCROLL ANIMATION SYSTEM
-   Provides hardware-accelerated transitions.
-   Animates only inner content elements part-by-part, leaving section backgrounds static.
-   ====================================================== */
-
-.reveal {
-  /* Parent remains static so backgrounds render instantly */
-}
-
-/* Target content children only, excluding absolute background layers */
-.reveal > section > div > *:not([class*="absolute"]),
-.reveal > div > div > *:not([class*="absolute"]),
-.reveal > main > div > *:not([class*="absolute"]),
-.reveal-direct > *:not([class*="absolute"]) {
-  opacity: 0;
-  will-change: transform, opacity;
-  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Directional translates for children */
-.reveal-fade-in-up > section > div > *:not([class*="absolute"]),
-.reveal-fade-in-up > div > div > *:not([class*="absolute"]),
-.reveal-fade-in-up > main > div > *:not([class*="absolute"]),
-.reveal-fade-in-up-direct > *:not([class*="absolute"]) {
-  transform: translateY(50px) scale(0.985);
-}
-
-.reveal-fade-in-down > section > div > *:not([class*="absolute"]),
-.reveal-fade-in-down > div > div > *:not([class*="absolute"]),
-.reveal-fade-in-down > main > div > *:not([class*="absolute"]),
-.reveal-fade-in-down-direct > *:not([class*="absolute"]) {
-  transform: translateY(-50px) scale(0.985);
-}
-
-.reveal-fade-in-left > section > div > *:not([class*="absolute"]),
-.reveal-fade-in-left > div > div > *:not([class*="absolute"]),
-.reveal-fade-in-left > main > div > *:not([class*="absolute"]),
-.reveal-fade-in-left-direct > *:not([class*="absolute"]) {
-  transform: translateX(-50px) scale(0.985);
-}
-
-.reveal-fade-in-right > section > div > *:not([class*="absolute"]),
-.reveal-fade-in-right > div > div > *:not([class*="absolute"]),
-.reveal-fade-in-right > main > div > *:not([class*="absolute"]),
-.reveal-fade-in-right-direct > *:not([class*="absolute"]) {
-  transform: translateX(50px) scale(0.985);
-}
-
-/* Trigger reveal when active */
-.reveal.active > section > div > *:not([class*="absolute"]),
-.reveal.active > div > div > *:not([class*="absolute"]),
-.reveal.active > main > div > *:not([class*="absolute"]),
-.reveal-direct.active > *:not([class*="absolute"]) {
-  opacity: 1;
-  transform: translate(0, 0) scale(1);
-}
-
-/* Stagger transition delay for children to animate part-by-part */
-.reveal.active > section > div > *:not([class*="absolute"]):nth-child(1),
-.reveal.active > div > div > *:not([class*="absolute"]):nth-child(1),
-.reveal.active > main > div > *:not([class*="absolute"]):nth-child(1),
-.reveal-direct.active > *:not([class*="absolute"]):nth-child(1) { transition-delay: 0ms; }
-
-.reveal.active > section > div > *:not([class*="absolute"]):nth-child(2),
-.reveal.active > div > div > *:not([class*="absolute"]):nth-child(2),
-.reveal.active > main > div > *:not([class*="absolute"]):nth-child(2),
-.reveal-direct.active > *:not([class*="absolute"]):nth-child(2) { transition-delay: 150ms; }
-
-.reveal.active > section > div > *:not([class*="absolute"]):nth-child(3),
-.reveal.active > div > div > *:not([class*="absolute"]):nth-child(3),
-.reveal.active > main > div > *:not([class*="absolute"]):nth-child(3),
-.reveal-direct.active > *:not([class*="absolute"]):nth-child(3) { transition-delay: 300ms; }
-
-.reveal.active > section > div > *:not([class*="absolute"]):nth-child(4),
-.reveal.active > div > div > *:not([class*="absolute"]):nth-child(4),
-.reveal.active > main > div > *:not([class*="absolute"]):nth-child(4),
-.reveal-direct.active > *:not([class*="absolute"]):nth-child(4) { transition-delay: 450ms; }
-
-.reveal.active > section > div > *:not([class*="absolute"]):nth-child(5),
-.reveal.active > div > div > *:not([class*="absolute"]):nth-child(5),
-.reveal.active > main > div > *:not([class*="absolute"]):nth-child(5),
-.reveal-direct.active > *:not([class*="absolute"]):nth-child(5) { transition-delay: 600ms; }
-
-/* ======================================================
-   ✨ FOOTER STAGGERED REVEALS
-   ====================================================== */
-
-/* Reveal Main Footer columns staggered */
-.reveal-footer .container > div:nth-child(1),
-.reveal-footer .container > div:nth-child(2) > div:nth-child(1),
-.reveal-footer .container > div:nth-child(2) > div:nth-child(2) > div {
-  opacity: 0;
-  transform: translateY(35px) scale(0.99);
-  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform, opacity;
-}
-
-.reveal-footer.active .container > div:nth-child(1),
-.reveal-footer.active .container > div:nth-child(2) > div:nth-child(1),
-.reveal-footer.active .container > div:nth-child(2) > div:nth-child(2) > div {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-/* Stagger delays for main footer elements */
-.reveal-footer.active .container > div:nth-child(1) { transition-delay: 0ms; }
-.reveal-footer.active .container > div:nth-child(2) > div:nth-child(1) { transition-delay: 150ms; }
-.reveal-footer.active .container > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) { transition-delay: 300ms; }
-.reveal-footer.active .container > div:nth-child(2) > div:nth-child(2) > div:nth-child(2) { transition-delay: 450ms; }
-.reveal-footer.active .container > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) { transition-delay: 600ms; }
-
-/* Reveal Bottom Footer columns staggered */
-.reveal-bottom-footer .container > div:nth-child(1) > *,
-.reveal-bottom-footer .container > div:nth-child(2) {
-  opacity: 0;
-  transform: translateY(35px) scale(0.99);
-  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform, opacity;
-}
-
-.reveal-bottom-footer.active .container > div:nth-child(1) > *,
-.reveal-bottom-footer.active .container > div:nth-child(2) {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-/* Stagger delays for bottom footer elements */
-.reveal-bottom-footer.active .container > div:nth-child(1) > *:nth-child(1) { transition-delay: 0ms; }
-.reveal-bottom-footer.active .container > div:nth-child(1) > *:nth-child(2) { transition-delay: 150ms; }
-.reveal-bottom-footer.active .container > div:nth-child(1) > *:nth-child(3) { transition-delay: 300ms; }
-.reveal-bottom-footer.active .container > div:last-child, /* backup child delay */
-.reveal-bottom-footer.active .container > div:nth-child(2) { transition-delay: 450ms; }

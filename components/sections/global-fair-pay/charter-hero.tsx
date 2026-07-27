@@ -15,7 +15,7 @@ export default function CharterHero() {
 
       <div className="max-w-[1440px] w-full inline-flex flex-col justify-center items-center gap-6 md:gap-8 relative z-10">
         {/* Top Center Decorative Fleur-de-lis Icon */}
-        <ScrollReveal delay={0} direction="up" distance={20} duration={650}>
+        <ScrollReveal delay={0} direction="up">
           <div className="flex items-center justify-center mb-1">
             <img
               src="/images/icons/icon-3.svg"
@@ -26,7 +26,7 @@ export default function CharterHero() {
         </ScrollReveal>
 
         {/* Initiative Pill Tag */}
-        <ScrollReveal delay={80} direction="up" distance={20} duration={650}>
+        <ScrollReveal delay={80} direction="up">
           <div className="px-5 md:px-7 py-2.5 bg-white rounded-[100px] border border-neutral-200 shadow-2xs inline-flex justify-center items-center gap-2">
             <span className="text-center text-neutral-800 text-xs md:text-sm font-normal font-['Bembo_Std'] uppercase tracking-[0.15em] leading-snug">
               AN INITIATIVE OF LONDON TEA EXCHANGE, WITH UNITAR & THE COMMONWEALTH
@@ -35,7 +35,7 @@ export default function CharterHero() {
         </ScrollReveal>
 
         {/* Main Title */}
-        <ScrollReveal delay={160} direction="up" distance={20} duration={650}>
+        <ScrollReveal delay={160} direction="up">
           <div className="flex flex-col justify-start items-center my-2">
             <h1 className="text-center text-khaki-gold text-4xl sm:text-5xl md:text-[64px] font-normal font-['Bembo_Std'] leading-tight sm:leading-[1.15]">
               Fair pay for every hand
@@ -47,7 +47,7 @@ export default function CharterHero() {
         </ScrollReveal>
 
         {/* Spaced Metadata row */}
-        <ScrollReveal delay={240} direction="up" distance={20} duration={650}>
+        <ScrollReveal delay={240} direction="up">
           <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12 my-1">
             <span className="text-center text-neutral-400 text-sm md:text-lg font-normal font-['Gotham'] leading-snug">
               Est. 2024
@@ -62,14 +62,14 @@ export default function CharterHero() {
         </ScrollReveal>
 
         {/* Paragraph Description */}
-        <ScrollReveal delay={320} direction="up" distance={20} duration={650}>
+        <ScrollReveal delay={320} direction="up">
           <p className="w-full max-w-[720px] text-center text-neutral-400 text-sm md:text-base lg:text-lg font-normal font-['Gotham'] leading-relaxed px-2">
             The Global Fair Pay Charter commits signatories to fair, dignified pay for tea industry workers worldwide. It was conceived by Sheikh Aliur Rahman OBE, Group Chairman of London Tea Exchange, and formally launched with the United Nations Institute for Training and Research on International Tea Day, 22 May 2024.
           </p>
         </ScrollReveal>
 
         {/* Action Buttons (Stacked Vertically) */}
-        <ScrollReveal delay={400} direction="up" distance={20} duration={650}>
+        <ScrollReveal delay={400} direction="up">
           <div className="w-full max-w-xs flex flex-col justify-start items-center gap-3.5 mt-2">
             <a
               href="#watch-intro"

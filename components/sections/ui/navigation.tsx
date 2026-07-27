@@ -9,7 +9,7 @@ import { fetchShopCategories, type ShopCategory } from "@/lib/shop-api";
 
 const leftNavItems = [
   { label: "HOME", href: "/" },
-  { label: "TEAS", href: "/sylheti-tea", hasDropdown: true },
+  { label: "TEAS", href: "/products", hasDropdown: true },
   { label: "GIFTS", href: "/gift-sets" },
   { label: "CORPORATE ORDER", href: "/corporate-order" },
 ];
@@ -73,7 +73,7 @@ export default function Navigation() {
     >
       <Link
         href={item.href}
-        className={`font-gotham text-[10.5px] font-semibold uppercase tracking-wide whitespace-nowrap transition-colors flex items-center gap-1 py-2 ${
+        className={`font-gotham text-[10.5px] font-semibold uppercase tracking-wide whitespace-nowrap transition-colors flex items-center gap-1 py-2 relative group ${
           isActive(item.href)
             ? "text-brand-primary"
             : "text-white hover:text-brand-primary"
@@ -83,6 +83,12 @@ export default function Navigation() {
 
         {item.hasDropdown && (
           <RiArrowDownSLine className="text-lg text-zinc-400 group-hover:text-brand-primary transition-colors" />
+        )}
+
+        {item.label === "TEAS" && (
+          <span className="absolute top-[85%] left-1/2 -translate-x-1/2 hidden group-hover:block bg-stone-900 border border-stone-800 text-white text-[10px] font-semibold tracking-wider uppercase py-1 px-2.5 rounded shadow-lg z-[60] whitespace-nowrap">
+            All Products
+          </span>
         )}
       </Link>
 
@@ -97,6 +103,14 @@ export default function Navigation() {
               
               <div className="flex-1 flex justify-start items-start gap-12">
                 <div className="w-[300px] xl:w-[350px] shrink-0 flex flex-col justify-start items-start">
+                  <Link
+                    href="/products"
+                    onClick={() => setIsTeasHovered(false)}
+                    className="w-full pb-3 mb-3 border-b border-zinc-100 flex items-center justify-start text-left font-['Bembo_Std'] text-stone-gray hover:text-[#b4a676] text-xl font-semibold transition-all duration-200"
+                  >
+                    <span>All Products</span>
+                  </Link>
+
                   {categories.map((category) => {
                     const isCatActive = category.id === activeCategory;
                     return (

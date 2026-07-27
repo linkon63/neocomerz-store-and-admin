@@ -77,7 +77,7 @@ export default function CharterPeople() {
     <section className="w-full bg-white py-20 px-6 md:px-12 lg:px-24">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <ScrollReveal delay={0} direction="up" distance={20} duration={650} className="mb-16">
+        <ScrollReveal delay={0} direction="up" className="mb-16">
           <p className="font-['Gotham'] text-xs uppercase tracking-[0.25em] text-neutral-400 mb-3">
             WHO IS BEHIND IT
           </p>
@@ -90,7 +90,7 @@ export default function CharterPeople() {
         </ScrollReveal>
 
         {/* Section 1: Countries Involved */}
-        <ScrollReveal delay={80} direction="up" distance={20} duration={650} className="mb-16 space-y-6">
+        <ScrollReveal delay={80} direction="up" className="mb-16 space-y-6">
           <div className="flex items-center gap-2 text-dark-charcoal font-['Gotham'] text-xs uppercase tracking-wider font-semibold">
             <FiGlobe className="text-base text-neutral-400" />
             <span>Countries Involved</span>
@@ -113,7 +113,7 @@ export default function CharterPeople() {
         </ScrollReveal>
 
         {/* Section 2: Founders & Key People */}
-        <ScrollReveal delay={160} direction="up" distance={20} duration={650} className="mb-16 space-y-8">
+        <ScrollReveal delay={160} direction="up" className="mb-16 space-y-8">
           <div className="flex items-center gap-2 text-dark-charcoal font-['Gotham'] text-xs uppercase tracking-wider font-semibold">
             <FiUsers className="text-base text-neutral-400" />
             <span>Founders & key people</span>
@@ -139,7 +139,7 @@ export default function CharterPeople() {
         </ScrollReveal>
 
         {/* Section 3: Partner & Endorsing Organizations */}
-        <ScrollReveal delay={240} direction="up" distance={20} duration={650} className="space-y-8">
+        <ScrollReveal delay={240} direction="up" className="space-y-8">
           <div className="flex items-center gap-2 text-dark-charcoal font-['Gotham'] text-xs uppercase tracking-wider font-semibold">
             <FiBriefcase className="text-base text-neutral-400" />
             <span>Partner & endorsing organizations</span>

@@ -22,7 +22,7 @@ export default function Collection() {
               </div>
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4 py-3">
                 <Link
-                  href="/collections/assorted"
+                  href="/products?category=Assorted+Collections"
                   className="bg-brand-primary text-white text-center py-4 px-6 font-bembo text-base uppercase tracking-wide hover:bg-opacity-90 transition-all"
                 >
                   ASSORTED COLLECTIONS
@@ -37,7 +37,7 @@ export default function Collection() {
                   />
                 </div>
                 <Link
-                  href="/collections/tea-book"
+                  href="/products?category=Tea+Books+Collections"
                   className="bg-white text-text-primary text-center py-4 px-6 font-bembo text-base uppercase tracking-wide hover:bg-brand-3 hover:text-white transition-all"
                 >
                   TEA BOOK COLLECTIONS

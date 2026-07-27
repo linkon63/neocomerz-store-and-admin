@@ -103,7 +103,7 @@ function ProfilePageContent() {
           <div className="relative max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 z-10 flex-1 flex flex-col">
             <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch flex-1 gap-8 lg:gap-0">
               
-              <aside className="lg:col-span-3 bg-[#F7F6F2] lg:bg-transparent p-4 sm:p-6 lg:py-12 lg:px-0 rounded-2xl lg:rounded-none border border-stone-200/80 lg:border-none shadow-xs lg:shadow-none pr-0 lg:pr-8 flex flex-col justify-between w-full">
+              <aside className="lg:col-span-3 bg-[#F7F6F2] lg:bg-transparent p-4 sm:p-6 lg:py-12 lg:px-0 rounded-2xl lg:rounded-none border border-stone-200/80 lg:border-none shadow-xs lg:shadow-none pr-0 lg:pr-8 flex flex-col justify-between w-full lg:sticky lg:top-24 lg:self-start lg:h-[calc(100vh-140px)] lg:max-h-[580px]">
                 <div className="w-full">
                   <h1 className="font-['Bembo_Std'] text-2xl sm:text-3xl lg:text-4xl font-normal text-zinc-900 tracking-wide mb-4 lg:mb-8 text-center lg:text-left">
                     Profile

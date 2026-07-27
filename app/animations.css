@@ -1,0 +1,141 @@
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 25s linear infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.reveal {}
+
+.reveal > section > div > *:not([class*="absolute"]),
+.reveal > div > div > *:not([class*="absolute"]),
+.reveal > main > div > *:not([class*="absolute"]),
+.reveal-direct > *:not([class*="absolute"]) {
+  opacity: 0;
+  will-change: opacity, transform;
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-fade-in-up > section > div > *:not([class*="absolute"]),
+.reveal-fade-in-up > div > div > *:not([class*="absolute"]),
+.reveal-fade-in-up > main > div > *:not([class*="absolute"]),
+.reveal-fade-in-up-direct > *:not([class*="absolute"]) {
+  transform: translateY(30px);
+}
+
+.reveal-fade-in-down > section > div > *:not([class*="absolute"]),
+.reveal-fade-in-down > div > div > *:not([class*="absolute"]),
+.reveal-fade-in-down > main > div > *:not([class*="absolute"]),
+.reveal-fade-in-down-direct > *:not([class*="absolute"]) {
+  transform: translateY(-30px);
+}
+
+.reveal-fade-in-left > section > div > *:not([class*="absolute"]),
+.reveal-fade-in-left > div > div > *:not([class*="absolute"]),
+.reveal-fade-in-left > main > div > *:not([class*="absolute"]),
+.reveal-fade-in-left-direct > *:not([class*="absolute"]) {
+  transform: translateX(-30px);
+}
+
+.reveal-fade-in-right > section > div > *:not([class*="absolute"]),
+.reveal-fade-in-right > div > div > *:not([class*="absolute"]),
+.reveal-fade-in-right > main > div > *:not([class*="absolute"]),
+.reveal-fade-in-right-direct > *:not([class*="absolute"]) {
+  transform: translateX(30px);
+}
+
+.reveal.active > section > div > *:not([class*="absolute"]),
+.reveal.active > div > div > *:not([class*="absolute"]),
+.reveal.active > main > div > *:not([class*="absolute"]),
+.reveal-direct.active > *:not([class*="absolute"]) {
+  opacity: 1;
+  transform: translate(0, 0);
+  will-change: auto;
+}
+
+.reveal.active > section > div > *:not([class*="absolute"]):nth-child(1),
+.reveal.active > div > div > *:not([class*="absolute"]):nth-child(1),
+.reveal.active > main > div > *:not([class*="absolute"]):nth-child(1),
+.reveal-direct.active > *:not([class*="absolute"]):nth-child(1) { transition-delay: 0ms; }
+
+.reveal.active > section > div > *:not([class*="absolute"]):nth-child(2),
+.reveal.active > div > div > *:not([class*="absolute"]):nth-child(2),
+.reveal.active > main > div > *:not([class*="absolute"]):nth-child(2),
+.reveal-direct.active > *:not([class*="absolute"]):nth-child(2) { transition-delay: 120ms; }
+
+.reveal.active > section > div > *:not([class*="absolute"]):nth-child(3),
+.reveal.active > div > div > *:not([class*="absolute"]):nth-child(3),
+.reveal.active > main > div > *:not([class*="absolute"]):nth-child(3),
+.reveal-direct.active > *:not([class*="absolute"]):nth-child(3) { transition-delay: 240ms; }
+
+.reveal.active > section > div > *:not([class*="absolute"]):nth-child(4),
+.reveal.active > div > div > *:not([class*="absolute"]):nth-child(4),
+.reveal.active > main > div > *:not([class*="absolute"]):nth-child(4),
+.reveal-direct.active > *:not([class*="absolute"]):nth-child(4) { transition-delay: 360ms; }
+
+.reveal.active > section > div > *:not([class*="absolute"]):nth-child(5),
+.reveal.active > div > div > *:not([class*="absolute"]):nth-child(5),
+.reveal.active > main > div > *:not([class*="absolute"]):nth-child(5),
+.reveal-direct.active > *:not([class*="absolute"]):nth-child(5) { transition-delay: 480ms; }
+
+.reveal.active > section > div > *:not([class*="absolute"]):nth-child(6),
+.reveal.active > div > div > *:not([class*="absolute"]):nth-child(6),
+.reveal.active > main > div > *:not([class*="absolute"]):nth-child(6),
+.reveal-direct.active > *:not([class*="absolute"]):nth-child(6) { transition-delay: 600ms; }
+
+.reveal.active > section > div > *:not([class*="absolute"]):nth-child(7),
+.reveal.active > div > div > *:not([class*="absolute"]):nth-child(7),
+.reveal.active > main > div > *:not([class*="absolute"]):nth-child(7),
+.reveal-direct.active > *:not([class*="absolute"]):nth-child(7) { transition-delay: 720ms; }
+
+.reveal.active > section > div > *:not([class*="absolute"]):nth-child(8),
+.reveal.active > div > div > *:not([class*="absolute"]):nth-child(8),
+.reveal.active > main > div > *:not([class*="absolute"]):nth-child(8),
+.reveal-direct.active > *:not([class*="absolute"]):nth-child(8) { transition-delay: 840ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal > section > div > *:not([class*="absolute"]),
+  .reveal > div > div > *:not([class*="absolute"]),
+  .reveal > main > div > *:not([class*="absolute"]),
+  .reveal-direct > *:not([class*="absolute"]),
+  .reveal-fade-in-up > section > div > *:not([class*="absolute"]),
+  .reveal-fade-in-up > div > div > *:not([class*="absolute"]),
+  .reveal-fade-in-up > main > div > *:not([class*="absolute"]),
+  .reveal-fade-in-up-direct > *:not([class*="absolute"]),
+  .reveal-fade-in-down > section > div > *:not([class*="absolute"]),
+  .reveal-fade-in-down > div > div > *:not([class*="absolute"]),
+  .reveal-fade-in-down > main > div > *:not([class*="absolute"]),
+  .reveal-fade-in-down-direct > *:not([class*="absolute"]),
+  .reveal-fade-in-left > section > div > *:not([class*="absolute"]),
+  .reveal-fade-in-left > div > div > *:not([class*="absolute"]),
+  .reveal-fade-in-left > main > div > *:not([class*="absolute"]),
+  .reveal-fade-in-left-direct > *:not([class*="absolute"]),
+  .reveal-fade-in-right > section > div > *:not([class*="absolute"]),
+  .reveal-fade-in-right > div > div > *:not([class*="absolute"]),
+  .reveal-fade-in-right > main > div > *:not([class*="absolute"]),
+  .reveal-fade-in-right-direct > *:not([class*="absolute"]) {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    will-change: auto !important;
+  }
+
+  .animate-fadeIn,
+  .animate-marquee {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}

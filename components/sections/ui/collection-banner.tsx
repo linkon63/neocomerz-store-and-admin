@@ -22,7 +22,7 @@ export default function CollectionBanner() {
               </div>
               <div className="flex flex-col lg:flex-row justify-center items-center gap-4 py-3 px-4">
                 <Link
-                  href="/collections/assorted"
+                  href="/products?category=Assorted+Collections"
                   className="bg-brand-primary text-white text-center py-3 px-5 font-bembo text-sm uppercase tracking-wide hover:bg-opacity-90 transition-all min-w-[170px]"
                 >
                   ASSORTED COLLECTIONS
@@ -37,13 +37,13 @@ export default function CollectionBanner() {
                   />
                 </div>
                 <Link
-                  href="/collections/tea-book"
+                  href="/products?category=Tea+Books+Collections"
                   className="bg-white text-text-primary text-center py-3 px-5 font-bembo text-sm uppercase tracking-wide hover:bg-brand-3 hover:text-white transition-all min-w-[170px]"
                 >
                   TEA BOOK COLLECTIONS
                 </Link>
                 <Link
-                  href="/collections/tea-chests"
+                  href="/products?category=Tea+Chests"
                   className="bg-white text-text-primary text-center py-3 px-5 font-bembo text-sm uppercase tracking-wide hover:bg-brand-3 hover:text-white transition-all min-w-[170px]"
                 >
                   TEA CHESTS
