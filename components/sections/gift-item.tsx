@@ -7,21 +7,22 @@ const giftItems = [
     id: 1,
     title: "Assorted Collections",
     image: "/images/gift/item-1.png",
-    href: "/products/assorted-collections",
+    href: "/products?category=Assorted+Collections",
   },
   {
     id: 2,
     title: "Tea Books Collections",
     image: "/images/gift/item-2.png",
-    href: "/products/tea-books",
+    href: "/products?category=Tea+Books+Collections",
   },
   {
     id: 3,
     title: "Accessories",
     image: "/images/gift/item-3.png",
-    href: "/products/accessories",
+    href: "/products?category=Accessories",
   },
 ];
+
 
 export default function GiftItem() {
   return (

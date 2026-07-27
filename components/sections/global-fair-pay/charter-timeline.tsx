@@ -57,7 +57,7 @@ export default function CharterTimeline() {
 
       <div className="max-w-3xl mx-auto relative z-20">
         {/* Subtitle & Title */}
-        <ScrollReveal delay={0} direction="up" distance={20} duration={650} className="text-left mb-16 space-y-2">
+        <ScrollReveal delay={0} direction="up" className="text-left mb-16 space-y-2">
           <p className="font-['Gotham'] text-xs uppercase tracking-[0.25em] text-neutral-400">
             WHO IS BEHIND IT
           </p>
@@ -76,8 +76,8 @@ export default function CharterTimeline() {
               key={idx}
               delay={idx * 80}
               direction="up"
-              distance={20}
-              duration={650}
+             
+             
             >
               <div className="relative group">
                 {/* Gold Ring Marker Dot (matches Red Box in reference image) */}

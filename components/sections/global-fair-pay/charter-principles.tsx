@@ -48,7 +48,7 @@ export default function CharterPrinciples() {
     <section id="eight-articles" className="w-full bg-[#fbfbfa] pt-20 md:pt-32 lg:pt-44 pb-24 md:pb-36 lg:pb-48 px-6 md:px-12 lg:px-24 relative scroll-mt-10">
       <div className="max-w-7xl mx-auto">
         {/* Top Banner: Fairness, Equality, Justice */}
-        <ScrollReveal delay={0} direction="up" distance={20} duration={650} className="flex flex-col items-center justify-center mb-16 text-center">
+        <ScrollReveal delay={0} direction="up" className="flex flex-col items-center justify-center mb-16 text-center">
           <p className="font-['Bembo_Std'] text-[13px] md:text-[15px] font-normal tracking-[0.35em] text-neutral-400 uppercase mb-4">
             FAIRNESS &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; EQUALITY &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; JUSTICE
           </p>
@@ -66,7 +66,7 @@ export default function CharterPrinciples() {
         {/* Two-Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-start">
           {/* Left Column: Heading and Info */}
-          <ScrollReveal delay={80} direction="up" distance={20} duration={650} className="lg:col-span-5 lg:sticky lg:top-36 lg:h-fit space-y-8">
+          <ScrollReveal delay={80} direction="up" className="lg:col-span-5 lg:sticky lg:top-36 lg:h-fit space-y-8">
             <div className="self-stretch flex flex-col justify-start items-start gap-4 md:gap-6">
               <div className="text-neutral-400 text-base md:text-lg font-normal font-['Bembo_Std'] uppercase leading-6">
                 The Charter
@@ -99,8 +99,8 @@ export default function CharterPrinciples() {
                 key={idx}
                 delay={idx * 80}
                 direction="up"
-                distance={20}
-                duration={650}
+               
+               
               >
                 <div className="self-stretch p-5 md:p-6 lg:p-8 bg-neutral-100 rounded-xl flex justify-start items-start gap-4 md:gap-6 hover:shadow-xs transition-shadow duration-200">
                   {/* Article Roman Number Block */}

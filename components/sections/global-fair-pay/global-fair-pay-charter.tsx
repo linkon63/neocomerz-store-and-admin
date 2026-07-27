@@ -6,50 +6,33 @@ import CharterStats from "@/components/sections/global-fair-pay/charter-stats";
 import CharterPeople from "@/components/sections/global-fair-pay/charter-people";
 import CharterTimeline from "@/components/sections/global-fair-pay/charter-timeline";
 import CharterQuote from "@/components/sections/global-fair-pay/charter-quote";
-import ScrollAnimate from "@/components/ui/scroll-animate";
 
 export default function GlobalFairPayCharter() {
   return (
     <div className="bg-[#fbfbfa] min-h-screen overflow-clip">
       {/* 1. Hero / Header Area */}
-      <ScrollAnimate variant="fade-in-up">
-        <CharterHero />
-      </ScrollAnimate>
+      <CharterHero />
 
       {/* 2. Impact Section */}
-      <ScrollAnimate variant="fade-in-up">
-        <CharterIntro />
-      </ScrollAnimate>
+      <CharterIntro />
 
       {/* 3. Video Introduction Section */}
-      <ScrollAnimate variant="fade-in-up">
-        <CharterVideo />
-      </ScrollAnimate>
+      <CharterVideo />
 
       {/* 4. Eight Articles Section */}
-      <ScrollAnimate variant="fade-in-up">
-        <CharterPrinciples />
-      </ScrollAnimate>
+      <CharterPrinciples />
 
       {/* 5. Metrics & Booklet Section */}
-      <ScrollAnimate variant="fade-in-up">
-        <CharterStats />
-      </ScrollAnimate>
+      <CharterStats />
 
       {/* 6. Involved People & Organizations Section */}
-      <ScrollAnimate variant="fade-in-up">
-        <CharterPeople />
-      </ScrollAnimate>
+      <CharterPeople />
 
       {/* 7. History Timeline Section */}
-      <ScrollAnimate variant="fade-in-up">
-        <CharterTimeline />
-      </ScrollAnimate>
+      <CharterTimeline />
 
       {/* 8. Mansion House Quote Section */}
-      <ScrollAnimate variant="fade-in-up">
-        <CharterQuote />
-      </ScrollAnimate>
+      <CharterQuote />
     </div>
   );
 }

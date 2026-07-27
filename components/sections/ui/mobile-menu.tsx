@@ -1,64 +1,11 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { HiOutlineBars3BottomRight } from "react-icons/hi2";
 import { IoChevronDownOutline, IoChevronForwardOutline } from "react-icons/io5";
 import { NavigationProps } from "../../../data/types";
-
-const categories = [
-  {
-    id: "assorted",
-    label: "Assorted Collections",
-    items: [
-      { label: "Assorted Classic Collection", href: "/products?category=Assorted%20Classic" },
-      { label: "Assorted Royal Collection", href: "/products?category=Assorted%20Royal" },
-      { label: "Assorted Super Fruit Collection", href: "/products?category=Assorted%20Super%20Fruit" },
-      { label: "Assorted Black Tea Collection", href: "/products?category=Assorted%20Black%20Tea" },
-      { label: "Assorted Wellness Collection", href: "/products?category=Assorted%20Wellness" },
-      { label: "Assorted Oolong Collection", href: "/products?category=Assorted%20Oolong" },
-      { label: "Assorted Festive Collection", href: "/products?category=Assorted%20Festive" },
-      { label: "Assorted Wild Meadows Collection", href: "/products?category=Assorted%20Wild%20Meadows" },
-      { label: "Assorted Wild Orchard Collection", href: "/products?category=Assorted%20Wild%20Orchard" },
-    ],
-  },
-  {
-    id: "tea-books",
-    label: "Tea Book Collections",
-    items: [
-      { label: "Velvet Bound Tea Book", href: "/products?category=Tea%20Books" },
-      { label: "Royal Tea Book Collection", href: "/products?category=Tea%20Books" },
-      { label: "Classic Tea Book Volume I", href: "/products?category=Tea%20Books" },
-      { label: "Classic Tea Book Volume II", href: "/products?category=Tea%20Books" },
-      { label: "Heritage Tea Book Volume III", href: "/products?category=Tea%20Books" },
-      { label: "Midnight Tea Book Volume IV", href: "/products?category=Tea%20Books" },
-    ],
-  },
-  {
-    id: "tea-chests",
-    label: "Tea chests",
-    items: [
-      { label: "Imperial Wooden Chest", href: "/products?category=Tea%20Chests" },
-      { label: "Royal Brass Tea Chest", href: "/products?category=Tea%20Chests" },
-      { label: "Classic Mahogany Chest", href: "/products?category=Tea%20Chests" },
-      { label: "Heritage Bamboo Chest", href: "/products?category=Tea%20Chests" },
-      { label: "Gilded Tea Chest Collection", href: "/products?category=Tea%20Chests" },
-    ],
-  },
-  {
-    id: "loose-tea",
-    label: "Loose Tea",
-    items: [
-      { label: "Sylhet Imperial Noir", href: "/products?category=Loose%20Tea" },
-      { label: "Sovereign Black Blend", href: "/products?category=Loose%20Tea" },
-      { label: "Classic English Breakfast", href: "/products?category=Loose%20Tea" },
-      { label: "Organic Darjeeling Second Flush", href: "/products?category=Loose%20Tea" },
-      { label: "First Flush Reserve", href: "/products?category=Loose%20Tea" },
-      { label: "Wild Jasmine Green", href: "/products?category=Loose%20Tea" },
-      { label: "Premium Sencha Green", href: "/products?category=Loose%20Tea" },
-    ],
-  },
-];
+import { fetchShopCategories, type ShopCategory } from "@/lib/shop-api";
 
 export default function MobileMenu({
   navItems,
@@ -66,6 +13,19 @@ export default function MobileMenu({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
   const [activeMobileCategory, setActiveMobileCategory] = useState<string | null>(null);
+  const [dbCategories, setDbCategories] = useState<ShopCategory[]>([]);
+
+  useEffect(() => {
+    async function loadCats() {
+      try {
+        const data = await fetchShopCategories();
+        setDbCategories(data);
+      } catch (err) {
+        console.error("Failed to load mobile categories:", err);
+      }
+    }
+    loadCats();
+  }, []);
 
   const toggleCategory = (catId: string) => {
     setActiveMobileCategory(activeMobileCategory === catId ? null : catId);
@@ -90,42 +50,54 @@ export default function MobileMenu({
               >
                 {item.hasDropdown ? (
                   <>
-                    <button
-                      onClick={() => setMobileDropdownOpen(!mobileDropdownOpen)}
-                      className="w-full flex items-center justify-between px-4 py-3 font-gotham text-sm text-zinc-800 hover:bg-zinc-50 hover:text-brand-primary transition-colors"
-                    >
-                      <span className="font-medium">{item.label}</span>
-                      <IoChevronDownOutline
-                        className={`w-4 h-4 transition-transform ${
-                          mobileDropdownOpen ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
+                    <div className="w-full flex items-center justify-between font-gotham text-sm text-zinc-800 hover:bg-zinc-50 transition-colors">
+                      <Link
+                        href="/products"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex-grow px-4 py-3 font-medium hover:text-brand-primary text-left"
+                      >
+                        {item.label}
+                      </Link>
+                      <button
+                        onClick={() => setMobileDropdownOpen(!mobileDropdownOpen)}
+                        className="px-5 py-3.5 border-l border-zinc-100/50 flex items-center justify-center cursor-pointer text-zinc-500 hover:text-zinc-800"
+                        aria-label="Toggle subcategories"
+                      >
+                        <IoChevronDownOutline
+                          className={`w-4 h-4 transition-transform ${
+                            mobileDropdownOpen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+                    </div>
 
                     {mobileDropdownOpen && (
                       <div className="bg-zinc-50 border-t border-zinc-150 py-1">
-                        {categories.map((category) => {
+                        {dbCategories.map((category) => {
                           const isCatOpen = activeMobileCategory === category.id;
+                          const subcategories = category.children || [];
                           return (
                             <div key={category.id} className="border-b border-zinc-100/50 last:border-0">
                               <button
                                 onClick={() => toggleCategory(category.id)}
-                                className="w-full flex items-center justify-between pl-8 pr-4 py-2 font-gotham text-sm text-zinc-700 hover:text-brand-primary transition-colors"
+                                className="w-full flex items-center justify-between pl-8 pr-4 py-2 font-gotham text-sm text-zinc-700 hover:text-brand-primary transition-colors cursor-pointer"
                               >
-                                <span>{category.label}</span>
-                                <IoChevronForwardOutline
-                                  className={`w-3 h-3 transition-transform ${
-                                    isCatOpen ? "rotate-90" : ""
-                                  }`}
-                                />
+                                <span>{category.name}</span>
+                                {subcategories.length > 0 && (
+                                  <IoChevronForwardOutline
+                                    className={`w-3 h-3 transition-transform ${
+                                      isCatOpen ? "rotate-90" : ""
+                                    }`}
+                                  />
+                                )}
                               </button>
 
-                              {isCatOpen && (
+                              {isCatOpen && subcategories.length > 0 && (
                                 <div className="bg-white/60 pl-12 pr-4 py-1 flex flex-col">
-                                  {category.items.map((subItem) => (
+                                  {subcategories.map((subItem) => (
                                     <Link
-                                      key={subItem.label}
-                                      href={subItem.href}
+                                      key={subItem.id}
+                                      href={`/products?category=${encodeURIComponent(subItem.name)}`}
                                       onClick={() => {
                                         setIsMobileMenuOpen(false);
                                         setMobileDropdownOpen(false);
@@ -133,7 +105,7 @@ export default function MobileMenu({
                                       }}
                                       className="block py-2 font-gotham text-xs text-zinc-650 hover:text-brand-primary transition-colors border-b border-zinc-100 last:border-0"
                                     >
-                                      {subItem.label}
+                                      {subItem.name}
                                     </Link>
                                   ))}
                                 </div>

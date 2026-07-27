@@ -7,7 +7,7 @@ export default function CharterVideo() {
         {/* Content Container */}
         <div className="max-w-[1440px] w-full mx-auto flex flex-col items-center gap-12 md:gap-20 relative z-10">
           {/* Header Block */}
-          <ScrollReveal delay={0} direction="up" distance={20} duration={650} className="self-stretch flex flex-col justify-start items-center gap-6">
+          <ScrollReveal delay={0} direction="up" className="self-stretch flex flex-col justify-start items-center gap-6">
             <div className="flex flex-col justify-start items-center">
               <h2 className="text-center text-stone-400 text-3xl sm:text-5xl lg:text-6xl font-normal font-['Bembo_Std'] leading-tight lg:leading-[56px]">
                 Introduction to the
@@ -22,7 +22,7 @@ export default function CharterVideo() {
           </ScrollReveal>
 
           {/* Video Player Box (Full width of container) */}
-          <ScrollReveal delay={120} direction="up" distance={20} duration={650} className="self-stretch w-full flex flex-col justify-start items-end gap-2">
+          <ScrollReveal delay={120} direction="up" className="self-stretch w-full flex flex-col justify-start items-end gap-2">
             <div className="w-full aspect-video bg-zinc-950 rounded-sm overflow-hidden shadow-2xl border border-zinc-800/60 relative">
               <iframe
                 src="https://www.youtube.com/embed/CFfP9DFeOog?rel=0&modestbranding=1"
