@@ -366,6 +366,12 @@
   gap: 12px;
 }
 
+@media (max-width: 767px) {
+  .hero-slider .swiper-pagination {
+    bottom: 12px !important;
+  }
+}
+
 .hero-slider .hero-bullet {
   position: relative;
   width: 8px;

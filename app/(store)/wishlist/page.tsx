@@ -38,8 +38,9 @@ export default function WishlistPage() {
             {items.map((product) => (
               <div
                 key={product.id}
-                className="flex gap-4 p-4 border border-stone-200 rounded-lg"
+                className="flex flex-wrap items-center gap-4 p-4 border border-stone-200 rounded-lg"
               >
+                
                 <div className="w-20 h-20 sm:w-24 sm:h-24 relative bg-stone-50 rounded shrink-0">
                   <Image
                     src={product.image || "/images/no-image-icon-6.png"}
@@ -73,7 +74,7 @@ export default function WishlistPage() {
                   </button>
                 </div>
 
-                <div className="shrink-0 flex items-center">
+                <div className="w-full sm:w-auto shrink-0 flex sm:justify-end">
                   <button
                     onClick={() =>
                       addItem({
@@ -86,7 +87,7 @@ export default function WishlistPage() {
                         variantId: product.variantId || product.id,
                       })
                     }
-                    className="flex items-center gap-2 px-4 py-2.5 bg-stone-800 text-white text-xs font-semibold uppercase tracking-wider hover:bg-stone-700 transition-colors cursor-pointer whitespace-nowrap"
+                    className="flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2.5 bg-stone-800 text-white text-xs font-semibold uppercase tracking-wider hover:bg-stone-700 transition-colors cursor-pointer whitespace-nowrap"
                   >
                     <LuShoppingBag className="w-3.5 h-3.5" />
                     Add to Cart

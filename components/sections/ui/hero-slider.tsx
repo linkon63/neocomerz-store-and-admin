@@ -151,6 +151,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                   href="/products"
                   label="SHOP NOW"
                   variant="primary"
+                  size="sm"
                 />
 
               </div>
