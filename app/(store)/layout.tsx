@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import TopHeader from '@/components/sections/top-header';
 import Header from '@/components/sections/header';
 import Mainfooter from '@/components/sections/main-footer';
@@ -17,17 +18,19 @@ export default function StoreLayout({
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ""}>
     <AuthProvider>
-      <CartProvider>
-        <WishlistProvider>
+      <WishlistProvider>
+        <CartProvider>
           <TopHeader />
-          <Header />
+          <Suspense fallback={<div className="h-16 bg-olive-slate animate-pulse w-full" />}>
+            <Header />
+          </Suspense>
           {children}
           <Mainfooter />
           <Bottomfooter />
           <AuthModal />
           <Toaster richColors closeButton position="top-right" />
-        </WishlistProvider>
-      </CartProvider>
+        </CartProvider>
+      </WishlistProvider>
     </AuthProvider>
     </GoogleOAuthProvider>
   );

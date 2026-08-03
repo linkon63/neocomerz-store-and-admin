@@ -5,11 +5,12 @@ export default function Subtract() {
     <section className="relative bg-[#F9F9FB] overflow-hidden">
       <div className="relative min-h-175 w-full">
         <Image
-          src="/images/subtract.jpeg"
+          src="/images/tab/substrac-2.webp"
           alt="Tea Garden"
           fill
           className="object-cover"
           priority
+          unoptimized
         />
         <svg
           className="absolute top-0 left-0 w-full h-45"
