@@ -142,7 +142,7 @@ export default function ContactPage() {
                     </div>
 
                     {/* Phone field */}
-                    <div className="self-stretch flex flex-col justify-start items-start overflow-hidden w-full">
+                    <div className="self-stretch flex flex-col justify-start items-start w-full">
                       <div className="justify-start text-neutral-800 text-lg font-normal font-['Bembo_Std'] leading-6 mb-1.5">Phone Number</div>
                       <div className="self-stretch p-3 rounded-lg outline outline-1 outline-offset-[-1px] outline-zinc-300 inline-flex justify-start items-center gap-3 bg-white focus-within:outline-[#C5B382]">
                         <div className="flex justify-start items-center gap-1">
@@ -150,14 +150,14 @@ export default function ContactPage() {
                             name="countryCode"
                             value={formData.countryCode}
                             onChange={handleInputChange}
-                            className="bg-transparent text-neutral-800 text-xs font-medium font-['Gotham'] leading-4 focus:outline-none cursor-pointer appearance-none pr-1"
+                            className="bg-transparent text-neutral-800 text-xs font-medium font-['Gotham'] leading-4 focus:outline-none cursor-pointer appearance-none w-14 pr-3"
                           >
-                            <option value="+880">+880</option>
-                            <option value="+1">+1</option>
-                            <option value="+44">+44</option>
-                            <option value="+91">+91</option>
+                            <option value="+880" className="bg-white text-neutral-800">+880</option>
+                            <option value="+1" className="bg-white text-neutral-800">+1</option>
+                            <option value="+44" className="bg-white text-neutral-800">+44</option>
+                            <option value="+91" className="bg-white text-neutral-800">+91</option>
                           </select>
-                          <div className="w-2.5 h-1.5 relative overflow-hidden pointer-events-none -ml-1 flex items-center justify-center">
+                          <div className="w-2.5 h-1.5 relative overflow-hidden pointer-events-none -ml-3.5 flex items-center justify-center">
                             <svg className="w-2.5 h-1.5 text-neutral-800" viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth="1.2">
                               <path d="M1 1L5 5L9 1" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
@@ -297,7 +297,7 @@ export default function ContactPage() {
         {/* CONTAINER 2: FAQ & Featured Products */}
         <ScrollAnimate variant="fade-in-up" delay={150}>
           <div className="self-stretch p-6 sm:p-12 bg-neutral-100 rounded-xl flex flex-col lg:flex-row justify-start items-start gap-12 lg:gap-24 mt-10 shadow-2xl border border-white/50">
-            <div className="flex-1 w-full self-stretch inline-flex flex-col justify-between items-start gap-8 lg:gap-0">
+            <div className="flex-1 w-full flex flex-col justify-start items-start gap-12">
               <div className="self-stretch flex flex-col justify-start items-start gap-6">
                 <div className="self-stretch justify-start text-neutral-800 text-4xl font-normal font-['Bembo_Std'] leading-10">Frequently Asked Questions</div>
                 <div className="self-stretch justify-start text-zinc-600 text-lg font-normal font-['Bembo_Std'] leading-6">Answers to Your Most Common Questions – Quick and Clear!</div>
@@ -365,12 +365,14 @@ export default function ContactPage() {
                     </button>
                     
                     <div
-                      className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                        isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                      className={`grid transition-[grid-template-rows,opacity] duration-[500ms] ease-[cubic-bezier(0.25,1,0.5,1)] ${
+                        isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
                       }`}
                     >
-                      <div className="justify-start text-zinc-600 text-lg font-normal font-['Bembo_Std'] leading-6 pt-2 pr-6">
-                        {faq.answer}
+                      <div className="overflow-hidden">
+                        <div className="justify-start text-zinc-600 text-lg font-normal font-['Bembo_Std'] leading-6 pt-2 pr-6 pb-4">
+                          {faq.answer}
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { IoHeartOutline, IoHeart, IoAddOutline, IoRemoveOutline, IoChevronDownOutline } from 'react-icons/io5';
+import { useRouter } from 'next/navigation';
 import { useCart } from '@/app/_providers/cart-provider';
 import { useWishlist } from '@/app/_providers/wishlist-provider';
 import { useAuth } from '@/app/_providers/auth-provider';
@@ -33,6 +34,7 @@ export default function ProductInfo({
 }: ProductInfoProps) {
   const [activeTea, setActiveTea] = useState<number | null>(0);
   const [quantity, setQuantity] = useState(1);
+  const router = useRouter();
   const { addItem } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { isAuthenticated, setShowAuthModal } = useAuth();
@@ -107,7 +109,7 @@ export default function ProductInfo({
   const displayOriginalPrice = selectedVariant ? selectedVariant.originalPriceFormatted : originalPrice;
   const activeVariantId = selectedVariant ? selectedVariant.id : variantId;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (options?: { silent?: boolean }) => {
     const finalPrice = selectedVariant ? selectedVariant.priceNum : productData.priceNum;
     const attributes = selectedVariant?.attributes ?? {};
     const activeVarId = activeVariantId ?? '';
@@ -120,7 +122,7 @@ export default function ProductInfo({
       ? `${productData.name} (${optionSummary})` 
       : productData.name;
 
-    addItem({
+    return addItem({
       slug: productSlug ?? productId,
       name: finalName,
       price: finalPrice,
@@ -131,7 +133,18 @@ export default function ProductInfo({
       quantity,
       attributes,
       ...attributes,
-    });
+    }, options);
+  };
+
+  const handleBuyNow = async () => {
+    try {
+      await handleAddToCart({ silent: true });
+      router.push('/checkout');
+    } catch (err) {
+      console.error('Failed to process Buy Now:', err);
+      // Fallback redirect in case of error
+      router.push('/checkout');
+    }
   };
 
   const handleToggleWishlist = () => {
@@ -310,10 +323,19 @@ export default function ProductInfo({
         {/* Add to cart Button */}
         <button
           type="button"
-          onClick={handleAddToCart}
-          className="flex-1 min-w-[180px] sm:min-w-[220px] px-6 sm:px-10 py-4 whitespace-nowrap bg-[#D31F3A] text-white hover:bg-opacity-95 font-gotham text-sm font-semibold uppercase tracking-wider rounded-full outline outline-1 outline-offset-[-1px] outline-orange-50 flex justify-center items-center shadow-md transition-all cursor-pointer"
+          onClick={() => handleAddToCart()}
+          className="flex-1 min-w-[140px] px-6 sm:px-8 py-4 bg-white border border-[#D31F3A] text-[#D31F3A] hover:bg-red-50/30 font-gotham text-sm font-semibold uppercase tracking-wider rounded-full flex justify-center items-center transition-all cursor-pointer"
         >
           Add to cart
+        </button>
+
+        {/* Buy Now Button */}
+        <button
+          type="button"
+          onClick={handleBuyNow}
+          className="flex-1 min-w-[140px] px-6 sm:px-8 py-4 bg-[#D31F3A] text-white hover:bg-opacity-95 font-gotham text-sm font-semibold uppercase tracking-wider rounded-full flex justify-center items-center shadow-md transition-all cursor-pointer"
+        >
+          Buy Now
         </button>
       </div>
     </div>
