@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import TopHeader from '@/components/sections/top-header';
 import Header from '@/components/sections/header';
 import Mainfooter from '@/components/sections/main-footer';
@@ -16,10 +17,12 @@ export default function StoreLayout({
 }>) {
   return (
     <AuthProvider>
-      <CartProvider>
-        <WishlistProvider>
+      <WishlistProvider>
+        <CartProvider>
           <TopHeader />
-          <Header />
+          <Suspense fallback={<div className="h-16 bg-olive-slate animate-pulse w-full" />}>
+            <Header />
+          </Suspense>
           {children}
           <ScrollAnimate variant="fade-in-up" className="reveal-footer">
             <Mainfooter />
@@ -29,8 +32,8 @@ export default function StoreLayout({
           </ScrollAnimate>
           <AuthModal />
           <Toaster richColors closeButton position="top-right" />
-        </WishlistProvider>
-      </CartProvider>
+        </CartProvider>
+      </WishlistProvider>
     </AuthProvider>
   );
 }

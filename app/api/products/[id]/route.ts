@@ -26,16 +26,21 @@ export async function GET(
     const rawImage = featuredMedia?.media.url ?? firstMedia?.media.url ?? "";
     
     const priceNum = Number(defaultVariant?.price ?? 0);
-    const originalPriceNum = defaultVariant?.cost ? Number(defaultVariant.cost) : priceNum;
+    const costNum = defaultVariant?.cost ? Number(defaultVariant.cost) : 0;
+    const discountPrice = product.discountPrice ? Number(product.discountPrice) : 0;
+    const showOriginal = discountPrice > 0 && discountPrice < priceNum;
+
+    const activePrice = showOriginal ? discountPrice : priceNum;
+    const originalPrice = showOriginal ? priceNum : (costNum > priceNum ? costNum : 0);
 
     const transformedProduct = {
       id: product.id,
       name: product.name,
-      price: `৳${priceNum.toLocaleString()}`,
-      originalPrice: `৳${originalPriceNum.toLocaleString()}`,
+      price: `৳${activePrice.toLocaleString()}`,
+      originalPrice: originalPrice > 0 ? `৳${originalPrice.toLocaleString()}` : "",
       image: resolveImageUrl(rawImage),
       collection: product.brand?.name ?? product.category?.name ?? "",
-      priceNum: priceNum,
+      priceNum: activePrice,
       category: product.category?.name ?? "",
       origin: "Sylhet, Bangladesh",
       subtitle: product.description ? product.description.split('.')[0] + '.' : product.name,

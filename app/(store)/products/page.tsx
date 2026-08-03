@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/sections/ui/product-card';
 import { InfiniteScroll } from '@/app/admin/_components/infinite-scroll';
-import { fetchShopProducts, type ShopProduct } from '@/lib/shop-api';
+import { fetchShopProducts, fetchShopCategories, fetchShopBrands, type ShopProduct, type ShopCategory, type ShopBrand } from '@/lib/shop-api';
 
 const COLLECTION_OPTIONS = ['All', 'Tea Books', 'Classic Collections', 'Royal Collections'];
 const ORIGIN_OPTIONS = ['All', 'Sylhet, Bangladesh', 'Darjeeling, India', 'London, UK'];
@@ -21,7 +22,10 @@ function withinPriceRange(price: number, range: string): boolean {
 
 const NO_IMAGE = '/images/no-image-icon-6.png';
 
-export default function ProductsPage() {
+function ProductsPageContent() {
+  const searchParams = useSearchParams();
+  const searchVal = searchParams?.get('search') || '';
+
   const [viewMode, setViewMode] = useState<'grid2' | 'grid3'>('grid3');
   const [selectedCollection, setSelectedCollection] = useState<string>('All');
   // const [selectedOrigin] = useState<string>('All');
@@ -32,21 +36,39 @@ export default function ProductsPage() {
   const [selectedSort, setSelectedSort] = useState<string>('New Arrival');
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
+  const [dbCategories, setDbCategories] = useState<ShopCategory[]>([]);
+  const [dbBrands, setDbBrands] = useState<ShopBrand[]>([]);
+
   const [products, setProducts] = useState<ShopProduct[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const reqIdRef = useRef(0);
   const pageRef = useRef(1);
 
+  useEffect(() => {
+    fetchShopCategories().then((res) => setDbCategories(res));
+    fetchShopBrands().then((res) => setDbBrands(res));
+  }, []);
+
   const categoryOptions = useMemo(
-    () => ['All', ...new Set(products.map((p) => p.category).filter(Boolean))],
-    [products],
+    () => ['All', ...dbCategories.map((c) => c.name)],
+    [dbCategories],
   );
 
   const brandOptions = useMemo(
-    () => ['All', ...new Set(products.map((p) => p.team).filter(Boolean))],
-    [products],
+    () => ['All', ...dbBrands.map((b) => b.name)],
+    [dbBrands],
   );
+
+  const selectedCategoryId = useMemo(() => {
+    if (selectedCategory === 'All') return undefined;
+    return dbCategories.find((c) => c.name.toLowerCase() === selectedCategory.toLowerCase())?.id;
+  }, [selectedCategory, dbCategories]);
+
+  const selectedBrandId = useMemo(() => {
+    if (selectedBrand === 'All') return undefined;
+    return dbBrands.find((b) => b.name.toLowerCase() === selectedBrand.toLowerCase())?.id;
+  }, [selectedBrand, dbBrands]);
 
   const fetchProducts = useCallback(
     async (append: boolean) => {
@@ -58,6 +80,9 @@ export default function ProductsPage() {
         const res = await fetchShopProducts({
           page: pageNum,
           limit: PAGE_LIMIT,
+          search: searchVal || undefined,
+          categoryId: selectedCategoryId,
+          brandId: selectedBrandId,
         });
         if (id !== reqIdRef.current) return;
         setProducts((prev) => (append ? [...prev, ...res.data] : res.data));
@@ -69,7 +94,7 @@ export default function ProductsPage() {
         if (id === reqIdRef.current) setIsLoading(false);
       }
     },
-    [],
+    [searchVal, selectedCategoryId, selectedBrandId],
   );
 
   useEffect(() => {
@@ -87,7 +112,6 @@ export default function ProductsPage() {
     }
   }, []);
 
-
   const handleLoadMore = useCallback(() => {
     if (isLoading) return;
     fetchProducts(true);
@@ -95,8 +119,6 @@ export default function ProductsPage() {
 
   const filteredProducts = useMemo(() => {
     let result = products.filter((p) => {
-      if (selectedCategory !== 'All' && p.category !== selectedCategory) return false;
-      if (selectedBrand !== 'All' && p.team !== selectedBrand) return false;
       if (!withinPriceRange(p.price, selectedPrice)) return false;
       return true;
     });
@@ -110,8 +132,7 @@ export default function ProductsPage() {
     }
 
     return result;
-  }, [products, selectedCategory, selectedBrand, selectedPrice, selectedSort],
-  );
+  }, [products, selectedPrice, selectedSort]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -135,7 +156,7 @@ export default function ProductsPage() {
         <div className="w-full bg-white pt-16 pb-8">
           <div className="max-w-[1440px] mx-auto px-5 sm:px-10 md:px-14 lg:px-20">
             <h1 className="font-bembo text-left text-3xl sm:text-4xl md:text-[44px] text-stone-855 font-normal tracking-wide">
-              Assorted Classic Collection
+              {searchVal ? `Search Results for "${searchVal}"` : 'Assorted Classic Collection'}
             </h1>
           </div>
         </div>
@@ -367,8 +388,8 @@ export default function ProductsPage() {
                       key={product.id}
                       id={product.id}
                       name={product.name}
-                      price={String(product.price)}
-                      originalPrice=""
+                      price={`৳${product.price.toLocaleString()}`}
+                      originalPrice={product.originalPrice ? `৳${product.originalPrice.toLocaleString()}` : ''}
                       image={product.image || NO_IMAGE}
                     />
                   ))}
@@ -407,5 +428,18 @@ export default function ProductsPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-[50vh] py-20 text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-3 mb-4"></div>
+        <p className="font-gotham text-stone-500 text-sm uppercase tracking-wider">Loading products...</p>
+      </div>
+    }>
+      <ProductsPageContent />
+    </Suspense>
   );
 }

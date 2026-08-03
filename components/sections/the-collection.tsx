@@ -12,12 +12,12 @@ const TABS = [
   {
     id: 'tea-books',
     label: 'Tea Book Collections',
-    image: '/images/gift/item-2.png',
+    image: '/images/tab/tea-book-collection.webp',
   },
   {
     id: 'tea-chests',
     label: 'Tea chests',
-    image: '/images/gift/item-1.png',
+    image: '/images/tab/tea-chests.webp',
   },
 ];
 

@@ -19,6 +19,9 @@ export type ShopProduct = {
 export type FetchShopProductsParams = {
   page?: number;
   limit?: number;
+  search?: string;
+  categoryId?: string;
+  brandId?: string;
 };
 
 export type ShopProductsResponse = {
@@ -106,14 +109,19 @@ function mapProduct(product: AdminProduct): ShopProduct {
   const firstMedia = product.media?.[0];
   const rawImage = featuredMedia?.media.url ?? firstMedia?.media.url ?? "";
 
+  const priceNum = Number(defaultVariant?.price ?? 0);
+  const costNum = defaultVariant?.cost ? Number(defaultVariant.cost) : 0;
+  const discountPrice = product.discountPrice ? Number(product.discountPrice) : 0;
+  const showOriginal = discountPrice > 0 && discountPrice < priceNum;
+
   return {
     id: product.id,
     name: product.name,
     slug: product.slug,
     category: product.category?.name ?? "",
     team: product.brand?.name ?? "",
-    price: Number(defaultVariant?.price ?? 0),
-    originalPrice: defaultVariant?.cost ? Number(defaultVariant.cost) : undefined,
+    price: showOriginal ? discountPrice : priceNum,
+    originalPrice: showOriginal ? priceNum : (costNum > priceNum ? costNum : undefined),
     image: resolveImageUrl(rawImage),
   };
 }
@@ -121,11 +129,20 @@ function mapProduct(product: AdminProduct): ShopProduct {
 export async function fetchShopProducts(
   params: FetchShopProductsParams = {},
 ): Promise<ShopProductsResponse> {
-  const { page = 1, limit = 12 } = params;
+  const { page = 1, limit = 12, search, categoryId, brandId } = params;
 
   const searchParams = new URLSearchParams();
   searchParams.set("page", String(page));
   searchParams.set("limit", String(limit));
+  if (search) {
+    searchParams.set("search", search);
+  }
+  if (categoryId) {
+    searchParams.set("categoryId", categoryId);
+  }
+  if (brandId) {
+    searchParams.set("brandId", brandId);
+  }
 
   try {
     const res = await fetch(`${API_BASE_URL}/products?${searchParams.toString()}`, {
