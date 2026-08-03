@@ -64,6 +64,10 @@ async function customerRequest<T>(
     requestHeaders.set("Authorization", `Bearer ${token}`);
   }
 
+  if (options.body && !requestHeaders.has("Content-Type")) {
+    requestHeaders.set("Content-Type", "application/json");
+  }
+
   try {
     const response = await fetch(`${API_BASE_URL}${path}`, {
       ...options,

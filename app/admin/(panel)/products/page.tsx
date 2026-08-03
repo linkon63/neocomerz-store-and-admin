@@ -950,11 +950,12 @@ export default function ProductsPage() {
                 </tr>
               ) : products.length > 0 ? (
                 <>
-                  {products.map((product) => {
+                  {products.map((product, index) => {
                   const variant = getDefaultVariant(product);
                   const featuredMedia = getFeaturedMedia(product);
                   const isExpanded = expandedRows.has(product.id);
                   const currentTab = activeTab[product.id] || "inventory";
+                  const openUpward = products.length - index <= 2;
 
                   return (
                     <React.Fragment key={product.id}>
@@ -1068,7 +1069,11 @@ export default function ProductsPage() {
                                     className="fixed inset-0 z-10" 
                                     onClick={() => setOpenMenuId(null)}
                                   />
-                                  <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-slate-200 bg-white shadow-xl z-20 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                                   <div className={`absolute right-0 w-56 rounded-xl border border-slate-200 bg-white shadow-xl z-20 py-2 animate-in fade-in duration-200 ${
+                                     openUpward 
+                                       ? "bottom-full mb-2 slide-in-from-bottom-2" 
+                                       : "top-full mt-2 slide-in-from-top-2"
+                                   }`}>
                                     <Link
                                       href={`/admin/products/${product.id}/edit`}
                                       onClick={() => setOpenMenuId(null)}

@@ -31,6 +31,25 @@ export function SupplierModal({ isOpen, onClose, onSuccess }: SupplierModalProps
       setSupplierError("Company Name is required");
       return;
     }
+
+    const emailTrimmed = newSupplier.email.trim();
+    if (emailTrimmed) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(emailTrimmed)) {
+        setSupplierError("Invalid email address");
+        return;
+      }
+    }
+
+    const phoneTrimmed = newSupplier.phone.trim();
+    if (phoneTrimmed) {
+      const phoneRegex = /^\+?[0-9][0-9\s\-()]{6,19}$/;
+      if (!phoneRegex.test(phoneTrimmed)) {
+        setSupplierError("Invalid phone number format");
+        return;
+      }
+    }
+
     setIsSavingSupplier(true);
     try {
       const created = await apiRequest<{ id: string; name: string }>("/suppliers", {
@@ -38,8 +57,8 @@ export function SupplierModal({ isOpen, onClose, onSuccess }: SupplierModalProps
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: newSupplier.name.trim(),
-          phone: newSupplier.phone.trim() || undefined,
-          email: newSupplier.email.trim() || undefined,
+          phone: phoneTrimmed || undefined,
+          email: emailTrimmed || undefined,
           address: newSupplier.address.trim() || undefined,
           isActive: newSupplier.isActive,
         }),

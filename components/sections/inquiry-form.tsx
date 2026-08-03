@@ -228,7 +228,7 @@ Corporate Gifting / Event Inquiry Details:
                         name="countryCode"
                         value={formData.countryCode}
                         onChange={handleInputChange}
-                        className="px-3 py-3 bg-stone-50 border-r border-stone-200 text-xs font-gotham text-stone-700 focus:outline-none"
+                        className="px-3 py-3 bg-stone-50 border-r border-stone-200 text-xs font-gotham text-stone-700 focus:outline-none cursor-pointer"
                       >
                         <option value="+880">+880 (BD)</option>
                         <option value="+1">+1 (US)</option>
@@ -262,7 +262,7 @@ Corporate Gifting / Event Inquiry Details:
                         name="purpose"
                         value={formData.purpose}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-850 focus:outline-none focus:border-stone-400"
+                        className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-850 focus:outline-none focus:border-stone-400 cursor-pointer"
                       >
                         <option value="">Select</option>
                         <option value="corporate">Corporate Gifting</option>
@@ -277,7 +277,7 @@ Corporate Gifting / Event Inquiry Details:
                         name="preferredCollection"
                         value={formData.preferredCollection}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-850 focus:outline-none focus:border-stone-400"
+                        className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-850 focus:outline-none focus:border-stone-400 cursor-pointer"
                       >
                         <option value="">Select</option>
                         <option value="royal">Royal Collection</option>
@@ -297,7 +297,7 @@ Corporate Gifting / Event Inquiry Details:
                         name="deliveryDate"
                         value={formData.deliveryDate}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-850 focus:outline-none focus:border-stone-400"
+                        className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-850 focus:outline-none focus:border-stone-400 cursor-pointer"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -331,7 +331,7 @@ Corporate Gifting / Event Inquiry Details:
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="px-10 py-3.5 bg-[#C5B382] hover:bg-[#b4a16f] text-white font-gotham text-xs font-semibold uppercase tracking-[0.2em] rounded-full transition-all duration-300 shadow-sm disabled:opacity-50"
+                    className="px-10 py-3.5 bg-[#C5B382] hover:bg-[#b4a16f] text-white font-gotham text-xs font-semibold uppercase tracking-[0.2em] rounded-full transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {submitting ? 'SUBMITTING...' : 'Submit'}
                   </button>

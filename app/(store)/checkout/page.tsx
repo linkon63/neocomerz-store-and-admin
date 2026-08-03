@@ -221,7 +221,7 @@ export default function CheckoutPage() {
                     required
                     value={address.country}
                     onChange={(e) => setAddress({ ...address, country: e.target.value })}
-                    className="w-full p-3 rounded-md outline outline-1 outline-offset-[-1px] outline-zinc-300 font-gotham text-sm text-[#222222] leading-4 focus:outline-stone-500"
+                    className="w-full p-3 rounded-md outline outline-1 outline-offset-[-1px] outline-zinc-300 font-gotham text-sm text-[#222222] leading-4 focus:outline-stone-500 cursor-pointer"
                   >
                     <option value="">Select country</option>
                     <option value="Bangladesh">Bangladesh</option>

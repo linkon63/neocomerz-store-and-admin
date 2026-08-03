@@ -81,8 +81,9 @@ export default function CharterPrinciples() {
 
             <div className="flex flex-col justify-start items-start gap-3 w-full sm:w-auto">
               <a
-                href="#"
-                className="px-6 md:px-8 py-3.5 md:py-4 bg-white rounded-[100px] border border-neutral-600 inline-flex justify-center items-center hover:bg-neutral-800 hover:border-neutral-800 text-neutral-600 hover:text-white transition-all duration-300 text-xs md:text-sm lg:text-base font-medium font-['Gotham'] uppercase leading-tight tracking-wider w-full sm:w-auto text-center"
+                href="/global-fair-pay-charter.pdf"
+                download="global-fair-pay-charter.pdf"
+                className="px-6 md:px-8 py-3.5 md:py-4 bg-white rounded-[100px] border border-neutral-600 inline-flex justify-center items-center hover:bg-neutral-800 hover:border-neutral-800 text-neutral-600 hover:text-white transition-all duration-300 text-xs md:text-sm lg:text-base font-medium font-['Gotham'] uppercase leading-tight tracking-wider w-full sm:w-auto text-center cursor-pointer"
               >
                 Download the official Charter (PDF)
               </a>
