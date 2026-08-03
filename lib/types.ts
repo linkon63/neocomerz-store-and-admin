@@ -65,7 +65,10 @@ export interface BackendCartResponse {
 export interface CartContextValue {
   items: CartItem[];
   itemCount: number;
-  addItem: (item: Omit<CartItem, "quantity"> & { quantity?: number }) => void;
+  addItem: (
+    item: Omit<CartItem, "quantity"> & { quantity?: number },
+    options?: { silent?: boolean }
+  ) => void | Promise<void>;
   removeItem: (slug: string) => void;
   updateQuantity: (slug: string, quantity: number) => void;
   clearCart: () => void;

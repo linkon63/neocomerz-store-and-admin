@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
-import { FaFacebookF, FaLinkedinIn, FaInstagram, FaWhatsapp } from "react-icons/fa";
+import { FaFacebookF, FaInstagram, FaWhatsapp } from "react-icons/fa";
 import "swiper/css";
 
 const instagramImages = [
@@ -29,16 +29,28 @@ export default function Instagram() {
           
           {/* Social Icons */}
           <div className="mt-6 flex items-center justify-center gap-6">
-            <a href="#" className="text-olive-slate hover:text-neutral-600 transition">
+            <a 
+              href="https://www.facebook.com/share/18CfeyLYXR/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-olive-slate hover:text-neutral-600 transition"
+            >
               <FaFacebookF className="text-xl" />
             </a>
-            <a href="#" className="text-olive-slate hover:text-neutral-600 transition">
-              <FaLinkedinIn className="text-xl" />
-            </a>
-            <a href="#" className="text-olive-slate hover:text-neutral-600 transition">
+            <a 
+              href="https://www.instagram.com/lte_bd?igsh=MWRuZGo4bXc1cTl2Zw==" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-olive-slate hover:text-neutral-600 transition"
+            >
               <FaInstagram className="text-xl" />
             </a>
-            <a href="#" className="text-olive-slate hover:text-neutral-600 transition">
+            <a 
+              href="https://wa.me/8801339879494" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-olive-slate hover:text-neutral-600 transition"
+            >
               <FaWhatsapp className="text-xl" />
             </a>
           </div>

@@ -94,7 +94,7 @@ export default function Navigation() {
 
       {item.hasDropdown && isTeasHovered && (
         <div 
-          className="absolute left-1/2 -translate-x-1/2 top-full pt-2 z-50"
+          className="absolute left-1/2 -translate-x-1/2 top-full pt-3 z-50"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >

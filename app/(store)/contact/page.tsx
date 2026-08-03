@@ -142,7 +142,7 @@ export default function ContactPage() {
                     </div>
 
                     {/* Phone field */}
-                    <div className="self-stretch flex flex-col justify-start items-start overflow-hidden w-full">
+                    <div className="self-stretch flex flex-col justify-start items-start w-full">
                       <div className="justify-start text-neutral-800 text-lg font-normal font-['Bembo_Std'] leading-6 mb-1.5">Phone Number</div>
                       <div className="self-stretch p-3 rounded-lg outline outline-1 outline-offset-[-1px] outline-zinc-300 inline-flex justify-start items-center gap-3 bg-white focus-within:outline-[#C5B382]">
                         <div className="flex justify-start items-center gap-1">
@@ -150,14 +150,14 @@ export default function ContactPage() {
                             name="countryCode"
                             value={formData.countryCode}
                             onChange={handleInputChange}
-                            className="bg-transparent text-neutral-800 text-xs font-medium font-['Gotham'] leading-4 focus:outline-none cursor-pointer appearance-none pr-1"
+                            className="bg-transparent text-neutral-800 text-xs font-medium font-['Gotham'] leading-4 focus:outline-none cursor-pointer appearance-none w-14 pr-3"
                           >
-                            <option value="+880">+880</option>
-                            <option value="+1">+1</option>
-                            <option value="+44">+44</option>
-                            <option value="+91">+91</option>
+                            <option value="+880" className="bg-white text-neutral-800">+880</option>
+                            <option value="+1" className="bg-white text-neutral-800">+1</option>
+                            <option value="+44" className="bg-white text-neutral-800">+44</option>
+                            <option value="+91" className="bg-white text-neutral-800">+91</option>
                           </select>
-                          <div className="w-2.5 h-1.5 relative overflow-hidden pointer-events-none -ml-1 flex items-center justify-center">
+                          <div className="w-2.5 h-1.5 relative overflow-hidden pointer-events-none -ml-3.5 flex items-center justify-center">
                             <svg className="w-2.5 h-1.5 text-neutral-800" viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth="1.2">
                               <path d="M1 1L5 5L9 1" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>

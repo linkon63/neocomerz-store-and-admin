@@ -3,14 +3,15 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import MobileMenu from "./ui/mobile-menu";
 import Navigation from "./ui/navigation";
 import { IoSearchOutline, IoHeartOutline } from "react-icons/io5";
 import { LuShoppingBag, LuUser, LuChevronDown, LuLogOut } from "react-icons/lu";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/app/_providers/auth-provider";
 import { useCart } from "@/app/_providers/cart-provider";
 import { useWishlist } from "@/app/_providers/wishlist-provider";
+import { fetchShopProducts, type ShopProduct } from "@/lib/shop-api";
 
 const sylhetiTeaItems = [
   { label: "Black Tea", href: "/sylheti-tea/black-tea" },
@@ -37,6 +38,62 @@ export default function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const desktopDropdownRef = useRef<HTMLDivElement>(null);
   const mobileDropdownRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const searchParams = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<ShopProduct[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  // Sync search input with URL search param
+  useEffect(() => {
+    const search = searchParams?.get("search") || "";
+    setSearchQuery(search);
+  }, [searchParams]);
+
+  // Debounced search suggestions fetch
+  useEffect(() => {
+    const trimmedQuery = searchQuery.trim();
+    if (!trimmedQuery) {
+      setSuggestions([]);
+      setIsSearching(false);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const res = await fetchShopProducts({
+          page: 1,
+          limit: 5,
+          search: trimmedQuery,
+        });
+        setSuggestions(res.data);
+      } catch (err) {
+        console.error("Failed to fetch search suggestions:", err);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push("/products");
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -47,9 +104,23 @@ export default function Header() {
       if (clickedOutsideDesktop && clickedOutsideMobile) {
         setDropdownOpen(false);
       }
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
     };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowSuggestions(false);
+      }
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   const handleNavigate = (path: string) => {
@@ -62,16 +133,91 @@ export default function Header() {
       {/* Desktop Header */}
       <div className="hidden xl:flex items-center justify-between w-full max-w-360 mx-auto px-5 py-2.5 gap-4">
         {/* Search */}
-        <div className="w-40 flex justify-start items-center shrink-0">
-          <div className="flex items-center gap-1.5 pr-4 py-1.5 border-b border-zinc-400">
-            <IoSearchOutline className="w-4 h-4 text-white" />
+        <div className="relative w-40 flex justify-start items-center shrink-0" ref={searchContainerRef}>
+          <form onSubmit={(e) => { handleSearchSubmit(e); setShowSuggestions(false); }} className="flex items-center gap-1.5 pr-4 py-1.5 border-b border-zinc-400">
+            <button type="submit" aria-label="Submit Search" className="p-0 border-none bg-transparent cursor-pointer">
+              <IoSearchOutline className="w-4 h-4 text-white hover:text-brand-primary transition-colors" />
+            </button>
 
             <input
               type="text"
               placeholder="SEARCH"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
               className="bg-transparent text-white placeholder:text-neutral-400 text-xs font-medium uppercase tracking-wider outline-none border-none w-20 focus:w-28 transition-all duration-300"
             />
-          </div>
+          </form>
+
+          {/* Suggestions Dropdown */}
+          {showSuggestions && searchQuery.trim() !== "" && (
+            <div className="absolute top-full left-0 mt-2 w-[350px] bg-white text-zinc-800 shadow-xl border border-zinc-200 py-2.5 z-[999] rounded-md font-gotham">
+              {isSearching ? (
+                <div className="flex items-center justify-center py-6 px-4 gap-2 text-sm text-zinc-500">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-brand-3 border-t-transparent" />
+                  Searching...
+                </div>
+              ) : suggestions.length > 0 ? (
+                <div className="flex flex-col">
+                  <div className="px-4 pb-2 mb-1.5 border-b border-zinc-100 text-[10px] uppercase font-bold tracking-wider text-zinc-400 select-none">
+                    Matching Products
+                  </div>
+                  <div className="max-h-[280px] overflow-y-auto">
+                    {suggestions.map((product) => (
+                      <Link
+                        key={product.id}
+                        href={`/products/${product.slug ?? product.id}`}
+                        onClick={() => {
+                          setShowSuggestions(false);
+                          setSearchQuery("");
+                        }}
+                        className="flex items-center gap-3 px-4 py-2 hover:bg-zinc-50 transition-colors group"
+                      >
+                        <div className="w-10 h-10 shrink-0 relative overflow-hidden bg-zinc-100 rounded border border-zinc-200">
+                          <Image
+                            src={product.image || "/images/no-image-icon-6.png"}
+                            alt={product.name}
+                            fill
+                            sizes="40px"
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex-grow min-w-0">
+                          <h4 className="text-xs font-medium text-zinc-800 truncate group-hover:text-brand-3 transition-colors">
+                            {product.name}
+                          </h4>
+                          <span className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">
+                            {product.category}
+                          </span>
+                        </div>
+                        <div className="text-xs font-semibold text-zinc-800 shrink-0">
+                          ৳{product.price.toLocaleString()}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="border-t border-zinc-100 mt-2 pt-2 px-3">
+                    <button
+                      onClick={(e) => {
+                        handleSearchSubmit(e);
+                        setShowSuggestions(false);
+                      }}
+                      className="w-full py-2 bg-brand-3 hover:bg-[#A38148] text-white font-semibold text-[10px] uppercase tracking-wider text-center transition-colors rounded cursor-pointer"
+                    >
+                      View All Results ({suggestions.length})
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="py-6 px-4 text-center text-xs text-zinc-500 font-medium select-none">
+                  No products found for "{searchQuery}"
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Navigation */}
@@ -88,7 +234,7 @@ export default function Header() {
               aria-label="Wishlist"
             >
               <IoHeartOutline className="w-5 h-5" />
-              {wishlistItemCount > 0 && (
+              {mounted && wishlistItemCount > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-white text-[9px] font-bold text-zinc-900 shadow-xs">
                   {wishlistItemCount}
                 </span>
@@ -101,14 +247,24 @@ export default function Header() {
               aria-label="Shopping Cart"
             >
               <LuShoppingBag className="w-5 h-5" />
-              <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-white text-[9px] font-bold text-zinc-900 shadow-xs">
-                {cartItemCount}
-              </span>
+              {mounted && cartItemCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-white text-[9px] font-bold text-zinc-900 shadow-xs">
+                  {cartItemCount}
+                </span>
+              )}
             </Link>
 
             <div className="w-px h-4 bg-white/20 mx-0.5" />
 
-             {isAuthenticated ? (
+             {!mounted || !isAuthenticated ? (
+              <button
+                onClick={() => setShowAuthModal(true)}
+                className="p-2 text-white hover:text-[#C5B382] transition-colors rounded-full flex items-center justify-center cursor-pointer"
+                aria-label="Login or Sign Up"
+              >
+                <LuUser className="w-5 h-5" />
+              </button>
+            ) : (
               <div className="relative" ref={desktopDropdownRef}>
                 <button
                   type="button"
@@ -225,14 +381,6 @@ export default function Header() {
                   </div>
                 )}
               </div>
-            ) : (
-              <button
-                onClick={() => setShowAuthModal(true)}
-                className="p-2 text-white hover:text-[#C5B382] transition-colors rounded-full flex items-center justify-center cursor-pointer"
-                aria-label="Login or Sign Up"
-              >
-                <LuUser className="w-5 h-5" />
-              </button>
             )}
           </div>
         </div>
@@ -260,7 +408,6 @@ export default function Header() {
             priority
           />
         </Link>
-
         <div className="z-10 flex items-center gap-2 shrink-0">
           <Link
             href="/wishlist"
@@ -268,7 +415,7 @@ export default function Header() {
             aria-label="Wishlist"
           >
             <IoHeartOutline className="w-5 h-5" />
-            {wishlistItemCount > 0 && (
+            {mounted && wishlistItemCount > 0 && (
               <span className="absolute top-0.5 right-0.5 flex items-center justify-center min-w-[15px] h-3.5 px-0.5 rounded-full bg-white text-[9px] text-zinc-900 font-bold">
                 {wishlistItemCount}
               </span>
@@ -281,14 +428,22 @@ export default function Header() {
             aria-label="Shopping Cart"
           >
             <LuShoppingBag className="w-5 h-5" />
-            {cartItemCount > 0 && (
+            {mounted && cartItemCount > 0 && (
               <span className="absolute top-0.5 right-0.5 flex items-center justify-center min-w-[15px] h-3.5 px-0.5 rounded-full bg-white text-[9px] text-zinc-900 font-bold">
                 {cartItemCount}
               </span>
             )}
           </Link>
 
-          {isAuthenticated ? (
+          {!mounted || !isAuthenticated ? (
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="p-1.5 text-white hover:text-[#C5B382] transition-colors cursor-pointer"
+              aria-label="Sign in"
+            >
+              <LuUser className="w-5 h-5" />
+            </button>
+          ) : (
             <div className="relative" ref={mobileDropdownRef}>
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -357,14 +512,6 @@ export default function Header() {
                 </div>
               )}
             </div>
-          ) : (
-            <button
-              onClick={() => setShowAuthModal(true)}
-              className="p-1.5 text-white hover:text-[#C5B382] transition-colors cursor-pointer"
-              aria-label="Sign in"
-            >
-              <LuUser className="w-5 h-5" />
-            </button>
           )}
         </div>
       </div>
