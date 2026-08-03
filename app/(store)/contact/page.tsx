@@ -297,7 +297,7 @@ export default function ContactPage() {
         {/* CONTAINER 2: FAQ & Featured Products */}
         <ScrollAnimate variant="fade-in-up" delay={150}>
           <div className="self-stretch p-6 sm:p-12 bg-neutral-100 rounded-xl flex flex-col lg:flex-row justify-start items-start gap-12 lg:gap-24 mt-10 shadow-2xl border border-white/50">
-            <div className="flex-1 w-full self-stretch inline-flex flex-col justify-between items-start gap-8 lg:gap-0">
+            <div className="flex-1 w-full flex flex-col justify-start items-start gap-12">
               <div className="self-stretch flex flex-col justify-start items-start gap-6">
                 <div className="self-stretch justify-start text-neutral-800 text-4xl font-normal font-['Bembo_Std'] leading-10">Frequently Asked Questions</div>
                 <div className="self-stretch justify-start text-zinc-600 text-lg font-normal font-['Bembo_Std'] leading-6">Answers to Your Most Common Questions – Quick and Clear!</div>
@@ -365,12 +365,14 @@ export default function ContactPage() {
                     </button>
                     
                     <div
-                      className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                        isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                      className={`grid transition-[grid-template-rows,opacity] duration-[500ms] ease-[cubic-bezier(0.25,1,0.5,1)] ${
+                        isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
                       }`}
                     >
-                      <div className="justify-start text-zinc-600 text-lg font-normal font-['Bembo_Std'] leading-6 pt-2 pr-6">
-                        {faq.answer}
+                      <div className="overflow-hidden">
+                        <div className="justify-start text-zinc-600 text-lg font-normal font-['Bembo_Std'] leading-6 pt-2 pr-6 pb-4">
+                          {faq.answer}
+                        </div>
                       </div>
                     </div>
                   </div>
