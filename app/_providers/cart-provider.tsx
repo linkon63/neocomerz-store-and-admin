@@ -11,6 +11,7 @@ import {
 } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/app/_providers/auth-provider";
+import { useWishlist } from "./wishlist-provider";
 import {
   getCart,
   addCartItem,
@@ -51,6 +52,7 @@ function clearLocalCart() {
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
+  const { items: wishlistItems, toggleWishlist } = useWishlist();
   const [items, setItems] = useState<CartItem[]>([]);
   const [initialised, setInitialised] = useState(false);
   const prevAuth = useRef(isAuthenticated);
@@ -58,7 +60,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const fetchServerCart = useCallback(async () => {
     try {
       const data = await getCart();
-      setItems(mapBackendCart(data));
+      setItems(sortItems(mapBackendCart(data)));
     } catch {
       setItems([]);
     }
@@ -110,20 +112,34 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [isAuthenticated, initialised, items, mergeLocalCartToServer]);
 
   const addItem = useCallback(
-    (input: Omit<CartItem, "quantity"> & { quantity?: number }) => {
+    (input: Omit<CartItem, "quantity"> & { quantity?: number }, options?: { silent?: boolean }) => {
+      const isSilent = options?.silent ?? false;
       if (isAuthenticated) {
         const qty = input.quantity ?? 1;
         const vId = input.variantId;
         if (!vId) {
           toast.error("Cannot add item: missing variant");
-          return;
+          return Promise.reject(new Error("Cannot add item: missing variant"));
         }
-        addCartItem(vId, qty)
+        return addCartItem(vId, qty)
           .then((data) => {
-            setItems(mapBackendCart(data));
-            toast.success("Added to cart");
+            setItems(sortItems(mapBackendCart(data)));
+            if (!isSilent) {
+              toast.success("Added to cart");
+            }
+
+            // Remove from wishlist if it exists there
+            const wishlistMatch = wishlistItems.find(
+              (item) => item.slug === input.slug || (item.variantId && vId && item.variantId === vId)
+            );
+            if (wishlistMatch) {
+              toggleWishlist(wishlistMatch);
+            }
           })
-          .catch((err: Error) => toast.error(err.message));
+          .catch((err: Error) => {
+            toast.error(err.message);
+            throw err;
+          });
       } else {
         setItems((prev) => {
           const existing = prev.find((i) => i.slug === input.slug);
@@ -139,10 +155,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
           saveLocalCart(next);
           return next;
         });
-        toast.success("Added to cart");
+        if (!isSilent) {
+          toast.success("Added to cart");
+        }
+
+        // Remove from wishlist if it exists there
+        const wishlistMatch = wishlistItems.find(
+          (item) => item.slug === input.slug || (item.variantId && input.variantId && item.variantId === input.variantId)
+        );
+        if (wishlistMatch) {
+          toggleWishlist(wishlistMatch);
+        }
+        return Promise.resolve();
       }
     },
-    [isAuthenticated],
+    [isAuthenticated, wishlistItems, toggleWishlist],
   );
 
   const removeItem = useCallback(
@@ -153,7 +180,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (!cartItemId) return;
         removeCartItem(cartItemId)
           .then((data) => {
-            setItems(mapBackendCart(data));
+            setItems(sortItems(mapBackendCart(data)));
             toast.success("Removed from cart");
           })
           .catch((err: Error) => toast.error(err.message));
@@ -180,7 +207,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const cartItemId = target?.id;
         if (!cartItemId) return;
         updateCartItemQuantity(cartItemId, quantity)
-          .then((data) => setItems(mapBackendCart(data)))
+          .then((data) => setItems(sortItems(mapBackendCart(data))))
           .catch((err: Error) => toast.error(err.message));
       } else {
         setItems((prev) => {
