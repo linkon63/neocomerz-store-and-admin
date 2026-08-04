@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/sections/ui/product-card';
 import { InfiniteScroll } from '@/app/admin/_components/infinite-scroll';
 import {
@@ -28,7 +29,10 @@ function withinPriceRange(price: number, range: string): boolean {
 
 const NO_IMAGE = '/images/no-image-icon-6.png';
 
-export default function ProductsPage() {
+function ProductsPageContent() {
+  const searchParams = useSearchParams();
+  const searchVal = searchParams?.get('search') || '';
+
   const [viewMode, setViewMode] = useState<'grid2' | 'grid3'>('grid3');
 
   const [dbCategories, setDbCategories] = useState<ShopCategory[]>([]);
@@ -89,6 +93,25 @@ export default function ProductsPage() {
     return ['All', ...dbBrands.map((b) => b.name)];
   }, [dbBrands]);
 
+  const selectedCategoryId = useMemo(() => {
+    if (selectedCategory !== 'All') {
+      return dbCategories.find((c) => c.name.toLowerCase() === selectedCategory.toLowerCase())?.id;
+    }
+    if (selectedCollection !== 'All') {
+      const col = dbCategories.find((c) => c.name.toLowerCase() === selectedCollection.toLowerCase());
+      const hasChildren = col?.children && col.children.length > 0;
+      if (col && !hasChildren) {
+        return col.id;
+      }
+    }
+    return undefined;
+  }, [selectedCategory, selectedCollection, dbCategories]);
+
+  const selectedBrandId = useMemo(() => {
+    if (selectedBrand === 'All') return undefined;
+    return dbBrands.find((b) => b.name.toLowerCase() === selectedBrand.toLowerCase())?.id;
+  }, [selectedBrand, dbBrands]);
+
   const fetchProducts = useCallback(
     async (append: boolean) => {
       const pageNum = append ? pageRef.current + 1 : 1;
@@ -99,6 +122,9 @@ export default function ProductsPage() {
         const res = await fetchShopProducts({
           page: pageNum,
           limit: PAGE_LIMIT,
+          search: searchVal || undefined,
+          categoryId: selectedCategoryId,
+          brandId: selectedBrandId,
         });
         if (id !== reqIdRef.current) return;
         setProducts((prev) => (append ? [...prev, ...res.data] : res.data));
@@ -110,7 +136,7 @@ export default function ProductsPage() {
         if (id === reqIdRef.current) setIsLoading(false);
       }
     },
-    [],
+    [searchVal, selectedCategoryId, selectedBrandId],
   );
 
   useEffect(() => {
@@ -151,8 +177,6 @@ export default function ProductsPage() {
 
   const filteredProducts = useMemo(() => {
     let result = products.filter((p) => {
-      if (selectedCategory !== 'All' && p.category !== selectedCategory) return false;
-
       if (selectedCollection !== 'All') {
         const catObj = dbCategories.find((c) => c.name === p.category);
         const parentObj = catObj?.parentId ? dbCategories.find((c) => c.id === catObj.parentId) : null;
@@ -161,7 +185,7 @@ export default function ProductsPage() {
         }
       }
 
-      if (selectedBrand !== 'All' && p.team !== selectedBrand) return false;
+      if (selectedCategory !== 'All' && p.category !== selectedCategory) return false;
 
       if (!withinPriceRange(p.price, selectedPrice)) return false;
 
@@ -181,18 +205,18 @@ export default function ProductsPage() {
     products,
     selectedCategory,
     selectedCollection,
-    selectedBrand,
     selectedPrice,
     selectedSort,
     dbCategories,
   ]);
 
   const pageHeading = useMemo(() => {
+    if (searchVal) return `Search Results for "${searchVal}"`;
     if (selectedCategory !== 'All') return selectedCategory;
     if (selectedCollection !== 'All') return selectedCollection;
     if (selectedBrand !== 'All') return selectedBrand;
     return 'All Products';
-  }, [selectedCategory, selectedCollection, selectedBrand]);
+  }, [selectedCategory, selectedCollection, selectedBrand, searchVal]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -551,8 +575,8 @@ export default function ProductsPage() {
                       key={product.id}
                       id={product.id}
                       name={product.name}
-                      price={String(product.price)}
-                      originalPrice=""
+                      price={`৳${product.price.toLocaleString()}`}
+                      originalPrice={product.originalPrice ? `৳${product.originalPrice.toLocaleString()}` : ''}
                       image={product.image || NO_IMAGE}
                     />
                   ))}
@@ -734,5 +758,18 @@ export default function ProductsPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-[50vh] py-20 text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-3 mb-4"></div>
+        <p className="font-gotham text-stone-500 text-sm uppercase tracking-wider">Loading products...</p>
+      </div>
+    }>
+      <ProductsPageContent />
+    </Suspense>
   );
 }
