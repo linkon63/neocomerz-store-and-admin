@@ -50,8 +50,8 @@ export default function TheBrands() {
                     />
                   </div>
                   <h2 className="text-4xl md:text-5xl lg:text-6xl">
-                    <span className="font-['Snell_Roundhand_LT_Std'] font-medium text-brand-primary">Our </span>
-                    <span className="font-['Snell_Roundhand_LT_Std'] italic text-brand-primary">Promise</span>
+                    <span className="font-['Bembo_Std'] font-medium text-brand-primary">Our </span>
+                    <span className="font-['Snell_Roundhand_LT_Std'] italic text-olive-slate">Promise</span>
                   </h2>
                 </div>
               </div>

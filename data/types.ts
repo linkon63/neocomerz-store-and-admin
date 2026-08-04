@@ -47,6 +47,7 @@ export interface ButtonProps {
   href: string;
   label?: string;
   variant?: "primary" | "secondary" | "outline";
+  size?: "sm" | "lg";
 }
 
 export interface ProductCardProps {

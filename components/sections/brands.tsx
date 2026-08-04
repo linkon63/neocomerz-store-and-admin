@@ -117,7 +117,7 @@ export default function Brands({
             {brandList.length > 0 && (
               <Swiper
                 modules={[Autoplay]}
-                spaceBetween={30}
+                spaceBetween={20}
                 slidesPerView={2}
                 loop={brandList.length >= 2}
                 speed={800}
@@ -129,18 +129,18 @@ export default function Brands({
                 breakpoints={{
                   640: {
                     slidesPerView: Math.min(brandList.length, 3),
-                    spaceBetween: 40,
+                    spaceBetween: 28,
                   },
                   1024: {
                     slidesPerView: Math.min(brandList.length, 4),
-                    spaceBetween: 50,
+                    spaceBetween: 36,
                   },
                 }}
                 className="brands-swiper"
               >
                 {brandList.map((brand, index) => (
                   <SwiperSlide key={brand.id || index}>
-                    <div className="relative h-12 w-full sm:h-14 flex items-center justify-center">
+                    <div className="relative h-18 w-full sm:h-24 flex items-center justify-center">
                       {brand.logo ? (
                         <Image
                           src={brand.logo}

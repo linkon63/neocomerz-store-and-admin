@@ -112,7 +112,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
               <div className="absolute inset-0 overflow-hidden bg-black">
                 <iframe
                   src={`https://www.youtube.com/embed/${slide.videoId}?autoplay=1&mute=1&controls=0&rel=0&playsinline=1&enablejsapi=1`}
-                  className="absolute left-1/2 top-1/2 w-[300%] h-[300%] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                  className="absolute left-1/2 top-1/2 w-[300%] h-[300%] md:w-[200%] md:h-[200%] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                   allow="autoplay; encrypted-media"
                   title={slide.title}
                 />
@@ -151,6 +151,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                   href="/products"
                   label="SHOP NOW"
                   variant="primary"
+                  size="sm"
                 />
 
               </div>

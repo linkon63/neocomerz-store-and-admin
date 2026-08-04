@@ -49,9 +49,17 @@ export default function CharterPrinciples() {
       <div className="max-w-7xl mx-auto">
         {/* Top Banner: Fairness, Equality, Justice */}
         <ScrollReveal delay={0} direction="up" className="flex flex-col items-center justify-center mb-16 text-center">
-          <p className="font-['Bembo_Std'] text-[13px] md:text-[15px] font-normal tracking-[0.35em] text-neutral-400 uppercase mb-4">
+          <p className=" hidden md:block font-['Bembo_Std'] text-[13px] md:text-[15px] font-normal tracking-[0.35em] text-neutral-400 uppercase mb-4">
             FAIRNESS &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; EQUALITY &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; JUSTICE
           </p>
+          <p className="flex md:hidden font-['Bembo_Std'] text-[13px] md:text-[15px] font-normal tracking-[0.35em] text-neutral-400 uppercase mb-4 flex items-center justify-center gap-2 md:gap-8">
+            <span>FAIRNESS</span>
+            <span>•</span>
+            <span>EQUALITY</span>
+            <span>•</span>
+            <span>JUSTICE</span>
+          </p>
+
           <div className="w-full flex items-center justify-center gap-4 max-w-xl">
             <div className="h-px bg-zinc-200 flex-1" />
             <img
@@ -100,8 +108,8 @@ export default function CharterPrinciples() {
                 key={idx}
                 delay={idx * 80}
                 direction="up"
-               
-               
+
+
               >
                 <div className="self-stretch p-5 md:p-6 lg:p-8 bg-neutral-100 rounded-xl flex justify-start items-start gap-4 md:gap-6 hover:shadow-xs transition-shadow duration-200">
                   {/* Article Roman Number Block */}
@@ -133,8 +141,8 @@ export default function CharterPrinciples() {
       {/* Instant Inline Bottom curved shape with zero reload animation / shift */}
       <div className="absolute left-0 right-0 bottom-0 pointer-events-none z-10 select-none">
         <svg width="1920" height="94" viewBox="0 0 1920 94" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto block">
-          <path d="M0 0C0 0 429.807 94 960 94H0V0Z" fill="#212721"/>
-          <path d="M1920 94H960C1490.19 94 1920 0 1920 0V94Z" fill="#212721"/>
+          <path d="M0 0C0 0 429.807 94 960 94H0V0Z" fill="#212721" />
+          <path d="M1920 94H960C1490.19 94 1920 0 1920 0V94Z" fill="#212721" />
         </svg>
       </div>
     </section>

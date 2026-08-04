@@ -111,7 +111,7 @@ export default function ContactPage() {
                     {/* Name fields */}
                     <div className="self-stretch inline-flex flex-col sm:flex-row justify-start items-start gap-3 w-full">
                       <div className="flex-1 w-full inline-flex flex-col justify-start items-start overflow-hidden">
-                        <div className="justify-start text-neutral-800 text-lg font-normal font-['Bembo_Std'] leading-6 mb-1.5">First Name</div>
+                        <div className="justify-start text-neutral-800 text-lg font-normal font-['Bembo_Std'] leading-6 mb-1.5">First Name <span className="text-red-500">*</span></div>
                         <div className="self-stretch p-3 rounded-lg outline outline-1 outline-offset-[-1px] outline-zinc-300 inline-flex justify-start items-center gap-0.5 bg-white focus-within:outline-[#C5B382]">
                           <input
                             type="text"
@@ -126,7 +126,7 @@ export default function ContactPage() {
                       </div>
                       
                       <div className="flex-1 w-full inline-flex flex-col justify-start items-start overflow-hidden">
-                        <div className="justify-start text-neutral-800 text-lg font-normal font-['Bembo_Std'] leading-6 mb-1.5">Last Name</div>
+                        <div className="justify-start text-neutral-800 text-lg font-normal font-['Bembo_Std'] leading-6 mb-1.5">Last Name <span className="text-red-500">*</span></div>
                         <div className="self-stretch p-3 rounded-lg outline outline-1 outline-offset-[-1px] outline-zinc-300 inline-flex justify-start items-center gap-0.5 bg-white focus-within:outline-[#C5B382]">
                           <input
                             type="text"
@@ -142,8 +142,8 @@ export default function ContactPage() {
                     </div>
 
                     {/* Phone field */}
-                    <div className="self-stretch flex flex-col justify-start items-start w-full">
-                      <div className="justify-start text-neutral-800 text-lg font-normal font-['Bembo_Std'] leading-6 mb-1.5">Phone Number</div>
+                    <div className="self-stretch flex flex-col justify-start items-start overflow-hidden w-full">
+                      <div className="justify-start text-neutral-800 text-lg font-normal font-['Bembo_Std'] leading-6 mb-1.5">Phone Number <span className="text-red-500">*</span></div>
                       <div className="self-stretch p-3 rounded-lg outline outline-1 outline-offset-[-1px] outline-zinc-300 inline-flex justify-start items-center gap-3 bg-white focus-within:outline-[#C5B382]">
                         <div className="flex justify-start items-center gap-1">
                           <select
@@ -178,7 +178,7 @@ export default function ContactPage() {
 
                     {/* Message field */}
                     <div className="self-stretch flex flex-col justify-start items-start gap-2 w-full">
-                      <div className="justify-start text-neutral-800 text-lg font-normal font-['Bembo_Std'] leading-6">Your Message</div>
+                      <div className="justify-start text-neutral-800 text-lg font-normal font-['Bembo_Std'] leading-6">Your Message <span className="text-red-500">*</span></div>
                       <div className="self-stretch px-3 pt-3 pb-12 outline outline-1 outline-offset-[-1px] outline-zinc-300 inline-flex justify-start items-start bg-white rounded-lg focus-within:outline-[#C5B382]">
                         <textarea
                           name="message"
@@ -305,11 +305,11 @@ export default function ContactPage() {
               
               <div className="self-stretch flex flex-col justify-start items-start gap-3">
                 <div className="justify-start text-zinc-600 text-xs font-medium font-['Gotham'] leading-4">You may also like</div>
-                <div className="self-stretch inline-flex justify-start items-center gap-6">
+                <div className="self-stretch inline-flex justify-start items-center gap-3 md:gap-6">
                   
                   {/* Best Sellers */}
                   <div className="inline-flex flex-col justify-center items-start gap-3 group cursor-pointer">
-                    <div className="relative w-36 h-36 bg-stone-200 overflow-hidden rounded-md">
+                    <div className="relative w-35 h-35 md:w-36 md:h-36 bg-stone-200 overflow-hidden rounded-md">
                       <Image
                         src="/images/products/product-1.webp"
                         alt="Best Sellers"
@@ -317,12 +317,12 @@ export default function ContactPage() {
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
-                    <div className="justify-start text-zinc-600 text-xl font-normal font-['Gotham'] leading-6">Best Sellers</div>
+                    <div className="justify-start text-zinc-600 text-lg md:text-xl font-normal font-['Gotham'] leading-6">Best Sellers</div>
                   </div>
 
                   {/* New Arrivals */}
                   <div className="inline-flex flex-col justify-center items-start gap-3 group cursor-pointer">
-                    <div className="relative w-36 h-36 bg-stone-200 overflow-hidden rounded-md">
+                    <div className="relative h-35 w-35 md:w-36 md:h-36 bg-stone-200 overflow-hidden rounded-md">
                       <Image
                         src="/images/products/product-2.webp"
                         alt="New Arrivals"
@@ -330,7 +330,7 @@ export default function ContactPage() {
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
-                    <div className="justify-start text-zinc-600 text-xl font-normal font-['Gotham'] leading-6">New Arrivals</div>
+                    <div className="justify-start text-zinc-600 text-lg md:text-xl font-normal font-['Gotham'] leading-6">New Arrivals</div>
                   </div>
 
                 </div>
