@@ -108,7 +108,7 @@ export default function GiftsPage() {
 
       {/* SECTION 2: Curated Collections */}
       <ScrollAnimate variant="fade-in-up">
-        <section className="w-full py-16 md:py-24 bg-white border-t border-stone-100">
+        <section className="w-full py-16 md:py-24 bg-[#F6F6F6] border-t border-stone-100">
           <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
             {/* Header */}
             <div className="text-center mb-16 flex flex-col items-center">
@@ -140,29 +140,33 @@ export default function GiftsPage() {
 
       {/* SECTION 3: Give More Than Tea — Share a Heritage */}
       <ScrollAnimate variant="fade-in-up">
-        <section className="relative w-full py-24 md:py-36 bg-[#FAF9F5] overflow-hidden">
+        <section className="relative w-full pt-32 pb-20 md:pt-44 md:pb-28 bg-white overflow-hidden">
           {/* Top Curve Shape */}
           <div className="absolute top-0 left-0 w-full overflow-hidden leading-none select-none pointer-events-none z-10">
-            <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="relative block w-full h-[60px] sm:h-[80px] md:h-[100px] text-white fill-current">
-              <path d="M0,0 L0,100 Q720,-100 1440,100 L1440,0 Z" />
+            <svg 
+              viewBox="0 0 1920 94" 
+              preserveAspectRatio="none" 
+              className="relative block w-full h-[30px] sm:h-[50px] md:h-[70px] lg:h-[94px]"
+            >
+              <path d="M1920 0H0C0 0 429.807 94 960 94C1490.19 94 1920 0 1920 0Z" fill="#F6F6F6" />
             </svg>
           </div>
 
           <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 relative z-20">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               
               {/* Left Title Panel */}
-              <div className="lg:col-span-4 flex flex-col justify-start items-start gap-4">
-                <h2 className="text-[#1C1C1C] text-3xl sm:text-4xl md:text-5xl font-normal font-['Bembo_Std'] leading-tight tracking-wide">
+              <div className="lg:col-span-5 flex flex-col justify-start items-start gap-4">
+                <h2 className="text-[#C5B382] text-2xl sm:text-4xl md:text-5xl font-normal font-['Bembo_Std'] leading-tight tracking-wide whitespace-nowrap">
                   Give More Than Tea—
-                  <span className="block mt-2 font-['Snell_Roundhand_LT_Std'] italic text-[#C5B382] text-4xl sm:text-5xl md:text-6xl lowercase leading-none">
-                    share a heritage
+                  <span className="block mt-2 font-['Snell_Roundhand_LT_Std'] italic text-[#1C1C1C] text-3xl sm:text-5xl md:text-6xl leading-none whitespace-nowrap">
+                    Share a Heritage
                   </span>
                 </h2>
               </div>
 
               {/* Right Images & Details Row */}
-              <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-4 gap-6 items-start">
+              <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-4 gap-6 items-start">
                 {heritageItems.map((item) => (
                   <div key={item.id} className="flex flex-col items-start gap-4 w-full">
                     {/* Image */}
@@ -195,8 +199,12 @@ export default function GiftsPage() {
 
           {/* Bottom Curve Shape */}
           <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none select-none pointer-events-none z-10">
-            <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="relative block w-full h-[60px] sm:h-[80px] md:h-[100px] text-white fill-current">
-              <path d="M0,100 Q720,-100 1440,100 Z" />
+            <svg 
+              viewBox="0 0 1920 94" 
+              preserveAspectRatio="none" 
+              className="relative block w-full h-[30px] sm:h-[50px] md:h-[70px] lg:h-[94px]"
+            >
+              <path d="M0 0C0 0 429.807 94 960 94H0V0ZM1920 94H960C1490.19 94 1920 0 1920 0V94Z" fill="#F6F6F6" />
             </svg>
           </div>
         </section>
@@ -204,7 +212,7 @@ export default function GiftsPage() {
 
       {/* SECTION 4: Brand Swiper */}
       <ScrollAnimate variant="fade-in-up">
-        <Brands bgClassName="bg-white" />
+        <Brands bgClassName="bg-[#F6F6F6]" />
       </ScrollAnimate>
 
       {/* SECTION 5: Instagram Follow Swiper */}
