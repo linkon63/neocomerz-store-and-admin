@@ -844,28 +844,12 @@ export function formatMoney(value?: string | number | null, symbol?: string) {
 export function resolveImageUrl(url?: string | null): string {
   if (!url) return "";
 
-  // ── 1. Already a relative or data URI — return as-is ──────────────────────
-  if (
-    url.startsWith("/") ||
-    url.startsWith("data:") ||
-    url.startsWith("blob:")
-  ) {
+  // ── 1. Data URIs or blob URIs — return as-is ──────────────────────
+  if (url.startsWith("data:") || url.startsWith("blob:")) {
     return url;
   }
 
-  // ── 2. Localhost URL — strip the origin so it becomes a relative path ──────
-  // The Next.js rewrite `/products/:path*` proxies this back to the NestJS
-  // backend, so next/image only ever sees a same-origin path.
-  if (/https?:\/\/localhost(:\d+)?/.test(url)) {
-    return url.replace(/^https?:\/\/localhost(:\d+)?/, "");
-  }
-
-  // ── 3. Absolute HTTPS/HTTP URL (production) — return unchanged ────────────
-  if (url.startsWith("http://") || url.startsWith("https://")) {
-    return url;
-  }
-
-  // ── 4. Bare path without a leading slash — derive origin from env ─────────
+  // ── 2. Derive backend origin from env ─────────────────────────────
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   let apiOrigin = "http://localhost:5010";
   if (apiBaseUrl) {
@@ -876,7 +860,17 @@ export function resolveImageUrl(url?: string | null): string {
     }
   }
 
-  return `${apiOrigin}/${url}`;
+  // ── 3. If relative URL starting with '/', prepend backend origin ──
+  if (url.startsWith("/")) {
+    // If it's a frontend public asset like /images/no-image-icon-6.png, return as-is
+    if (url.startsWith("/images/")) {
+      return url;
+    }
+    return `${apiOrigin}${url}`;
+  }
+
+  // ── 4. Absolute URLs (localhost or production) — return as-is ─────
+  return url;
 }
 
 // ─── News / Blog ───────────────────────────────────────────────────────────

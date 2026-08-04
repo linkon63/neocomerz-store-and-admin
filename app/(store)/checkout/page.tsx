@@ -21,7 +21,7 @@ const emptyAddress: AddressForm = {
   city: "",
   state: "",
   postalCode: "",
-  country: "",
+  country: "Bangladesh",
 };
 
 export default function CheckoutPage() {
@@ -212,28 +212,7 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                {/* Country */}
-                <div>
-                  <label className="block font-gotham text-sm font-medium text-[#222222] mb-1">
-                    Country *
-                  </label>
-                  <select
-                    required
-                    value={address.country}
-                    onChange={(e) => setAddress({ ...address, country: e.target.value })}
-                    className="w-full p-3 rounded-md outline outline-1 outline-offset-[-1px] outline-zinc-300 font-gotham text-sm text-[#222222] leading-4 focus:outline-stone-500 cursor-pointer"
-                  >
-                    <option value="">Select country</option>
-                    <option value="Bangladesh">Bangladesh</option>
-                    <option value="India">India</option>
-                    <option value="Pakistan">Pakistan</option>
-                    <option value="United States">United States</option>
-                    <option value="United Kingdom">United Kingdom</option>
-                    <option value="Canada">Canada</option>
-                    <option value="Australia">Australia</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
+
 
                 {/* Checkbox: Same Address for Shipping */}
                 <div className="flex items-center gap-3">
