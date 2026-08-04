@@ -907,7 +907,7 @@ export async function getPublishedNews(): Promise<News[]> {
 
 // Public: a single published article by slug.
 export async function getNewsBySlug(slug: string): Promise<News> {
-  return apiRequest<News>(`/news/slug/${slug}`, { auth: false });
+  return apiRequest<News>(`/news/slug/${encodeURIComponent(slug)}`, { auth: false });
 }
 
 export async function createNews(body: FormData): Promise<News> {

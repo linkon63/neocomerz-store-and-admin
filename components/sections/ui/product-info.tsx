@@ -23,7 +23,6 @@ export default function ProductInfo({
   subtitle,
   price,
   originalPrice,
-  vatMessage,
   teas,
   productId,
   variantId,
@@ -198,14 +197,13 @@ export default function ProductInfo({
           <span className="font-bembo text-3xl sm:text-4xl text-brand-primary font-normal">
             {displayPrice}
           </span>
-          <div className="flex flex-col justify-start">
-            <span className="font-bembo text-lg text-stone-850 line-through">
-              {displayOriginalPrice}
-            </span>
-            <span className="font-gotham text-[10px] text-stone-850">
-              {vatMessage}
-            </span>
-          </div>
+          {displayOriginalPrice && (
+            <div className="flex flex-col justify-start">
+              <span className="font-bembo text-lg text-stone-850 line-through">
+                {displayOriginalPrice}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

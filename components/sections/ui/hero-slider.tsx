@@ -1,13 +1,14 @@
 'use client';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination } from 'swiper/modules';
+import { Pagination, Autoplay, EffectFade } from 'swiper/modules';
 import { useRef, useEffect, useState } from 'react';
 import type { Swiper as SwiperType } from 'swiper';
 import Image from 'next/image';
 
 import 'swiper/css';
 import 'swiper/css/pagination';
+import 'swiper/css/effect-fade';
 
 import { HeroSliderProps } from '@/data/types';
 import Button from './button';
@@ -90,10 +91,16 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
       </div>
 
       <Swiper
-        modules={[Pagination]}
+        modules={[Pagination, Autoplay, EffectFade]}
+        effect="fade"
         slidesPerView={1}
         spaceBetween={0}
         loop={true}
+        speed={1000}
+        autoplay={{
+          delay: 6000,
+          disableOnInteraction: false,
+        }}
         onSwiper={(swiper) => {
           swiperRef.current = swiper;
         }}
@@ -101,6 +108,15 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
           clickable: true,
           bulletClass: 'hero-bullet',
           bulletActiveClass: 'hero-bullet-active',
+          renderBullet: (index, className) => {
+            return `<span class="${className}">
+              <svg class="hero-svg-loader" width="24" height="24" viewBox="0 0 24 24">
+                <circle class="bg-path" cx="12" cy="12" r="8" fill="none"></circle>
+                <circle class="path" cx="12" cy="12" r="8" fill="none" transform="rotate(-90 12 12)"></circle>
+                <circle class="dot" cx="12" cy="12" r="3"></circle>
+              </svg>
+            </span>`;
+          }
         }}
         className="hero-slider"
       >

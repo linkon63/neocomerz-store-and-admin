@@ -68,6 +68,7 @@ export default function NewArrival() {
               price={`৳${product.price.toLocaleString()}`}
               originalPrice={product.originalPrice ? `৳${product.originalPrice.toLocaleString()}` : ''}
               image={product.image}
+              slug={product.slug}
             />
           ))}
         </div>
