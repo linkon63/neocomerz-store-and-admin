@@ -143,14 +143,32 @@ export default function SuppliersPage() {
     setError("");
     if (!form.name.trim()) return;
 
+    const emailTrimmed = form.email.trim();
+    if (emailTrimmed) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(emailTrimmed)) {
+        setError("Invalid email address");
+        return;
+      }
+    }
+
+    const phoneTrimmed = form.phone.trim();
+    if (phoneTrimmed) {
+      const phoneRegex = /^\+?[0-9][0-9\s\-()]{6,19}$/;
+      if (!phoneRegex.test(phoneTrimmed)) {
+        setError("Invalid phone number format");
+        return;
+      }
+    }
+
     setIsSaving(true);
     try {
       const url = form.id ? `/suppliers/${form.id}` : "/suppliers";
       const method = form.id ? "PATCH" : "POST";
       const payload = {
         name: form.name.trim(),
-        phone: form.phone.trim() || undefined,
-        email: form.email.trim() || undefined,
+        phone: phoneTrimmed || undefined,
+        email: emailTrimmed || undefined,
         address: form.address.trim() || undefined,
         isActive: form.isActive,
       };

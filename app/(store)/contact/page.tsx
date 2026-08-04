@@ -350,7 +350,7 @@ export default function ContactPage() {
                   >
                     <button
                       onClick={() => toggleFaq(index)}
-                      className="w-full flex items-center justify-between text-left font-['Bembo_Std'] text-neutral-800 text-lg font-normal uppercase leading-6 select-none focus:outline-none hover:text-[#C6B485] transition-colors duration-200"
+                      className="w-full flex items-center justify-between text-left font-['Bembo_Std'] text-neutral-800 text-lg font-normal uppercase leading-6 select-none focus:outline-none hover:text-[#C6B485] transition-colors duration-200 cursor-pointer"
                     >
                       <span>{faq.question}</span>
                       <div className={`w-9 h-9 rounded-[100px] flex justify-center items-center shrink-0 ml-3 transition-colors duration-300 ${
