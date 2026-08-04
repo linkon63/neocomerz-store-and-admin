@@ -1459,31 +1459,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             </div>
           </section>
 
-          {/* Section 5: VAT */}
-          <section className="rounded-xl border border-slate-200 bg-white p-5">
-            <div className="mb-4">
-              <h2 className="text-sm font-semibold text-slate-900">VAT</h2>
-              <p className="text-xs text-slate-500">Set the VAT configuration for this product</p>
-            </div>
-            <div>
-              <span className="mb-2 block text-xs font-semibold text-slate-700">VAT</span>
-              <select
-                className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm bg-white outline-none focus:border-blue-500"
-                value={form.vatId}
-                onChange={(e) => {
-                  setIsDirty(true);
-                  setForm((current) => ({ ...current, vatId: e.target.value }));
-                }}
-              >
-                <option value="">Select VAT</option>
-                {vats.map((vat) => (
-                  <option key={vat.id} value={vat.id}>
-                    {vat.name} ({vat.rate}%)
-                  </option>
-                ))}
-              </select>
-            </div>
-          </section>
+
 
           {/* Section 6: Price */}
           <section className="rounded-xl border border-slate-200 bg-white p-5">

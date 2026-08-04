@@ -92,8 +92,8 @@ function mapProduct(raw: Product): MappedProduct {
     return {
       id: v.id,
       sku: v.sku,
-      priceNum,
-      priceFormatted: fmt(priceNum),
+      priceNum: showOriginal ? discountNum : priceNum,
+      priceFormatted: showOriginal ? fmt(discountNum) : fmt(priceNum),
       originalPriceFormatted: showOriginal ? fmt(priceNum) : (costNum > priceNum ? fmt(costNum) : ''),
       stockQuantity: v.stockQuantity,
       isDefault: v.isDefault,
@@ -305,7 +305,6 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
               productId={product.id}
               productSlug={product.slug}
               variants={product.variants}
-              vatMessage="VAT Included"
               teas={product.teas}
               onVariantChange={setSelectedVariant}
               productData={{

@@ -578,6 +578,7 @@ function ProductsPageContent() {
                       price={`৳${product.price.toLocaleString()}`}
                       originalPrice={product.originalPrice ? `৳${product.originalPrice.toLocaleString()}` : ''}
                       image={product.image || NO_IMAGE}
+                      slug={product.slug}
                     />
                   ))}
                 </div>

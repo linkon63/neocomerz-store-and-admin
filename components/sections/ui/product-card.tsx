@@ -22,6 +22,7 @@ export default function ProductCard({
   price,
   originalPrice,
   image,
+  slug,
 }: ProductCardProps) {
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { isAuthenticated, setShowAuthModal } = useAuth();
@@ -31,7 +32,7 @@ export default function ProductCard({
   const wishlistProduct: WishlistProduct = {
     id: id ?? '',
     name,
-    slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+    slug: slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
     price: priceNum,
     image: image || NO_IMAGE,
     color: '',
@@ -53,9 +54,9 @@ export default function ProductCard({
         />
       </div>
 
-      {id && (
+      {(slug || id) && (
         <Link
-          href={`/products/${id}`}
+          href={`/products/${slug || id}`}
           className="absolute inset-0 z-20 cursor-pointer"
           aria-label={`View details for ${name}`}
         />
@@ -113,9 +114,6 @@ export default function ProductCard({
                   </span>
                 )}
               </div>
-              <span className="text-stone-400 text-[10px] font-normal font-gotham whitespace-nowrap">
-                VAT Included
-              </span>
             </div>
           </div>
         </div>
