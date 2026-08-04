@@ -54,7 +54,6 @@ type ProductCreateForm = {
   supplierPrice: string;
   branchId: string;
   channelIds: string[];
-  vatId: string;
   factor: string;
   markup: string;
   purchaseDate: string;
@@ -84,7 +83,6 @@ const emptyForm: ProductCreateForm = {
   supplierPrice: "",
   branchId: "",
   channelIds: [],
-  vatId: "",
   factor: "1",
   markup: "",
   purchaseDate: "",
@@ -137,7 +135,6 @@ export default function NewProductPage() {
   const [suppliers, setSuppliers] = useState<Array<{ id: string; name: string }>>([]);
   const [branches, setBranches] = useState<Array<{ id: string; name: string }>>([]);
   const [channels, setChannels] = useState<Array<{ id: string; name: string }>>([]);
-  const [vats, setVats] = useState<Array<{ id: string; name: string; rate: number }>>([]);
   const [variantOptions, setVariantOptions] = useState<Attribute[]>([]);
   const [form, setForm] = useState<ProductCreateForm>(emptyForm);
   // Track whether the user has manually edited the slug so we stop auto-generating
@@ -258,12 +255,11 @@ export default function NewProductPage() {
 
         // Optional lookups — silently degrade to empty arrays if the
         // backend endpoint doesn't exist yet.
-        const [supplierList, branchList, channelList, vatList] =
+        const [supplierList, branchList, channelList] =
           await Promise.all([
             safeFetch<{ id: string; name: string }>("/suppliers"),
             safeFetch<{ id: string; name: string }>("/branches"),
             safeFetch<{ id: string; name: string }>("/channels"),
-            safeFetch<{ id: string; name: string; rate: number }>("/vat"),
           ]);
 
         const activeUnits = unitList.filter((unit) => unit.isActive);
@@ -277,7 +273,6 @@ export default function NewProductPage() {
         setSuppliers(supplierList);
         setBranches(branchList);
         setChannels(channelList);
-        setVats(vatList);
         setVariantSelections((current) =>
           current.map((selection, index) =>
             index === 0 && !selection.optionId

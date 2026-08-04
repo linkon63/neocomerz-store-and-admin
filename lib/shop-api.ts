@@ -180,7 +180,7 @@ export async function fetchShopProductById(id: string): Promise<AdminProduct | n
 
 export async function fetchShopProductBySlug(slug: string): Promise<AdminProduct | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/products/slug/${slug}`, {
+    const res = await fetch(`${API_BASE_URL}/products/slug/${encodeURIComponent(slug)}`, {
       headers: { "Content-Type": "application/json" },
       cache: "no-store",
     });

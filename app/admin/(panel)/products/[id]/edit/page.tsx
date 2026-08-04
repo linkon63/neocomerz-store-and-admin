@@ -65,7 +65,6 @@ type ProductEditForm = {
   supplierPrice: string;
   branchId: string;
   channelIds: string[];
-  vatId: string;
   factor: string;
   markup: string;
   purchaseDate: string;
@@ -126,7 +125,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [suppliers, setSuppliers] = useState<Array<{ id: string; name: string }>>([]);
   const [branches, setBranches] = useState<Array<{ id: string; name: string }>>([]);
   const [channels, setChannels] = useState<Array<{ id: string; name: string }>>([]);
-  const [vats, setVats] = useState<Array<{ id: string; name: string; rate: number }>>([]);
   const [variantOptions, setVariantOptions] = useState<Attribute[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -150,7 +148,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [form, setForm] = useState<ProductEditForm>({
     name: "", categoryId: "", slug: "", description: "",
     brandId: "", unitId: "", baseUnitId: "", status: "draft", tagIds: [], supplierId: "",
-    supplierPrice: "", branchId: "", channelIds: [], vatId: "", factor: "1",
+    supplierPrice: "", branchId: "", channelIds: [], factor: "1",
     markup: "", purchaseDate: "", purchaseOrderReturnable: false, includeStock: true,
     sizeChart: null, sizeChartUrl: null, careGuide: null, careGuideUrl: null,
     productType: "simple", sku: "", unitPrice: "", retailPrice: "", stockQuantity: "0",
@@ -266,11 +264,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             apiRequest<Product>(`/products/${id}`),
           ]);
 
-        const [supplierList, branchList, channelList, vatList] = await Promise.all([
+        const [supplierList, branchList, channelList] = await Promise.all([
           safeFetch<{ id: string; name: string }>("/suppliers"),
           safeFetch<{ id: string; name: string }>("/branches"),
           safeFetch<{ id: string; name: string }>("/channels"),
-          safeFetch<{ id: string; name: string; rate: number }>("/vat"),
         ]);
 
         const activeUnits = unitList.filter((u) => u.isActive);
@@ -284,7 +281,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         setSuppliers(supplierList);
         setBranches(branchList);
         setChannels(channelList);
-        setVats(vatList);
         setVariantSelections((current) =>
           current.map((sel, i) =>
             i === 0 && !sel.optionId
@@ -313,7 +309,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           supplierPrice: (product as any).supplierPrice ? String((product as any).supplierPrice) : "",
           branchId: (product as any).branchId ?? "",
           channelIds: [],
-          vatId: "",
           factor: "1",
           markup: "",
           purchaseDate: "",
