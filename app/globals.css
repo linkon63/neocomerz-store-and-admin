@@ -363,7 +363,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 12px;
+  gap: 2px;
 }
 
 @media (max-width: 767px) {
@@ -374,61 +374,63 @@
 
 .hero-slider .hero-bullet {
   position: relative;
-  width: 8px;
-  height: 8px;
+  width: 24px;
+  height: 24px;
   margin: 0 !important;
-  border-radius: 999px;
-  background: #ffffff;
+  background: transparent !important;
   opacity: 1;
   cursor: pointer;
-  transition: all .3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
 }
 
-.hero-slider .hero-bullet-active {
-  width: 20px;
-  height: 20px;
-  background: transparent;
+.hero-slider .hero-bullet:hover {
+  transform: scale(1.05);
 }
 
-.hero-slider .hero-bullet-active::before {
-  content: "";
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 999px;
-  background: #b7ab74;
+.hero-slider .hero-bullet svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
-.hero-slider .hero-bullet-active::after {
-  content: "";
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%) rotate(-45deg);
-  border-top: 4px solid #b7ab74;
-  border-right: 4px solid #b7ab74;
-  border-left: 4px solid transparent;
-  border-bottom: 4px solid transparent;
-  border-radius: 999px;
+.hero-slider .hero-bullet .bg-path {
+  stroke: transparent;
 }
 
-.hero-slider .hero-bullet:hover { background: #d6ca95; }
-.hero-slider .hero-bullet-active:hover { background: transparent; }
-.hero-slider .hero-bullet-active:hover::before { background: #d6ca95; }
-.hero-slider .hero-bullet-active:hover::after {
-  border-top-color: #d6ca95;
-  border-right-color: #d6ca95;
+.hero-slider .hero-bullet .path {
+  stroke-dasharray: 50.27;
+  stroke-dashoffset: 50.27;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke: #b7ab74;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.hero-slider .hero-bullet,
-.hero-slider .hero-bullet::before,
-.hero-slider .hero-bullet::after {
-  transition: all .3s ease;
+.hero-slider .hero-bullet .dot {
+  fill: #e5e5e5;
+  transition: fill 0.3s ease;
+}
+
+.hero-slider .hero-bullet-active .path {
+  opacity: 1;
+  animation: hero-progress-run 6s linear forwards;
+}
+
+.hero-slider .hero-bullet-active .dot {
+  fill: #b7ab74;
+}
+
+@keyframes hero-progress-run {
+  from {
+    stroke-dashoffset: 50.27;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 .mySwiper .swiper-pagination-bullet,

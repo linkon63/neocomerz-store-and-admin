@@ -156,6 +156,7 @@ export default function RelatedCarousel() {
                 price={`৳${product.price.toLocaleString()}`}
                 originalPrice={product.originalPrice ? `৳${product.originalPrice.toLocaleString()}` : ''}
                 image={product.image}
+                slug={product.slug}
               />
             </SwiperSlide>
           ))}

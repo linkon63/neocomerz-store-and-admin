@@ -70,6 +70,7 @@ export default function MostPopuler() {
               price={`৳${product.price.toLocaleString()}`}
               originalPrice={product.originalPrice ? `৳${product.originalPrice.toLocaleString()}` : ''}
               image={product.image}
+              slug={product.slug}
             />
           ))}
         </div>

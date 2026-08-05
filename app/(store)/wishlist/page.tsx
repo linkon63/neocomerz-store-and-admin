@@ -55,7 +55,7 @@ export default function WishlistPage() {
                     {product.category}
                     {product.team ? `, ${product.team}` : ""}
                   </p>
-                  <Link href={`/products/${product.id}`}>
+                  <Link href={`/products/${product.slug || product.id}`}>
                     <h3 className="mt-0.5 font-medium text-stone-800 truncate text-sm hover:text-brand-3 transition-colors">
                       {product.name}
                     </h3>

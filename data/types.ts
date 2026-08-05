@@ -56,4 +56,5 @@ export interface ProductCardProps {
   price: string;
   originalPrice?: string;
   image: string;
+  slug?: string;
 }

@@ -2,19 +2,19 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import ProductDetails from "@/components/sections/product-details";
-import { fetchShopProductById } from "@/lib/shop-api";
+import { fetchShopProductBySlug } from "@/lib/shop-api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
 // Runs on the server at request time so every product page gets its own
 // <title> and <meta description> for SEO and social sharing.
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { id } = await params;
-  const product = await fetchShopProductById(id);
+  const { slug } = await params;
+  const product = await fetchShopProductBySlug(slug);
 
   if (!product) {
     return {
@@ -77,16 +77,9 @@ function ProductSkeleton() {
 // Server Component — no "use client" needed here. The interactive sub-components
 // (ProductInfo, ProductGallery) are themselves client components.
 export default async function ProductPage({ params }: PageProps) {
-  const { id } = await params;
+  const { slug } = await params;
 
-  // Validate that the id looks like a UUID before hitting the API.
-  // This prevents 500s from malformed URLs like /products/undefined.
-  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!UUID_RE.test(id)) {
-    notFound();
-  }
-
-  const product = await fetchShopProductById(id);
+  const product = await fetchShopProductBySlug(slug);
   if (!product) notFound();
 
   return (
@@ -94,7 +87,7 @@ export default async function ProductPage({ params }: PageProps) {
       <Suspense fallback={<ProductSkeleton />}>
         {/* ProductDetails is a client component — Suspense boundary lets Next.js
             stream the skeleton instantly while the client hydrates */}
-        <ProductDetails productId={id} />
+        <ProductDetails productId={product.id} />
       </Suspense>
     </div>
   );

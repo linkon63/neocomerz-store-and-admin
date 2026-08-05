@@ -57,7 +57,6 @@ export interface ProductInfoProps {
   subtitle: string;
   price: string;
   originalPrice: string;
-  vatMessage: string;
   teas: TeaItem[];
   productId: string;
   variantId: string;
@@ -148,6 +147,7 @@ export async function fetchShopProducts(
   try {
     const res = await fetch(`${API_BASE_URL}/products?${searchParams.toString()}`, {
       headers: { "Content-Type": "application/json" },
+      cache: "no-store",
     });
 
     if (res.status !== 200) {
@@ -168,6 +168,22 @@ export async function fetchShopProductById(id: string): Promise<AdminProduct | n
   try {
     const res = await fetch(`${API_BASE_URL}/products/${id}`, {
       headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+    });
+
+    if (res.status !== 200) return null;
+
+    return await res.json() as AdminProduct;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchShopProductBySlug(slug: string): Promise<AdminProduct | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/products/slug/${encodeURIComponent(slug)}`, {
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
     });
 
     if (res.status !== 200) return null;
@@ -181,6 +197,7 @@ async function safeFetchJson<T>(url: string, fallback: T): Promise<T> {
   try {
     const res = await fetch(url, {
       headers: { "Content-Type": "application/json" },
+      cache: "no-store",
     });
     if (!res.ok) return fallback;
     return await res.json() as T;

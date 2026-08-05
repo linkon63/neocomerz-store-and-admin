@@ -54,7 +54,6 @@ type ProductCreateForm = {
   supplierPrice: string;
   branchId: string;
   channelIds: string[];
-  vatId: string;
   factor: string;
   markup: string;
   purchaseDate: string;
@@ -84,7 +83,6 @@ const emptyForm: ProductCreateForm = {
   supplierPrice: "",
   branchId: "",
   channelIds: [],
-  vatId: "",
   factor: "1",
   markup: "",
   purchaseDate: "",
@@ -137,7 +135,6 @@ export default function NewProductPage() {
   const [suppliers, setSuppliers] = useState<Array<{ id: string; name: string }>>([]);
   const [branches, setBranches] = useState<Array<{ id: string; name: string }>>([]);
   const [channels, setChannels] = useState<Array<{ id: string; name: string }>>([]);
-  const [vats, setVats] = useState<Array<{ id: string; name: string; rate: number }>>([]);
   const [variantOptions, setVariantOptions] = useState<Attribute[]>([]);
   const [form, setForm] = useState<ProductCreateForm>(emptyForm);
   // Track whether the user has manually edited the slug so we stop auto-generating
@@ -258,12 +255,11 @@ export default function NewProductPage() {
 
         // Optional lookups — silently degrade to empty arrays if the
         // backend endpoint doesn't exist yet.
-        const [supplierList, branchList, channelList, vatList] =
+        const [supplierList, branchList, channelList] =
           await Promise.all([
             safeFetch<{ id: string; name: string }>("/suppliers"),
             safeFetch<{ id: string; name: string }>("/branches"),
             safeFetch<{ id: string; name: string }>("/channels"),
-            safeFetch<{ id: string; name: string; rate: number }>("/vat"),
           ]);
 
         const activeUnits = unitList.filter((unit) => unit.isActive);
@@ -277,7 +273,6 @@ export default function NewProductPage() {
         setSuppliers(supplierList);
         setBranches(branchList);
         setChannels(channelList);
-        setVats(vatList);
         setVariantSelections((current) =>
           current.map((selection, index) =>
             index === 0 && !selection.optionId
@@ -1222,29 +1217,7 @@ export default function NewProductPage() {
               </div>
             </section>
 
-            <section className="rounded-xl border border-slate-200 bg-white p-5">
-              <div className="mb-4">
-                <h2 className="text-sm font-semibold text-slate-900">VAT</h2>
-                <p className="text-xs text-slate-500">Set the VAT configuration for this product</p>
-              </div>
-              <div>
-                <span className="mb-2 block text-xs font-semibold text-slate-700">VAT</span>
-                <select
-                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500"
-                  value={form.vatId}
-                  onChange={(event) =>
-                    setForm((current) => ({ ...current, vatId: event.target.value }))
-                  }
-                >
-                  <option value="">Select VAT</option>
-                  {vats.map((vat) => (
-                    <option key={vat.id} value={vat.id}>
-                      {vat.name} ({vat.rate}%)
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </section>
+
 
             <section className="rounded-xl border border-slate-200 bg-white p-5">
               <div className="mb-4">

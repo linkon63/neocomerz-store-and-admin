@@ -306,7 +306,6 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
               productId={product.id}
               productSlug={product.slug}
               variants={product.variants}
-              vatMessage="VAT Included"
               teas={product.teas}
               onVariantChange={setSelectedVariant}
               productData={{

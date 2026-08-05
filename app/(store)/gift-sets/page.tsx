@@ -77,6 +77,7 @@ export default function GiftsPage() {
               price: `Tk ${p.price.toLocaleString()}`,
               originalPrice: p.originalPrice ? `Tk ${p.originalPrice.toLocaleString()}` : undefined,
               image: p.image,
+              slug: p.slug,
             })));
           } else {
             // If no specific gifts found, display the first 6 products
@@ -86,6 +87,7 @@ export default function GiftsPage() {
               price: `Tk ${p.price.toLocaleString()}`,
               originalPrice: p.originalPrice ? `Tk ${p.originalPrice.toLocaleString()}` : undefined,
               image: p.image,
+              slug: p.slug,
             })));
           }
         }
@@ -131,6 +133,7 @@ export default function GiftsPage() {
                   price={product.price}
                   originalPrice={product.originalPrice}
                   image={product.image}
+                  slug={product.slug}
                 />
               ))}
             </div>

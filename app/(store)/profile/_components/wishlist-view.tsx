@@ -74,7 +74,7 @@ export default function WishlistView() {
               className="flex items-center gap-4 border border-stone-200 bg-white hover:border-stone-300 hover:shadow-sm rounded-xl px-5 py-4 transition-all duration-200"
             >
               {/* Product image */}
-              <Link href={`/products/${item.id}`} className="shrink-0 w-16 h-16 bg-stone-50 border border-stone-100 rounded-lg overflow-hidden relative">
+              <Link href={`/products/${item.slug || item.id}`} className="shrink-0 w-16 h-16 bg-stone-50 border border-stone-100 rounded-lg overflow-hidden relative">
                 <ResolvedImage
                   src={item.image}
                   alt={item.name}
@@ -84,7 +84,7 @@ export default function WishlistView() {
 
               {/* Info */}
               <div className="flex-grow min-w-0">
-                <Link href={`/products/${item.id}`} className="group/name">
+                <Link href={`/products/${item.slug || item.id}`} className="group/name">
                   <p className="font-sans font-bold text-xs uppercase tracking-wider text-zinc-800 truncate group-hover/name:text-[#C5B382] transition-colors">
                     {item.name}
                   </p>
