@@ -42,12 +42,12 @@ export default function TheCollection() {
       ></div>
 
       <div className="relative z-10 w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 flex flex-col justify-start items-center gap-10 md:gap-12">
-        <div className="flex flex-col justify-center items-center gap-3 text-center">
-          <h2 className="inline-flex flex-row justify-center items-baseline gap-2 md:gap-3">
-            <span className="font-['Bembo_Std'] text-[#C6B485] text-4xl sm:text-5xl md:text-6xl font-normal leading-none">The</span>
-            <span className="font-['Snell_Roundhand_LT_Std'] italic text-[#8E866B] text-4xl sm:text-5xl md:text-6xl font-normal leading-none">Collections</span>
+        <div className="self-stretch flex flex-col justify-center items-center gap-3 overflow-hidden">
+          <h2 className="inline-flex justify-center flex-wrap items-center gap-1.5">
+            <span className="text-[#C6B485] text-4xl md:text-5xl lg:text-6xl font-normal font-['Bembo_Std'] leading-tight lg:leading-[56px]">The</span>
+            <span className="text-[#8E866B] text-4xl md:text-5xl lg:text-6xl font-normal font-['Snell_Roundhand_LT_Std'] leading-tight lg:leading-[56px]">Collections</span>
           </h2>
-          <p className="max-w-[600px] text-center text-[#83847e] text-sm sm:text-base md:text-lg font-normal font-['Bembo_Std'] leading-normal px-4">
+          <p className="max-w-[700px] text-center text-[#83847e] text-base lg:text-lg font-normal font-['Bembo_Std'] leading-6 mx-auto">
             Elegant tea bag presentations featuring rare blends, royal infusions, wellness selections, and timeless classics.
           </p>
         </div>

@@ -26,18 +26,18 @@ export default function Testimonial() {
   return (
     <section 
       className="relative bg-[#473729] py-16 lg:py-24 overflow-hidden bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: "url('/images/tea-testmonial.jpg')" }}
+      style={{ backgroundImage: "url('/images/subtract.jpeg')" }}
     >
 
       <div className="relative z-10 container mx-auto px-4">
         <div
-          className="relative mx-auto w-full max-w-312.5 bg-[#D9D9D9]"
+          className="relative mx-auto w-full max-w-312.5 bg-white/95 shadow-md"
           style={{
             clipPath:
               "polygon(16% 0%, 84% 0%, 100% 50%, 84% 100%, 16% 100%, 0% 50%)",
           }}
         >
-          <div className="px-6 py-14 md:p-12 lg:p-24">
+          <div className="px-6 py-14 md:p-12 lg:p-24 relative">
             <h2 className="text-center text-3xl md:text-6xl font-['Bembo_Std'] font-normal text-khaki-gold">
               Our Community
               <span className="font-['Snell_Roundhand_LT_Std'] italic text-olive-slate">
@@ -48,13 +48,18 @@ export default function Testimonial() {
                 Saying
               </span>
             </h2>
+            
+            {/* Pagination Dots */}
             <div className="testimonial-pagination flex justify-center gap-2 mt-5 mb-8"></div>
-            <button className="testimonial-prev absolute left-[8%] top-1/2 -translate-y-1/2 z-20 hidden md:flex cursor-pointer">
-              <HiOutlineChevronLeft className="text-5xl text-[#1F1B19]" />
+            
+            {/* Navigation Arrows */}
+            <button className="testimonial-prev absolute left-[6%] xl:left-[8%] top-1/2 -translate-y-1/2 z-20 flex cursor-pointer text-stone-500 hover:text-khaki-gold transition-colors">
+              <HiOutlineChevronLeft className="text-4xl md:text-5xl" />
             </button>
-            <button className="testimonial-next absolute right-[8%] top-1/2 -translate-y-1/2 z-20 hidden md:flex cursor-pointer">
-              <HiOutlineChevronRight className="text-5xl text-[#1F1B19]" />
+            <button className="testimonial-next absolute right-[6%] xl:right-[8%] top-1/2 -translate-y-1/2 z-20 flex cursor-pointer text-stone-500 hover:text-khaki-gold transition-colors">
+              <HiOutlineChevronRight className="text-4xl md:text-5xl" />
             </button>
+
             <Swiper
               modules={[Navigation, Pagination, Autoplay]}
               navigation={{
@@ -65,8 +70,8 @@ export default function Testimonial() {
                 clickable: true,
                 el: ".testimonial-pagination",
                 bulletClass:
-                  "inline-block w-1.5 h-1.5 bg-black rounded-full cursor-pointer transition-all duration-300 mx-1",
-                bulletActiveClass: "!bg-black !w-2 !h-2",
+                  "inline-block w-1.5 h-1.5 bg-[#8E866B]/40 rounded-full cursor-pointer transition-all duration-300 mx-1",
+                bulletActiveClass: "!bg-[#C6B485] !w-2 !h-2",
               }}
               autoplay={{
                 delay: 5000,
@@ -74,13 +79,13 @@ export default function Testimonial() {
               }}
               speed={800}
               loop
-              className="max-w-4xl mx-auto"
+              className="max-w-3xl mx-auto"
             >
               {testimonials.map((item) => (
                 <SwiperSlide key={item.id}>
-                  <div className="text-center px-4 md:px-10">
-                    <p className="font-['Bembo_Std'] text-xl md:text-4xl leading-[1.3]">
-                      &quot;{item.text}&quot;
+                  <div className="text-center px-6 md:px-12">
+                    <p className="font-['Bembo_Std'] text-base md:text-xl lg:text-2xl leading-relaxed text-zinc-650 font-normal">
+                      “{item.text}”
                     </p>
                   </div>
                 </SwiperSlide>

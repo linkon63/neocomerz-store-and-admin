@@ -113,12 +113,12 @@ export default function GiftsPage() {
         <section className="w-full py-16 md:py-24 bg-[#F6F6F6] border-t border-stone-100">
           <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
             {/* Header */}
-            <div className="text-center mb-16 flex flex-col items-center">
-              <h2 className="inline-flex flex-row justify-center items-baseline gap-2 md:gap-3">
-                <span className="font-['Bembo_Std'] text-[#C6B485] text-4xl sm:text-5xl md:text-6xl font-normal leading-none">Curated</span>
-                <span className="font-['Snell_Roundhand_LT_Std'] italic text-[#8E866B] text-4xl sm:text-5xl md:text-6xl font-normal leading-none lowercase">Collections</span>
+            <div className="self-stretch flex flex-col justify-center items-center gap-3 overflow-hidden mb-16">
+              <h2 className="inline-flex justify-center flex-wrap items-center gap-1.5">
+                <span className="text-[#C6B485] text-4xl md:text-5xl lg:text-6xl font-normal font-['Bembo_Std'] leading-tight lg:leading-[56px]">Curated</span>
+                <span className="text-[#8E866B] text-4xl md:text-5xl lg:text-6xl font-normal font-['Snell_Roundhand_LT_Std'] leading-tight lg:leading-[56px]">Collections</span>
               </h2>
-              <p className="max-w-[600px] text-center text-[#83847e] text-sm sm:text-base md:text-lg font-normal font-['Bembo_Std'] leading-normal px-4 mt-4">
+              <p className="max-w-[700px] text-center text-[#83847e] text-base lg:text-lg font-normal font-['Bembo_Std'] leading-6 mx-auto">
                 Designed to make a lasting impression for corporate, seasonal, and personal gifting.
               </p>
             </div>

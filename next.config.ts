@@ -62,7 +62,7 @@ const nextConfig: NextConfig = {
       // Global static assets proxy (products, uploads, brands, variants, categories, etc.)
       // Matches any path ending with a common image extension, routing it to the NestJS backend.
       {
-        source: "/:path*\\.:ext(png|jpg|jpeg|gif|webp|svg|ico|PNG|JPG|JPEG|WEBP|SVG|ICO)",
+        source: "/:path*\\.:ext(png|jpg|jpeg|gif|webp|avif|svg|ico|PNG|JPG|JPEG|WEBP|AVIF|SVG|ICO)",
         destination: `${backendOrigin}/:path*.:ext`,
       },
     ];

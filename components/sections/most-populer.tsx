@@ -50,12 +50,12 @@ export default function MostPopuler() {
     <section className="relative w-full py-16 md:py-24 bg-[#F9F9FB] border-t border-stone-100 overflow-hidden">
       <div className="relative z-10 w-full max-w-[1440px] mx-auto px-5 sm:px-10 md:px-14 lg:px-20">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="inline-flex flex-row justify-center items-baseline gap-2 md:gap-3">
-            <span className="font-['Bembo_Std'] text-[#C6B485] text-4xl sm:text-5xl md:text-6xl font-normal leading-none">Most</span>
-            <span className="font-['Snell_Roundhand_LT_Std'] italic text-[#8E866B] text-4xl sm:text-5xl md:text-6xl font-normal leading-none lowercase">Popular</span>
+        <div className="self-stretch flex flex-col justify-center items-center gap-3 overflow-hidden mb-16">
+          <h2 className="inline-flex justify-center flex-wrap items-center gap-1.5">
+            <span className="text-[#C6B485] text-4xl md:text-5xl lg:text-6xl font-normal font-['Bembo_Std'] leading-tight lg:leading-[56px]">Most</span>
+            <span className="text-[#8E866B] text-4xl md:text-5xl lg:text-6xl font-normal font-['Snell_Roundhand_LT_Std'] leading-tight lg:leading-[56px]">Popular</span>
           </h2>
-          <p className="font-['Bembo_Std'] text-[#83847e] text-sm sm:text-base md:text-lg font-normal tracking-wide mt-4 font-light max-w-xl mx-auto leading-relaxed">
+          <p className="max-w-[700px] text-center text-[#83847e] text-base lg:text-lg font-normal font-['Bembo_Std'] leading-6 mx-auto">
             Designed to make a lasting impression for corporate, seasonal, and personal gifting.
           </p>
         </div>

@@ -42,14 +42,17 @@ export default function GiftItem() {
       {/* Content Layer */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6">
         {/* Title Section */}
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="font-['Bembo_Std'] text-4xl md:text-5xl lg:text-6xl mb-4">
-            <span className="text-white">Gifting </span>
-            <span className="italic text-white">Items</span>
+        <div className="self-stretch flex flex-col justify-center items-center gap-3 overflow-hidden mb-12 md:mb-16">
+          <h2 className="inline-flex justify-center flex-wrap items-center gap-1.5">
+            <span className="text-white text-4xl md:text-5xl lg:text-6xl font-normal font-['Bembo_Std'] leading-tight lg:leading-[56px]">
+              Gifting
+            </span>
+            <span className="text-white text-4xl md:text-5xl lg:text-6xl font-normal font-['Snell_Roundhand_LT_Std'] leading-tight lg:leading-[56px]">
+              Items
+            </span>
           </h2>
-          <p className="font-gotham text-sm md:text-base text-white max-w-3xl mx-auto leading-relaxed">
-            From executive gifting to bespoke corporate collections, we create refined tea presentations<br className="hidden sm:block" />
-            tailored for hotels, boardrooms, private events, and premium clientele.
+          <p className="max-w-[700px] text-center text-white text-base lg:text-lg font-normal font-['Bembo_Std'] leading-6 mx-auto">
+            What better way to enjoy a warming cup of tea than when served with a beautiful tea gift set? Enjoy your tea with a Teabloom&apos;s tea gift set.
           </p>
         </div>
 
