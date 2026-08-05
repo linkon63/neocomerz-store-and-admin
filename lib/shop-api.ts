@@ -225,3 +225,25 @@ export function fetchShopAttributes(): Promise<any[]> {
   return safeFetchJson<any[]>(`${API_BASE_URL}/attributes`, []);
 }
 
+// ─── Policies ────────────────────────────────────────────────────────────────
+
+export interface PolicyEntry {
+  title: string;
+  content: string;
+}
+
+export type PolicyKey = "delivery" | "refund" | "return" | "cancellation" | "privacy" | "terms";
+
+export interface StorePolicies {
+  delivery?:     PolicyEntry;
+  refund?:       PolicyEntry;
+  return?:       PolicyEntry;
+  cancellation?: PolicyEntry;
+  privacy?:      PolicyEntry;
+  terms?:        PolicyEntry;
+}
+
+/** Fetches all policies from the API. Safe – never throws; returns null on failure. */
+export function fetchStorePolicies(): Promise<StorePolicies | null> {
+  return safeFetchJson<StorePolicies | null>(`${API_BASE_URL}/policies`, null);
+}
