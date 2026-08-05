@@ -26,28 +26,28 @@ const heritageItems = [
     id: 1,
     title: "Gracious Hospitality",
     desc: "Welcome guests and honour relationships with a tea experience crafted to be remembered beyond the final cup.",
-    image: "/images/Assembly/img-1.png",
+    image: "/images/Assembly/img-11.webp",
     aspect: "aspect-square"
   },
   {
     id: 2,
     title: "Executive Appreciation",
     desc: "Celebrate professional milestones with a gesture of quiet distinction and lasting refinement.",
-    image: "/images/Assembly/img-2.png",
+    image: "/images/Assembly/img-1.png",
     aspect: "aspect-square"
   },
   {
     id: 3,
     title: "",
     desc: "",
-    image: "/images/Assembly/img-3.png",
+    image: "/images/Assembly/img-12.webp",
     aspect: "aspect-[9/16] h-[340px]"
   },
   {
     id: 4,
     title: "Personal Celebrations",
     desc: "Mark life's most meaningful occasions with a gift that reflects thoughtfulness, elegance, and timeless taste.",
-    image: "/images/Assembly/img-4.png",
+    image: "/images/Assembly/img-10.webp",
     aspect: "aspect-square"
   }
 ];

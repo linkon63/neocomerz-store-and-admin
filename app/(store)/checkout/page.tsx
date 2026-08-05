@@ -9,7 +9,8 @@ import { useAuth } from "@/app/_providers/auth-provider";
 import { useCurrency } from "@/lib/currency-context";
 import { usePlaceOrder } from "@/app/_hooks/use-place-order";
 import { LuLoader, LuArrowLeft, LuLock, LuMapPin } from "react-icons/lu";
-import type { AddressForm } from "@/lib/types";
+import type { AddressForm, CartItem } from "@/lib/types";
+import { getBuyNowItem, clearBuyNowItem } from "@/lib/buy-now";
 import MapPickerModal from "./_components/map-picker-modal";
 
 const emptyAddress: AddressForm = {
@@ -37,10 +38,17 @@ export default function CheckoutPage() {
     fullName: user?.name || "",
   }));
   const [useSameAddressForShipping, setUseSameAddressForShipping] = useState(true);
-  const [paymentMethod, setPaymentMethod] = useState<"online" | "cod">("online");
+  const [paymentMethod, setPaymentMethod] = useState<"online" | "cod">("cod");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [orderNote, setOrderNote] = useState("");
   const [mapPickerOpen, setMapPickerOpen] = useState(false);
+  const [buyNowItem, setBuyNowItem] = useState<CartItem | null>(null);
+
+  useEffect(() => {
+    setBuyNowItem(getBuyNowItem());
+  }, []);
+
+  const checkoutItems = buyNowItem ? [buyNowItem] : items;
 
   const handleMapSelect = useCallback(
     (data: { addressLine1: string; city: string; state: string; postalCode: string; country: string }) => {
@@ -61,7 +69,7 @@ export default function CheckoutPage() {
   }, [user]);
 
   const shipping = 0;
-  const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const subtotal = checkoutItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const estTax = 0;
   const promoCodeDiscount = 0;
   const total = subtotal + shipping + estTax - promoCodeDiscount;
@@ -72,7 +80,7 @@ export default function CheckoutPage() {
       alert("Please agree to the terms and conditions.");
       return;
     }
-    if (items.length === 0) {
+    if (checkoutItems.length === 0) {
       alert("Your cart is empty. Please add items before placing an order.");
       return;
     }
@@ -80,7 +88,9 @@ export default function CheckoutPage() {
       const result = await placeOrder(address, {
         paymentMethod,
         orderNote: orderNote || undefined,
+        items: buyNowItem ? checkoutItems : undefined,
       });
+      clearBuyNowItem();
       sessionStorage.setItem("orderResult", JSON.stringify(result));
       router.push("/confirmation");
     } catch {
@@ -283,6 +293,33 @@ export default function CheckoutPage() {
               <h2 className="font-bembo text-3xl sm:text-4xl text-[#4A4A4A] font-normal mb-6">
                 Summary
               </h2>
+
+              {/* Order Items */}
+              <div className="space-y-4 mb-6">
+                {checkoutItems.map((item) => (
+                  <div key={item.slug} className="flex items-center gap-3">
+                    <div className="w-14 h-14 relative bg-stone-50 rounded-md shrink-0 overflow-hidden">
+                      {item.image && (
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          sizes="56px"
+                          className="object-contain p-1.5"
+                        />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-gotham text-sm text-[#222222] truncate">{item.name}</p>
+                      <p className="font-gotham text-xs text-[#999999]">Qty: {item.quantity}</p>
+                    </div>
+                    <p className="font-gotham text-sm font-medium text-[#222222] whitespace-nowrap">
+                      {formatCurrency(item.price * item.quantity)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <div className="h-px bg-zinc-200 mb-5" />
 
               {/* Pricing Rows */}
               <div className="space-y-5">

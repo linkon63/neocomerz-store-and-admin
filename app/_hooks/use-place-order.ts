@@ -4,7 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useCart } from "@/app/_providers/cart-provider";
 import { getCustomerToken } from "@/lib/storefront-api";
-import type { AddressForm, OrderResult } from "@/lib/types";
+import type { AddressForm, CartItem, OrderResult } from "@/lib/types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5010/api/v1";
 
@@ -12,14 +12,14 @@ export function usePlaceOrder() {
   const { items, clearCart } = useCart();
   const [submitting, setSubmitting] = useState(false);
 
-  const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-
   const placeOrder = async (
     address: AddressForm,
-    extra?: { paymentMethod?: string; orderNote?: string }
+    extra?: { paymentMethod?: string; orderNote?: string; items?: CartItem[] }
   ): Promise<OrderResult> => {
     setSubmitting(true);
     const token = getCustomerToken();
+    const orderItems = extra?.items ?? items;
+    const orderSubtotal = orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
     try {
       let data: Record<string, unknown>;
@@ -69,7 +69,7 @@ export function usePlaceOrder() {
 
         data = await orderRes.json();
       } else {
-        const lineItems = items.map((i) => {
+        const lineItems = orderItems.map((i) => {
           if (!i.variantId) throw new Error(`Missing variant for "${i.name}". Please remove and re-add the item.`);
           return { variantId: i.variantId, quantity: i.quantity };
         });
@@ -103,8 +103,8 @@ export function usePlaceOrder() {
 
       const result: OrderResult = {
         orderNumber: (data.orderNumber ?? data.id ?? "N/A") as string,
-        total: (data.total as number) ?? subtotal,
-        items: items.map((i) => ({
+        total: (data.total as number) ?? orderSubtotal,
+        items: orderItems.map((i) => ({
           name: i.name,
           quantity: i.quantity,
           price: i.price,
@@ -115,7 +115,18 @@ export function usePlaceOrder() {
         orderNote: extra?.orderNote,
       };
 
-      clearCart();
+      if (!extra?.items) clearCart();
+
+      try {
+        await fetch("/api/resend/order-confirmation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(result),
+        });
+      } catch (notifyErr) {
+        console.error("Order confirmation email failed:", notifyErr);
+      }
+
       toast.success("Order placed successfully!");
       return result;
     } catch (err) {
