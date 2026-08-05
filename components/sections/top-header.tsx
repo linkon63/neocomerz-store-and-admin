@@ -24,15 +24,16 @@ export default function TopHeader() {
     loadSettings();
   }, []);
 
-  const phoneFull = shopSettings?.contactNumber 
-    ? (typeof shopSettings.contactNumber === 'object' ? shopSettings.contactNumber.full : shopSettings.contactNumber)
-    : help.phone.full;
-    
-  const phoneShort = shopSettings?.contactNumber 
-    ? (typeof shopSettings.contactNumber === 'object' ? shopSettings.contactNumber.short : shopSettings.contactNumber)
-    : help.phone.short;
+  // contactNumber comes as { entries: [{title, value}] } from the API
+  const contactEntries: { title: string; value: string }[] =
+    Array.isArray(shopSettings?.contactNumber?.entries)
+      ? shopSettings.contactNumber.entries
+      : Array.isArray(shopSettings?.contactNumber)
+      ? shopSettings.contactNumber
+      : [];
 
-
+  const primaryPhone = contactEntries[0]?.value || help.phone.full;
+  const primaryPhoneShort = contactEntries[0]?.value || help.phone.short;
 
   return (
     <section className="w-full bg-sage-gray text-white font-medium px-2 sm:px-4 md:px-6 py-0.5 relative">
@@ -47,10 +48,10 @@ export default function TopHeader() {
             <div className="flex items-center gap-1 sm:gap-1.5 text-white">
               <IoCallOutline className="w-3.5 h-3.5 text-white" />
               <span className="font-['Gotham'] text-white text-xs sm:text-sm hidden md:inline">
-                {help.phone.label} {phoneFull}
+                {help.phone.label} {primaryPhone}
               </span>
               <span className="font-['Gotham'] text-white text-xs sm:text-sm md:hidden">
-                {phoneShort}
+                {primaryPhoneShort}
               </span>
             </div>
 
@@ -58,7 +59,7 @@ export default function TopHeader() {
 
           {/* Center Section - Promotional Text (Absolutely Centered) */}
           <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl z-0">
-            <TopSlider />
+            <TopSlider slogan={shopSettings?.slogan} />
           </div>
 
           {/* Right Section - Location */}
@@ -72,7 +73,7 @@ export default function TopHeader() {
 
         {/* Mobile Slider - Below main content */}
         <div className="lg:hidden pb-1">
-          <TopSlider />
+          <TopSlider slogan={shopSettings?.slogan} />
         </div>
       </div>
     </section>

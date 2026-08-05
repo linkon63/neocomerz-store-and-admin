@@ -30,7 +30,7 @@ export function PolicyModal({ policy, onClose }: PolicyModalProps) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="policy-modal-title"
-      className="fixed inset-0 z-[99999] flex items-start justify-center p-4 pt-[72px] bg-black/80 backdrop-blur-md animate-fadeIn"
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
       onClick={onClose}
     >
       <div

@@ -70,7 +70,6 @@ export default function ReportsOverviewPage() {
         description="Consolidated view of sales, customers, discounts, inventory, and purchases"
         action={
           <div className="flex items-center gap-3">
-            <DownloadButton endpoint="overview" dateValue={dateValue} />
             <div className="w-72">
               <Datepicker
                 containerClassName="relative rounded-lg border border-slate-300 text-sm font-black shadow-sm"

@@ -101,6 +101,7 @@ export default function ContactPage() {
       socialContact: social,
     }, {
       successMessage: "Contact settings saved successfully.",
+      onSuccess: loadSettings,
     });
   }
 

@@ -116,6 +116,14 @@ function makeSkuSeed(name: string, unitCode?: string) {
   return [base || "PRODUCT", suffix].join("-");
 }
 
+function makeShortVariantCode(val: string) {
+  const words = val.trim().split(/[\s-]+/);
+  if (words.length > 1) {
+    return words.map(w => w[0]).join("").toUpperCase().substring(0, 3);
+  }
+  return slugify(val).replace(/-/g, "").toUpperCase().substring(0, 3);
+}
+
 function cartesianProduct<T>(groups: T[][]): T[][] {
   return groups.reduce<T[][]>(
     (acc, group) => acc.flatMap((items) => group.map((item) => [...items, item])),
@@ -181,7 +189,7 @@ export default function NewProductPage() {
         label: values.map((value) => value.value).join(" / "),
         valueIds: values.map((value) => value.id),
         sku: `${form.sku || makeSkuSeed(form.name, selectedUnit?.abbreviation)}-${values
-          .map((value) => slugify(value.value).replace(/-/g, "").toUpperCase())
+          .map((value) => makeShortVariantCode(value.value))
           .join("-")}`,
       }));
       result.sort((a, b) => a.sku.localeCompare(b.sku));

@@ -102,6 +102,14 @@ function makeSkuSeed(name: string, unitCode?: string) {
   return [base || "PRODUCT", suffix].join("-");
 }
 
+function makeShortVariantCode(val: string) {
+  const words = val.trim().split(/[\s-]+/);
+  if (words.length > 1) {
+    return words.map(w => w[0]).join("").toUpperCase().substring(0, 3);
+  }
+  return slugify(val).replace(/-/g, "").toUpperCase().substring(0, 3);
+}
+
 function cartesianProduct<T>(groups: T[][]): T[][] {
   return groups.reduce<T[][]>(
     (acc, group) => acc.flatMap((items) => group.map((item) => [...items, item])),
@@ -188,7 +196,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         label: values.map((v) => v.value).join(" / "),
         valueIds: values.map((v) => v.id),
         sku: `${form.sku || makeSkuSeed(form.name, selectedUnit?.abbreviation)}-${values
-          .map((v) => slugify(v.value).replace(/-/g, "").toUpperCase())
+          .map((v) => makeShortVariantCode(v.value))
           .join("-")}`,
       }));
       result.sort((a, b) => a.sku.localeCompare(b.sku));
