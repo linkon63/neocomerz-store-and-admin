@@ -1,4 +1,4 @@
-import { type PaginatedProducts, type Product as AdminProduct, resolveImageUrl } from "./admin-api";
+import { type PaginatedProducts, type Product as AdminProduct, type Campaign, resolveImageUrl } from "./admin-api";
 
 const API_BASE_URL =
   typeof window === "undefined"
@@ -246,4 +246,10 @@ export interface StorePolicies {
 /** Fetches all policies from the API. Safe – never throws; returns null on failure. */
 export function fetchStorePolicies(): Promise<StorePolicies | null> {
   return safeFetchJson<StorePolicies | null>(`${API_BASE_URL}/policies`, null);
+}
+
+/** Fetches all active campaigns */
+export async function fetchActiveCampaigns(): Promise<Campaign[]> {
+  const campaigns = await safeFetchJson<Campaign[]>(`${API_BASE_URL}/campaigns`, []);
+  return campaigns.filter(c => c.status === "active");
 }

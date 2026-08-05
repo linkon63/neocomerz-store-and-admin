@@ -273,7 +273,7 @@ export default function CampaignsPage() {
           aria-labelledby="campaign-modal-title"
         >
           <form
-            className="modal-panel flex w-full max-w-2xl flex-col rounded-xl border border-slate-200 bg-white shadow-2xl min-h-[480px] max-h-[calc(100vh-3rem)]"
+            className="modal-panel flex w-full max-w-2xl flex-col rounded-xl border border-slate-200 bg-white shadow-2xl overflow-hidden min-h-[480px] max-h-[calc(100vh-3rem)]"
             onSubmit={handleSubmit}
           >
             <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 pt-6 pb-5 shrink-0">
@@ -295,7 +295,7 @@ export default function CampaignsPage() {
               </button>
             </div>
 
-            <div className="flex-1 modal-body px-6 py-5">
+            <div className="flex-1 min-h-0 modal-body overflow-y-auto px-6 py-5">
             <div className="space-y-4">
               {/* Campaign Name (section select) + Status */}
               <div className="grid gap-4 sm:grid-cols-2">
@@ -500,7 +500,7 @@ export default function CampaignsPage() {
             </div>
             </div>
 
-              <div className="flex justify-end gap-3 pt-2">
+              <div className="flex shrink-0 justify-end gap-3 border-t border-slate-100 bg-white px-6 py-5">
                 <button
                   className="h-12 rounded-md border border-slate-300 bg-white px-5 font-black text-slate-700 hover:bg-slate-50 transition"
                   disabled={saving}
