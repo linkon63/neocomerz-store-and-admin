@@ -13,8 +13,8 @@ type LoginResponse = {
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("david.brown@example.com");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,7 +54,7 @@ export default function AdminLoginPage() {
           href="/"
           className="font-['Bembo_Std'] text-3xl font-normal text-zinc-800 tracking-wide mb-2"
         >
-          NeoComerz
+          London Tea Exchange
         </Link>
         <h1 className="font-['Bembo_Std'] text-3xl font-normal text-zinc-800 tracking-wide mb-6">
           Admin Login
