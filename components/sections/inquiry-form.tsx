@@ -6,11 +6,13 @@ import { toast } from 'sonner';
 import { useAuth } from '@/app/_providers/auth-provider';
 import { submitWholesaleRequest } from '@/lib/storefront-api';
 import { fetchShopProducts } from '@/lib/shop-api';
+import { corporateInquiryValidation, type CorporateInquiryErrors } from '@/utils/validation';
  
 export default function InquiryForm() {
   const { isAuthenticated, setShowAuthModal } = useAuth();
   const [defaultProduct, setDefaultProduct] = useState<{ id: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<CorporateInquiryErrors>({});
  
   const [formData, setFormData] = useState({
     fullName: '',
@@ -37,18 +39,26 @@ export default function InquiryForm() {
  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
- 
+
+    const validation = corporateInquiryValidation(formData);
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      toast.error('Please fill the highlighted fields');
+      return;
+    }
+    setErrors({});
+
     if (!isAuthenticated) {
       toast.error('Please login to submit your corporate inquiry.');
       setShowAuthModal(true);
       return;
     }
- 
+
     if (!defaultProduct) {
       toast.error('Retrieving shop catalog, please try again in a moment.');
       return;
     }
- 
+
     setSubmitting(true);
     try {
       const quantityNum = parseInt(formData.quantity) || 100;
@@ -63,7 +73,7 @@ Corporate Gifting / Event Inquiry Details:
 - Estimated Quantity: ${formData.quantity || 'N/A'}
 - Additional Requirements: ${formData.requirements || 'N/A'}
       `.trim();
- 
+
       await submitWholesaleRequest({
         contactPhone: `${formData.countryCode}${formData.phoneNumber}`,
         customerNote: customerNoteText,
@@ -75,8 +85,19 @@ Corporate Gifting / Event Inquiry Details:
           },
         ],
       });
- 
+
+      try {
+        await fetch('/api/resend/corporate-inquiry', {
+          method: 'POST',
+          body: JSON.stringify(formData),
+          headers: { 'Content-Type': 'application/json' },
+        });
+      } catch (notifyErr) {
+        console.error('Resend corporate inquiry notification failed:', notifyErr);
+      }
+
       toast.success('Thank you! Your corporate inquiry has been submitted successfully.');
+      setErrors({});
       setFormData({
         fullName: '',
         organisation: '',
@@ -100,6 +121,9 @@ Corporate Gifting / Event Inquiry Details:
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
   };
  
   return (
@@ -182,7 +206,7 @@ Corporate Gifting / Event Inquiry Details:
                   {/* Row 1 */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="font-['Bembo_Std'] text-xs uppercase tracking-wide text-stone-700">Full Name</label>
+                      <label className="font-['Bembo_Std'] text-xs uppercase tracking-wide text-stone-700">Full Name <span className="text-red-500">*</span></label>
                       <input
                         type="text"
                         name="fullName"
@@ -190,8 +214,10 @@ Corporate Gifting / Event Inquiry Details:
                         onChange={handleInputChange}
                         placeholder="Enter full name"
                         className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-850 placeholder-stone-300 focus:outline-none focus:border-stone-400"
-                        required
                       />
+                      {errors.fullName && (
+                        <p className="text-xs text-red-500 font-gotham">{errors.fullName}</p>
+                      )}
                     </div>
                     <div className="space-y-1.5">
                       <label className="font-['Bembo_Std'] text-xs uppercase tracking-wide text-stone-700">Organisation/Company</label>
@@ -203,12 +229,15 @@ Corporate Gifting / Event Inquiry Details:
                         placeholder="Enter organization/company name"
                         className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-850 placeholder-stone-300 focus:outline-none focus:border-stone-400"
                       />
+                      {errors.organisation && (
+                        <p className="text-xs text-red-500 font-gotham">{errors.organisation}</p>
+                      )}
                     </div>
                   </div>
  
                   {/* Row 2 */}
                   <div className="space-y-1.5">
-                    <label className="font-['Bembo_Std'] text-xs uppercase tracking-wide text-stone-700">Email Address</label>
+                    <label className="font-['Bembo_Std'] text-xs uppercase tracking-wide text-stone-700">Email Address <span className="text-red-500">*</span></label>
                     <input
                       type="email"
                       name="email"
@@ -216,13 +245,15 @@ Corporate Gifting / Event Inquiry Details:
                       onChange={handleInputChange}
                       placeholder="Enter email address"
                       className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-850 placeholder-stone-300 focus:outline-none focus:border-stone-400"
-                      required
                     />
+                    {errors.email && (
+                      <p className="text-xs text-red-500 font-gotham">{errors.email}</p>
+                    )}
                   </div>
  
                   {/* Row 3 */}
                   <div className="space-y-1.5">
-                    <label className="font-['Bembo_Std'] text-xs uppercase tracking-wide text-stone-700">Phone Number</label>
+                    <label className="font-['Bembo_Std'] text-xs uppercase tracking-wide text-stone-700">Phone Number <span className="text-red-500">*</span></label>
                     <div className="flex border border-stone-200 rounded-md overflow-hidden">
                       <select
                         name="countryCode"
@@ -242,9 +273,11 @@ Corporate Gifting / Event Inquiry Details:
                         onChange={handleInputChange}
                         placeholder="Phone Number"
                         className="w-full px-4 py-3 text-xs font-gotham text-stone-850 placeholder-stone-300 focus:outline-none"
-                        required
                       />
                     </div>
+                    {errors.phoneNumber && (
+                      <p className="text-xs text-red-500 font-gotham">{errors.phoneNumber}</p>
+                    )}
                   </div>
                 </div>
  
@@ -257,7 +290,7 @@ Corporate Gifting / Event Inquiry Details:
                   {/* Row 4 */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="font-['Bembo_Std'] text-xs uppercase tracking-wide text-stone-700">Purpose of Inquiry</label>
+                      <label className="font-['Bembo_Std'] text-xs uppercase tracking-wide text-stone-700">Purpose of Inquiry <span className="text-red-500">*</span></label>
                       <select
                         name="purpose"
                         value={formData.purpose}
@@ -270,6 +303,9 @@ Corporate Gifting / Event Inquiry Details:
                         <option value="event">Bespoke Event</option>
                         <option value="retail">Retail Partnership</option>
                       </select>
+                      {errors.purpose && (
+                        <p className="text-xs text-red-500 font-gotham">{errors.purpose}</p>
+                      )}
                     </div>
                     <div className="space-y-1.5">
                       <label className="font-['Bembo_Std'] text-xs uppercase tracking-wide text-stone-700">Preferred Collection</label>
@@ -291,7 +327,7 @@ Corporate Gifting / Event Inquiry Details:
                   {/* Row 5 */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="font-['Bembo_Std'] text-xs uppercase tracking-wide text-stone-700">Required Delivery Date</label>
+                      <label className="font-['Bembo_Std'] text-xs uppercase tracking-wide text-stone-700">Required Delivery Date <span className="text-red-500">*</span></label>
                       <input
                         type="date"
                         name="deliveryDate"
@@ -299,9 +335,12 @@ Corporate Gifting / Event Inquiry Details:
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-850 focus:outline-none focus:border-stone-400 cursor-pointer"
                       />
+                      {errors.deliveryDate && (
+                        <p className="text-xs text-red-500 font-gotham">{errors.deliveryDate}</p>
+                      )}
                     </div>
                     <div className="space-y-1.5">
-                      <label className="font-['Bembo_Std'] text-xs uppercase tracking-wide text-stone-700">Estimated Quantity</label>
+                      <label className="font-['Bembo_Std'] text-xs uppercase tracking-wide text-stone-700">Estimated Quantity <span className="text-red-500">*</span></label>
                       <input
                         type="text"
                         name="quantity"
@@ -310,6 +349,9 @@ Corporate Gifting / Event Inquiry Details:
                         placeholder="Write here ..."
                         className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-850 placeholder-stone-300 focus:outline-none focus:border-stone-400"
                       />
+                      {errors.quantity && (
+                        <p className="text-xs text-red-500 font-gotham">{errors.quantity}</p>
+                      )}
                     </div>
                   </div>
  
@@ -324,6 +366,9 @@ Corporate Gifting / Event Inquiry Details:
                       rows={4}
                       className="w-full px-4 py-3 border border-stone-200 rounded-md text-xs font-gotham text-stone-850 placeholder-stone-300 focus:outline-none focus:border-stone-400 resize-none"
                     />
+                    {errors.requirements && (
+                      <p className="text-xs text-red-500 font-gotham">{errors.requirements}</p>
+                    )}
                   </div>
                 </div>
  

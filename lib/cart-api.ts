@@ -26,13 +26,19 @@ export function mapBackendCartItem(item: BackendCartItem): CartItem {
   const featured = p.media?.find((m) => m.isFeatured);
   const first = p.media?.[0];
   const attributes = item.variant.attributes ?? {};
+  const priceNum = Number(item.variant.price);
+  const variantDiscounted = item.variant.discountedPrice;
+  const productDiscounted = (p as { discountPrice?: string | number | null }).discountPrice;
+  const discountNum = Number(variantDiscounted ?? productDiscounted ?? 0);
+  const showOriginal = discountNum > 0 && discountNum < priceNum;
 
   return {
     id: item.id,
     slug: p.slug,
     name: p.name,
-    price: Number(item.variant.price),
+    price: showOriginal ? discountNum : priceNum,
     image: resolveImageUrl(featured?.media.url ?? first?.media.url ?? ""),
+    description: p.description ?? '',
     color: attributes.Color ?? attributes.Colour ?? attributes.color ?? '',
     size: attributes.Size ?? attributes.size ?? '',
     quantity: item.quantity,

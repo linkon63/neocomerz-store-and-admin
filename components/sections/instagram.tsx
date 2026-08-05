@@ -20,7 +20,7 @@ const instagramImages = [
 
 export default function Instagram() {
   return (
-    <section className="relative w-full bg-[#D9D9D6] pt-16 md:pt-36 pb-5">
+    <section className="relative w-full  pt-16 md:pt-36 pb-5">
       <div className="mx-auto px-4 sm:px-6">
         <div className="mb-8 text-center">
           <h2 className="font-['Snell_Roundhand_LT_Std'] text-5xl text-khaki-gold">

@@ -20,10 +20,12 @@ export default function WishlistView() {
     }
     addItem({
       id: item.id,
+      productId: item.id,
       name: item.name,
       slug: item.slug,
       price: item.price,
       image: item.image,
+      description: item.description,
       quantity: 1,
       variantId: item.variantId,
       color: item.color,

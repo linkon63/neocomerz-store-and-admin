@@ -38,12 +38,12 @@ export async function POST(request: Request) {
         }
 
         const { data, error } = await resend.emails.send({
-            from: fromEmail,
+            from: `London Tea Exchange <${fromEmail}>`,
             to: [toEmail],
-            subject: 'New Newsletter Subscription',
+            subject: 'New Newsletter Subscription From London Tea Exchange Website',
             html: `
                 <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
-                    <h1 style="color: #000;">New Newsletter Subscriber</h1>
+                    <h1 style="color: #000;">New Newsletter Subscription From London Tea Exchange Website</h1>
                     <p>Someone just subscribed to the newsletter!</p>
                     <p><b>Subscriber Email:</b> ${email}</p>
                 </div>

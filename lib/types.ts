@@ -6,6 +6,7 @@ export type CartItem = {
   color: string;
   size: string;
   quantity: number;
+  description?: string;
   id?: string;
   productId?: string;
   variantId?: string;
@@ -23,6 +24,7 @@ export type WishlistProduct = {
   size: string;
   category: string;
   team: string;
+  description?: string;
   variantId?: string;
   attributes?: Record<string, string>;
   [key: string]: any;
@@ -42,6 +44,8 @@ export interface BackendCartItem {
     stockAlertThreshold: number;
     isDefault: boolean;
     productId: string;
+    discountAmount?: string | number | null;
+    discountedPrice?: string | number | null;
     attributes?: Record<string, string>;
     product: {
       id: string;

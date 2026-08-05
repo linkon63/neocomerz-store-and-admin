@@ -11,6 +11,7 @@ import { useCurrency } from "@/lib/currency-context";
 import { LuMinus, LuPlus, LuArrowLeft, LuLock, LuChevronUp, LuTrash2 } from "react-icons/lu";
 import { IoHeartOutline, IoHeart, IoChevronDownOutline } from "react-icons/io5";
 import type { WishlistProduct } from "@/lib/types";
+import { clearBuyNowItem } from "@/lib/buy-now";
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem } = useCart();
@@ -81,7 +82,7 @@ export default function CartPage() {
             {/* ── Left Column: Cart Items ── */}
             <div>
               <div className="flex items-center gap-3 mb-6 sm:mb-8">
-                <Link href="/shop" className="text-[#4A4A4A] hover:text-stone-600 transition-colors">
+                <Link href="/products" className="text-[#4A4A4A] hover:text-stone-600 transition-colors">
                   <LuArrowLeft className="w-5 sm:w-6 h-5 sm:h-6" />
                 </Link>
                 <h1 className="font-bembo text-3xl sm:text-4xl leading-9 sm:leading-10 text-[#4A4A4A] font-normal">
@@ -92,39 +93,60 @@ export default function CartPage() {
               <div>
                 {items.map((item) => {
                   const inWishlist = isInWishlist(item.productId || item.id || item.slug);
+                  const productUrl = item.productId ? `/products/${item.productId}` : null;
                   return (
                       <div
                         key={item.slug}
                         className="border-t border-b border-zinc-100 py-4 sm:py-5 group"
                       >
                         <div className="flex gap-4 sm:gap-6">
-                          <div className="w-20 sm:w-32 h-28 sm:h-40 relative bg-stone-50 rounded-md shrink-0 shadow-sm">
-                            {item.image && (
-                              <Image
-                                src={item.image}
-                                alt={item.name}
-                                fill
-                                sizes="(max-width: 640px) 80px, 128px"
-                                className="object-contain p-2 sm:p-3"
-                              />
-                            )}
-                          </div>
+                          {productUrl ? (
+                            <Link
+                              href={productUrl}
+                              className="w-20 sm:w-32 h-28 sm:h-40 relative bg-stone-50 rounded-md shrink-0 shadow-sm overflow-hidden cursor-pointer"
+                            >
+                              {item.image && (
+                                <Image
+                                  src={item.image}
+                                  alt={item.name}
+                                  fill
+                                  sizes="(max-width: 640px) 80px, 128px"
+                                  className="object-contain p-2 sm:p-3"
+                                />
+                              )}
+                            </Link>
+                          ) : (
+                            <div className="w-20 sm:w-32 h-28 sm:h-40 relative bg-stone-50 rounded-md shrink-0 shadow-sm">
+                              {item.image && (
+                                <Image
+                                  src={item.image}
+                                  alt={item.name}
+                                  fill
+                                  sizes="(max-width: 640px) 80px, 128px"
+                                  className="object-contain p-2 sm:p-3"
+                                />
+                              )}
+                            </div>
+                          )}
 
                           <div className="flex-1 min-w-0 flex flex-col">
-                            <h3 className="font-gotham text-base sm:text-xl text-[#4A4A4A] leading-tight">
-                              {item.name}
-                            </h3>
+                            {productUrl ? (
+                              <Link href={productUrl} className="cursor-pointer">
+                                <h3 className="font-gotham text-base sm:text-xl text-[#4A4A4A] leading-tight hover:text-brand-3 transition-colors">
+                                  {item.name}
+                                </h3>
+                              </Link>
+                            ) : (
+                              <h3 className="font-gotham text-base sm:text-xl text-[#4A4A4A] leading-tight">
+                                {item.name}
+                              </h3>
+                            )}
 
-                            <div className="flex items-center gap-2 mt-1 sm:mt-2 cursor-pointer group/title">
-                              <p className="font-gotham text-sm sm:text-base text-[#999999]">
-                                Premium English Breakfast
+                            {item.description && (
+                              <p className="hidden sm:block font-bembo text-stone-500 text-xs sm:text-sm mt-2 sm:mt-3 leading-relaxed line-clamp-2">
+                                {item.description}
                               </p>
-                              <IoChevronDownOutline className="w-3 sm:w-4 h-3 sm:h-4 text-[#999999] transition-colors" />
-                            </div>
-
-                            <p className="hidden sm:block font-bembo text-stone-500 text-xs sm:text-sm mt-2 sm:mt-3 leading-relaxed">
-                              Each product consists of a beautifully crafted box containing three types of our hand-stitched tea bags.
-                            </p>
+                            )}
 
                             <div className="mt-auto pt-3 sm:pt-4">
                               <div className="flex items-center justify-between">
@@ -176,6 +198,14 @@ export default function CartPage() {
                                     ) : (
                                       <IoHeartOutline className="w-3 sm:w-4 h-3 sm:h-4" />
                                     )}
+                                  </button>
+
+                                  <button
+                                    onClick={() => removeItem(item.slug)}
+                                    className="w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white text-stone-800 hover:bg-[#d3122f] hover:text-white hover:border-[#d3122f] transition-all cursor-pointer active:scale-95"
+                                    aria-label="Remove item"
+                                  >
+                                    <LuTrash2 className="w-3 sm:w-4 h-3 sm:h-4" />
                                   </button>
                                 </div>
                               </div>
@@ -243,11 +273,14 @@ export default function CartPage() {
               </div>
 
               <button
-                onClick={() =>
-                  isAuthenticated
-                    ? router.push("/checkout")
-                    : setShowAuthModal(true)
-                }
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    setShowAuthModal(true);
+                    return;
+                  }
+                  clearBuyNowItem();
+                  router.push("/checkout");
+                }}
                 className="w-full py-3.5 sm:py-4 bg-[#BD2A36] text-white font-gotham text-sm sm:text-base font-bold uppercase tracking-wider rounded-full hover:bg-opacity-90 transition-all cursor-pointer active:scale-[0.98]"
               >
                 PROCEED TO CHECKOUT
