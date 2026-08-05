@@ -333,6 +333,7 @@ export default function BrandsPage() {
                 <input
                   autoFocus
                   required
+                  placeholder="e.g. Nike, Adidas, Sony"
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value, slug: f.id ? f.slug : slugify(e.target.value) }))}
                   className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
@@ -342,6 +343,7 @@ export default function BrandsPage() {
                 <span className="mb-2 block text-sm font-medium text-slate-700">Slug</span>
                 <input
                   required
+                  placeholder="e.g. nike, adidas, sony"
                   value={form.slug}
                   onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
                   className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"

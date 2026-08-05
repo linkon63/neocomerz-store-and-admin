@@ -117,6 +117,7 @@ function VariantMediaGrid({
   variant: ProductVariant;
   onRefresh: () => void;
 }) {
+  const [isUploading, setIsUploading] = useState(false);
   const media = [...(variant.media ?? [])].sort(
     (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
   );
@@ -135,62 +136,104 @@ function VariantMediaGrid({
     onRefresh();
   }
 
-  if (media.length === 0) {
-    return (
-      <p className="text-xs font-medium text-slate-500">
-        No variant images yet. Upload from the create page.
-      </p>
-    );
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    try {
+      await Promise.all(
+        Array.from(files).map((file, index) => {
+          const body = new FormData();
+          body.append("file", file);
+          body.append("type", "image");
+          body.append("sortOrder", String(media.length + index));
+          if (media.length === 0 && index === 0) body.append("isFeatured", "true");
+          return apiRequest(`/variants/${variant.id}/media`, { method: "POST", body });
+        })
+      );
+      onRefresh();
+    } catch (err) {
+      console.error("Failed to upload variant media:", err);
+    } finally {
+      setIsUploading(false);
+    }
   }
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-2 grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
       {media.map((item, index) => (
         <div
           key={item.id}
-          className="group relative overflow-hidden rounded-lg border border-slate-200 bg-white"
+          className="group relative overflow-hidden rounded-lg border border-slate-200 bg-white h-20 shadow-3xs"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img alt="" className="h-28 w-full object-cover" src={resolveImageUrl(item.media.url)} />
-          <div className="flex items-center justify-between px-3 py-2">
-            <span className="text-[11px] font-bold text-slate-500">
-              #{index + 1}
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-slate-500 transition-all cursor-pointer"
-                disabled={index === 0}
-                onClick={() => handleReorder(item.id, Math.max(0, index - 1))}
-                title="Move media item up"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7 7 7M12 3v18" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-slate-500 transition-all cursor-pointer"
-                disabled={index === media.length - 1}
-                onClick={() => handleReorder(item.id, index + 1)}
-                title="Move media item down"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7-7-7M12 21V3" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                className="grid h-8 w-8 place-items-center rounded-lg border border-red-100 bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-700 transition-all cursor-pointer"
-                onClick={() => handleDelete(item.id)}
-                title="Delete media item"
-              >
-                <AdminIcon className="h-4 w-4" name="trash" />
-              </button>
-            </div>
+          <img alt="" className="h-full w-full object-cover" src={resolveImageUrl(item.media.url)} />
+          <div className="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-1">
+            <button
+              type="button"
+              className="p-1 rounded bg-white/95 text-slate-700 hover:bg-blue-600 hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-slate-700"
+              disabled={index === 0}
+              onClick={() => handleReorder(item.id, Math.max(0, index - 1))}
+              title="Move left"
+            >
+              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              className="p-1 rounded bg-white/95 text-slate-700 hover:bg-blue-600 hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-slate-700"
+              disabled={index === media.length - 1}
+              onClick={() => handleReorder(item.id, index + 1)}
+              title="Move right"
+            >
+              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              className="p-1 rounded bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-colors"
+              onClick={() => handleDelete(item.id)}
+              title="Delete image"
+            >
+              <AdminIcon className="h-3 w-3" name="trash" />
+            </button>
+          </div>
+          <div className="absolute top-1 left-1 bg-slate-950/80 text-white text-[8px] font-bold px-1 rounded select-none">
+            #{index + 1}
           </div>
         </div>
       ))}
+
+      {/* Add/Upload Image Card */}
+      <label className="flex flex-col items-center justify-center h-20 border-2 border-dashed border-slate-200/80 hover:border-blue-500 rounded-lg bg-slate-50/50 hover:bg-blue-50/20 cursor-pointer transition-all select-none">
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={handleUpload}
+          disabled={isUploading}
+        />
+        {isUploading ? (
+          <div className="flex flex-col items-center gap-1">
+            <svg className="animate-spin h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider">Uploading</span>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center text-slate-400 hover:text-blue-600">
+            <svg className="h-4 w-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+            </svg>
+            <span className="text-[8px] font-bold uppercase tracking-wider">Add Image</span>
+          </div>
+        )}
+      </label>
     </div>
   );
 }
@@ -240,6 +283,267 @@ function getDefaultVariant(product: Product): ProductVariant | undefined {
   return product.variants?.find((item) => item.isDefault) ?? product.variants?.[0];
 }
 
+function getFormattedVariantDetails(v: ProductVariant, productName: string) {
+  const variantOptions = v.optionValues ?? v.attributes?.map(a => a.attributeValue) ?? [];
+  if (variantOptions.length > 0) {
+    return {
+      title: null,
+      badges: variantOptions.map((ov) => ({
+        name: ov.attribute?.name || "Option",
+        value: ov.value,
+      })),
+    };
+  }
+
+  if (v.isDefault) {
+    return {
+      title: "Default Variant",
+      badges: [],
+    };
+  }
+
+  const raw = v.sku || "";
+  if (raw) {
+    const parts = raw.split(/[-_]+/).filter(Boolean);
+    if (parts.length >= 2) {
+      const suffixParts = parts.slice(Math.max(1, parts.length - 2));
+      return {
+        title: `Variant (${suffixParts.join(" · ")})`,
+        badges: [],
+      };
+    }
+    return {
+      title: `Variant ${raw}`,
+      badges: [],
+    };
+  }
+
+  return {
+    title: "Standard Variant",
+    badges: [],
+  };
+}
+
+function VariantsTabContent({
+  product,
+  symbol,
+  isSaving,
+  setDefaultVariant,
+  openAdjustModal,
+  onRefresh,
+}: {
+  product: Product;
+  symbol: string;
+  isSaving: boolean;
+  setDefaultVariant: (product: Product, variant: ProductVariant) => void;
+  openAdjustModal: (product: Product, variant?: ProductVariant) => void;
+  onRefresh: () => void;
+}) {
+  const variants = product.variants ?? [];
+
+  if (variants.length === 0) {
+    return (
+      <div className="p-8 text-center bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+        <p className="text-sm font-semibold text-slate-700">No variants found for this product.</p>
+        <p className="text-xs text-slate-400 mt-1">You can add variants from the edit product page.</p>
+        <Link
+          href={`/admin/products/${product.id}/edit#variants-section`}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-blue-700 transition-all shadow-xs"
+        >
+          Add Variants
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-5 space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/70 p-4 rounded-xl border border-slate-200/80">
+        <div>
+          <div className="flex items-center gap-2">
+            <h4 className="text-sm font-bold text-slate-900">Product Variants ({variants.length})</h4>
+            <span className="inline-flex items-center rounded-full bg-blue-100/80 px-2 py-0.5 text-[10px] font-bold text-blue-700">
+              Active Group
+            </span>
+          </div>
+          <p className="text-xs text-slate-500 mt-0.5">
+            All variants aligned under <span className="font-semibold text-slate-800">{product.name}</span>
+          </p>
+        </div>
+        <Link
+          href={`/admin/products/${product.id}/edit#variants-section`}
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:border-slate-400 hover:text-slate-900 transition-all shadow-xs cursor-pointer shrink-0 active:scale-98"
+        >
+          <svg className="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          Edit &amp; Manage Variants
+        </Link>
+      </div>
+
+      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-2xs">
+        <table className="w-full text-left border-collapse min-w-[750px]">
+          <thead className="bg-slate-50/90 border-b border-slate-200 text-[11px] font-bold uppercase text-slate-500 tracking-wider">
+            <tr>
+              <th className="px-4 py-3.5 w-16 text-center">Default</th>
+              <th className="px-4 py-3.5">Variant &amp; Attributes</th>
+              <th className="px-4 py-3.5">SKU</th>
+              <th className="px-4 py-3.5">Retail Price</th>
+              <th className="px-4 py-3.5">Unit Cost</th>
+              <th className="px-4 py-3.5">Stock Level</th>
+              <th className="px-4 py-3.5 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 bg-white text-sm">
+            {variants.map((v, vIdx) => {
+              const details = getFormattedVariantDetails(v, product.name);
+              const isLast = vIdx === variants.length - 1;
+              const vMedia = v.media?.[0]?.media?.url ? resolveImageUrl(v.media[0].media.url) : null;
+              const stock = Number(v.stockQuantity || 0);
+
+              return (
+                <tr key={v.id} className="hover:bg-blue-50/30 transition-colors group">
+                  <td className="px-4 py-3.5 align-middle text-center">
+                    <label className="inline-flex items-center justify-center cursor-pointer p-1 rounded-full hover:bg-blue-50 transition-colors">
+                      <input
+                        type="radio"
+                        name={`default-variant-${product.id}`}
+                        checked={Boolean(v.isDefault)}
+                        disabled={isSaving}
+                        onChange={() => setDefaultVariant(product, v)}
+                        title="Set as default variant"
+                        className="h-4 w-4 text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
+                      />
+                    </label>
+                  </td>
+                  <td className="px-4 py-3.5 align-middle">
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex items-center justify-center w-5 h-10 shrink-0 select-none">
+                        <div
+                          className={`absolute left-2.5 top-0 w-0.5 bg-slate-200/90 ${
+                            isLast ? "h-5" : "h-full"
+                          }`}
+                        />
+                        <div className="absolute left-2.5 top-5 w-2.5 h-0.5 bg-slate-200/90 rounded-r-xs" />
+                      </div>
+                      {vMedia ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          alt={v.sku}
+                          className="h-10 w-10 rounded-lg border border-slate-200/80 object-cover shrink-0 shadow-2xs group-hover:scale-105 transition-transform"
+                          src={vMedia}
+                        />
+                      ) : (
+                        <div className="h-10 w-10 rounded-lg border border-slate-200/80 bg-gradient-to-br from-indigo-50 to-slate-100 grid place-items-center text-indigo-600 text-xs font-black shrink-0 shadow-2xs">
+                          {v.sku ? v.sku.slice(0, 2).toUpperCase() : "VT"}
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {details.badges.length > 0 ? (
+                            details.badges.map((b, idx) => (
+                              <span
+                                key={`${b.name}-${b.value}-${idx}`}
+                                className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-800 border border-slate-200/80 shadow-2xs"
+                              >
+                                <span className="text-slate-400 font-normal mr-1">{b.name}:</span>
+                                {b.value}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="font-bold text-slate-800 text-xs truncate max-w-[260px] block">
+                              {details.title}
+                            </span>
+                          )}
+
+                          {v.isDefault && (
+                            <span className="rounded bg-blue-100 px-2 py-0.5 text-[10px] font-black text-blue-700 tracking-wide uppercase border border-blue-200/80">
+                              DEFAULT
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3.5 align-middle">
+                    <span
+                      className="font-mono text-xs font-semibold text-slate-700 bg-slate-100/90 border border-slate-200/80 px-2.5 py-1 rounded-md max-w-[200px] truncate inline-block align-middle shadow-2xs"
+                      title={v.sku}
+                    >
+                      {v.sku}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3.5 align-middle font-bold text-slate-900 text-xs whitespace-nowrap">
+                    {symbol}{Number(v.price || 0).toLocaleString("en")}
+                  </td>
+                  <td className="px-4 py-3.5 align-middle text-slate-600 text-xs whitespace-nowrap">
+                    {v.cost !== undefined && v.cost !== null ? `${symbol}${Number(v.cost).toLocaleString("en")}` : "—"}
+                  </td>
+                  <td className="px-4 py-3.5 align-middle whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <span className={`font-bold text-xs ${stock > 0 ? "text-slate-900" : "text-rose-600"}`}>
+                        {stock} pcs
+                      </span>
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                          stock > 10
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80"
+                            : stock > 0
+                            ? "bg-amber-50 text-amber-700 border border-amber-200/80"
+                            : "bg-rose-50 text-rose-700 border border-rose-200/80"
+                        }`}
+                      >
+                        {stock > 10 ? "In Stock" : stock > 0 ? "Low Stock" : "Out of Stock"}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3.5 align-middle text-right whitespace-nowrap">
+                    <button
+                      type="button"
+                      onClick={() => openAdjustModal(product, v)}
+                      className="inline-flex h-8 items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all cursor-pointer shadow-2xs active:scale-95"
+                    >
+                      Adjust Stock
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div className="mt-8 pt-6 border-t border-slate-100">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h4 className="text-sm font-bold text-slate-900">Variant Images</h4>
+            <p className="text-xs text-slate-500 mt-0.5">Manage and reorder media files for each product variant</p>
+          </div>
+          <span className="text-xs font-semibold text-slate-400">Reorder or delete</span>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {variants.map((v) => {
+            const variantOptions = v.optionValues ?? v.attributes?.map(a => a.attributeValue) ?? [];
+            const label = variantOptions.length
+              ? variantOptions
+                  .map((ov) => `${ov.attribute.name}: ${ov.value}`)
+                  .join(" · ")
+              : v.sku;
+            return (
+              <div key={`media-${v.id}`} className="rounded-xl border border-slate-200/80 bg-slate-50/30 p-4 shadow-2xs">
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">{label}</p>
+                  <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200/60 font-mono">SKU: {v.sku}</span>
+                </div>
+                <VariantMediaGrid variant={v} onRefresh={onRefresh} />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function HistoryTab({ product }: { product: Product }) {
   const defaultVariant = product.variants?.find((v) => v.isDefault) ?? product.variants?.[0];
   const [selectedVariantId, setSelectedVariantId] = useState(defaultVariant?.id || "");
@@ -272,8 +576,9 @@ function HistoryTab({ product }: { product: Product }) {
   };
 
   const optionItems = (product.variants ?? []).map((v) => {
-    const label = v.optionValues?.length
-      ? v.optionValues.map((ov) => `${ov.attribute.name}: ${ov.value}`).join(" · ")
+    const variantOptions = v.optionValues ?? v.attributes?.map(a => a.attributeValue) ?? [];
+    const label = variantOptions.length
+      ? variantOptions.map((ov) => `${ov.attribute.name}: ${ov.value}`).join(" · ")
       : v.sku;
     const optionElement = (
       <option key={v.id} value={v.id}>
@@ -911,29 +1216,29 @@ export default function ProductsPage() {
           <table className="w-full min-w-[1000px] text-left">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="w-10 px-4 py-4"></th>
-                <th className="px-4 py-4 text-sm font-semibold text-slate-700">
+                <th className="w-10 px-4 py-3.5"></th>
+                <th className="px-4 py-3.5 text-xs font-bold text-slate-600 uppercase tracking-wider">
                   Products
                 </th>
-                <th className="px-4 py-4 text-sm font-semibold text-slate-700">
+                <th className="px-4 py-3.5 text-xs font-bold text-slate-600 uppercase tracking-wider">
                   Brand
                 </th>
-                <th className="px-4 py-4 text-sm font-semibold text-slate-700">
+                <th className="px-4 py-3.5 text-xs font-bold text-slate-600 uppercase tracking-wider">
                   Category
                 </th>
-                <th className="px-4 py-4 text-sm font-semibold text-slate-700">
+                <th className="px-4 py-3.5 text-xs font-bold text-slate-600 uppercase tracking-wider">
                   Total Inventory
                 </th>
-                <th className="px-4 py-4 text-sm font-semibold text-slate-700">
+                <th className="px-4 py-3.5 text-xs font-bold text-slate-600 uppercase tracking-wider">
                   Retail Price
                 </th>
-                <th className="px-4 py-4 text-sm font-semibold text-slate-700">
+                <th className="px-4 py-3.5 text-xs font-bold text-slate-600 uppercase tracking-wider">
                   Created At
                 </th>
-                <th className="px-4 py-4 text-sm font-semibold text-slate-700 text-center">
+                <th className="px-4 py-3.5 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">
                   Status
                 </th>
-                <th className="px-4 py-4 text-sm font-semibold text-slate-700 text-center">
+                <th className="px-4 py-3.5 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">
                   Action
                 </th>
               </tr>
@@ -954,8 +1259,18 @@ export default function ProductsPage() {
                   const variant = getDefaultVariant(product);
                   const featuredMedia = getFeaturedMedia(product);
                   const isExpanded = expandedRows.has(product.id);
-                  const currentTab = activeTab[product.id] || "inventory";
+                  const currentTab = activeTab[product.id] || "variants";
                   const openUpward = products.length - index <= 2;
+
+                  const variantCount = product.variants?.length ?? 0;
+                  const isVariantProduct = variantCount > 1 || product.variants?.some((v) => 
+                    (v.optionValues?.length ?? 0) > 0 || (v.attributes?.length ?? 0) > 0
+                  );
+                  const totalStock = (product.variants ?? []).reduce((sum, v) => sum + Number(v.stockQuantity || 0), 0);
+                  const prices = (product.variants ?? []).map((v) => Number(v.price || 0)).filter((p) => !isNaN(p) && p > 0);
+                  const minPrice = prices.length > 0 ? Math.min(...prices) : Number(variant?.price || 0);
+                  const maxPrice = prices.length > 0 ? Math.max(...prices) : Number(variant?.price || 0);
+                  const hasPriceRange = minPrice !== maxPrice;
 
                   return (
                     <React.Fragment key={product.id}>
@@ -964,6 +1279,7 @@ export default function ProductsPage() {
                           <button
                             onClick={() => toggleRow(product.id)}
                             className="grid h-7 w-7 place-items-center rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-all duration-200"
+                            title={isExpanded ? "Collapse variants" : "Expand variants"}
                           >
                             <svg
                               className={`h-3.5 w-3.5 text-slate-600 transition-transform duration-200 ${
@@ -990,36 +1306,47 @@ export default function ProductsPage() {
                                 <ProductThumb color="bg-slate-100" />
                               )}
                             </div>
-                            <div className="min-w-0">
-                              <p className="text-sm font-semibold text-slate-800 truncate max-w-[280px] group-hover:text-blue-600 transition-colors">
-                                {product.name}
-                              </p>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm font-semibold text-slate-900 truncate max-w-[320px] group-hover:text-blue-600 transition-colors">
+                                  {product.name}
+                                </p>
+                                {isVariantProduct && (
+                                  <span className="whitespace-nowrap shrink-0 inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-600 border border-blue-200/80 shadow-2xs">
+                                    <AdminIcon name="variants" className="h-3 w-3" />
+                                    {variantCount} Variants
+                                  </span>
+                                )}
+                              </div>
                               <p className="text-xs font-normal text-slate-400 mt-0.5">
-                                {product.slug}
+                                SKU: <span className="font-mono text-slate-500">{variant?.sku || product.slug}</span>
                               </p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-4 text-sm text-slate-600">
+                        <td className="px-4 py-4 text-sm font-normal text-slate-600">
                           {product.brand?.name || "-"}
                         </td>
-                        <td className="px-4 py-4 text-sm text-slate-600">
+                        <td className="px-4 py-4 text-sm font-normal text-slate-600">
                           {product.category?.name || "-"}
                         </td>
                         <td className="px-4 py-4">
-                          <div className="flex items-baseline gap-1">
-                            <span className="text-sm font-semibold text-slate-800">
-                              {variant?.stockQuantity ?? 0}
-                            </span>
-                            <span className="text-xs text-slate-400">
-                              pcs
-                            </span>
+                          <div>
+                            <div className="flex items-baseline gap-1">
+                              <span className={`text-sm font-semibold ${totalStock > 0 ? "text-slate-800" : "text-rose-600"}`}>
+                                {totalStock}
+                              </span>
+                              <span className="text-xs text-slate-400 font-normal">pcs</span>
+                            </div>
+                            {isVariantProduct && (
+                              <p className="text-[10px] font-normal text-slate-400">across {variantCount} variants</p>
+                            )}
                           </div>
                         </td>
-                        <td className="px-4 py-4 text-sm font-semibold text-slate-800">
-                          {symbol}{Number(variant?.price || 0).toLocaleString("en")}
+                        <td className="px-4 py-4 text-sm font-semibold text-slate-800 whitespace-nowrap">
+                          <span>{symbol}{Number(variant?.price || 0).toLocaleString("en")}</span>
                         </td>
-                        <td className="px-4 py-4 text-sm text-slate-600">
+                        <td className="px-4 py-4 text-sm font-normal text-slate-500">
                           {product.createdAt
                             ? new Date(product.createdAt).toLocaleDateString("en-US", {
                                 month: "short",
@@ -1129,30 +1456,36 @@ export default function ProductsPage() {
                             </div>
                           </td>
                         </tr>
-                        {isExpanded && (
-                          <tr>
-                            <td colSpan={9} className="bg-gradient-to-b from-blue-50/30 to-slate-50/30 px-4 py-0 border-t-0">
-                              <div className="py-6 px-6">
-                                {/* Tabs */}
-                                <div className="flex items-center justify-between border-b-2 border-slate-200 mb-6">
-                                  <div className="flex items-center gap-8">
-                                    {["Inventory", "Pricing", "History", "Details"].map((tab) => (
-                                      <button
-                                        key={tab}
-                                        onClick={() => setTabForProduct(product.id, tab.toLowerCase())}
-                                        className={`pb-3.5 text-[15px] font-semibold transition-all relative ${
-                                          currentTab === tab.toLowerCase()
-                                            ? "text-blue-600"
-                                            : "text-slate-500 hover:text-slate-700"
-                                        }`}
-                                      >
-                                        {tab}
-                                        {currentTab === tab.toLowerCase() && (
-                                          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full" />
-                                        )}
-                                      </button>
-                                    ))}
-                                  </div>
+                                {isExpanded && (() => {
+                                  const productTabs = isVariantProduct
+                                    ? ["Variants", "Inventory", "Pricing", "History", "Details"]
+                                    : ["Inventory", "Pricing", "History", "Details"];
+                                  const currentTab = activeTab[product.id] || (isVariantProduct ? "variants" : "inventory");
+
+                                  return (
+                                    <tr>
+                                      <td colSpan={9} className="bg-gradient-to-b from-blue-50/30 to-slate-50/30 px-4 py-0 border-t-0">
+                                        <div className="py-6 px-6">
+                                          {/* Tabs */}
+                                          <div className="flex items-center justify-between border-b-2 border-slate-200 mb-6">
+                                            <div className="flex items-center gap-8">
+                                              {productTabs.map((tab) => (
+                                                <button
+                                                  key={tab}
+                                                  onClick={() => setTabForProduct(product.id, tab.toLowerCase())}
+                                                  className={`pb-3.5 text-[15px] font-semibold transition-all relative ${
+                                                    currentTab === tab.toLowerCase()
+                                                      ? "text-blue-600"
+                                                      : "text-slate-500 hover:text-slate-700"
+                                                  }`}
+                                                >
+                                                  {tab} {tab === "Variants" && variantCount > 0 && `(${variantCount})`}
+                                                  {currentTab === tab.toLowerCase() && (
+                                                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full" />
+                                                  )}
+                                                </button>
+                                              ))}
+                                            </div>
                                   <div className="flex items-center gap-3 pb-2">
                                     <button 
                                       onClick={() => openAdjustModal(product)}
@@ -1204,6 +1537,17 @@ export default function ProductsPage() {
 
                                 {/* Tab Content */}
                                 <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+                                  {currentTab === "variants" && (
+                                    <VariantsTabContent
+                                      product={product}
+                                      symbol={symbol}
+                                      isSaving={isSaving}
+                                      setDefaultVariant={setDefaultVariant}
+                                      openAdjustModal={openAdjustModal}
+                                      onRefresh={loadProducts}
+                                    />
+                                  )}
+
                                   {currentTab === "inventory" && (
                                     <div className="p-6">
                                       <div className="grid grid-cols-3 gap-8">
@@ -1228,76 +1572,10 @@ export default function ProductsPage() {
                                             Current Inventory
                                           </p>
                                           <p className="text-[18px] font-bold text-blue-600">
-                                            {variant?.stockQuantity ?? 0}
+                                            {isVariantProduct ? totalStock : (variant?.stockQuantity ?? 0)}
                                           </p>
                                         </div>
                                       </div>
-
-                                      {(product.variants?.length ?? 0) > 1 && (
-                                        <div className="mt-6">
-                                          <div className="mb-3 flex items-center justify-between">
-                                            <p className="text-[13px] font-semibold text-slate-600 uppercase tracking-wide">
-                                              Variants
-                                            </p>
-                                            <p className="text-[12px] font-medium text-slate-500">
-                                              {product.variants?.length ?? 0} variants
-                                            </p>
-                                          </div>
-                                          <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-                                            <table className="min-w-full text-left">
-                                              <thead className="bg-slate-50">
-                                                <tr>
-                                                  <th className="px-3 py-2 text-xs font-black text-slate-600">Default</th>
-                                                  <th className="px-3 py-2 text-xs font-black text-slate-600">Variant</th>
-                                                  <th className="px-3 py-2 text-xs font-black text-slate-600">SKU</th>
-                                                  <th className="px-3 py-2 text-xs font-black text-slate-600">Stock</th>
-                                                  <th className="px-3 py-2 text-xs font-black text-slate-600">Action</th>
-                                                </tr>
-                                              </thead>
-                                              <tbody className="divide-y divide-slate-100">
-                                                {(product.variants ?? []).map((v) => {
-                                                  const label = v.optionValues?.length
-                                                    ? v.optionValues
-                                                        .map((ov) => `${ov.attribute.name}: ${ov.value}`)
-                                                        .join(" · ")
-                                                    : v.sku;
-                                                  return (
-                                                    <tr key={v.id}>
-                                                      <td className="px-3 py-2">
-                                                        <input
-                                                          type="radio"
-                                                          name={`default-${product.id}`}
-                                                          checked={Boolean(v.isDefault)}
-                                                          disabled={isSaving}
-                                                          onChange={() => setDefaultVariant(product, v)}
-                                                        />
-                                                      </td>
-                                                      <td className="px-3 py-2 text-sm font-bold text-slate-700">
-                                                        {label}
-                                                      </td>
-                                                      <td className="px-3 py-2 text-sm font-bold text-slate-700 uppercase">
-                                                        {v.sku}
-                                                      </td>
-                                                      <td className="px-3 py-2 text-sm font-bold text-slate-900">
-                                                        {v.stockQuantity ?? 0}
-                                                      </td>
-                                                      <td className="px-3 py-2">
-                                                        <button
-                                                          type="button"
-                                                          className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-xs font-black text-slate-700 hover:bg-slate-50"
-                                                          onClick={() => openAdjustModal(product, v)}
-                                                        >
-                                                          Adjust
-                                                        </button>
-                                                      </td>
-                                                    </tr>
-                                                  );
-                                                })}
-                                              </tbody>
-                                            </table>
-                                          </div>
-                                        </div>
-                                      )}
                                     </div>
                                   )}
 
@@ -1369,8 +1647,9 @@ export default function ProductsPage() {
                                                 </thead>
                                                 <tbody className="divide-y divide-slate-100">
                                                   {(product.variants ?? []).map((v) => {
-                                                    const label = v.optionValues?.length
-                                                      ? v.optionValues
+                                                    const variantOptions = v.optionValues ?? v.attributes?.map(a => a.attributeValue) ?? [];
+                                                    const label = variantOptions.length
+                                                      ? variantOptions
                                                           .map((ov) => `${ov.attribute.name}: ${ov.value}`)
                                                           .join(" · ")
                                                       : v.sku;
@@ -1388,35 +1667,6 @@ export default function ProductsPage() {
                                                   })}
                                                 </tbody>
                                               </table>
-                                            </div>
-                                          </div>
-
-                                          <div>
-                                            <div className="mb-3 flex items-center justify-between">
-                                              <p className="text-[13px] font-semibold text-slate-600 uppercase tracking-wide">
-                                                Variant images
-                                              </p>
-                                              <p className="text-[12px] font-medium text-slate-500">
-                                                Reorder or delete
-                                              </p>
-                                            </div>
-                                            <div className="space-y-4">
-                                              {(product.variants ?? []).map((v) => {
-                                                const label = v.optionValues?.length
-                                                  ? v.optionValues
-                                                      .map((ov) => `${ov.attribute.name}: ${ov.value}`)
-                                                      .join(" · ")
-                                                  : v.sku;
-                                                return (
-                                                  <div key={`media-${v.id}`} className="rounded-lg border border-slate-200 bg-white p-4">
-                                                    <div className="mb-3 flex items-center justify-between">
-                                                      <p className="text-sm font-bold text-slate-700">{label}</p>
-                                                      <span className="text-xs font-medium text-slate-500">SKU: {v.sku}</span>
-                                                    </div>
-                                                    <VariantMediaGrid variant={v} onRefresh={loadProducts} />
-                                                  </div>
-                                                );
-                                              })}
                                             </div>
                                           </div>
                                         </div>
@@ -1502,8 +1752,9 @@ export default function ProductsPage() {
                               </div>
                             </td>
                           </tr>
-                        )}
-                      </React.Fragment>
+                        );
+                      })()}
+                    </React.Fragment>
                     );
                   })}
 

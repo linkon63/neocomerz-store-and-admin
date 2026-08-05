@@ -78,9 +78,15 @@ export type Attribute = {
 export type Unit = {
   id: string;
   name: string;
-  code: string;
-  description?: string | null;
+  abbreviation: string;
+  factor: number;
   isActive: boolean;
+  parentId?: string | null;
+  parent?: {
+    id: string;
+    name: string;
+    abbreviation: string;
+  } | null;
   createdAt?: string;
   updatedAt?: string;
   _count?: {
@@ -119,6 +125,7 @@ export type ProductVariant = {
   stockAlertThreshold: number;
   isDefault: boolean;
   optionValues?: { value: string; attribute: { name: string } }[];
+  attributes?: { attributeValue: { value: string; attribute: { name: string } } }[];
   media?: VariantMedia[];
   createdAt?: string;
 };

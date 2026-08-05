@@ -428,6 +428,7 @@ export default function TagsPage() {
                 </span>
                 <input
                   autoFocus
+                  placeholder="e.g. Summer Sale, New Arrivals"
                   className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(event) => updateName(event.target.value)}
                   required
@@ -440,6 +441,7 @@ export default function TagsPage() {
                 </span>
                 <input
                   className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
+                  placeholder="e.g. summer-sale, new-arrivals"
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
@@ -456,6 +458,7 @@ export default function TagsPage() {
                 </span>
                 <textarea
                   className="min-h-24 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
+                  placeholder="Brief details about the tag (optional)"
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
