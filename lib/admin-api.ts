@@ -876,7 +876,16 @@ export function resolveImageUrl(url?: string | null): string {
     return `${apiOrigin}${url}`;
   }
 
-  // ── 4. Absolute URLs (localhost or production) — return as-is ─────
+  // ── 4. Strip localhost origin to use Next.js proxy rewrites ──────
+  if (url.startsWith("http://localhost")) {
+    try {
+      const parsed = new URL(url);
+      return parsed.pathname + parsed.search;
+    } catch {
+      // ignore
+    }
+  }
+
   return url;
 }
 
