@@ -15,10 +15,12 @@ export interface NavigationProps {
 }
 
 export interface Slide {
-  videoId: string;
+  videoId?: string;
+  image?: string;
   title: string;
   titleItalic?: string;
   subtitle: string;
+  hasDiscount?: boolean;
 }
 
 export interface HeroSliderProps {

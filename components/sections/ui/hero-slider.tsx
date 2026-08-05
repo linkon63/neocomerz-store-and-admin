@@ -124,14 +124,24 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
           <SwiperSlide key={index}>
             <div className="relative h-[500px] md:h-[650px] lg:h-[750px]">
 
-              {/* Video */}
+              {/* Media Background */}
               <div className="absolute inset-0 overflow-hidden bg-black">
-                <iframe
-                  src={`https://www.youtube.com/embed/${slide.videoId}?autoplay=1&mute=1&controls=0&rel=0&playsinline=1&enablejsapi=1`}
-                  className="absolute left-1/2 top-1/2 w-[300%] h-[300%] md:w-[200%] md:h-[200%] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-                  allow="autoplay; encrypted-media"
-                  title={slide.title}
-                />
+                {slide.image ? (
+                  <Image 
+                    src={slide.image} 
+                    alt={slide.title} 
+                    fill 
+                    className="object-cover" 
+                    priority={index === 0} 
+                  />
+                ) : slide.videoId ? (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${slide.videoId}?autoplay=1&mute=1&controls=0&rel=0&playsinline=1&enablejsapi=1`}
+                    className="absolute left-1/2 top-1/2 w-[300%] h-[300%] md:w-[200%] md:h-[200%] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                    allow="autoplay; encrypted-media"
+                    title={slide.title}
+                  />
+                ) : null}
               </div>
 
               {/* Overlay */}

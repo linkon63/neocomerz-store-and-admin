@@ -102,6 +102,14 @@ function makeSkuSeed(name: string, unitCode?: string) {
   return [base || "PRODUCT", suffix].join("-");
 }
 
+function makeShortVariantCode(val: string) {
+  const words = val.trim().split(/[\s-]+/);
+  if (words.length > 1) {
+    return words.map(w => w[0]).join("").toUpperCase().substring(0, 3);
+  }
+  return slugify(val).replace(/-/g, "").toUpperCase().substring(0, 3);
+}
+
 function cartesianProduct<T>(groups: T[][]): T[][] {
   return groups.reduce<T[][]>(
     (acc, group) => acc.flatMap((items) => group.map((item) => [...items, item])),
@@ -139,6 +147,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const { deleteMedia } = useDeleteProductMedia();
   const { updateMedia } = useUpdateProductMedia();
 
+  const savedSelectionsRef = useRef<VariantSelection[]>([]);
+  const savedDraftsRef = useRef<VariantDraft[]>([]);
+
   const [variantSelections, setVariantSelections] = useState<VariantSelection[]>([
     emptyVariantSelection,
   ]);
@@ -156,6 +167,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   });
 
   const categoryOptions = useMemo(() => flattenCategories(categories), [categories]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null);
   const selectedUnit = units.find((u) => u.id === form.unitId);
 
   const selectedVariantGroups = useMemo(() => {
@@ -182,14 +195,14 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         key: values.map((v) => v.id).join("|") || "variant",
         label: values.map((v) => v.value).join(" / "),
         valueIds: values.map((v) => v.id),
-        sku: `${form.sku || makeSkuSeed(form.name, selectedUnit?.code)}-${values
-          .map((v) => slugify(v.value).replace(/-/g, "").toUpperCase())
+        sku: `${form.sku || makeSkuSeed(form.name, selectedUnit?.abbreviation)}-${values
+          .map((v) => makeShortVariantCode(v.value))
           .join("-")}`,
       }));
       result.sort((a, b) => a.sku.localeCompare(b.sku));
     }
     return result;
-  }, [form.name, form.sku, selectedUnit?.code, selectedVariantGroups]);
+  }, [form.name, form.sku, selectedUnit?.abbreviation, selectedVariantGroups]);
 
   // Prevent accidental navigation when form has unsaved changes
   useEffect(() => {
@@ -217,14 +230,17 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   // Keep variant drafts in sync with selected option values
   useEffect(() => {
     if (form.productType !== "variant") {
-      setVariantDrafts([]);
       return;
     }
     setVariantDrafts((current) => {
+      const source = current.length > 0 ? current : savedDraftsRef.current;
       const next: VariantDraft[] = variantPreview.map((v, idx) => {
-        const existing = current.find((d) => d.key === v.key);
+        const existing = source.find(
+          (d) => d.key === v.key || (d.valueIds.length > 0 && d.valueIds.every((id) => v.valueIds.includes(id)))
+        );
         return {
           key: v.key,
+          id: existing?.id,
           sku: existing?.sku ?? v.sku,
           valueIds: v.valueIds,
           label: v.label,
@@ -237,6 +253,12 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           isDefault: existing?.isDefault ?? idx === 0,
         };
       });
+
+      // If variantPreview is empty but we have existing saved drafts, keep them!
+      if (next.length === 0 && source.length > 0) {
+        return source;
+      }
+
       const hasDefault = next.some((d) => d.isDefault);
       if (!hasDefault && next.length > 0) next[0] = { ...next[0], isDefault: true };
       const firstDefaultIndex = next.findIndex((d) => d.isDefault);
@@ -245,6 +267,19 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       );
     });
   }, [form.productType, form.retailPrice, form.unitPrice, form.stockQuantity, variantPreview]);
+
+  // Auto-scroll to variants section if URL contains #variants-section
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.hash.includes("variants")) {
+      const timer = setTimeout(() => {
+        const el = document.getElementById("variants-section");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Load product data + all lookup lists on mount
   useEffect(() => {
@@ -291,7 +326,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
         const defaultVariant = getDefaultVariant(product);
         const isVariantProduct =
-          product.variants?.some((v) => (v.optionValues?.length ?? 0) > 0) ?? false;
+          product.variants?.some((v) => 
+            (v.optionValues?.length ?? 0) > 0 || (v.attributes?.length ?? 0) > 0
+          ) ?? false;
 
         setExistingVariants(product.variants ?? []);
 
@@ -349,8 +386,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           setExistingVariants(sortedVariantsList);
 
           sortedVariantsList.forEach((v) => {
-            if (v.optionValues) {
-              v.optionValues.forEach((ov) => {
+            const variantOptions = v.optionValues ?? v.attributes?.map(a => a.attributeValue) ?? [];
+            if (variantOptions.length > 0) {
+              variantOptions.forEach((ov) => {
                 const attr = attributeList.find(
                   (a) => a.name.toLowerCase() === ov.attribute.name.toLowerCase()
                 );
@@ -386,8 +424,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
             selections.forEach((sel) => {
               const attr = attributeList.find((a) => a.id === sel.optionId);
-              if (attr && v.optionValues) {
-                const ov = v.optionValues.find(
+              const variantOptions = v.optionValues ?? v.attributes?.map(a => a.attributeValue) ?? [];
+              
+              if (attr && variantOptions.length > 0) {
+                const ov = variantOptions.find(
                   (o) => o.attribute.name.toLowerCase() === attr.name.toLowerCase()
                 );
                 if (ov) {
@@ -402,7 +442,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               }
             });
 
-            const key = variantValueIds.join("|");
+            const key = variantValueIds.join("|") || v.id || `fallback-${Math.random()}`;
             drafts.push({
               key,
               id: v.id,
@@ -422,6 +462,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           if (selections.length > 0) {
             setVariantSelections(selections);
             setVariantDrafts(drafts);
+            savedSelectionsRef.current = selections;
+            savedDraftsRef.current = drafts;
           }
         }
       } catch (err) {
@@ -563,7 +605,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     setIsDirty(true);
     setForm((current) => ({
       ...current,
-      sku: makeSkuSeed(current.name, selectedUnit?.code),
+      sku: makeSkuSeed(current.name, selectedUnit?.abbreviation),
     }));
   }
 
@@ -675,6 +717,15 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     setImagesList(newList);
   };
 
+  const reorderImagesList = (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || toIndex >= imagesList.length) return;
+    setIsDirty(true);
+    const newList = [...imagesList];
+    const [removed] = newList.splice(fromIndex, 1);
+    newList.splice(toIndex, 0, removed);
+    setImagesList(newList);
+  };
+
   async function saveImages(productId: string) {
     // 1. Reorder remaining existing media
     const existingItems = imagesList.filter((item): item is ImageItem & { type: "existing" } => item.type === "existing");
@@ -782,10 +833,45 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     event.preventDefault();
     setError("");
 
-    if (form.productType === "variant" && variantPreview.length === 0) {
-      setError("Select at least one variant option value.");
-      toast.error("Select at least one variant option value.");
+    if (!form.name.trim()) {
+      const msg = "Product name is required.";
+      setError(msg);
+      toast.error(msg);
+      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
+    }
+
+    if (form.productType === "simple") {
+      if (!form.sku.trim()) {
+        const msg = "SKU is required for single product.";
+        setError(msg);
+        toast.error(msg);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      if (!form.retailPrice || isNaN(Number(form.retailPrice))) {
+        const msg = "Retail price is required for single product.";
+        setError(msg);
+        toast.error(msg);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+    } else {
+      if (variantSelections.length === 0 || variantPreview.length === 0) {
+        const msg = "Please select at least one variant option value.";
+        setError(msg);
+        toast.error(msg);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      const invalidVariant = variantDrafts.find((v) => !v.sku.trim() || !v.price || isNaN(Number(v.price)));
+      if (invalidVariant) {
+        const msg = `Every variant requires a valid SKU and retail price (check variant "${invalidVariant.label}").`;
+        setError(msg);
+        toast.error(msg);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
     }
 
     setIsSaving(true);
@@ -820,19 +906,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         );
       }
 
-      if (form.sizeChart) {
-        const body = new FormData();
-        body.append("file", form.sizeChart);
-        body.append("type", "image");
-        await apiRequest(`/products/${savedProduct.id}/size-chart`, { method: "POST", body });
-      }
-      if (form.careGuide) {
-        const body = new FormData();
-        body.append("file", form.careGuide);
-        body.append("type", "image");
-        await apiRequest(`/products/${savedProduct.id}/care-guide`, { method: "POST", body });
-      }
-
       await saveImages(savedProduct.id);
 
       toast.success("Product updated successfully!");
@@ -840,8 +913,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       router.push("/admin/products");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save product");
-      toast.error(err instanceof Error ? err.message : "Failed to save product");
+      const msg = err instanceof Error ? err.message : "Failed to save product";
+      setError(msg);
+      toast.error(msg);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setIsSaving(false);
     }
@@ -861,20 +936,20 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   return (
     <>
       <PageHeader
-        title="Edit Product"
-        description="Update product details, pricing, inventory and media."
+        title={form.name ? `Edit: ${form.name}` : "Edit Product"}
+        description="Update general info, inventory, pricing, variants, and product media."
         action={
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Link
-              className="inline-flex h-11 items-center gap-2 rounded-lg px-4 text-sm font-medium text-slate-600 hover:text-slate-900"
+              className="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-2xs"
               href="/admin/products"
               onClick={handleBackLinkClick}
             >
-              <AdminIcon className="h-4 w-4" name="chevronRight" />
-              Back to product list
+              <AdminIcon className="h-3.5 w-3.5" name="chevronRight" />
+              Back
             </Link>
             <button
-              className="inline-flex h-11 items-center rounded-lg border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700"
+              className="inline-flex h-9 items-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
               type="button"
               onClick={() => {
                 if (isDirty) {
@@ -887,7 +962,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               Cancel
             </button>
             <button
-              className="inline-flex h-11 items-center rounded-lg bg-blue-600 px-6 text-sm font-semibold text-white disabled:opacity-60 hover:bg-blue-700"
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-blue-600 px-4 text-xs font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 active:scale-95 transition-all disabled:opacity-60 cursor-pointer"
               disabled={isSaving}
               form="edit-product-form"
               type="submit"
@@ -897,6 +972,27 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           </div>
         }
       />
+
+      {error && (
+        <div className="mx-auto max-w-5xl mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800 shadow-xs flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <svg className="h-5 w-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p className="font-bold text-red-900">Validation Error</p>
+              <p className="text-xs text-red-700 mt-0.5">{error}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setError("")}
+            className="text-xs font-semibold text-red-600 hover:text-red-800 shrink-0"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       <form
         id="edit-product-form"
@@ -1023,14 +1119,15 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 <select
                   className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   onChange={(e) => {
+                    const val = e.target.value;
                     setIsDirty(true);
-                    setForm((current) => ({ ...current, baseUnitId: e.target.value }));
+                    setForm((current) => ({ ...current, baseUnitId: val, unitId: val }));
                   }}
                   value={form.baseUnitId}
                 >
                   <option value="">Select unit</option>
                   {units.map((unit) => (
-                    <option key={unit.id} value={unit.id}>{unit.name} ({unit.code})</option>
+                    <option key={unit.id} value={unit.id}>{unit.name} ({unit.abbreviation})</option>
                   ))}
                 </select>
               </label>
@@ -1046,7 +1143,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 >
                   <option value="">Select unit</option>
                   {units.map((unit) => (
-                    <option key={unit.id} value={unit.id}>{unit.name} ({unit.code})</option>
+                    <option key={unit.id} value={unit.id}>{unit.name} ({unit.abbreviation})</option>
                   ))}
                 </select>
               </label>
@@ -1092,67 +1189,138 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             </div>
           </section>
 
-          {/* Section 2: Media */}
-          <section className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
+          {/* Section 2: Product Media */}
+          <section className="rounded-xl border border-slate-200 bg-white p-5 md:p-6 shadow-xs space-y-4">
             <div>
-              <h2 className="text-sm font-semibold text-slate-900">Media</h2>
-              <p className="text-xs text-slate-500">Upload and reorder product images</p>
+              <h2 className="text-base font-bold text-slate-900">Product Media</h2>
+              <p className="text-xs text-slate-500">Upload high-resolution images for your product listing</p>
             </div>
+
             <div className="space-y-4">
-              {/* Unified Image List */}
+              {/* Drag and Drop Dropzone */}
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                  if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    handleUploadImages(e.dataTransfer.files);
+                  }
+                }}
+                onClick={() => imageInputRef.current?.click()}
+                className={`group relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 md:p-10 text-center transition-all cursor-pointer select-none ${
+                  isDragging
+                    ? "border-slate-500 bg-slate-100 scale-[1.005] shadow-xs"
+                    : "border-slate-300 bg-slate-50/60 hover:border-slate-400 hover:bg-slate-100/70"
+                }`}
+              >
+                <input
+                  ref={imageInputRef}
+                  accept="image/*"
+                  className="hidden"
+                  multiple
+                  onChange={(e) => handleUploadImages(e.target.files)}
+                  type="file"
+                />
+
+                <div className="mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-slate-100 text-slate-600 group-hover:bg-slate-200 group-hover:text-slate-900 transition-all shadow-xs">
+                  <AdminIcon name="upload" className="h-5 w-5" />
+                </div>
+
+                <p className="text-sm font-bold text-slate-800">
+                  Drag & drop single or multiple product images here, or{" "}
+                  <span className="text-slate-900 underline font-extrabold hover:text-black">browse files</span>
+                </p>
+                <p className="mt-1 text-xs text-slate-500 font-medium">
+                  Supports PNG, JPG, JPEG, WEBP files (Upload single or multiple files)
+                </p>
+              </div>
+
+              {/* Product Images List with Drag & Drop Reordering */}
               {imagesList.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-xs font-semibold text-slate-700">Images (Hover to reorder &amp; remove)</p>
-                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-5">
+                <div className="space-y-3 pt-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-bold text-slate-800">
+                        {imagesList.length} image{imagesList.length !== 1 ? "s" : ""} uploaded
+                      </p>
+                      <p className="text-[11px] text-slate-400 font-medium">
+                        Drag and drop cards to change image order
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                     {imagesList.map((item, index) => {
-                      const isFeatured = index === 0;
+                      const isMain = index === 0;
+                      const isBeingDragged = draggedImageIndex === index;
+
                       return (
                         <div
                           key={item.key}
-                          className="group relative aspect-square overflow-hidden rounded-xl border border-slate-200 bg-slate-50 transition-all hover:shadow-md"
+                          draggable
+                          onDragStart={(e) => {
+                            e.dataTransfer.setData("text/plain", String(index));
+                            setDraggedImageIndex(index);
+                          }}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            e.dataTransfer.dropEffect = "move";
+                          }}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            const fromIndex = Number(e.dataTransfer.getData("text/plain"));
+                            if (!isNaN(fromIndex)) {
+                              reorderImagesList(fromIndex, index);
+                            }
+                            setDraggedImageIndex(null);
+                          }}
+                          onDragEnd={() => setDraggedImageIndex(null)}
+                          className={`group relative overflow-hidden rounded-2xl border bg-white shadow-xs transition-all cursor-grab active:cursor-grabbing ${
+                            isBeingDragged
+                              ? "opacity-40 border-dashed border-blue-500 scale-95"
+                              : "border-slate-200/90 hover:border-slate-300 hover:shadow-md"
+                          }`}
                         >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img alt="" className="h-full w-full object-cover" src={item.url} />
-                          {isFeatured && (
-                            <span className="absolute left-2 top-2 rounded-md bg-blue-600 px-2 py-0.5 text-[10px] font-semibold text-white shadow-xs">
-                              Featured
-                            </span>
-                          )}
-                          <div className="absolute inset-0 bg-slate-950/40 opacity-0 transition-opacity group-hover:opacity-100 flex items-center justify-center gap-1.5 z-10">
-                            {index > 0 && (
-                              <button
-                                type="button"
-                                onClick={() => handleMoveImage(index, "left")}
-                                className="grid h-8 w-8 place-items-center rounded-full bg-white text-slate-700 hover:text-blue-600 transition-colors shadow-xs"
-                                title="Move Left"
-                              >
-                                  <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                                  </svg>
-                              </button>
+                          {/* Image container */}
+                          <div className="relative aspect-square w-full bg-slate-50 overflow-hidden">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img alt="" className="h-full w-full object-cover" src={item.url} />
+
+                            {/* Main Image Badge */}
+                            {isMain && (
+                              <span className="absolute left-2.5 top-2.5 rounded-md bg-blue-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+                                Main Image
+                              </span>
                             )}
-                            {index < imagesList.length - 1 && (
-                              <button
-                                type="button"
-                                onClick={() => handleMoveImage(index, "right")}
-                                className="grid h-8 w-8 place-items-center rounded-full bg-white text-slate-700 hover:text-blue-600 transition-colors shadow-xs"
-                                title="Move Right"
-                              >
-                                  <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                                  </svg>
-                              </button>
-                            )}
+
+                            {/* Clean Delete Button (No dark mask overlay) */}
                             <button
                               type="button"
-                              onClick={() => handleRemoveImage(item, index)}
-                              className="grid h-8 w-8 place-items-center rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors shadow-xs"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveImage(item, index);
+                              }}
+                              className="absolute right-2.5 top-2.5 grid h-7 w-7 place-items-center rounded-full bg-white/90 text-slate-500 hover:bg-red-600 hover:text-white border border-slate-200/80 shadow-sm transition-colors cursor-pointer"
                               title="Remove image"
                             >
-                              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
+                              <AdminIcon name="trash" className="h-3.5 w-3.5" />
                             </button>
+                          </div>
+
+                          {/* Footer details & grip */}
+                          <div className="flex items-center justify-between px-3 py-2 border-t border-slate-100 bg-white">
+                            <p className="truncate text-[11px] font-medium text-slate-600 max-w-[85%]">
+                              {item.type === "new" ? item.file.name : `Image ${index + 1}`}
+                            </p>
+                            <AdminIcon name="grip" className="h-3.5 w-3.5 text-slate-300 group-hover:text-slate-500 transition-colors" />
                           </div>
                         </div>
                       );
@@ -1160,137 +1328,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                   </div>
                 </div>
               )}
-
-              <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-semibold text-slate-700">Upload New Images</p>
-                    <p className="text-xs text-slate-500">Supports JPG, PNG, WEBP formats</p>
-                  </div>
-                  <label className="inline-flex h-10 items-center rounded-lg border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-50">
-                    Upload Files
-                    <input
-                      accept="image/*"
-                      className="hidden"
-                      multiple
-                      onChange={(e) => handleUploadImages(e.target.files)}
-                      ref={imageInputRef}
-                      type="file"
-                    />
-                  </label>
-                </div>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-xl border border-dashed border-slate-300 bg-white p-4">
-                  <p className="text-xs font-semibold text-slate-700">Upload Size Chart</p>
-                  <p className="text-xs text-slate-500">Add size matrix image</p>
-                  <label className="mt-3 inline-flex h-9 items-center rounded-lg border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-50">
-                    Select File
-                    <input
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        setIsDirty(true);
-                        setForm((current) => ({
-                          ...current,
-                          sizeChart: e.target.files?.[0] ?? null,
-                        }));
-                      }}
-                      type="file"
-                    />
-                  </label>
-                  {form.sizeChart && (
-                    <p className="mt-2 text-[11px] text-slate-600 font-semibold truncate">{form.sizeChart.name}</p>
-                  )}
-                  {!form.sizeChart && form.sizeChartUrl && (
-                    <div className="mt-2 flex items-center gap-2">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img alt="" className="h-8 w-8 rounded object-cover" src={resolveImageUrl(form.sizeChartUrl)} />
-                      <span className="text-[10px] text-slate-500">Current size chart</span>
-                    </div>
-                  )}
-                </div>
-                <div className="rounded-xl border border-dashed border-slate-300 bg-white p-4">
-                  <p className="text-xs font-semibold text-slate-700">Upload Care Guide</p>
-                  <p className="text-xs text-slate-500">Add care guidelines image</p>
-                  <label className="mt-3 inline-flex h-9 items-center rounded-lg border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-50">
-                    Select File
-                    <input
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        setIsDirty(true);
-                        setForm((current) => ({
-                          ...current,
-                          careGuide: e.target.files?.[0] ?? null,
-                        }));
-                      }}
-                      type="file"
-                    />
-                  </label>
-                  {form.careGuide && (
-                    <p className="mt-2 text-[11px] text-slate-600 font-semibold truncate">{form.careGuide.name}</p>
-                  )}
-                  {!form.careGuide && form.careGuideUrl && (
-                    <div className="mt-2 flex items-center gap-2">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img alt="" className="h-8 w-8 rounded object-cover" src={resolveImageUrl(form.careGuideUrl)} />
-                      <span className="text-[10px] text-slate-500">Current care guide</span>
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
           </section>
 
-          {/* Section 3: Channel & Branch */}
-          <section className="rounded-xl border border-slate-200 bg-white p-5">
-            <div className="mb-4">
-              <h2 className="text-sm font-semibold text-slate-900">Channel &amp; Branch</h2>
-              <p className="text-xs text-slate-500">Set where the product is available</p>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="block">
-                <span className="mb-2 block text-xs font-semibold text-slate-700">Channel</span>
-                <div className="flex flex-wrap gap-2">
-                  {channels.map((channel) => {
-                    const selected = form.channelIds.includes(channel.id);
-                    return (
-                      <button
-                        key={channel.id}
-                        type="button"
-                        className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-all ${
-                          selected
-                            ? "border-blue-500 bg-blue-50 text-blue-700"
-                            : "border-slate-300 bg-white text-slate-600 hover:border-slate-400"
-                        }`}
-                        onClick={() => toggleChannel(channel.id)}
-                      >
-                        {channel.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </label>
-              <label className="block">
-                <span className="mb-2 block text-xs font-semibold text-slate-700">Branch</span>
-                <select
-                  className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm bg-white outline-none focus:border-blue-500"
-                  onChange={(e) => {
-                    setIsDirty(true);
-                    setForm((current) => ({ ...current, branchId: e.target.value }));
-                  }}
-                  value={form.branchId}
-                >
-                  <option value="">Select branch</option>
-                  {branches.map((branch) => (
-                    <option key={branch.id} value={branch.id}>{branch.name}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-          </section>
 
           {/* Section 4: Inventory */}
           <section className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
@@ -1308,8 +1348,13 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 }`}
                 onClick={() => {
                   setIsDirty(true);
+                  if (variantSelections.length > 0 && variantSelections.some((s) => s.optionId)) {
+                    savedSelectionsRef.current = variantSelections;
+                  }
+                  if (variantDrafts.length > 0) {
+                    savedDraftsRef.current = variantDrafts;
+                  }
                   setForm((current) => ({ ...current, productType: "simple" }));
-                  setVariantSelections([{ ...emptyVariantSelection }]);
                 }}
               >
                 <div className="mr-4">
@@ -1336,6 +1381,15 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 onClick={() => {
                   setIsDirty(true);
                   setForm((current) => ({ ...current, productType: "variant" }));
+                  if (
+                    savedSelectionsRef.current.length > 0 &&
+                    (variantSelections.length === 0 || (variantSelections.length === 1 && !variantSelections[0].optionId))
+                  ) {
+                    setVariantSelections(savedSelectionsRef.current);
+                  }
+                  if (savedDraftsRef.current.length > 0 && variantDrafts.length === 0) {
+                    setVariantDrafts(savedDraftsRef.current);
+                  }
                 }}
               >
                 <div className="mr-4">
@@ -1398,17 +1452,15 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               </div>
             )}
 
-            <div className="mt-6 border-t border-slate-100 pt-6">
-              <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <div className="mt-4 border-t border-slate-100 pt-4">
+              <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-slate-500">
                 Supplier &amp; Purchasing
               </h3>
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                 <div>
-                  <div className="mb-2">
-                    <span className="block text-xs font-semibold text-slate-700">Supplier Name</span>
-                  </div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600">Supplier Name</label>
                   <select
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs bg-white outline-none focus:border-blue-500"
                     onChange={(e) => {
                       setIsDirty(true);
                       setForm((current) => ({ ...current, supplierId: e.target.value }));
@@ -1422,11 +1474,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                   </select>
                 </div>
                 <div>
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">Supplier Price</span>
+                  <label className="mb-1 block text-xs font-medium text-slate-600">Supplier Price</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-400">৳</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">৳</span>
                     <input
-                      className="h-11 w-full rounded-lg border border-slate-300 pl-8 pr-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="h-9 w-full rounded-lg border border-slate-300 pl-7 pr-3 text-xs outline-none focus:border-blue-500"
                       type="number"
                       step="0.01"
                       value={form.supplierPrice}
@@ -1438,10 +1490,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                     />
                   </div>
                 </div>
-                <div className="md:col-span-2">
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">Purchase Date</span>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600">Purchase Date</label>
                   <input
-                    className="h-11 w-full rounded-lg border border-slate-300 px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-blue-500"
                     type="date"
                     value={form.purchaseDate}
                     onChange={(e) => {
@@ -1454,101 +1506,163 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             </div>
           </section>
 
-
-
           {/* Section 6: Price */}
-          <section className="rounded-xl border border-slate-200 bg-white p-5">
-            <div className="mb-4">
-              <h2 className="text-sm font-semibold text-slate-900">Price</h2>
-              <p className="text-xs text-slate-500">Set the selling price details</p>
+          <section className="rounded-xl border border-slate-200 bg-white p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 leading-normal">Price</h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {form.productType === "simple"
+                    ? "Set selling price details"
+                    : "Set base price details (applied to new variants)"}
+                </p>
+              </div>
             </div>
-            <div className="flex flex-col md:flex-row md:items-center gap-6 rounded-lg bg-slate-50/50 p-4 border border-slate-100">
-              <div className="text-sm font-bold text-slate-700 min-w-16">Piece</div>
-              <div className="flex-1 grid gap-4 grid-cols-2 md:grid-cols-4">
-                <div>
-                  <span className="mb-2 block text-xs font-semibold text-slate-700">Factor</span>
+            <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-5 rounded-xl bg-slate-50/70 p-3.5 border border-slate-200/70">
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-600">Unit</label>
+                <div className="h-9 w-full inline-flex items-center justify-center text-xs font-bold text-slate-700 bg-white rounded-lg border border-slate-300 shadow-2xs">
+                  {units.find((u) => u.id === form.unitId)?.abbreviation ||
+                   (units.find((u) => u.id === form.unitId)?.name?.toLowerCase() === "pices" ? "Piece" : units.find((u) => u.id === form.unitId)?.name) ||
+                   "Piece"}
+                </div>
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-600">Factor</label>
+                <input
+                  className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none focus:border-blue-500"
+                  type="number"
+                  step="0.01"
+                  placeholder="1.00"
+                  value={form.factor}
+                  onChange={(e) => {
+                    setIsDirty(true);
+                    setForm((current) => ({ ...current, factor: e.target.value }));
+                  }}
+                />
+              </div>
+              <div>
+                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600">
+                  <span>Unit Price (Cost)</span>
+                  <span className="group relative inline-block cursor-pointer text-slate-400 hover:text-slate-600">
+                    <AdminIcon className="h-3 w-3" name="info" />
+                    <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 w-48 -translate-x-1/2 rounded bg-slate-800 p-2 text-center text-[10px] font-medium text-white opacity-0 shadow-md transition-opacity group-hover:opacity-100">
+                      Purchase cost per unit before markup
+                    </div>
+                  </span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">৳</span>
                   <input
-                    className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm outline-none focus:border-blue-500"
+                    className="h-9 w-full rounded-lg border border-slate-300 bg-white pl-7 pr-3 text-xs outline-none focus:border-blue-500"
                     type="number"
                     step="0.01"
-                    value={form.factor}
+                    value={form.unitPrice}
                     onChange={(e) => {
                       setIsDirty(true);
-                      setForm((current) => ({ ...current, factor: e.target.value }));
+                      const val = e.target.value;
+                      const u = parseFloat(val);
+                      const r = parseFloat(form.retailPrice);
+                      const m = parseFloat(form.markup);
+                      let newMarkup = form.markup;
+                      let newRetail = form.retailPrice;
+
+                      if (!isNaN(u) && u > 0) {
+                        if (!isNaN(r) && r >= u) {
+                          newMarkup = (((r - u) / u) * 100).toFixed(2);
+                        } else if (!isNaN(m) && m > 0) {
+                          newRetail = (u + (u * m) / 100).toFixed(2);
+                        }
+                      }
+
+                      setForm((current) => ({
+                        ...current,
+                        unitPrice: val,
+                        retailPrice: newRetail,
+                        markup: newMarkup,
+                      }));
                     }}
+                    placeholder="0.00"
                   />
                 </div>
-                <div>
-                  <span className="mb-2 block text-xs font-semibold text-slate-700 flex items-center">
-                    Unit Price
-                    <span className="group relative ml-1.5 inline-block cursor-pointer text-slate-400 hover:text-slate-600">
-                      <AdminIcon className="h-3.5 w-3.5" name="info" />
-                      <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-48 -translate-x-1/2 rounded bg-slate-800 p-2 text-center text-[10px] font-medium text-white opacity-0 shadow-md transition-opacity group-hover:opacity-100">
-                        Purchase cost per unit before markup
-                      </div>
-                    </span>
+              </div>
+              <div>
+                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600">
+                  <span>
+                    {form.productType === "simple" ? "Retail Price" : "Base Retail Price"} <span className="text-red-500">*</span>
                   </span>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-400">৳</span>
-                    <input
-                      className="h-11 w-full rounded-lg border border-slate-300 bg-white pl-8 pr-4 text-sm outline-none focus:border-blue-500"
-                      type="number"
-                      step="0.01"
-                      value={form.unitPrice}
-                      onChange={(e) => {
-                        setIsDirty(true);
-                        setForm((current) => ({ ...current, unitPrice: e.target.value }));
-                      }}
-                    />
-                  </div>
+                  <span className="group relative inline-block cursor-pointer text-slate-400 hover:text-slate-600">
+                    <AdminIcon className="h-3 w-3" name="info" />
+                    <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 w-48 -translate-x-1/2 rounded bg-slate-800 p-2 text-center text-[10px] font-medium text-white opacity-0 shadow-md transition-opacity group-hover:opacity-100">
+                      Selling price to retail customers
+                    </div>
+                  </span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">৳</span>
+                  <input
+                    className="h-9 w-full rounded-lg border border-slate-300 bg-white pl-7 pr-3 text-xs outline-none focus:border-blue-500"
+                    type="number"
+                    step="0.01"
+                    value={form.retailPrice}
+                    onChange={(e) => {
+                      setIsDirty(true);
+                      const val = e.target.value;
+                      const r = parseFloat(val);
+                      const u = parseFloat(form.unitPrice);
+                      let newMarkup = form.markup;
+
+                      if (!isNaN(r) && !isNaN(u) && u > 0) {
+                        newMarkup = (((r - u) / u) * 100).toFixed(2);
+                      }
+
+                      setForm((current) => ({
+                        ...current,
+                        retailPrice: val,
+                        markup: newMarkup,
+                      }));
+                    }}
+                    placeholder="0.00"
+                    required={form.productType === "simple"}
+                  />
                 </div>
-                <div>
-                  <span className="mb-2 block text-xs font-semibold text-slate-700 flex items-center">
-                    Retail Price <span className="text-red-500 ml-0.5">*</span>
-                    <span className="group relative ml-1.5 inline-block cursor-pointer text-slate-400 hover:text-slate-600">
-                      <AdminIcon className="h-3.5 w-3.5" name="info" />
-                      <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-48 -translate-x-1/2 rounded bg-slate-800 p-2 text-center text-[10px] font-medium text-white opacity-0 shadow-md transition-opacity group-hover:opacity-100">
-                        Selling price to retail customers
-                      </div>
-                    </span>
+              </div>
+              <div>
+                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600">
+                  <span>Markup (%)</span>
+                  <span className="group relative inline-block cursor-pointer text-slate-400 hover:text-slate-600">
+                    <AdminIcon className="h-3 w-3" name="info" />
+                    <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 w-48 -translate-x-1/2 rounded bg-slate-800 p-2 text-center text-[10px] font-medium text-white opacity-0 shadow-md transition-opacity group-hover:opacity-100">
+                      Profit percentage margin over unit cost
+                    </div>
                   </span>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-400">৳</span>
-                    <input
-                      className="h-11 w-full rounded-lg border border-slate-300 bg-white pl-8 pr-4 text-sm outline-none focus:border-blue-500"
-                      type="number"
-                      step="0.01"
-                      value={form.retailPrice}
-                      onChange={(e) => {
-                        setIsDirty(true);
-                        setForm((current) => ({ ...current, retailPrice: e.target.value }));
-                      }}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <span className="mb-2 block text-xs font-semibold text-slate-700 flex items-center">
-                    Markup
-                    <span className="group relative ml-1.5 inline-block cursor-pointer text-slate-400 hover:text-slate-600">
-                      <AdminIcon className="h-3.5 w-3.5" name="info" />
-                      <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-48 -translate-x-1/2 rounded bg-slate-800 p-2 text-center text-[10px] font-medium text-white opacity-0 shadow-md transition-opacity group-hover:opacity-100">
-                        Profit percentage margin over unit cost
-                      </div>
-                    </span>
-                  </span>
-                  <div className="relative">
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-400">%</span>
-                    <input
-                      className="h-11 w-full rounded-lg border border-slate-300 bg-white pl-4 pr-8 text-sm outline-none focus:border-blue-500"
-                      type="number"
-                      step="0.01"
-                      value={form.markup}
-                      onChange={(e) => {
-                        setIsDirty(true);
-                        setForm((current) => ({ ...current, markup: e.target.value }));
-                      }}
-                    />
-                  </div>
+                </label>
+                <div className="relative">
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">%</span>
+                  <input
+                    className="h-9 w-full rounded-lg border border-slate-300 bg-white pl-3 pr-7 text-xs outline-none focus:border-blue-500"
+                    type="number"
+                    step="0.01"
+                    value={form.markup}
+                    onChange={(e) => {
+                      setIsDirty(true);
+                      const val = e.target.value;
+                      const m = parseFloat(val);
+                      const u = parseFloat(form.unitPrice);
+                      let newRetail = form.retailPrice;
+
+                      if (!isNaN(m) && !isNaN(u) && u > 0) {
+                        newRetail = (u + (u * m) / 100).toFixed(2);
+                      }
+
+                      setForm((current) => ({
+                        ...current,
+                        markup: val,
+                        retailPrice: newRetail,
+                      }));
+                    }}
+                    placeholder="0.00"
+                  />
                 </div>
               </div>
             </div>
@@ -1556,7 +1670,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
           {/* Section 7: Variant Options */}
           {form.productType === "variant" && (
-            <section className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
+            <section id="variants-section" className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
               <div>
                 <h3 className="text-base font-semibold text-slate-950">Variant Options</h3>
                 <p className="text-xs text-slate-500">
@@ -1652,8 +1766,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         )}
       </form>
 
-
-
       {/* Confirm Leave Modal */}
       <ConfirmModal
         isOpen={isConfirmLeaveOpen}
@@ -1715,13 +1827,13 @@ function VariantPillsSelector({
   let optionValuesContent;
   if (!option) {
     optionValuesContent = (
-      <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 text-xs font-medium text-slate-400">
-        Select a variant option to see available values
+      <div className="flex h-9 items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 px-3 text-xs font-medium text-slate-400">
+        Select an option to choose values
       </div>
     );
   } else {
     optionValuesContent = (
-      <div className="flex flex-wrap gap-2 rounded-lg border border-slate-200 bg-slate-50/50 p-3">
+      <div className="flex flex-wrap gap-1.5 rounded-lg border border-slate-200 bg-slate-50/50 p-1.5 min-h-[36px] items-center">
         {option.values && option.values.length > 0 ? (
           option.values.map((val) => {
             const isSelected = selection.valueIds.includes(val.id);
@@ -1731,19 +1843,19 @@ function VariantPillsSelector({
                 type="button"
                 data-val={val.id}
                 onClick={handleToggleValue}
-                className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold transition-all duration-150 active:scale-95 cursor-pointer select-none ${
+                className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-semibold transition-all duration-150 active:scale-95 cursor-pointer select-none ${
                   isSelected
-                    ? "border-blue-500 bg-blue-50 text-blue-700 font-bold shadow-xs"
+                    ? "border-blue-500 bg-blue-50 text-blue-700 font-bold shadow-2xs"
                     : "border-slate-300 bg-white text-slate-600 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900"
                 }`}
               >
                 {val.value}
                 {isSelected ? (
-                  <svg className="h-3.5 w-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-3 w-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                 ) : (
-                  <svg className="h-3.5 w-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-3 w-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
                 )}
@@ -1758,44 +1870,51 @@ function VariantPillsSelector({
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 p-4 space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <p className="font-semibold text-slate-800">Variant option {index + 1}</p>
+    <div className="rounded-xl border border-slate-200/80 bg-white p-4 space-y-3 shadow-2xs">
+      <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-2">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 leading-normal py-0.5">
+          Variant Option {index + 1}
+        </h4>
         <button
-          className="inline-flex h-9 items-center gap-2 rounded-lg bg-red-50 px-3 text-sm font-semibold text-red-700 hover:bg-red-100 cursor-pointer"
+          className="inline-flex h-7 items-center gap-1 rounded-lg bg-red-50 px-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 transition-colors cursor-pointer"
           onClick={handleRemoveClick}
           type="button"
         >
-          <AdminIcon className="h-4 w-4" name="x" />
+          <AdminIcon className="h-3.5 w-3.5" name="x" />
           Remove
         </button>
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        <label className="block">
-          <span className="mb-2 block text-xs font-semibold text-slate-700">
+      <div className="flex flex-col md:flex-row md:items-start gap-4">
+        <div className="w-full md:w-56 shrink-0">
+          <label className="mb-1 block text-xs font-medium text-slate-600">
             Variant option
-          </span>
-          <select
-            className="h-12 w-full rounded-lg border border-slate-300 px-4 font-medium bg-white outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-            onChange={handleOptionChange}
-            value={selection.optionId}
-          >
-            <option value="">Select option</option>
-            {variantOptions
-              .filter(
-                (item) =>
-                  item.id === selection.optionId ||
-                  !usedOptionIds.has(item.id),
-              )
-              .map((item) => (
-                <option key={item.id} value={item.id}>{item.name}</option>
-              ))}
-          </select>
-        </label>
-        <div className="block">
-          <span className="mb-2 block text-xs font-semibold text-slate-700">
+          </label>
+          <div className="relative">
+            <select
+              className="h-9 w-full appearance-none rounded-lg border border-slate-300 bg-white pl-3 pr-8 text-xs font-medium outline-none focus:border-blue-500 cursor-pointer"
+              onChange={handleOptionChange}
+              value={selection.optionId}
+            >
+              <option value="">Select option</option>
+              {variantOptions
+                .filter(
+                  (item) =>
+                    item.id === selection.optionId ||
+                    !usedOptionIds.has(item.id),
+                )
+                .map((item) => (
+                  <option key={item.id} value={item.id}>{item.name}</option>
+                ))}
+            </select>
+            <svg className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+        <div className="flex-1 min-w-0">
+          <label className="mb-1 block text-xs font-medium text-slate-600">
             Option values
-          </span>
+          </label>
           {optionValuesContent}
         </div>
       </div>
@@ -1827,94 +1946,106 @@ function VariantDraftCard({
   handleRemoveNewVariantMedia,
 }: VariantDraftCardProps) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-slate-800">{v.label}</p>
-          <p className="text-xs text-slate-500">{v.sku}</p>
+    <div className="rounded-xl border border-slate-200/80 bg-white p-3.5 space-y-3 shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-slate-900">{v.label}</span>
+          <span className="font-mono text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+            {v.sku}
+          </span>
         </div>
-        <label className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer">
+        <label className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 cursor-pointer hover:text-slate-900">
           <input
             checked={v.isDefault}
             data-key={v.key}
             onChange={handleVariantDefaultChange}
             type="radio"
             name="default-variant"
+            className="h-3.5 w-3.5 text-blue-600 focus:ring-blue-500 cursor-pointer"
           />
           Default Variant
         </label>
       </div>
 
-      <div className="mt-4 grid gap-4 md:grid-cols-[1.3fr_repeat(3,0.7fr)]">
+      <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold text-slate-600">
+          <span className="mb-1 block text-xs font-medium text-slate-600">
             SKU <span className="text-red-500">*</span>
           </span>
           <input
-            className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm font-semibold uppercase outline-none focus:border-blue-500"
+            className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs font-mono font-semibold uppercase outline-none focus:border-blue-500"
             value={v.sku}
             data-key={v.key}
             onChange={handleVariantSkuChange}
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold text-slate-600">Cost</span>
-          <input
-            className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm font-semibold outline-none focus:border-blue-500"
-            min="0"
-            step="0.01"
-            type="number"
-            value={v.cost}
-            data-key={v.key}
-            onChange={handleVariantCostChange}
-          />
+          <span className="mb-1 block text-xs font-medium text-slate-600">Cost</span>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">৳</span>
+            <input
+              className="h-9 w-full rounded-lg border border-slate-300 pl-7 pr-3 text-xs outline-none focus:border-blue-500"
+              min="0"
+              step="0.01"
+              type="number"
+              value={v.cost}
+              data-key={v.key}
+              onChange={handleVariantCostChange}
+              placeholder="0.00"
+            />
+          </div>
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold text-slate-600">
+          <span className="mb-1 block text-xs font-medium text-slate-600">
             Price <span className="text-red-500">*</span>
           </span>
-          <input
-            className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm font-semibold outline-none focus:border-blue-500"
-            min="0"
-            step="0.01"
-            type="number"
-            value={v.price}
-            data-key={v.key}
-            onChange={handleVariantPriceChange}
-          />
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">৳</span>
+            <input
+              className="h-9 w-full rounded-lg border border-slate-300 pl-7 pr-3 text-xs outline-none focus:border-blue-500"
+              min="0"
+              step="0.01"
+              type="number"
+              value={v.price}
+              data-key={v.key}
+              onChange={handleVariantPriceChange}
+              placeholder="0.00"
+            />
+          </div>
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold text-slate-600">Stock</span>
+          <span className="mb-1 block text-xs font-medium text-slate-600">Stock</span>
           <input
-            className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm font-semibold outline-none focus:border-blue-500"
+            className="h-9 w-full rounded-lg border border-slate-300 px-3 text-xs outline-none focus:border-blue-500"
             min="0"
             step="1"
             type="number"
             value={v.stockQuantity}
             data-key={v.key}
             onChange={handleVariantStockChange}
+            placeholder="0"
           />
         </label>
       </div>
 
-      <div className="mt-4">
+      <div className="pt-1">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-semibold text-slate-600">Variant images</p>
+          <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Variant images</p>
           {v.images.length > 0 && (
-            <span className="text-xs font-semibold text-slate-500">{v.images.length} selected</span>
+            <span className="text-xs font-medium text-slate-500">{v.images.length} selected</span>
           )}
         </div>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {(v.existingMedia ?? []).map((m, idx) => (
+        <div className="mt-1.5 flex flex-wrap gap-2">
+          {(v.existingMedia ?? []).map((m) => (
             <div
-              className="group relative h-16 w-16 overflow-hidden rounded-lg border border-slate-200"
+              className="group relative h-14 w-14 overflow-hidden rounded-lg border border-slate-200 bg-slate-50"
               key={m.id}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img alt="" className="h-full w-full object-cover" src={resolveImageUrl(m.media.url)} />
               <button
                 type="button"
-                className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-red-500 opacity-0 shadow hover:bg-white group-hover:opacity-100"
+                className="absolute right-1 top-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-white/90 text-red-500 opacity-0 shadow hover:bg-white group-hover:opacity-100 transition-opacity"
                 onClick={() => handleRemoveExistingVariantMedia(v.key, m.id)}
               >
                 <AdminIcon className="h-3 w-3" name="trash" />
@@ -1923,23 +2054,23 @@ function VariantDraftCard({
           ))}
           {(v.imagePreviews ?? []).map((url, idx) => (
             <div
-              className="group relative h-16 w-16 overflow-hidden rounded-lg border border-slate-200"
+              className="group relative h-14 w-14 overflow-hidden rounded-lg border border-slate-200 bg-slate-50"
               key={`${v.key}-preview-${idx}`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img alt="" className="h-full w-full object-cover" src={url} />
               <button
                 type="button"
-                className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-red-500 opacity-0 shadow hover:bg-white group-hover:opacity-100"
+                className="absolute right-1 top-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-white/90 text-red-500 opacity-0 shadow hover:bg-white group-hover:opacity-100 transition-opacity"
                 onClick={() => handleRemoveNewVariantMedia(v.key, idx)}
               >
                 <AdminIcon className="h-3 w-3" name="trash" />
               </button>
             </div>
           ))}
-          <label className="flex h-16 w-16 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white text-slate-500 hover:bg-slate-50">
-            <AdminIcon className="h-4 w-4" name="upload" />
-            <span className="mt-1 text-[10px] font-semibold">Add</span>
+          <label className="flex h-14 w-14 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50/50 text-slate-400 hover:bg-slate-100 hover:border-slate-400 transition-all">
+            <AdminIcon className="h-3.5 w-3.5" name="upload" />
+            <span className="mt-0.5 text-[10px] font-semibold">Add</span>
             <input
               accept="image/*"
               className="hidden"

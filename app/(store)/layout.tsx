@@ -7,6 +7,7 @@ import { AuthProvider } from "../_providers/auth-provider";
 import { CartProvider } from "../_providers/cart-provider";
 import { WishlistProvider } from "../_providers/wishlist-provider";
 import AuthModal from "@/components/auth-modal";
+import BackToTop from "@/components/ui/back-to-top";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Toaster } from "sonner";
 
@@ -28,7 +29,8 @@ export default function StoreLayout({
           <Mainfooter />
           <Bottomfooter />
           <AuthModal />
-          <Toaster richColors closeButton position="bottom-right" />
+          <BackToTop />
+          <Toaster richColors closeButton position="top-right" />
         </CartProvider>
       </WishlistProvider>
     </AuthProvider>

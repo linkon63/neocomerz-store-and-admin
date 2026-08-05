@@ -10,6 +10,8 @@ export type AdminIconName =
   | "calendar"
   | "category"
   | "check"
+  | "chevron-down"
+  | "chevron-up"
   | "chevronRight"
   | "copy"
   | "dashboard"
@@ -90,6 +92,8 @@ const iconPaths: Record<AdminIconName, ReactNode> = {
     </>
   ),
   check: <path d="M20 6L9 17l-5-5" />,
+  "chevron-down": <path d="M6 9l6 6 6-6" />,
+  "chevron-up": <path d="M18 15l-6-6-6 6" />,
   chevronRight: <path d="M9 18l6-6-6-6" />,
   copy: (
     <>

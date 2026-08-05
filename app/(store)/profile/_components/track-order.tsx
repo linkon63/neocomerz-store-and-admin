@@ -48,7 +48,7 @@ export default function TrackOrderView() {
     setSearched(false);
     setOrder(null);
     try {
-      const res = await fetch(`${BASE_URL}/orders/${invoiceId.trim()}`);
+      const res = await fetch(`${BASE_URL}/orders/track/${invoiceId.trim()}`);
       if (res.ok) setOrder(await res.json());
       else toast.error("Order not found. Please check your Invoice ID.");
     } catch {

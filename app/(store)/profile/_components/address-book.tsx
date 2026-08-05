@@ -47,7 +47,7 @@ export default function AddressBookView() {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch(`${BASE_URL}/profile/addresses`, {
+      const res = await fetch(`${BASE_URL}/addresses`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) setAddresses(await res.json());
@@ -69,7 +69,7 @@ export default function AddressBookView() {
       fullName: addr.fullName, phone: addr.phone,
       addressLine1: addr.addressLine1, addressLine2: addr.addressLine2 || "",
       city: addr.city, state: addr.state, postalCode: addr.postalCode,
-      country: addr.country, isDefault: addr.isDefault,
+      country: addr.country || "Bangladesh", isDefault: addr.isDefault,
     });
     setModalOpen(true);
   };
@@ -80,8 +80,8 @@ export default function AddressBookView() {
     if (!token) { toast.error("Please log in first."); return; }
     setSubmitting(true);
     try {
-      const url    = editing ? `${BASE_URL}/profile/addresses/${editing.id}` : `${BASE_URL}/profile/addresses`;
-      const method = editing ? "PUT" : "POST";
+      const url    = editing ? `${BASE_URL}/addresses/${editing.id}` : `${BASE_URL}/addresses`;
+      const method = editing ? "PATCH" : "POST";
       const res    = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -104,7 +104,7 @@ export default function AddressBookView() {
     const token = getCustomerToken();
     if (!token) return;
     try {
-      const res = await fetch(`${BASE_URL}/profile/addresses/${id}`, {
+      const res = await fetch(`${BASE_URL}/addresses/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -253,28 +253,9 @@ export default function AddressBookView() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={FIELD_LABEL}>Postal Code *</label>
-                  <input type="text" value={form.postalCode} onChange={(e) => patch("postalCode", e.target.value)} className={INPUT_BASE} placeholder="1207" required />
-                </div>
-                <div>
-                  <label className={FIELD_LABEL}>Country *</label>
-                  <div className="relative">
-                    <select
-                      value={form.country}
-                      onChange={(e) => patch("country", e.target.value)}
-                      className={`${INPUT_BASE} appearance-none pr-8 cursor-pointer`}
-                    >
-                      <option>Bangladesh</option>
-                      <option>India</option>
-                      <option>United Kingdom</option>
-                      <option>United States</option>
-                      <option>Other</option>
-                    </select>
-                    <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs pointer-events-none" />
-                  </div>
-                </div>
+              <div>
+                <label className={FIELD_LABEL}>Postal Code *</label>
+                <input type="text" value={form.postalCode} onChange={(e) => patch("postalCode", e.target.value)} className={INPUT_BASE} placeholder="1207" required />
               </div>
 
               <label className="flex items-center gap-3 cursor-pointer pt-1 group select-none">

@@ -2,9 +2,37 @@ import FooterNewsletter from "./ui/footer-newsletter";
 import FooterPayment from "./ui/footer-payment";
 import FooterLinks from "./ui/footer-links";
 import Link from "next/link";
-import { FaFacebookF, FaInstagram, FaYoutube, FaWhatsapp } from "react-icons/fa6";
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaYoutube,
+  FaTiktok,
+  FaXTwitter,
+  FaLinkedinIn,
+} from "react-icons/fa6";
+import { fetchShopSettings } from "@/lib/shop-api";
 
-export default function Bottomfooter() {
+type SocialKey = "tiktok" | "instagram" | "twitter" | "facebook" | "linkedin" | "youtube";
+
+const SOCIAL_ICONS: Record<SocialKey, { Icon: React.ComponentType<{ className?: string }>; label: string }> = {
+  tiktok:    { Icon: FaTiktok,    label: "TikTok"    },
+  instagram: { Icon: FaInstagram, label: "Instagram" },
+  twitter:   { Icon: FaXTwitter,  label: "Twitter/X" },
+  facebook:  { Icon: FaFacebookF, label: "Facebook"  },
+  linkedin:  { Icon: FaLinkedinIn,label: "LinkedIn"  },
+  youtube:   { Icon: FaYoutube,   label: "YouTube"   },
+};
+
+const SOCIAL_ORDER: SocialKey[] = ["facebook", "youtube", "instagram", "tiktok", "twitter", "linkedin"];
+
+export default async function Bottomfooter() {
+  const settings = await fetchShopSettings();
+  const socialContact: Partial<Record<SocialKey, string>> = settings?.socialContact ?? {};
+
+  // Only show icons that have a non-empty URL saved in admin
+  const activeSocials = SOCIAL_ORDER.filter(
+    (key) => socialContact[key] && socialContact[key]!.trim() !== ""
+  );
 
   return (
     <section className="relative w-full h-full min-h-107.5 overflow-hidden flex items-end">
@@ -27,31 +55,38 @@ export default function Bottomfooter() {
       <div className="bottom-footer-wrapper relative z-10 w-full py-8">
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr] gap-8 items-end mb-8">
-            
+
             <FooterPayment />
 
             <div className="text-center space-y-6">
-              {/* Social Icons */}
-              <div className="flex items-center justify-center gap-2">
-                <p className="text-white text-sm font-['Gotham']">Follow Us on</p>
-                <div className="flex items-center justify-center gap-4">
-                  <Link href="https://www.facebook.com/share/18CfeyLYXR/" target="_blank" className="text-white hover:text-brand-3 transition-colors">
-                    <FaFacebookF className="w-5 h-5" />
-                  </Link>
-                  <Link href="https://youtube.com/@londonteaexchangebd?si=V35c1RZnSdp07n8o" target="_blank" className="text-white hover:text-brand-3 transition-colors">
-                    <FaYoutube className="w-5 h-5" />
-                  </Link>
-                  <Link href="https://www.instagram.com/lte_bd?igsh=MWRuZGo4bXc1cTl2Zw==" target="_blank" rel="noopener noreferrer" className="text-white hover:text-brand-3 transition-colors">
-                    <FaInstagram className="w-5 h-5" />
-                  </Link>
-                  <Link href="https://wa.me/8801339879494" target="_blank" className="text-white hover:text-brand-3 transition-colors">
-                    <FaWhatsapp className="w-5 h-5" />
-                  </Link>
+              {/* Dynamic Social Icons */}
+              {activeSocials.length > 0 && (
+                <div className="flex items-center justify-center gap-2">
+                  <p className="text-white text-sm font-['Gotham']">Follow Us on</p>
+                  <div className="flex items-center justify-center gap-4">
+                    {activeSocials.map((key) => {
+                      const { Icon, label } = SOCIAL_ICONS[key];
+                      const href = socialContact[key]!;
+                      return (
+                        <Link
+                          key={key}
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={label}
+                          className="text-white hover:text-brand-3 transition-colors"
+                        >
+                          <Icon className="w-5 h-5" />
+                        </Link>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <FooterNewsletter />
             </div>
+
             <div className="text-center md:text-right">
               <p className="text-white text-sm font-['Gotham'] mb-1">Showroom Hours</p>
               <p className="text-white text-lg font-['Gotham'] font-medium">Sat – Thu: 11:00 AM – 8:00 PM</p>

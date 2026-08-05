@@ -1,174 +1,213 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AdminIcon, PageHeader } from "../../_components/admin-shell";
-import { ConfirmModal } from "../../_components/confirm-modal";
-import { apiRequest, formatDate, type Unit } from "../../../../lib/admin-api";
+import { apiRequest, type Unit } from "../../../../lib/admin-api";
 
-type UnitForm = {
+type UOMFormState = {
   id?: string;
   name: string;
-  code: string;
-  description: string;
+  abbreviation: string;
+  parentId: string; // "" means Base Unit (-)
+  factor: string;   // string for input, parsed to number on submit
   isActive: boolean;
 };
 
-const emptyForm: UnitForm = {
+const defaultForm: UOMFormState = {
   name: "",
-  code: "",
-  description: "",
+  abbreviation: "",
+  parentId: "",
+  factor: "1",
   isActive: true,
 };
 
-function codeFromName(name: string) {
-  return name
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 16);
-}
-
-const PAGE_SIZE = 10;
-
-export default function UnitsPage() {
+export default function UOMPage() {
+  const [view, setView] = useState<"list" | "form">("list");
   const [units, setUnits] = useState<Unit[]>([]);
-  const [form, setForm] = useState<UnitForm>(emptyForm);
-  const [search, setSearch] = useState("");
-  const [showSearchInput, setShowSearchInput] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const observerTarget = useRef<HTMLDivElement>(null);
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [unitToDelete, setUnitToDelete] = useState<Unit | null>(null);
+  const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchInput, setShowSearchInput] = useState(false);
 
-  const filteredUnits = useMemo(() => {
-    return units.filter((unit) =>
-      `${unit.name} ${unit.code} ${unit.description ?? ""}`
-        .toLowerCase()
-        .includes(search.toLowerCase()),
-    );
-  }, [search, units]);
+  // Form State
+  const [form, setForm] = useState<UOMFormState>(defaultForm);
+  const [formErrors, setFormErrors] = useState<{ name?: string; abbreviation?: string; factor?: string }>({});
 
-  // Reset visibleCount when search changes
-  useEffect(() => {
-    setVisibleCount(PAGE_SIZE);
-  }, [search]);
+  // Parent Dropdown State
+  const [isParentDropdownOpen, setIsParentDropdownOpen] = useState(false);
+  const [parentSearch, setParentSearch] = useState("");
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const paginatedUnits = useMemo(() => {
-    return filteredUnits.slice(0, visibleCount);
-  }, [filteredUnits, visibleCount]);
+  // Active Tab for Guidelines Section
+  const [activeTab, setActiveTab] = useState<"examples" | "guidelines">("examples");
 
-  function handleLoadMore() {
-    setIsLoadingMore(true);
-    setTimeout(() => {
-      setVisibleCount((prev) => prev + PAGE_SIZE);
-      setIsLoadingMore(false);
-    }, 300);
-  }
-
-  useEffect(() => {
-    if (isLoadingMore || paginatedUnits.length >= filteredUnits.length) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !isLoadingMore) {
-          handleLoadMore();
-        }
-      },
-      { threshold: 0.1, rootMargin: "100px" }
-    );
-
-    const target = observerTarget.current;
-    if (target) {
-      observer.observe(target);
-    }
-
-    return () => {
-      if (target) {
-        observer.unobserve(target);
-      }
-    };
-  }, [isLoadingMore, paginatedUnits.length, filteredUnits.length]);
-
-  async function loadUnits() {
-    setError("");
+  // Load Units
+  const fetchUnits = useCallback(async () => {
     setIsLoading(true);
-
+    setError("");
     try {
-      setUnits(await apiRequest<Unit[]>("/units"));
+      const data = await apiRequest<Unit[]>("/units");
+      setUnits(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load units");
     } finally {
       setIsLoading(false);
     }
-  }
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      void loadUnits();
-    }, 0);
-    return () => window.clearTimeout(timeoutId);
   }, []);
 
-  function updateName(name: string) {
-    setForm((current) => ({
-      ...current,
-      name,
-      code: current.id || current.code ? current.code : codeFromName(name),
-    }));
+  useEffect(() => {
+    void fetchUnits();
+  }, [fetchUnits]);
+
+  // Click outside to close parent dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsParentDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Filtered units for List view search
+  const filteredUnits = useMemo(() => {
+    if (!searchQuery.trim()) return units;
+    const q = searchQuery.toLowerCase();
+    return units.filter(
+      (u) =>
+        u.name.toLowerCase().includes(q) ||
+        u.abbreviation.toLowerCase().includes(q) ||
+        (u.parent?.name && u.parent.name.toLowerCase().includes(q)),
+    );
+  }, [units, searchQuery]);
+
+  // Options for Parent Unit dropdown (exclude current unit being edited)
+  const parentUnitOptions = useMemo(() => {
+    return units.filter((u) => u.id !== form.id);
+  }, [units, form.id]);
+
+  const filteredParentOptions = useMemo(() => {
+    if (!parentSearch.trim()) return parentUnitOptions;
+    const q = parentSearch.toLowerCase();
+    return parentUnitOptions.filter(
+      (u) => u.name.toLowerCase().includes(q) || u.abbreviation.toLowerCase().includes(q),
+    );
+  }, [parentUnitOptions, parentSearch]);
+
+  // Selected parent unit object
+  const selectedParentUnit = useMemo(() => {
+    return units.find((u) => u.id === form.parentId);
+  }, [units, form.parentId]);
+
+  // Actions
+  function handleOpenCreate() {
+    setForm(defaultForm);
+    setFormErrors({});
+    setError("");
+    setView("form");
   }
 
-  function openAddModal() {
-    setError("");
-    setForm(emptyForm);
-    setIsModalOpen(true);
-  }
-
-  function openEditModal(unit: Unit) {
-    setError("");
+  function handleOpenEdit(unit: Unit) {
     setForm({
       id: unit.id,
       name: unit.name,
-      code: unit.code,
-      description: unit.description ?? "",
+      abbreviation: unit.abbreviation,
+      parentId: unit.parentId ?? "",
+      factor: String(unit.factor ?? 1),
       isActive: unit.isActive,
     });
-    setIsModalOpen(true);
+    setFormErrors({});
+    setError("");
+    setView("form");
   }
 
-  function closeModal() {
-    if (isSaving) return;
-
+  function handleCancelForm() {
+    setView("list");
+    setForm(defaultForm);
+    setFormErrors({});
     setError("");
-    setForm(emptyForm);
-    setIsModalOpen(false);
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError("");
-    setIsSaving(true);
+  // Toggle status directly from table
+  async function handleToggleStatus(unit: Unit) {
+    const newStatus = !unit.isActive;
+
+    // Optimistic UI update
+    setUnits((prev) =>
+      prev.map((u) => (u.id === unit.id ? { ...u, isActive: newStatus } : u)),
+    );
 
     try {
-      await apiRequest<Unit>(form.id ? `/units/${form.id}` : "/units", {
-        method: form.id ? "PATCH" : "POST",
+      await apiRequest(`/units/${unit.id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name.trim(),
-          code: form.code.trim() || codeFromName(form.name),
-          description: form.description.trim() || undefined,
-          isActive: form.isActive,
-        }),
+        body: JSON.stringify({ isActive: newStatus }),
       });
+    } catch (err) {
+      // Rollback on failure
+      setUnits((prev) =>
+        prev.map((u) => (u.id === unit.id ? { ...u, isActive: unit.isActive } : u)),
+      );
+      setError(err instanceof Error ? err.message : "Failed to update status");
+    }
+  }
 
-      setForm(emptyForm);
-      setIsModalOpen(false);
-      await loadUnits();
+  // Validate form
+  function validateForm(): boolean {
+    const errors: { name?: string; abbreviation?: string; factor?: string } = {};
+
+    if (!form.name.trim()) {
+      errors.name = "Name is required";
+    }
+
+    if (!form.abbreviation.trim()) {
+      errors.abbreviation = "Abbreviation is required";
+    }
+
+    const numFactor = parseFloat(form.factor);
+    if (!form.factor.trim() || isNaN(numFactor) || numFactor <= 0) {
+      errors.factor = "Enter a valid positive number for factor";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  }
+
+  // Save form
+  async function handleSubmitForm(e: FormEvent) {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    setIsSaving(true);
+    setError("");
+
+    const payload = {
+      name: form.name.trim(),
+      abbreviation: form.abbreviation.trim(),
+      parentId: form.parentId || null,
+      factor: parseFloat(form.factor) || 1,
+      isActive: form.isActive,
+    };
+
+    try {
+      if (form.id) {
+        await apiRequest(`/units/${form.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        await apiRequest("/units", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      await fetchUnits();
+      setView("list");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save unit");
     } finally {
@@ -176,37 +215,351 @@ export default function UnitsPage() {
     }
   }
 
-  function deleteUnit(unit: Unit) {
-    setUnitToDelete(unit);
-    setDeleteModalOpen(true);
+  // ─────────────────────────────────────────────────────────────────────────────
+  // RENDER FORM VIEW
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (view === "form") {
+    return (
+      <div className="space-y-6">
+        {/* Top Header Section — matching standard PageHeader spacing & border */}
+        <header className="pt-6 mb-8 flex flex-col justify-between gap-5 border-b border-slate-200 pb-7 sm:flex-row sm:items-start">
+          <div>
+            <button
+              type="button"
+              onClick={handleCancelForm}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors mb-3"
+            >
+              <AdminIcon name="arrow-left" className="w-3.5 h-3.5" />
+              Back to unit of measurement list
+            </button>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              {form.id ? "Edit Units of Measurement" : "Add Units of Measurement"}
+            </h1>
+            <p className="mt-1 text-sm font-medium text-slate-500">
+              {form.id ? "Edit units of measurement here" : "Add units of measurement here"}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleCancelForm}
+              disabled={isSaving}
+              className="h-10 px-5 rounded-lg border border-slate-300 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmitForm}
+              disabled={isSaving}
+              className="h-10 px-6 rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 inline-flex items-center gap-2"
+            >
+              {isSaving && (
+                <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+              )}
+              {isSaving ? "Saving..." : "Save"}
+            </button>
+          </div>
+        </header>
+
+        {error && (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
+            {error}
+          </div>
+        )}
+
+        {/* Form Card */}
+        <form onSubmit={handleSubmitForm} className="rounded-xl border border-slate-200 bg-white p-6 md:p-8 shadow-sm">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12">
+            {/* Left Title Info */}
+            <div className="lg:col-span-3">
+              <h2 className="text-base font-bold text-slate-900">Units of Measurement Info</h2>
+              <p className="mt-1 text-xs text-slate-500">Add Units information</p>
+            </div>
+
+            {/* Right Fields (2x2 Grid) */}
+            <div className="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Name */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Name<span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter name"
+                  value={form.name}
+                  onChange={(e) => {
+                    setForm((f) => ({ ...f, name: e.target.value }));
+                    if (formErrors.name) setFormErrors((err) => ({ ...err, name: undefined }));
+                  }}
+                  className={`w-full h-11 px-4 rounded-lg border bg-white text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all focus:ring-2 focus:ring-blue-100 ${
+                    formErrors.name ? "border-red-400 focus:border-red-500" : "border-slate-300 focus:border-blue-500"
+                  }`}
+                />
+                {formErrors.name && (
+                  <p className="mt-1 text-xs text-red-500 font-medium">{formErrors.name}</p>
+                )}
+              </div>
+
+              {/* Abbreviation */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Abbreviation<span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter abbreviation"
+                  value={form.abbreviation}
+                  onChange={(e) => {
+                    setForm((f) => ({ ...f, abbreviation: e.target.value }));
+                    if (formErrors.abbreviation) setFormErrors((err) => ({ ...err, abbreviation: undefined }));
+                  }}
+                  className={`w-full h-11 px-4 rounded-lg border bg-white text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all focus:ring-2 focus:ring-blue-100 ${
+                    formErrors.abbreviation ? "border-red-400 focus:border-red-500" : "border-slate-300 focus:border-blue-500"
+                  }`}
+                />
+                {formErrors.abbreviation && (
+                  <p className="mt-1 text-xs text-red-500 font-medium">{formErrors.abbreviation}</p>
+                )}
+              </div>
+
+              {/* Parent Unit (Searchable Dropdown) */}
+              <div className="relative" ref={dropdownRef}>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Parent Unit
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsParentDropdownOpen((prev) => !prev)}
+                  className="w-full h-11 px-4 rounded-lg border border-slate-300 bg-white text-sm text-left flex items-center justify-between text-slate-800 outline-none hover:border-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                >
+                  <span className={selectedParentUnit ? "text-slate-900 font-medium" : "text-slate-400"}>
+                    {selectedParentUnit ? selectedParentUnit.name : "Select parent unit"}
+                  </span>
+                  <AdminIcon
+                    name={isParentDropdownOpen ? "chevron-up" : "chevron-down"}
+                    className="w-4 h-4 text-slate-400"
+                  />
+                </button>
+
+                {/* Popover menu */}
+                {isParentDropdownOpen && (
+                  <div className="absolute left-0 top-full mt-1.5 w-full bg-white rounded-xl border border-slate-200 shadow-xl z-30 p-2 space-y-2 animate-fadeIn">
+                    {/* Inline Search Input */}
+                    <div className="relative">
+                      <AdminIcon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="Search"
+                        value={parentSearch}
+                        onChange={(e) => setParentSearch(e.target.value)}
+                        autoFocus
+                        className="w-full h-9 pl-9 pr-3 rounded-lg border border-slate-200 bg-slate-50 text-xs text-slate-800 placeholder:text-slate-400 outline-none focus:border-blue-500 focus:bg-white transition-all"
+                      />
+                    </div>
+
+                    {/* Options list */}
+                    <div className="max-h-48 overflow-y-auto space-y-0.5 pr-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setForm((f) => ({ ...f, parentId: "" }));
+                          setIsParentDropdownOpen(false);
+                        }}
+                        className={`w-full px-3 py-2 text-xs text-left rounded-lg transition-colors ${
+                          !form.parentId ? "bg-blue-50 text-blue-700 font-bold" : "text-slate-600 hover:bg-slate-50"
+                        }`}
+                      >
+                        — None (Base Unit) —
+                      </button>
+
+                      {filteredParentOptions.length > 0 ? (
+                        filteredParentOptions.map((opt) => (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => {
+                              setForm((f) => ({ ...f, parentId: opt.id }));
+                              setIsParentDropdownOpen(false);
+                            }}
+                            className={`w-full px-3 py-2 text-xs text-left rounded-lg transition-colors flex items-center justify-between ${
+                              form.parentId === opt.id
+                                ? "bg-blue-50 text-blue-700 font-bold"
+                                : "text-slate-700 hover:bg-slate-50"
+                            }`}
+                          >
+                            <span>{opt.name}</span>
+                            <span className="text-[11px] text-slate-400 font-mono">({opt.abbreviation})</span>
+                          </button>
+                        ))
+                      ) : (
+                        <p className="px-3 py-2 text-xs text-slate-400">No units found</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Factor */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Factor<span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  min="0.000001"
+                  placeholder="Enter factor"
+                  value={form.factor}
+                  onChange={(e) => {
+                    setForm((f) => ({ ...f, factor: e.target.value }));
+                    if (formErrors.factor) setFormErrors((err) => ({ ...err, factor: undefined }));
+                  }}
+                  className={`w-full h-11 px-4 rounded-lg border bg-white text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all focus:ring-2 focus:ring-blue-100 ${
+                    formErrors.factor ? "border-red-400 focus:border-red-500" : "border-slate-300 focus:border-blue-500"
+                  }`}
+                />
+                {formErrors.factor && (
+                  <p className="mt-1 text-xs text-red-500 font-medium">{formErrors.factor}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </form>
+
+        {/* Guidelines & Examples Tabbed Section */}
+        <div className="space-y-4">
+          {/* Tab Header Bar */}
+          <div className="flex rounded-xl bg-slate-100/80 p-1 border border-slate-200/60 max-w-md">
+            <button
+              type="button"
+              onClick={() => setActiveTab("examples")}
+              className={`flex-1 py-2.5 px-4 text-xs font-bold rounded-lg transition-all ${
+                activeTab === "examples"
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              Unit Type Examples
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("guidelines")}
+              className={`flex-1 py-2.5 px-4 text-xs font-bold rounded-lg transition-all ${
+                activeTab === "guidelines"
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              Unit Guidelines
+            </button>
+          </div>
+
+          {/* Tab 1: Unit Type Examples */}
+          {activeTab === "examples" && (
+            <div className="space-y-4 animate-fadeIn">
+              <div>
+                <h3 className="text-base font-bold text-slate-900">Unit Type Examples</h3>
+                <p className="text-xs text-slate-500">Common unit types and their conversion relationships</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Count Units */}
+                <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-3">
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900">Count Units</h4>
+                    <p className="text-xs text-slate-500">Units for counting items</p>
+                  </div>
+                  <div className="space-y-1.5 text-xs text-slate-600">
+                    <p><span className="font-semibold text-slate-800">Base:</span> Piece (pcs)</p>
+                    <ul className="space-y-1 pl-3 list-disc text-slate-500">
+                      <li>1 Pair = 2 Pieces</li>
+                      <li>1 Dozen = 12 Pieces</li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Weight Units */}
+                <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-3">
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900">Weight Units</h4>
+                    <p className="text-xs text-slate-500">Units for measuring weight</p>
+                  </div>
+                  <div className="space-y-1.5 text-xs text-slate-600">
+                    <p><span className="font-semibold text-slate-800">Base:</span> Gram (g)</p>
+                    <ul className="space-y-1 pl-3 list-disc text-slate-500">
+                      <li>1 Kilogram(kg) = 1000 g</li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Length Units */}
+                <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-3">
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900">Length Units</h4>
+                    <p className="text-xs text-slate-500">Units for measuring length</p>
+                  </div>
+                  <div className="space-y-1.5 text-xs text-slate-600">
+                    <p><span className="font-semibold text-slate-800">Base:</span> Centimeter (cm)</p>
+                    <ul className="space-y-1 pl-3 list-disc text-slate-500">
+                      <li>1 Meter(m) = 100 cm</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tab 2: Unit Guidelines */}
+          {activeTab === "guidelines" && (
+            <div className="rounded-xl border border-slate-200 bg-white p-6 md:p-8 shadow-sm space-y-6 animate-fadeIn">
+              <div>
+                <h3 className="text-base font-bold text-slate-900">Base Unit System</h3>
+                <p className="text-xs text-slate-500">Understanding the foundation of unit measurement</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
+                {/* Base Units */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-bold text-slate-900">Base Units</h4>
+                  <ul className="space-y-2 text-xs text-slate-600 list-disc pl-4 leading-relaxed">
+                    <li>Each unit type must have exactly one base unit</li>
+                    <li>Base units have a conversion factor of 1.0</li>
+                    <li>All inventory tracking is done in base units</li>
+                    <li>Base units cannot be deleted</li>
+                  </ul>
+                </div>
+
+                {/* Conversion Factors */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-bold text-slate-900">Conversion Factors</h4>
+                  <ul className="space-y-2 text-xs text-slate-600 list-disc pl-4 leading-relaxed">
+                    <li>Factor represents how many base units = 1 of this unit</li>
+                    <li>Example: 1 pair = 2 pieces, so factor is 2</li>
+                    <li>Bigger units have factors greater than 1</li>
+                    <li>Always use decimal values for precision</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   }
 
-  async function confirmDelete() {
-    if (!unitToDelete) return;
-
-    setError("");
-
-    try {
-      await apiRequest(`/units/${unitToDelete.id}`, { method: "DELETE" });
-      setDeleteModalOpen(false);
-      setUnitToDelete(null);
-      await loadUnits();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete unit");
-    }
-  }
-
-  function cancelDelete() {
-    setDeleteModalOpen(false);
-    setUnitToDelete(null);
-    setError("");
-  }
-
+  // ─────────────────────────────────────────────────────────────────────────────
+  // RENDER LIST VIEW
+  // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <>
+    <div className="space-y-6">
       <PageHeader
         title="Units of Measurement"
-        description="Control product stock and sales measurement units used when creating products."
+        description="Create, update, and remove product units of measurement."
         action={
           <div className="flex gap-3 items-center">
             {showSearchInput ? (
@@ -214,14 +567,14 @@ export default function UnitsPage() {
                 <AdminIcon className="h-5 w-5 text-slate-400" name="search" />
                 <input
                   className="w-full bg-transparent text-sm font-medium outline-none placeholder:text-slate-400 text-slate-800"
-                  onChange={(event) => setSearch(event.target.value)}
+                  onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder="Search units..."
-                  value={search}
+                  value={searchQuery}
                   autoFocus
                 />
                 <button
                   onClick={() => {
-                    setSearch("");
+                    setSearchQuery("");
                     setShowSearchInput(false);
                   }}
                   className="grid h-6 w-6 place-items-center rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-all"
@@ -242,8 +595,8 @@ export default function UnitsPage() {
               </button>
             )}
             <button
-              className="inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-5 text-[14px] font-semibold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 shrink-0 whitespace-nowrap"
-              onClick={openAddModal}
+              className="inline-flex h-11 items-center gap-2 rounded-lg bg-blue-600 px-5 text-[14px] font-semibold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 shrink-0 whitespace-nowrap cursor-pointer"
+              onClick={handleOpenCreate}
               type="button"
             >
               <AdminIcon className="h-5 w-5" name="plus" />
@@ -253,263 +606,131 @@ export default function UnitsPage() {
         }
       />
 
-      <section>
-        <div className="overflow-hidden rounded-xl bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
-            <p className="text-sm font-medium text-slate-500">
-              {filteredUnits.length} {filteredUnits.length === 1 ? "unit" : "units"}
+      {/* Main List Container */}
+      <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
+        {/* Section Header with Actions */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 md:p-6 border-b border-slate-100">
+          <div>
+            <h2 className="text-base font-bold text-slate-900">Units of Measurement list</h2>
+            <p className="mt-0.5 text-xs text-slate-500 font-medium">
+              Displaying {filteredUnits.length} {filteredUnits.length === 1 ? "unit" : "units"} of measurement
             </p>
           </div>
 
-          {error && (
-            <p className="mx-5 mb-5 rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-              {error}
-            </p>
-          )}
+          <div className="flex items-center gap-3">
+            {/* Refresh Button */}
+            <button
+              type="button"
+              onClick={fetchUnits}
+              disabled={isLoading}
+              title="Refresh list"
+              className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm disabled:opacity-50"
+            >
+              <AdminIcon name="refresh" className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+            </button>
+          </div>
+        </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[860px] text-left">
-              <thead className="bg-slate-50">
+        {/* Search Bar */}
+        <div className="p-5 md:p-6 pb-2">
+          <div className="relative max-w-sm">
+            <AdminIcon name="search" className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search by unit name"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+            />
+          </div>
+        </div>
+
+        {error && (
+          <div className="mx-6 mb-4 p-4 rounded-xl border border-red-200 bg-red-50 text-xs font-medium text-red-700">
+            {error}
+          </div>
+        )}
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-slate-100 text-slate-700 font-bold bg-slate-50/50">
+                <th className="py-4 px-6">Name</th>
+                <th className="py-4 px-6">Abbreviation</th>
+                <th className="py-4 px-6">Parent</th>
+                <th className="py-4 px-6">Factor</th>
+                <th className="py-4 px-6">Status</th>
+                <th className="py-4 px-6 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-700">
+              {isLoading ? (
                 <tr>
-                  {["Name", "Code", "Description", "Products", "Created", "Status", "Actions"].map(
-                    (heading) => (
-                      <th className="px-5 py-4 text-sm font-semibold text-slate-700" key={heading}>
-                        {heading}
-                      </th>
-                    ),
-                  )}
+                  <td colSpan={6} className="py-12 text-center text-slate-400 font-medium">
+                    Loading units...
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {isLoading ? (
-                  <tr>
-                    <td className="px-5 py-8 text-slate-500" colSpan={7}>
-                      Loading units...
+              ) : filteredUnits.length > 0 ? (
+                filteredUnits.map((unit) => (
+                  <tr key={unit.id} className="hover:bg-slate-50/80 transition-colors">
+                    {/* Name */}
+                    <td className="py-4 px-6 font-semibold text-slate-900 text-sm">
+                      {unit.name}
+                    </td>
+
+                    {/* Abbreviation */}
+                    <td className="py-4 px-6 font-mono text-slate-600">
+                      {unit.abbreviation}
+                    </td>
+
+                    {/* Parent */}
+                    <td className="py-4 px-6 text-slate-600">
+                      {unit.parent ? unit.parent.name : "-"}
+                    </td>
+
+                    {/* Factor */}
+                    <td className="py-4 px-6 font-mono text-slate-600">
+                      {unit.factor ?? 1}
+                    </td>
+
+                    {/* Status (Toggle Switch) */}
+                    <td className="py-4 px-6">
+                      <label className="relative inline-flex items-center cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={unit.isActive}
+                          onChange={() => void handleToggleStatus(unit)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
+                    </td>
+
+                    {/* Action */}
+                    <td className="py-4 px-6 text-right">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEdit(unit)}
+                        title="Edit UOM"
+                        className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-all inline-flex items-center justify-center"
+                      >
+                        <AdminIcon name="edit" className="w-4 h-4" />
+                      </button>
                     </td>
                   </tr>
-                ) : filteredUnits.length > 0 ? (
-                  paginatedUnits.map((unit) => (
-                    <tr className="odd:bg-white even:bg-slate-50/70" key={unit.id}>
-                      <td className="px-5 py-4 text-sm text-slate-800">
-                        {unit.name}
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className="rounded-md border border-slate-200/50 bg-slate-50 px-2 py-0.5 text-xs text-slate-600 font-normal">
-                          {unit.code}
-                        </span>
-                      </td>
-                      <td className="max-w-md px-5 py-4 text-sm text-slate-600">
-                        {unit.description || "-"}
-                      </td>
-                      <td className="px-5 py-4 text-sm text-slate-600">
-                        {unit._count?.products ?? 0}
-                      </td>
-                      <td className="px-5 py-4 text-sm text-slate-600">
-                        {formatDate(unit.createdAt)}
-                      </td>
-                      <td className="px-5 py-4">
-                        <span
-                          className={`rounded-md border px-2 py-0.5 text-xs font-normal ${
-                            unit.isActive
-                              ? "border-emerald-200 bg-emerald-50/50 text-emerald-700"
-                              : "border-slate-200 bg-slate-50 text-slate-500"
-                          }`}
-                        >
-                          {unit.isActive ? "Active" : "Inactive"}
-                        </span>
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => openEditModal(unit)}
-                            className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors"
-                            type="button"
-                            title="Edit unit"
-                          >
-                            <AdminIcon className="h-4 w-4" name="edit" />
-                          </button>
-                          <button
-                            onClick={() => deleteUnit(unit)}
-                            className="grid h-8 w-8 place-items-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors"
-                            type="button"
-                            title="Delete unit"
-                          >
-                            <AdminIcon className="h-4 w-4" name="trash" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td className="px-5 py-8 text-slate-500" colSpan={7}>
-                      No units found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Lazy Loading */}
-          {!isLoading && filteredUnits.length > 0 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100 px-5 py-4 bg-gradient-to-r from-slate-50 to-white">
-              <div className="flex flex-col items-start gap-1.5">
-                <p className="text-sm font-medium text-slate-500">
-                  Showing <span className="font-bold text-slate-800">{paginatedUnits.length}</span> of{" "}
-                  <span className="font-bold text-slate-800">{filteredUnits.length}</span> units
-                </p>
-                <div className="h-1.5 w-48 overflow-hidden rounded bg-slate-200">
-                  <div
-                    className="h-full bg-blue-600 transition-all duration-300 ease-out"
-                    style={{ width: `${Math.min(100, (paginatedUnits.length / filteredUnits.length) * 100)}%` }}
-                  />
-                </div>
-              </div>
-
-              {paginatedUnits.length < filteredUnits.length ? (
-                <div
-                  ref={observerTarget}
-                  className="flex items-center gap-2 py-2 text-xs font-semibold text-slate-500"
-                >
-                  <svg className="animate-spin h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>Loading more on scroll...</span>
-                </div>
+                ))
               ) : (
-                <span className="text-xs font-semibold text-slate-400">All units loaded</span>
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-slate-400 font-medium">
+                    No units found matching your search.
+                  </td>
+                </tr>
               )}
-            </div>
-          )}
+            </tbody>
+          </table>
         </div>
-      </section>
-
-      {isModalOpen && (
-        <div
-          aria-labelledby="unit-modal-title"
-          aria-modal="true"
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 px-4 py-6 modal-backdrop"
-          role="dialog"
-        >
-          <form
-            className="modal-panel flex w-full max-w-lg flex-col rounded-xl border border-slate-200 bg-white shadow-2xl min-h-[480px] max-h-[calc(100vh-3rem)]"
-            onSubmit={handleSubmit}
-          >
-            <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 pt-6 pb-5 shrink-0">
-              <div>
-                <h3 className="text-base font-semibold text-slate-900" id="unit-modal-title">
-                  {form.id ? "Edit Unit" : "Add Unit"}
-                </h3>
-                <p className="mt-1 text-xs text-slate-500">
-                  Example: Pieces with code pcs, Box with code box.
-                </p>
-              </div>
-              <button
-                className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600"
-                disabled={isSaving}
-                onClick={closeModal}
-                type="button"
-              >
-                <AdminIcon className="h-4 w-4" name="x" />
-              </button>
-            </div>
-
-            <div className="flex-1 modal-body px-6 py-5">
-            <div className="space-y-4">
-              <label className="block">
-                <span className="mb-2 block text-sm font-medium text-slate-700">
-                  Unit name
-                </span>
-                <input
-                  autoFocus
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
-                  onChange={(event) => updateName(event.target.value)}
-                  placeholder="Pieces"
-                  required
-                  value={form.name}
-                />
-              </label>
-              <label className="block">
-                <span className="mb-2 block text-sm font-medium text-slate-700">
-                  Unit code
-                </span>
-                <input
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
-                  onChange={(event) =>
-                    setForm((current) => ({ ...current, code: event.target.value }))
-                  }
-                  placeholder="pcs"
-                  required
-                  value={form.code}
-                />
-              </label>
-              <label className="block">
-                <span className="mb-2 block text-sm font-medium text-slate-700">
-                  Description
-                </span>
-                <textarea
-                  className="min-h-24 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      description: event.target.value,
-                    }))
-                  }
-                  placeholder="Default sellable product unit"
-                  value={form.description}
-                />
-              </label>
-              <label className="flex items-center gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
-                <input
-                  checked={form.isActive}
-                  className="h-4 w-4 accent-blue-600"
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      isActive: event.target.checked,
-                    }))
-                  }
-                  type="checkbox"
-                />
-                <span>Active unit</span>
-              </label>
-            </div>
-            </div>
-            <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4 shrink-0">
-                <button
-                  className="h-10 rounded-lg border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-                  disabled={isSaving}
-                  onClick={closeModal}
-                  type="button"
-                >
-                  Cancel
-                </button>
-                <button
-                  className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white disabled:bg-slate-400 hover:bg-blue-700 transition-colors"
-                  disabled={isSaving}
-                  type="submit"
-                >
-                  <AdminIcon className="h-4 w-4" name={form.id ? "check" : "plus"} />
-                  {isSaving ? "Saving..." : form.id ? "Update Unit" : "Add Unit"}
-                </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      <ConfirmModal
-        cancelText="No"
-        confirmText="Yes"
-        isDestructive={true}
-        isOpen={deleteModalOpen}
-        message={`Are you sure you want to delete "${unitToDelete?.name}"? Products cannot use a deleted unit.`}
-        onClose={cancelDelete}
-        onConfirm={confirmDelete}
-        title="Delete Unit"
-        error={error}
-      />
-    </>
+      </div>
+    </div>
   );
 }

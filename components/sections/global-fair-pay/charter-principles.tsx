@@ -139,7 +139,7 @@ export default function CharterPrinciples() {
       </div>
 
       {/* Instant Inline Bottom curved shape with zero reload animation / shift */}
-      <div className="absolute left-0 right-0 bottom-0 pointer-events-none z-10 select-none">
+      <div className="absolute left-0 right-0 -bottom-[2px] pointer-events-none z-10 select-none">
         <svg width="1920" height="94" viewBox="0 0 1920 94" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto block">
           <path d="M0 0C0 0 429.807 94 960 94H0V0Z" fill="#212721" />
           <path d="M1920 94H960C1490.19 94 1920 0 1920 0V94Z" fill="#212721" />

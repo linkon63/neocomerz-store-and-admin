@@ -459,7 +459,7 @@ export default function CategoriesPage() {
   return (
     <>
       <PageHeader
-        title="Category"
+        title="Categories"
         description="Create, update, and remove product categories from the API."
         action={
           <div className="flex gap-3 items-center">
@@ -764,6 +764,7 @@ export default function CategoriesPage() {
                 </span>
                 <input
                   autoFocus
+                  placeholder="e.g. Mens Clothing, Electronics"
                   className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
                   onChange={(event) => updateName(event.target.value)}
                   required
@@ -776,6 +777,7 @@ export default function CategoriesPage() {
                 </span>
                 <input
                   className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium outline-none transition-colors focus:border-blue-500 focus:bg-white"
+                  placeholder="e.g. mens-clothing, electronics"
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,

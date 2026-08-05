@@ -12,6 +12,7 @@ type CurrencyContextValue = {
   currency: string;
   symbol: string;
   formatCurrency: (value?: string | number | null) => string;
+ //formatCurrency2:(value?: string | number | ecom server related issue);
 };
 
 const CurrencyContext = createContext<CurrencyContextValue | null>(null);

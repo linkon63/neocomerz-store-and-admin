@@ -6,30 +6,22 @@ import ScrollAnimate from "@/components/ui/scroll-animate";
 
 export default function Mainfooter() {
   const supportLinks = [
-    { label: "Help Center", href: "/help" },
     { label: "Delivery Information", href: "/delivery" },
-    { label: "Check order status", href: "/order-status" },
-    { label: "Refunds", href: "/refunds" },
-    { label: "Report abuse", href: "/report" },
+    { label: "Contact Us", href: "/contact" },
   ];
 
   const exploreLinks = [
-    { label: "New Arrivals", href: "/new-arrivals" },
-    { label: "Best Sellers", href: "/best-sellers" },
-    { label: "Assorted Collections", href: "/collections" },
-    { label: "Tea Blends Collections", href: "/tea-blends" },
-    { label: "Loose Leaf Tea", href: "/loose-leaf" },
-    { label: "Elegant Gifts", href: "/gifts" },
-    { label: "Sale Collections", href: "/sale" },
+    { label: "All Products", href: "/products" },
+    { label: "Gift Sets", href: "/gift-sets" },
+    { label: "Corporate Orders", href: "/corporate-order" },
   ];
 
   const experienceLinks = [
-    { label: "Our Story", href: "/story" },
-    { label: "Product Philosophy", href: "/philosophy" },
-    { label: "Global Presence", href: "/presence" },
-    { label: "The Journal", href: "/journal" },
-    { label: "Tea Rituals", href: "/rituals" },
-    { label: "Private Gifting", href: "/private-gifting" },
+    { label: "Our Story", href: "/about" },
+    { label: "Fair Pay Charter", href: "/global-fair-pay-charter" },
+    { label: "My Account", href: "/profile" },
+    { label: "Wishlist", href: "/wishlist" },
+    { label: "Shopping Cart", href: "/cart" },
   ];
 
   const philosophyIcons = [

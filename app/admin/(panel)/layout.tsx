@@ -9,7 +9,7 @@ export default function AdminPanelLayout({
 }) {
   return (
     <>
-      <Toaster richColors position="top-right" />
+      <Toaster richColors closeButton position="top-right" duration={2500} />
       <AdminShell>{children}</AdminShell>
     </>
   );

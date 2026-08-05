@@ -501,3 +501,27 @@
     top left, top right, bottom left, bottom right, center, center;
   mask-repeat: no-repeat;
 }
+
+/* Ensure all actions and buttons in the admin dashboard have a pointer cursor */
+.admin-dashboard button,
+.admin-dashboard a,
+.admin-dashboard label,
+.admin-dashboard [role="button"],
+.admin-dashboard [role="tab"],
+.admin-dashboard [role="menuitem"],
+.admin-dashboard [role="option"],
+.admin-dashboard [type="button"],
+.admin-dashboard [type="submit"],
+.admin-dashboard [type="reset"],
+.admin-dashboard select,
+.admin-dashboard input[type="checkbox"],
+.admin-dashboard input[type="radio"] {
+  cursor: pointer;
+}
+
+.admin-dashboard button:disabled,
+.admin-dashboard [role="button"]:disabled,
+.admin-dashboard input:disabled,
+.admin-dashboard select:disabled {
+  cursor: not-allowed;
+}
