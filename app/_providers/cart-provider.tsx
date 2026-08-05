@@ -145,12 +145,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
           const existing = prev.find((i) => i.slug === input.slug);
           const next = existing
             ? sortItems(
-                prev.map((i) =>
-                  i.slug === input.slug
-                    ? { ...i, quantity: i.quantity + (input.quantity ?? 1) }
-                    : i,
-                ),
-              )
+              prev.map((i) =>
+                i.slug === input.slug
+                  ? { ...i, quantity: i.quantity + (input.quantity ?? 1) }
+                  : i,
+              ),
+            )
             : sortItems([...prev, { ...input, quantity: input.quantity ?? 1 } as CartItem]);
           saveLocalCart(next);
           return next;

@@ -7,7 +7,6 @@ import {
   FiShoppingBag,
   FiMapPin,
   FiHeart,
-  FiBell,
   FiSearch,
   FiLogOut,
   FiLoader
@@ -21,10 +20,9 @@ import AccountDetailsView from "./_components/account-details";
 import OrdersView from "./_components/orders-view";
 import AddressBookView from "./_components/address-book";
 import WishlistView from "./_components/wishlist-view";
-import NotificationsView from "./_components/notifications-view";
 import TrackOrderView from "./_components/track-order";
 
-type ProfileTab = "details" | "orders" | "address" | "wishlist" | "notifications" | "track";
+type ProfileTab = "details" | "orders" | "address" | "wishlist" | "track";
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5010/api/v1";
 
 function ProfilePageContent() {
@@ -37,7 +35,7 @@ function ProfilePageContent() {
   const [hasOrders, setHasOrders] = useState(false);
 
   useEffect(() => {
-    if (tabParam && ["details", "orders", "address", "wishlist", "notifications", "track"].includes(tabParam)) {
+    if (tabParam && ["details", "orders", "address", "wishlist", "track"].includes(tabParam)) {
       setActiveTab(tabParam);
     } else {
       setActiveTab("details");
@@ -119,7 +117,6 @@ function ProfilePageContent() {
                       { key: "orders", label: "MY ORDERS", icon: <FiShoppingBag />, badge: hasOrders },
                       { key: "address", label: "ADDRESS", icon: <FiMapPin /> },
                       { key: "wishlist", label: "WISHLIST", icon: <FiHeart /> },
-                      { key: "notifications", label: "NOTIFICATIONS", icon: <FiBell /> },
                       { key: "track", label: "TRACK ORDER", icon: <FiSearch /> },
                       { key: "logout", label: "LOGOUT", icon: <FiLogOut />, isLogout: true }
                     ].map((item) => (
@@ -175,7 +172,6 @@ function ProfilePageContent() {
                 {activeTab === "orders" && <OrdersView />}
                 {activeTab === "address" && <AddressBookView />}
                 {activeTab === "wishlist" && <WishlistView />}
-                {activeTab === "notifications" && <NotificationsView />}
                 {activeTab === "track" && <TrackOrderView />}
               </section>
 

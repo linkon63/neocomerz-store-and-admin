@@ -78,10 +78,12 @@ export default function WishlistPage() {
                   <button
                     onClick={() =>
                       addItem({
+                        productId: product.id,
                         slug: product.slug,
                         name: product.name,
                         price: product.price,
                         image: product.image,
+                        description: product.description,
                         color: product.color,
                         size: product.size,
                         variantId: product.variantId || product.id,

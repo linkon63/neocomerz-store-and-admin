@@ -65,6 +65,7 @@ export interface ProductInfoProps {
     priceNum: number;
     image: string;
     category: string;
+    description: string;
   };
 }
 export type ShopBrand = {

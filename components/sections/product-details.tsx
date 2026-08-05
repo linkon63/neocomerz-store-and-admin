@@ -69,6 +69,7 @@ function mapProduct(raw: Product): MappedProduct {
     const costNum = v.cost ? Number(v.cost) : 0;
     const discountNum = raw.discountPrice ? Number(raw.discountPrice) : 0;
     const showOriginal = discountNum > 0 && discountNum < priceNum;
+    const activePrice = showOriginal ? discountNum : priceNum;
 
     // Parse attributes array into key-value map
     const attributesMap: Record<string, string> = {};
@@ -92,8 +93,8 @@ function mapProduct(raw: Product): MappedProduct {
     return {
       id: v.id,
       sku: v.sku,
-      priceNum: showOriginal ? discountNum : priceNum,
-      priceFormatted: showOriginal ? fmt(discountNum) : fmt(priceNum),
+      priceNum: activePrice,
+      priceFormatted: fmt(activePrice),
       originalPriceFormatted: showOriginal ? fmt(priceNum) : (costNum > priceNum ? fmt(costNum) : ''),
       stockQuantity: v.stockQuantity,
       isDefault: v.isDefault,
@@ -308,10 +309,11 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
               teas={product.teas}
               onVariantChange={setSelectedVariant}
               productData={{
-                name:     product.name,
-                priceNum: product.priceNum,
-                image:    product.image,
-                category: product.category,
+                name:        product.name,
+                priceNum:    product.priceNum,
+                image:       product.image,
+                category:    product.category,
+                description: product.description,
               }}
             />
 

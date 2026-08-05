@@ -7,6 +7,7 @@ import { useCart } from '@/app/_providers/cart-provider';
 import { useWishlist } from '@/app/_providers/wishlist-provider';
 import { useAuth } from '@/app/_providers/auth-provider';
 import { ProductInfoProps as BaseProductInfoProps } from '@/lib/shop-api';
+import { setBuyNowItem } from '@/lib/buy-now';
 import type { ParsedVariant } from '../product-details';
 
 interface ProductInfoProps extends Omit<BaseProductInfoProps, 'price' | 'originalPrice' | 'variantId'> {
@@ -104,11 +105,13 @@ export default function ProductInfo({
 
   const isItInWishlist = isInWishlist(productId);
 
+  const isOutOfStock = (selectedVariant?.stockQuantity ?? 1) <= 0;
+
   const displayPrice = selectedVariant ? selectedVariant.priceFormatted : price;
   const displayOriginalPrice = selectedVariant ? selectedVariant.originalPriceFormatted : originalPrice;
   const activeVariantId = selectedVariant ? selectedVariant.id : variantId;
 
-  const handleAddToCart = (options?: { silent?: boolean }) => {
+  const buildCartItem = () => {
     const finalPrice = selectedVariant ? selectedVariant.priceNum : productData.priceNum;
     const attributes = selectedVariant?.attributes ?? {};
     const activeVarId = activeVariantId ?? '';
@@ -121,23 +124,31 @@ export default function ProductInfo({
       ? `${productData.name} (${optionSummary})` 
       : productData.name;
 
-    return addItem({
+    return {
+      productId,
       slug: productSlug ?? productId,
       name: finalName,
       price: finalPrice,
       image: productData.image,
+      description: productData.description,
       color: attributes.Color ?? attributes.Colour ?? attributes.color ?? '',
       size: attributes.Size ?? attributes.size ?? '',
       variantId: activeVarId,
       quantity,
       attributes,
       ...attributes,
-    }, options);
+    };
+  };
+
+  const handleAddToCart = (options?: { silent?: boolean }) => {
+    if (isOutOfStock) return;
+    return addItem(buildCartItem(), options);
   };
 
   const handleBuyNow = async () => {
+    if (isOutOfStock) return;
     try {
-      await handleAddToCart({ silent: true });
+      setBuyNowItem(buildCartItem());
       router.push('/checkout');
     } catch (err) {
       console.error('Failed to process Buy Now:', err);
@@ -164,6 +175,7 @@ export default function ProductInfo({
       slug: productSlug ?? productId,
       price: finalPrice,
       image: productData.image,
+      description: productData.description,
       color: attributes.Color ?? attributes.Colour ?? attributes.color ?? '',
       size: attributes.Size ?? attributes.size ?? '',
       category: productData.category,
@@ -272,29 +284,35 @@ export default function ProductInfo({
       {/* Quantity & CTA Panel */}
       <div className="flex flex-wrap items-center gap-3 pt-2">
         {/* Quantity Selector */}
-        <div className="flex items-center">
-          <button
-            type="button"
-            onClick={() => handleQuantityChange('dec')}
-            className="w-12 h-12 bg-neutral-100 hover:bg-neutral-200 rounded-full flex items-center justify-center text-stone-800 cursor-pointer transition-colors"
-            aria-label="Decrease quantity"
-          >
-            <IoRemoveOutline className="w-5 h-5" />
-          </button>
-          <div className="w-14 px-3 py-4 flex justify-center items-center">
-            <span className="font-gotham text-xl font-normal text-stone-800">
-              {quantity}
-            </span>
+        {isOutOfStock ? (
+          <div className="h-12 px-6 flex items-center justify-center rounded-full bg-neutral-100 text-[#D31F3A] font-gotham text-sm font-semibold uppercase tracking-wider whitespace-nowrap">
+            Out of Stock
           </div>
-          <button
-            type="button"
-            onClick={() => handleQuantityChange('inc')}
-            className="w-12 h-12 bg-neutral-100 hover:bg-neutral-200 rounded-full flex items-center justify-center text-stone-800 cursor-pointer transition-colors"
-            aria-label="Increase quantity"
-          >
-            <IoAddOutline className="w-5 h-5" />
-          </button>
-        </div>
+        ) : (
+          <div className="flex items-center">
+            <button
+              type="button"
+              onClick={() => handleQuantityChange('dec')}
+              className="w-12 h-12 bg-neutral-100 hover:bg-neutral-200 rounded-full flex items-center justify-center text-stone-800 cursor-pointer transition-colors"
+              aria-label="Decrease quantity"
+            >
+              <IoRemoveOutline className="w-5 h-5" />
+            </button>
+            <div className="w-14 px-3 py-4 flex justify-center items-center">
+              <span className="font-gotham text-xl font-normal text-stone-800">
+                {quantity}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleQuantityChange('inc')}
+              className="w-12 h-12 bg-neutral-100 hover:bg-neutral-200 rounded-full flex items-center justify-center text-stone-800 cursor-pointer transition-colors"
+              aria-label="Increase quantity"
+            >
+              <IoAddOutline className="w-5 h-5" />
+            </button>
+          </div>
+        )}
 
         {/* Wishlist Button */}
         <button
@@ -322,7 +340,8 @@ export default function ProductInfo({
         <button
           type="button"
           onClick={() => handleAddToCart()}
-          className="flex-1 min-w-[140px] px-6 sm:px-8 py-4 bg-white border border-[#D31F3A] text-[#D31F3A] hover:bg-red-50/30 font-gotham text-sm font-semibold uppercase tracking-wider rounded-full flex justify-center items-center transition-all cursor-pointer"
+          disabled={isOutOfStock}
+          className="flex-1 min-w-[140px] px-6 sm:px-8 py-4 bg-white border border-[#D31F3A] text-[#D31F3A] hover:bg-red-50/30 font-gotham text-sm font-semibold uppercase tracking-wider rounded-full flex justify-center items-center transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
         >
           Add to cart
         </button>
@@ -331,7 +350,8 @@ export default function ProductInfo({
         <button
           type="button"
           onClick={handleBuyNow}
-          className="flex-1 min-w-[140px] px-6 sm:px-8 py-4 bg-[#D31F3A] text-white hover:bg-opacity-95 font-gotham text-sm font-semibold uppercase tracking-wider rounded-full flex justify-center items-center shadow-md transition-all cursor-pointer"
+          disabled={isOutOfStock}
+          className="flex-1 min-w-[140px] px-6 sm:px-8 py-4 bg-[#D31F3A] text-white hover:bg-opacity-95 font-gotham text-sm font-semibold uppercase tracking-wider rounded-full flex justify-center items-center shadow-md transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-opacity-100"
         >
           Buy Now
         </button>

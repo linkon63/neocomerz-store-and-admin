@@ -74,12 +74,7 @@ export default function ConfirmationPage() {
 
         {/* Bottom Links */}
         <div className="flex flex-col items-center justify-center gap-3 text-sm mt-8">
-          <Link
-            href="#"
-            className="text-stone-500 hover:text-stone-700 transition-colors text-sm font-medium"
-          >
-            Cancel Order
-          </Link>
+          
           <Link
             href="/cancellation-policy"
             className="text-stone-500 hover:text-stone-700 transition-colors text-sm font-medium flex items-center gap-1"
