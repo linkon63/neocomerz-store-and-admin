@@ -26,11 +26,11 @@ export default function CartPage() {
   const total = subtotal + shipping;
 
   const handleDecrement = useCallback(
-    (slug: string, currentQty: number) => {
+    (itemId: string, currentQty: number) => {
       if (currentQty <= 1) {
-        removeItem(slug);
+        removeItem(itemId);
       } else {
-        updateQuantity(slug, currentQty - 1);
+        updateQuantity(itemId, currentQty - 1);
       }
     },
     [removeItem, updateQuantity]
@@ -92,11 +92,12 @@ export default function CartPage() {
 
               <div>
                 {items.map((item) => {
+                  const itemId = item.id ?? item.variantId ?? item.slug;
                   const inWishlist = isInWishlist(item.productId || item.id || item.slug);
-                  const productUrl = item.productId ? `/products/${item.productId}` : null;
+                  const productUrl = item.slug ? `/products/${item.slug}` : null;
                   return (
                       <div
-                        key={item.slug}
+                        key={itemId}
                         className="border-t border-b border-zinc-100 py-4 sm:py-5 group"
                       >
                         <div className="flex gap-4 sm:gap-6">
@@ -166,7 +167,7 @@ export default function CartPage() {
                                 <div className="flex items-center gap-2">
                                   <div className="flex items-center">
                                     <button
-                                      onClick={() => handleDecrement(item.slug, item.quantity)}
+                                      onClick={() => handleDecrement(itemId, item.quantity)}
                                       className="w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white text-stone-800 hover:bg-neutral-100 transition-all cursor-pointer active:scale-95"
                                       aria-label="Decrease quantity"
                                     >
@@ -178,7 +179,7 @@ export default function CartPage() {
                                       </span>
                                     </div>
                                     <button
-                                      onClick={() => updateQuantity(item.slug, item.quantity + 1)}
+                                      onClick={() => updateQuantity(itemId, item.quantity + 1)}
                                       className="w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white text-stone-800 hover:bg-neutral-100 transition-all cursor-pointer active:scale-95"
                                       aria-label="Increase quantity"
                                     >
@@ -203,7 +204,7 @@ export default function CartPage() {
                                   </button>
 
                                   <button
-                                    onClick={() => removeItem(item.slug)}
+                                    onClick={() => removeItem(itemId)}
                                     className="w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white text-stone-800 hover:bg-[#d3122f] hover:text-white hover:border-[#d3122f] transition-all cursor-pointer active:scale-95"
                                     aria-label="Remove item"
                                   >
