@@ -406,8 +406,8 @@ export default function CheckoutPage() {
 
               {/* Order Items */}
               <div className="space-y-4 mb-6">
-                {checkoutItems.map((item) => (
-                  <div key={item.slug} className="flex items-center gap-3">
+                {checkoutItems.map((item, idx) => (
+                  <div key={item.id ?? item.variantId ?? `${item.slug}-${idx}`} className="flex items-center gap-3">
                     <div className="w-14 h-14 relative bg-stone-50 rounded-md shrink-0 overflow-hidden">
                       {item.image && (
                         <Image

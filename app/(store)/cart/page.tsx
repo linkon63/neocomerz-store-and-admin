@@ -18,24 +18,24 @@ import type { Product as AdminProduct } from "@/lib/admin-api";
 
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, addItem } = useCart();
+  const { items, updateQuantity, removeItem, addItem, updateCartItem, initialised } = useCart();
   const { isAuthenticated, setShowAuthModal } = useAuth();
   const { formatCurrency } = useCurrency();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const router = useRouter();
   const [promoOpen, setPromoOpen] = useState(false);
 
-  const [openDropdownSlug, setOpenDropdownSlug] = useState<string | null>(null);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const [cartProducts, setCartProducts] = useState<Record<string, AdminProduct>>({});
   const [loadingProducts, setLoadingProducts] = useState<Record<string, boolean>>({});
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
 
-  const handleDropdownToggle = useCallback(async (slug: string, productId: string, currentItem: CartItem) => {
-    if (openDropdownSlug === slug) {
-      setOpenDropdownSlug(null);
+  const handleDropdownToggle = useCallback(async (itemId: string, productId: string, currentItem: CartItem) => {
+    if (openDropdownId === itemId) {
+      setOpenDropdownId(null);
       return;
     }
-    setOpenDropdownSlug(slug);
+    setOpenDropdownId(itemId);
 
     // Pre-fill selectedOptions with active item details
     const initialOptions: Record<string, string> = {};
@@ -59,7 +59,7 @@ export default function CartPage() {
         setLoadingProducts((prev) => ({ ...prev, [productId]: false }));
       }
     }
-  }, [openDropdownSlug, cartProducts, loadingProducts]);
+  }, [openDropdownId, cartProducts, loadingProducts]);
 
   const getProductVariants = useCallback((productId: string) => {
     const prod = cartProducts[productId];
@@ -166,26 +166,19 @@ export default function CartPage() {
 
       const newColor = newAttributes.Color || newAttributes.Colour || newAttributes.color || "";
       const newSize = newAttributes.Size || newAttributes.size || "";
-      const newSlug = `${oldItem.slug.split("-variant-")[0]}-variant-${newVariantId}`;
 
-      const newItem = {
-        slug: newSlug,
+      await updateCartItem(oldItem.id ?? oldItem.variantId ?? oldItem.slug, {
+        variantId: newVariantId,
         name: newDisplayName,
         price: newPrice,
         image: newImage,
         color: newColor,
         size: newSize,
-        productId: oldItem.productId,
-        variantId: newVariantId,
         attributes: newAttributes,
-        quantity: oldItem.quantity,
-      };
-
-      await removeItem(oldItem.slug);
-      await addItem(newItem, { silent: true });
-      setOpenDropdownSlug(null);
+      });
+      setOpenDropdownId(null);
     },
-    [removeItem, addItem, setOpenDropdownSlug]
+    [updateCartItem, setOpenDropdownId]
   );
 
   const handleApplyChange = useCallback(async (item: CartItem) => {
@@ -203,11 +196,11 @@ export default function CartPage() {
   const total = subtotal + shipping;
 
   const handleDecrement = useCallback(
-    (slug: string, currentQty: number) => {
+    (itemId: string, currentQty: number) => {
       if (currentQty <= 1) {
-        removeItem(slug);
+        removeItem(itemId);
       } else {
-        updateQuantity(slug, currentQty - 1);
+        updateQuantity(itemId, currentQty - 1);
       }
     },
     [removeItem, updateQuantity]
@@ -237,7 +230,62 @@ export default function CartPage() {
   return (
     <main className="flex-grow bg-white w-full min-h-screen">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-5 py-8 sm:py-12">
-        {items.length === 0 ? (
+        {!initialised ? (
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_384px] gap-8 lg:gap-16">
+            {/* Left Column: Items Skeleton */}
+            <div>
+              <div className="flex items-center gap-3 mb-6 sm:mb-8">
+                <div className="w-6 h-6 bg-stone-200 animate-pulse rounded" />
+                <div className="w-24 h-8 bg-stone-200 animate-pulse rounded" />
+              </div>
+
+              {/* Rows */}
+              <div className="space-y-6">
+                {[1, 2].map((i) => (
+                  <div key={i} className="border-b border-zinc-100 py-6 flex gap-4 sm:gap-6 items-start">
+                    {/* Image Box */}
+                    <div className="w-24 sm:w-32 h-24 sm:h-32 bg-stone-100 animate-pulse rounded-2xl shrink-0" />
+                    
+                    {/* Content Details */}
+                    <div className="flex-grow space-y-3">
+                      <div className="h-5 bg-stone-200 animate-pulse rounded w-2/3" />
+                      <div className="h-4 bg-stone-200 animate-pulse rounded w-1/3" />
+                      <div className="h-6 bg-stone-100 animate-pulse rounded w-20" />
+                    </div>
+
+                    {/* Price and Action */}
+                    <div className="flex flex-col items-end gap-6 shrink-0">
+                      <div className="h-5 bg-stone-200 animate-pulse rounded w-16" />
+                      <div className="h-8 bg-stone-200 animate-pulse rounded w-24" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Column: Summary Card Skeleton */}
+            <div className="bg-stone-50 rounded-3xl p-6 sm:p-8 space-y-6 h-fit">
+              <div className="h-6 bg-stone-200 animate-pulse rounded w-1/3" />
+              
+              <div className="space-y-4 pt-4 border-t border-zinc-200">
+                <div className="flex justify-between">
+                  <div className="h-4 bg-stone-200 animate-pulse rounded w-1/4" />
+                  <div className="h-4 bg-stone-200 animate-pulse rounded w-1/6" />
+                </div>
+                <div className="flex justify-between">
+                  <div className="h-4 bg-stone-200 animate-pulse rounded w-1/3" />
+                  <div className="h-4 bg-stone-200 animate-pulse rounded w-1/6" />
+                </div>
+                <div className="flex justify-between pt-4 border-t border-zinc-200">
+                  <div className="h-6 bg-stone-200 animate-pulse rounded w-1/4" />
+                  <div className="h-6 bg-stone-200 animate-pulse rounded w-1/4" />
+                </div>
+              </div>
+
+              <div className="h-12 bg-stone-200 animate-pulse rounded-full w-full" />
+            </div>
+          </div>
+        ) : items.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 sm:py-24 px-4">
             <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-full bg-stone-100 flex items-center justify-center mb-6">
               <LuTrash2 className="w-6 sm:w-8 h-6 sm:h-8 text-stone-400" />
@@ -270,8 +318,9 @@ export default function CartPage() {
 
               <div>
                 {items.map((item) => {
+                  const itemId = item.id ?? item.variantId ?? item.slug;
                   const inWishlist = isInWishlist(item.productId || item.id || item.slug);
-                  const productUrl = item.productId ? `/products/${item.productId}` : null;
+                  const productUrl = item.slug ? `/products/${item.slug}` : null;
 
                   // Parse name and attributes if item.name is formatted like "Vol. 2 Royal Collection (Premium White)"
                   const match = item.name.match(/^(.*?)\s*\(([^)]+)\)$/);
@@ -280,8 +329,10 @@ export default function CartPage() {
 
                   return (
                     <div
-                      key={item.slug}
-                      className="border-b border-zinc-100 py-6 group"
+                      key={itemId}
+                      className={`border-b border-zinc-100 py-6 group ${
+                        openDropdownId === itemId ? "relative z-30" : ""
+                      }`}
                     >
                       <div className="flex gap-4 sm:gap-6 items-start">
                         {productUrl ? (
@@ -332,17 +383,17 @@ export default function CartPage() {
                                 <div className="relative inline-block text-left mt-1.5 z-10">
                                   <button
                                     type="button"
-                                    onClick={() => handleDropdownToggle(item.slug, item.productId || "", item)}
+                                    onClick={() => handleDropdownToggle(itemId, item.productId || "", item)}
                                     className="flex items-center gap-1 text-stone-500 font-bembo text-sm cursor-pointer hover:text-stone-700 w-fit bg-transparent border-0 outline-none"
                                   >
                                     <span>{optionSummary}</span>
                                     <IoChevronDownOutline className="w-3.5 h-3.5 text-stone-400" />
                                   </button>
 
-                                  {openDropdownSlug === item.slug && (
+                                  {openDropdownId === itemId && (
                                     <>
                                       {/* Click-outside backdrop overlay to close dropdown */}
-                                      <div className="fixed inset-0 z-40" onClick={() => setOpenDropdownSlug(null)} />
+                                      <div className="fixed inset-0 z-40" onClick={() => setOpenDropdownId(null)} />
                                       
                                       <div className="absolute left-0 mt-2 w-72 bg-white border border-zinc-200 rounded-xl shadow-xl z-50 p-4 space-y-4">
                                         {loadingProducts[item.productId || ""] ? (
@@ -365,7 +416,7 @@ export default function CartPage() {
                                               </div>
                                               <div>
                                                 <h4 className="font-bembo text-sm text-stone-800 leading-tight truncate w-44">
-                                                  {displayName}
+                                                  {displayName} {Object.values(selectedOptions).filter(Boolean).length > 0 && `(${Object.values(selectedOptions).filter(Boolean).join(", ")})`}
                                                 </h4>
                                                 <p className="font-gotham text-xs text-[#BD2A36] font-semibold mt-0.5">
                                                   {getMatchedVariantPrice(item)}
@@ -415,7 +466,7 @@ export default function CartPage() {
                                             <div className="flex gap-2 pt-1 border-t border-zinc-100">
                                               <button
                                                 type="button"
-                                                onClick={() => setOpenDropdownSlug(null)}
+                                                 onClick={() => setOpenDropdownId(null)}
                                                 className="flex-1 py-2 border border-zinc-300 text-stone-700 font-gotham text-[10px] uppercase tracking-wider rounded-md hover:bg-stone-50 transition-colors cursor-pointer"
                                               >
                                                 Cancel
@@ -469,7 +520,7 @@ export default function CartPage() {
                             {/* Quantity Selector */}
                             <div className="flex items-center gap-1.5 sm:gap-2">
                               <button
-                                onClick={() => handleDecrement(item.slug, item.quantity)}
+                                onClick={() => handleDecrement(itemId, item.quantity)}
                                 className="w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white text-stone-800 hover:bg-neutral-100 transition-all cursor-pointer active:scale-95"
                                 aria-label="Decrease quantity"
                               >
@@ -481,7 +532,7 @@ export default function CartPage() {
                                 </span>
                               </div>
                               <button
-                                onClick={() => updateQuantity(item.slug, item.quantity + 1)}
+                                onClick={() => updateQuantity(itemId, item.quantity + 1)}
                                 className="w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white text-stone-800 hover:bg-neutral-100 transition-all cursor-pointer active:scale-95"
                                 aria-label="Increase quantity"
                               >
@@ -508,7 +559,7 @@ export default function CartPage() {
 
                             {/* Delete Button */}
                             <button
-                              onClick={() => removeItem(item.slug)}
+                              onClick={() => removeItem(itemId)}
                               className="w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white text-stone-800 hover:bg-[#d3122f] hover:text-white hover:border-[#d3122f] transition-all cursor-pointer active:scale-95"
                               aria-label="Remove item"
                             >
