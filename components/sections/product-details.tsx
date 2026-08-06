@@ -67,7 +67,9 @@ function mapProduct(raw: Product): MappedProduct {
   const parsedVariants: ParsedVariant[] = (raw.variants ?? []).map((v) => {
     const priceNum = Number(v.price ?? 0);
     const costNum = v.cost ? Number(v.cost) : 0;
-    const discountNum = raw.discountPrice ? Number(raw.discountPrice) : 0;
+    const variantDiscounted = (v as any).discountedPrice;
+    const productDiscounted = raw.discountPrice;
+    const discountNum = Number(variantDiscounted ?? productDiscounted ?? 0);
     const showOriginal = discountNum > 0 && discountNum < priceNum;
     const activePrice = showOriginal ? discountNum : priceNum;
 

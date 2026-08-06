@@ -73,8 +73,8 @@ export interface CartContextValue {
     item: Omit<CartItem, "quantity"> & { quantity?: number },
     options?: { silent?: boolean }
   ) => void | Promise<void>;
-  removeItem: (slug: string) => void;
-  updateQuantity: (slug: string, quantity: number) => void;
+  removeItem: (itemId: string) => void;
+  updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
 }
 

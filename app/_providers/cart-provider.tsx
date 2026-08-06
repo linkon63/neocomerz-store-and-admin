@@ -25,10 +25,6 @@ const STORAGE_KEY = "humana-cart";
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-function sortItems(items: CartItem[]): CartItem[] {
-  return [...items].sort((a, b) => (a.slug ?? "").localeCompare(b.slug ?? ""));
-}
-
 function loadLocalCart(): CartItem[] {
   if (typeof window === "undefined") return [];
   try {
@@ -60,7 +56,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const fetchServerCart = useCallback(async () => {
     try {
       const data = await getCart();
-      setItems(sortItems(mapBackendCart(data)));
+      setItems(mapBackendCart(data));
     } catch {
       setItems([]);
     }
@@ -123,7 +119,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
         return addCartItem(vId, qty)
           .then((data) => {
-            setItems(sortItems(mapBackendCart(data)));
+            setItems((prev) => {
+              const added = mapBackendCart(data).find((i) => i.variantId === vId);
+              if (!added) return prev;
+              const existing = prev.find((i) => i.variantId === vId);
+              if (existing) {
+                return prev.map((i) => (i.variantId === vId ? { ...i, quantity: i.quantity + qty } : i));
+              }
+              return [added, ...prev];
+            });
             if (!isSilent) {
               toast.success("Added to cart");
             }
@@ -144,14 +148,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setItems((prev) => {
           const existing = prev.find((i) => i.slug === input.slug);
           const next = existing
-            ? sortItems(
-              prev.map((i) =>
+            ? prev.map((i) =>
                 i.slug === input.slug
                   ? { ...i, quantity: i.quantity + (input.quantity ?? 1) }
                   : i,
-              ),
-            )
-            : sortItems([...prev, { ...input, quantity: input.quantity ?? 1 } as CartItem]);
+              )
+            : [{ ...input, quantity: input.quantity ?? 1 } as CartItem, ...prev];
           saveLocalCart(next);
           return next;
         });
@@ -173,20 +175,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const removeItem = useCallback(
-    (slug: string) => {
+    (itemId: string) => {
       if (isAuthenticated) {
-        const target = items.find((i) => i.slug === slug);
+        const target = items.find((i) => i.id === itemId || i.variantId === itemId);
         const cartItemId = target?.id;
         if (!cartItemId) return;
         removeCartItem(cartItemId)
-          .then((data) => {
-            setItems(sortItems(mapBackendCart(data)));
+          .then(() => {
+            setItems((prev) => prev.filter((i) => i.id !== cartItemId));
             toast.success("Removed from cart");
           })
           .catch((err: Error) => toast.error(err.message));
       } else {
         setItems((prev) => {
-          const next = prev.filter((i) => i.slug !== slug);
+          const next = prev.filter(
+            (i) => i.id === itemId || (i.variantId && i.variantId === itemId) || (i.variantId == null && i.slug === itemId),
+          );
           saveLocalCart(next);
           return next;
         });
@@ -197,27 +201,33 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const updateQuantity = useCallback(
-    (slug: string, quantity: number) => {
+    (itemId: string, quantity: number) => {
       if (isAuthenticated) {
         if (quantity <= 0) {
-          removeItem(slug);
+          removeItem(itemId);
           return;
         }
-        const target = items.find((i) => i.slug === slug);
+        const target = items.find((i) => i.id === itemId || i.variantId === itemId);
         const cartItemId = target?.id;
         if (!cartItemId) return;
         updateCartItemQuantity(cartItemId, quantity)
-          .then((data) => setItems(sortItems(mapBackendCart(data))))
+          .then(() => {
+            setItems((prev) => prev.map((i) => (i.id === cartItemId ? { ...i, quantity } : i)));
+          })
           .catch((err: Error) => toast.error(err.message));
       } else {
         setItems((prev) => {
           if (quantity <= 0) {
-            const next = prev.filter((i) => i.slug !== slug);
+            const next = prev.filter(
+              (i) => i.id === itemId || (i.variantId && i.variantId === itemId) || (i.variantId == null && i.slug === itemId),
+            );
             saveLocalCart(next);
             return next;
           }
           const next = prev.map((i) =>
-            i.slug === slug ? { ...i, quantity } : i,
+            (i.id === itemId || (i.variantId && i.variantId === itemId) || (i.variantId == null && i.slug === itemId))
+              ? { ...i, quantity }
+              : i,
           );
           saveLocalCart(next);
           return next;
