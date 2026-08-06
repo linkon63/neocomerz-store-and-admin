@@ -255,4 +255,33 @@ export async function submitWholesaleRequest(dto: CreateWholesaleRequestDto): Pr
   });
 }
 
+export interface SavedAddress {
+  id: string;
+  fullName: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2?: string | null;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function getAddresses(): Promise<SavedAddress[]> {
+  return customerRequest<SavedAddress[]>("/addresses");
+}
+
+export async function createAddress(
+  address: Omit<SavedAddress, "id" | "createdAt" | "updatedAt" | "isDefault"> & { isDefault?: boolean }
+): Promise<SavedAddress> {
+  return customerRequest<SavedAddress>("/addresses", {
+    method: "POST",
+    body: JSON.stringify(address),
+  });
+}
+
+
 

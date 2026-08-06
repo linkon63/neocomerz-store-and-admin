@@ -8,18 +8,195 @@ import { useCart } from "@/app/_providers/cart-provider";
 import { useWishlist } from "@/app/_providers/wishlist-provider";
 import { useAuth } from "@/app/_providers/auth-provider";
 import { useCurrency } from "@/lib/currency-context";
-import { LuMinus, LuPlus, LuArrowLeft, LuLock, LuChevronUp, LuTrash2 } from "react-icons/lu";
-import { IoHeartOutline, IoHeart, IoChevronDownOutline } from "react-icons/io5";
-import type { WishlistProduct } from "@/lib/types";
+import { LuMinus, LuPlus, LuArrowLeft, LuLock, LuChevronUp, LuTrash2, LuLoader } from "react-icons/lu";
+import { IoHeartOutline, IoHeart, IoChevronDownOutline, IoAlertCircleOutline } from "react-icons/io5";
+import type { WishlistProduct, CartItem } from "@/lib/types";
 import { clearBuyNowItem } from "@/lib/buy-now";
+import { fetchShopProductById } from "@/lib/shop-api";
+import { resolveImageUrl } from "@/lib/admin-api";
+import type { Product as AdminProduct } from "@/lib/admin-api";
+
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem } = useCart();
+  const { items, updateQuantity, removeItem, addItem } = useCart();
   const { isAuthenticated, setShowAuthModal } = useAuth();
   const { formatCurrency } = useCurrency();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const router = useRouter();
   const [promoOpen, setPromoOpen] = useState(false);
+
+  const [openDropdownSlug, setOpenDropdownSlug] = useState<string | null>(null);
+  const [cartProducts, setCartProducts] = useState<Record<string, AdminProduct>>({});
+  const [loadingProducts, setLoadingProducts] = useState<Record<string, boolean>>({});
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+
+  const handleDropdownToggle = useCallback(async (slug: string, productId: string, currentItem: CartItem) => {
+    if (openDropdownSlug === slug) {
+      setOpenDropdownSlug(null);
+      return;
+    }
+    setOpenDropdownSlug(slug);
+
+    // Pre-fill selectedOptions with active item details
+    const initialOptions: Record<string, string> = {};
+    if (currentItem.color) initialOptions["Color"] = currentItem.color;
+    if (currentItem.size) initialOptions["Size"] = currentItem.size;
+    if (currentItem.attributes) {
+      Object.assign(initialOptions, currentItem.attributes);
+    }
+    setSelectedOptions(initialOptions);
+
+    if (productId && !cartProducts[productId] && !loadingProducts[productId]) {
+      setLoadingProducts((prev) => ({ ...prev, [productId]: true }));
+      try {
+        const prod = await fetchShopProductById(productId);
+        if (prod) {
+          setCartProducts((prev) => ({ ...prev, [productId]: prod }));
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingProducts((prev) => ({ ...prev, [productId]: false }));
+      }
+    }
+  }, [openDropdownSlug, cartProducts, loadingProducts]);
+
+  const getProductVariants = useCallback((productId: string) => {
+    const prod = cartProducts[productId];
+    if (!prod) return [];
+    return (prod.variants ?? []).map((v) => {
+      const priceNum = Number(v.price ?? 0);
+      const costNum = v.cost ? Number(v.cost) : 0;
+      const discountNum = prod.discountPrice ? Number(prod.discountPrice) : 0;
+      const showOriginal = discountNum > 0 && discountNum < priceNum;
+      const activePrice = showOriginal ? discountNum : priceNum;
+
+      const attributesMap: Record<string, string> = {};
+      (v as any).attributes?.forEach((attr: any) => {
+        const attrName = attr.attributeValue?.attribute?.name;
+        const attrVal = attr.attributeValue?.value;
+        if (attrName && attrVal) {
+          attributesMap[attrName] = attrVal;
+        }
+      });
+      const optionNames = Object.values(attributesMap).filter(Boolean).join(" / ");
+
+      const variantImages = (v as any).media
+        ? ((v as any).media as any[])
+            .slice()
+            .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+            .map((m) => resolveImageUrl(m.media?.url))
+            .filter(Boolean) as string[]
+        : [];
+      const variantImage = variantImages[0] ?? undefined;
+
+      return {
+        id: v.id,
+        name: optionNames || "Default",
+        price: activePrice,
+        image: variantImage,
+        attributes: attributesMap,
+        stockQuantity: v.stockQuantity,
+      };
+    });
+  }, [cartProducts]);
+
+  const getMatchedVariant = useCallback((productId: string) => {
+    const variantsList = getProductVariants(productId);
+    if (variantsList.length === 0) return null;
+    return (
+      variantsList.find((v) => {
+        return Object.entries(selectedOptions).every(
+          ([k, selectVal]) => v.attributes[k] === selectVal
+        );
+      }) ?? null
+    );
+  }, [getProductVariants, selectedOptions]);
+
+  const getUniqueAttributes = useCallback((productId: string) => {
+    const variantsList = getProductVariants(productId);
+    const attrs: Record<string, Set<string>> = {};
+    variantsList.forEach((v) => {
+      Object.entries(v.attributes).forEach(([key, val]) => {
+        if (!attrs[key]) {
+          attrs[key] = new Set<string>();
+        }
+        attrs[key].add(val);
+      });
+    });
+    return Object.entries(attrs).reduce((acc, [key, set]) => {
+      acc[key] = Array.from(set);
+      return acc;
+    }, {} as Record<string, string[]>);
+  }, [getProductVariants]);
+
+  const getMatchedVariantImage = useCallback((item: CartItem) => {
+    const matched = getMatchedVariant(item.productId || "");
+    return matched?.image || item.image;
+  }, [getMatchedVariant]);
+
+  const getMatchedVariantPrice = useCallback((item: CartItem) => {
+    const matched = getMatchedVariant(item.productId || "");
+    return matched ? formatCurrency(matched.price) : formatCurrency(item.price);
+  }, [getMatchedVariant, formatCurrency]);
+
+  const isMatchedVariantOutOfStock = useCallback((item: CartItem) => {
+    const matched = getMatchedVariant(item.productId || "");
+    return matched ? matched.stockQuantity <= 0 : false;
+  }, [getMatchedVariant]);
+
+  const isApplyDisabled = useCallback((item: CartItem) => {
+    const matched = getMatchedVariant(item.productId || "");
+    if (!matched) return true;
+    if (matched.stockQuantity <= 0) return true;
+    return matched.id === item.variantId;
+  }, [getMatchedVariant]);
+
+  const handleUpdateVariant = useCallback(
+    async (
+      oldItem: CartItem,
+      newVariantId: string,
+      newPrice: number,
+      newImage: string,
+      newAttributes: Record<string, string>
+    ) => {
+      const nameWithoutOptions = oldItem.name.replace(/\s*\([^)]+\)$/, "");
+      const optionNames = Object.values(newAttributes).filter(Boolean).join(", ");
+      const newDisplayName = optionNames ? `${nameWithoutOptions} (${optionNames})` : nameWithoutOptions;
+
+      const newColor = newAttributes.Color || newAttributes.Colour || newAttributes.color || "";
+      const newSize = newAttributes.Size || newAttributes.size || "";
+      const newSlug = `${oldItem.slug.split("-variant-")[0]}-variant-${newVariantId}`;
+
+      const newItem = {
+        slug: newSlug,
+        name: newDisplayName,
+        price: newPrice,
+        image: newImage,
+        color: newColor,
+        size: newSize,
+        productId: oldItem.productId,
+        variantId: newVariantId,
+        attributes: newAttributes,
+        quantity: oldItem.quantity,
+      };
+
+      await removeItem(oldItem.slug);
+      await addItem(newItem, { silent: true });
+      setOpenDropdownSlug(null);
+    },
+    [removeItem, addItem, setOpenDropdownSlug]
+  );
+
+  const handleApplyChange = useCallback(async (item: CartItem) => {
+    const matched = getMatchedVariant(item.productId || "");
+    if (!matched) return;
+    try {
+      await handleUpdateVariant(item, matched.id, matched.price, matched.image || item.image, matched.attributes);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [getMatchedVariant, handleUpdateVariant]);
 
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const shipping = 0;
@@ -55,6 +232,7 @@ export default function CartPage() {
     },
     [toggleWishlist]
   );
+
 
   return (
     <main className="flex-grow bg-white w-full min-h-screen">
@@ -94,127 +272,252 @@ export default function CartPage() {
                 {items.map((item) => {
                   const inWishlist = isInWishlist(item.productId || item.id || item.slug);
                   const productUrl = item.productId ? `/products/${item.productId}` : null;
+
+                  // Parse name and attributes if item.name is formatted like "Vol. 2 Royal Collection (Premium White)"
+                  const match = item.name.match(/^(.*?)\s*\(([^)]+)\)$/);
+                  const displayName = match ? match[1] : item.name;
+                  const optionSummary = match ? match[2] : (item.color || item.size || "");
+
                   return (
-                      <div
-                        key={item.slug}
-                        className="border-t border-b border-zinc-100 py-4 sm:py-5 group"
-                      >
-                        <div className="flex gap-4 sm:gap-6">
-                          {productUrl ? (
-                            <Link
-                              href={productUrl}
-                              className="w-20 sm:w-32 h-28 sm:h-40 relative bg-stone-50 rounded-md shrink-0 shadow-sm overflow-hidden cursor-pointer"
-                            >
-                              {item.image && (
-                                <Image
-                                  src={item.image}
-                                  alt={item.name}
-                                  fill
-                                  sizes="(max-width: 640px) 80px, 128px"
-                                  className="object-contain p-2 sm:p-3"
-                                />
-                              )}
-                            </Link>
-                          ) : (
-                            <div className="w-20 sm:w-32 h-28 sm:h-40 relative bg-stone-50 rounded-md shrink-0 shadow-sm">
-                              {item.image && (
-                                <Image
-                                  src={item.image}
-                                  alt={item.name}
-                                  fill
-                                  sizes="(max-width: 640px) 80px, 128px"
-                                  className="object-contain p-2 sm:p-3"
-                                />
-                              )}
-                            </div>
-                          )}
+                    <div
+                      key={item.slug}
+                      className="border-b border-zinc-100 py-6 group"
+                    >
+                      <div className="flex gap-4 sm:gap-6 items-start">
+                        {productUrl ? (
+                          <Link
+                            href={productUrl}
+                            className="w-24 sm:w-32 h-24 sm:h-32 relative bg-stone-50 rounded-2xl shrink-0 overflow-hidden cursor-pointer border border-stone-100"
+                          >
+                            {item.image && (
+                              <Image
+                                src={item.image}
+                                alt={item.name}
+                                fill
+                                sizes="(max-width: 640px) 96px, 128px"
+                                className="object-contain p-1.5 sm:p-2"
+                              />
+                            )}
+                          </Link>
+                        ) : (
+                          <div className="w-24 sm:w-32 h-24 sm:h-32 relative bg-stone-50 rounded-2xl shrink-0 overflow-hidden border border-stone-100">
+                            {item.image && (
+                              <Image
+                                src={item.image}
+                                alt={item.name}
+                                fill
+                                sizes="(max-width: 640px) 96px, 128px"
+                                className="object-contain p-1.5 sm:p-2"
+                              />
+                            )}
+                          </div>
+                        )}
 
-                          <div className="flex-1 min-w-0 flex flex-col">
-                            {productUrl ? (
-                              <Link href={productUrl} className="cursor-pointer">
-                                <h3 className="font-gotham text-base sm:text-xl text-[#4A4A4A] leading-tight hover:text-brand-3 transition-colors">
-                                  {item.name}
+                        <div className="flex-1 min-w-0 flex flex-col justify-between min-h-[96px] sm:min-h-[128px]">
+                          <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-4">
+                            <div className="flex-1 min-w-0">
+                              {productUrl ? (
+                                <Link href={productUrl} className="cursor-pointer">
+                                  <h3 className="font-bembo text-lg sm:text-2xl text-stone-800 leading-tight hover:text-[#BD2A36] transition-colors">
+                                    {displayName}
+                                  </h3>
+                                </Link>
+                              ) : (
+                                <h3 className="font-bembo text-lg sm:text-2xl text-stone-800 leading-tight">
+                                  {displayName}
                                 </h3>
-                              </Link>
-                            ) : (
-                              <h3 className="font-gotham text-base sm:text-xl text-[#4A4A4A] leading-tight">
-                                {item.name}
-                              </h3>
-                            )}
+                              )}
 
-                            {item.description && (
-                              <p className="hidden sm:block font-bembo text-stone-500 text-xs sm:text-sm mt-2 sm:mt-3 leading-relaxed line-clamp-2">
-                                {item.description.length > 120
-                                  ? `${item.description.slice(0, 120)}…`
-                                  : item.description}
-                              </p>
-                            )}
+                              {optionSummary && (
+                                <div className="relative inline-block text-left mt-1.5 z-10">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDropdownToggle(item.slug, item.productId || "", item)}
+                                    className="flex items-center gap-1 text-stone-500 font-bembo text-sm cursor-pointer hover:text-stone-700 w-fit bg-transparent border-0 outline-none"
+                                  >
+                                    <span>{optionSummary}</span>
+                                    <IoChevronDownOutline className="w-3.5 h-3.5 text-stone-400" />
+                                  </button>
 
-                            <div className="mt-auto pt-3 sm:pt-4">
-                              <div className="flex items-center justify-between">
-                                <div>
-                                  <p className="font-gotham text-lg sm:text-2xl text-[#222222] font-semibold whitespace-nowrap">
-                                    {formatCurrency(item.price)}
-                                  </p>
-                                  {item.quantity > 1 && (
-                                    <p className="font-gotham text-xs text-[#999999] mt-1">
-                                      Total: {formatCurrency(item.price * item.quantity)}
-                                    </p>
+                                  {openDropdownSlug === item.slug && (
+                                    <>
+                                      {/* Click-outside backdrop overlay to close dropdown */}
+                                      <div className="fixed inset-0 z-40" onClick={() => setOpenDropdownSlug(null)} />
+                                      
+                                      <div className="absolute left-0 mt-2 w-72 bg-white border border-zinc-200 rounded-xl shadow-xl z-50 p-4 space-y-4">
+                                        {loadingProducts[item.productId || ""] ? (
+                                          <div className="p-4 text-xs text-stone-500 flex items-center gap-2 justify-center font-gotham">
+                                            <LuLoader className="w-4 h-4 animate-spin text-[#BD2A36]" />
+                                            <span>Loading options...</span>
+                                          </div>
+                                        ) : (
+                                          <div className="space-y-4">
+                                            {/* Preview image + price */}
+                                            <div className="flex gap-3 items-center border-b border-zinc-100 pb-3">
+                                              <div className="w-12 h-12 relative bg-stone-50 rounded overflow-hidden shrink-0 border border-stone-100">
+                                                <Image
+                                                  src={getMatchedVariantImage(item) || item.image}
+                                                  alt={item.name}
+                                                  fill
+                                                  sizes="48px"
+                                                  className="object-contain p-0.5"
+                                                />
+                                              </div>
+                                              <div>
+                                                <h4 className="font-bembo text-sm text-stone-800 leading-tight truncate w-44">
+                                                  {displayName}
+                                                </h4>
+                                                <p className="font-gotham text-xs text-[#BD2A36] font-semibold mt-0.5">
+                                                  {getMatchedVariantPrice(item)}
+                                                </p>
+                                              </div>
+                                            </div>
+
+                                            {/* Option groups */}
+                                            <div className="space-y-3">
+                                              {Object.entries(getUniqueAttributes(item.productId || "")).map(([attrName, values]) => (
+                                                <div key={attrName} className="space-y-1">
+                                                  <p className="font-gotham text-[10px] uppercase tracking-wider text-stone-500 font-medium">
+                                                    {attrName}
+                                                  </p>
+                                                  <div className="flex flex-wrap gap-1.5">
+                                                    {values.map((val) => {
+                                                      const isSelected = selectedOptions[attrName] === val;
+                                                      return (
+                                                        <button
+                                                          key={val}
+                                                          type="button"
+                                                          onClick={() => setSelectedOptions((prev) => ({ ...prev, [attrName]: val }))}
+                                                          className={`px-3 py-1.5 border text-[11px] font-gotham rounded-md transition-all cursor-pointer ${
+                                                            isSelected
+                                                              ? "border-[#BD2A36] bg-[#FDF0F1] text-[#BD2A36] font-medium shadow-xs"
+                                                              : "border-zinc-200 bg-white text-stone-700 hover:border-stone-400"
+                                                          }`}
+                                                        >
+                                                          {val}
+                                                        </button>
+                                                      );
+                                                    })}
+                                                  </div>
+                                                </div>
+                                              ))}
+                                            </div>
+
+                                            {/* Stock warning */}
+                                            {isMatchedVariantOutOfStock(item) && (
+                                              <div className="flex items-center gap-1.5 p-2 bg-amber-50 text-amber-700 text-[10px] rounded border border-amber-200 font-gotham leading-normal">
+                                                <IoAlertCircleOutline className="w-3.5 h-3.5 shrink-0" />
+                                                <span>This combination is sold out.</span>
+                                              </div>
+                                            )}
+
+                                            {/* Apply Button */}
+                                            <div className="flex gap-2 pt-1 border-t border-zinc-100">
+                                              <button
+                                                type="button"
+                                                onClick={() => setOpenDropdownSlug(null)}
+                                                className="flex-1 py-2 border border-zinc-300 text-stone-700 font-gotham text-[10px] uppercase tracking-wider rounded-md hover:bg-stone-50 transition-colors cursor-pointer"
+                                              >
+                                                Cancel
+                                              </button>
+                                              <button
+                                                type="button"
+                                                disabled={isApplyDisabled(item)}
+                                                onClick={() => handleApplyChange(item)}
+                                                className="flex-1 py-2 bg-[#BD2A36] hover:bg-opacity-95 text-white font-gotham text-[10px] uppercase tracking-wider rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-medium"
+                                              >
+                                                Apply
+                                              </button>
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </>
                                   )}
                                 </div>
+                              )}
 
-                                <div className="flex items-center gap-2">
-                                  <div className="flex items-center">
-                                    <button
-                                      onClick={() => handleDecrement(item.slug, item.quantity)}
-                                      className="w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white text-stone-800 hover:bg-neutral-100 transition-all cursor-pointer active:scale-95"
-                                      aria-label="Decrease quantity"
-                                    >
-                                      <LuMinus className="w-3 sm:w-4 h-3 sm:h-4" />
-                                    </button>
-                                    <div className="w-8 sm:w-12 flex justify-center items-center">
-                                      <span className="font-gotham text-base sm:text-lg font-normal text-[#222222]">
-                                        {item.quantity}
-                                      </span>
-                                    </div>
-                                    <button
-                                      onClick={() => updateQuantity(item.slug, item.quantity + 1)}
-                                      className="w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white text-stone-800 hover:bg-neutral-100 transition-all cursor-pointer active:scale-95"
-                                      aria-label="Increase quantity"
-                                    >
-                                      <LuPlus className="w-3 sm:w-4 h-3 sm:h-4" />
-                                    </button>
-                                  </div>
-
-                                  <button
-                                    onClick={() => handleToggleWishlist(item)}
-                                    className={`w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white transition-all cursor-pointer active:scale-95 ${
-                                      inWishlist
-                                        ? "text-[#d3122f] border-[#d3122f]"
-                                        : "text-stone-800 hover:bg-[#d3122f] hover:text-white hover:border-[#d3122f]"
-                                    }`}
-                                    aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
-                                  >
-                                    {inWishlist ? (
-                                      <IoHeart className="w-3 sm:w-4 h-3 sm:h-4" />
-                                    ) : (
-                                      <IoHeartOutline className="w-3 sm:w-4 h-3 sm:h-4" />
-                                    )}
-                                  </button>
-
-                                  <button
-                                    onClick={() => removeItem(item.slug)}
-                                    className="w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white text-stone-800 hover:bg-[#d3122f] hover:text-white hover:border-[#d3122f] transition-all cursor-pointer active:scale-95"
-                                    aria-label="Remove item"
-                                  >
-                                    <LuTrash2 className="w-3 sm:w-4 h-3 sm:h-4" />
-                                  </button>
-                                </div>
-                              </div>
+                              {item.description && (
+                                <p className="hidden sm:block font-bembo text-stone-600 text-sm mt-3 leading-relaxed max-w-xl">
+                                  {item.description}
+                                </p>
+                              )}
                             </div>
+
+                            <div className="sm:text-right shrink-0">
+                              <p className="font-bembo text-xl sm:text-2xl lg:text-3xl text-stone-800 font-normal">
+                                {formatCurrency(item.price)}
+                              </p>
+                              {item.quantity > 1 && (
+                                <p className="font-bembo text-xs text-stone-400 mt-1">
+                                  Total: {formatCurrency(item.price * item.quantity)}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          {item.description && (
+                            <p className="block sm:hidden font-bembo text-stone-600 text-xs mt-2 leading-relaxed">
+                              {item.description.length > 80
+                                ? `${item.description.slice(0, 80)}…`
+                                : item.description}
+                            </p>
+                          )}
+
+                          {/* Actions row */}
+                          <div className="flex items-center gap-3 mt-4 sm:mt-6">
+                            {/* Quantity Selector */}
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                              <button
+                                onClick={() => handleDecrement(item.slug, item.quantity)}
+                                className="w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white text-stone-800 hover:bg-neutral-100 transition-all cursor-pointer active:scale-95"
+                                aria-label="Decrease quantity"
+                              >
+                                <LuMinus className="w-3 sm:w-4 h-3 sm:h-4" />
+                              </button>
+                              <div className="w-8 sm:w-12 flex justify-center items-center">
+                                <span className="font-gotham text-base sm:text-lg font-normal text-stone-800">
+                                  {item.quantity}
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => updateQuantity(item.slug, item.quantity + 1)}
+                                className="w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white text-stone-800 hover:bg-neutral-100 transition-all cursor-pointer active:scale-95"
+                                aria-label="Increase quantity"
+                              >
+                                <LuPlus className="w-3 sm:w-4 h-3 sm:h-4" />
+                              </button>
+                            </div>
+
+                            {/* Wishlist Button */}
+                            <button
+                              onClick={() => handleToggleWishlist(item)}
+                              className={`w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white transition-all cursor-pointer active:scale-95 ${
+                                inWishlist
+                                  ? "text-[#d3122f] border-[#d3122f]"
+                                  : "text-stone-800 hover:bg-[#d3122f] hover:text-white hover:border-[#d3122f]"
+                              }`}
+                              aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                            >
+                              {inWishlist ? (
+                                <IoHeart className="w-3 sm:w-4 h-3 sm:h-4" />
+                              ) : (
+                                <IoHeartOutline className="w-3 sm:w-4 h-3 sm:h-4" />
+                              )}
+                            </button>
+
+                            {/* Delete Button */}
+                            <button
+                              onClick={() => removeItem(item.slug)}
+                              className="w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-200 bg-white text-stone-800 hover:bg-[#d3122f] hover:text-white hover:border-[#d3122f] transition-all cursor-pointer active:scale-95"
+                              aria-label="Remove item"
+                            >
+                              <LuTrash2 className="w-3 sm:w-4 h-3 sm:h-4" />
+                            </button>
                           </div>
                         </div>
                       </div>
+                    </div>
                   );
                 })}
               </div>
@@ -240,9 +543,8 @@ export default function CartPage() {
                   )}
                 </button>
                 <div
-                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                    promoOpen ? "max-h-20 mt-3" : "max-h-0"
-                  }`}
+                  className={`overflow-hidden transition-all duration-300 ease-in-out ${promoOpen ? "max-h-20 mt-3" : "max-h-0"
+                    }`}
                 >
                   <input
                     type="text"
