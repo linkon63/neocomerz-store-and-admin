@@ -26,7 +26,7 @@ export default function TeaCollection() {
                 {features.map((feature, index) => (
                 <div key={index} className="flex flex-row items-center gap-3">
                     {/* Icon */}
-                    <div className="relative w-12 h-12">
+                    <div className="relative w-16 h-16 shrink-0">
                     <Image
                         src={feature.icon}
                         alt={feature.description}
@@ -35,7 +35,7 @@ export default function TeaCollection() {
                     />
                     </div>
                     {/* Text */}
-                    <p className="text-khaki-gold text-base md:text-lg font-normal font-['Gotham'] leading-relaxed max-w-[180px]">
+                    <p className="text-[#d2c494] text-xl font-normal font-gotham leading-6 max-w-[180px]">
                     {feature.description}
                     </p>
                 </div>

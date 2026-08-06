@@ -27,6 +27,20 @@ export default function Navigation() {
   const [isTeasHovered, setIsTeasHovered] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Close dropdown on pathname change
+  useEffect(() => {
+    setIsTeasHovered(false);
+  }, [pathname]);
+
+  // Close dropdown on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsTeasHovered(false);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   useEffect(() => {
     async function loadCategories() {
       try {

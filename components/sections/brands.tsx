@@ -88,13 +88,13 @@ export default function Brands({
           </div>
 
           {/* Centered Heading */}
-          <div className="flex justify-center items-start gap-1.5 flex-wrap mt-4">
-            <div className="text-stone-400 text-lg font-normal font-['Bembo_Std'] leading-6">
+          <div className="flex flex-col justify-start items-center text-center mt-4">
+            <h2 className="text-khaki-gold text-3xl md:text-5xl lg:text-6xl font-normal font-['Bembo_Std'] leading-tight lg:leading-[56px]">
               Trusted Across
-            </div>
-            <div className="text-neutral-600 text-lg font-bold font-['Snell_Roundhand_LT_Std'] leading-6">
+            </h2>
+            <h3 className="text-neutral-600 text-3xl md:text-5xl lg:text-6xl font-normal font-['Snell_Roundhand_LT_Std'] leading-tight lg:leading-[56px]">
               Refined Establishments
-            </div>
+            </h3>
           </div>
         </div>
       </section>
@@ -105,11 +105,11 @@ export default function Brands({
     <section className={`w-full py-12 px-6 md:px-12 lg:py-16 ${bgClassName}`}>
       <div className="mx-auto">
         <div className="flex flex-col items-center justify-between gap-8 lg:flex-row lg:gap-12 flex-wrap">
-          <div className="shrink-0 text-center lg:text-left">
-            <h2 className="font-['Bembo_Std'] text-lg font-medium uppercase tracking-wide text-khaki-gold">
+          <div className="shrink-0 text-center lg:text-left flex flex-col justify-start items-center lg:items-start">
+            <h2 className="text-khaki-gold text-3xl md:text-5xl lg:text-6xl font-normal font-['Bembo_Std'] leading-tight lg:leading-[56px]">
               Trusted Across
             </h2>
-            <h3 className="mt-1 font-['Snell_Roundhand_LT_Std'] text-4xl text-black md:text-5xl">
+            <h3 className="text-neutral-600 text-3xl md:text-5xl lg:text-6xl font-normal font-['Snell_Roundhand_LT_Std'] leading-tight lg:leading-[56px]">
               Refined Establishments
             </h3>
           </div>

@@ -7,7 +7,7 @@ import MobileMenu from "./ui/mobile-menu";
 import Navigation from "./ui/navigation";
 import { IoSearchOutline, IoHeartOutline } from "react-icons/io5";
 import { LuShoppingBag, LuUser, LuChevronDown, LuLogOut } from "react-icons/lu";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useAuth } from "@/app/_providers/auth-provider";
 import { useCart } from "@/app/_providers/cart-provider";
 import { useWishlist } from "@/app/_providers/wishlist-provider";
@@ -32,6 +32,7 @@ const navItems = [
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isAuthenticated, setShowAuthModal, logout } = useAuth();
   const { itemCount: cartItemCount } = useCart();
   const { itemCount: wishlistItemCount } = useWishlist();
@@ -40,6 +41,23 @@ export default function Header() {
   const mobileDropdownRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
+
+  // Close dropdowns/suggestions and scroll to top on route changes
+  useEffect(() => {
+    setDropdownOpen(false);
+    setShowSuggestions(false);
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [pathname]);
+
+  // Close dropdowns/suggestions on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      setDropdownOpen(false);
+      setShowSuggestions(false);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     setMounted(true);

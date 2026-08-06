@@ -40,21 +40,20 @@ export default function TopHeader() {
       <div className="topheader-wrapper max-w-360 mx-auto relative">
         <div className="flex items-center justify-between py-1 sm:py-2.5 gap-2 md:gap-4">
           {/* Left Section - Help & Phone */}
-          <div className="flex items-center gap-1 sm:gap-2 text-xs text-white z-10">
+          <div className="flex items-center gap-1 sm:gap-2 text-[11px] sm:text-xs text-white z-10">
             <span className="font-['Gotham'] text-white hidden sm:inline">
               {help.text}
             </span>
             <span className="font-['Gotham'] text-white hidden sm:inline">|</span>
             <div className="flex items-center gap-1 sm:gap-1.5 text-white">
               <IoCallOutline className="w-3.5 h-3.5 text-white" />
-              <span className="font-['Gotham'] text-white text-xs sm:text-sm hidden md:inline">
+              <span className="font-['Gotham'] text-white hidden md:inline">
                 {help.phone.label} {primaryPhone}
               </span>
-              <span className="font-['Gotham'] text-white text-xs sm:text-sm md:hidden">
+              <span className="font-['Gotham'] text-white md:hidden">
                 {primaryPhoneShort}
               </span>
             </div>
-
           </div>
 
           {/* Center Section - Promotional Text (Absolutely Centered) */}

@@ -45,9 +45,16 @@ export default function ProductTabs({
       >
         {description && (
           <div className="flex flex-col gap-4">
-            <p className="font-bembo text-lg text-stone-800 leading-relaxed">
-              {description}
-            </p>
+            <div 
+              className="font-bembo text-lg text-stone-850 leading-relaxed space-y-4 
+                         [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1.5 [&_ul]:my-3
+                         [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1.5 [&_ol]:my-3
+                         [&_h1]:text-3xl [&_h1]:font-normal [&_h1]:font-bembo [&_h1]:text-stone-800 [&_h1]:mt-6 [&_h1]:mb-3
+                         [&_h2]:text-2xl [&_h2]:font-normal [&_h2]:font-bembo [&_h2]:text-stone-800 [&_h2]:mt-5 [&_h2]:mb-3
+                         [&_h3]:text-xl [&_h3]:font-normal [&_h3]:font-bembo [&_h3]:text-stone-800 [&_h3]:mt-4 [&_h3]:mb-2
+                         [&_strong]:font-medium [&_strong]:text-stone-900"
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
           </div>
         )}
 

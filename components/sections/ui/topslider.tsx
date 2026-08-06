@@ -14,7 +14,7 @@ export default function TopSlider({ slogan }: { slogan?: string }) {
     return (
       <div className="flex items-center gap-1 sm:gap-2 text-white w-full justify-center">
         <div className="flex-grow px-0.5 sm:px-1 text-center">
-          <span className="font-gotham text-white text-[10px] sm:text-xs md:text-sm font-normal tracking-wide">
+          <span className="font-gotham text-white text-[11px] sm:text-xs font-normal tracking-wide">
             {slogan}
           </span>
         </div>
@@ -49,7 +49,7 @@ export default function TopSlider({ slogan }: { slogan?: string }) {
           {slider.slides.map((text: string, index: number) => (
             <SwiperSlide key={index}>
               <div className="text-center">
-                <span className="font-gotham text-white text-[10px] sm:text-xs md:text-sm font-normal tracking-wide cursor-pointer hover:opacity-95 transition-opacity">
+                  <span className="font-gotham text-white text-[11px] sm:text-xs font-normal tracking-wide cursor-pointer hover:opacity-95 transition-opacity">
                   {text}
                 </span>
               </div>

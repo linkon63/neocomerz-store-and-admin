@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { HiOutlineBars3BottomRight } from "react-icons/hi2";
 import { IoChevronDownOutline, IoChevronForwardOutline } from "react-icons/io5";
 import { NavigationProps } from "../../../data/types";
@@ -10,10 +11,29 @@ import { fetchShopCategories, type ShopCategory } from "@/lib/shop-api";
 export default function MobileMenu({
   navItems,
 }: NavigationProps) {
+  const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
   const [activeMobileCategory, setActiveMobileCategory] = useState<string | null>(null);
   const [dbCategories, setDbCategories] = useState<ShopCategory[]>([]);
+
+  // Close mobile menu on pathname change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+    setMobileDropdownOpen(false);
+    setActiveMobileCategory(null);
+  }, [pathname]);
+
+  // Close mobile menu on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsMobileMenuOpen(false);
+      setMobileDropdownOpen(false);
+      setActiveMobileCategory(null);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     async function loadCats() {
