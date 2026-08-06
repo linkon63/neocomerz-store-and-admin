@@ -108,8 +108,13 @@ export default function AddressBookView() {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) { toast.success("Address deleted."); fetchAddresses(); }
-      else toast.error("Failed to delete address.");
+      if (res.ok) {
+        toast.success("Address deleted.");
+        fetchAddresses();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.message || "Failed to delete address.");
+      }
     } catch { toast.error("Something went wrong."); }
   };
 

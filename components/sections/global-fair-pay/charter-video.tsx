@@ -9,7 +9,7 @@ export default function CharterVideo() {
           {/* Header Block */}
           <ScrollReveal delay={0} direction="up" className="self-stretch flex flex-col justify-start items-center gap-6">
             <div className="flex flex-col justify-start items-center">
-              <h2 className="text-center text-stone-400 text-3xl sm:text-5xl lg:text-6xl font-normal font-['Bembo_Std'] leading-tight lg:leading-[56px]">
+              <h2 className="text-center text-khaki-gold text-3xl sm:text-5xl lg:text-6xl font-normal font-['Bembo_Std'] leading-tight lg:leading-[56px]">
                 Introduction to the
               </h2>
               <h3 className="text-center text-white text-3xl sm:text-5xl lg:text-6xl font-normal font-['Snell_Roundhand_LT_Std'] italic leading-tight lg:leading-[56px]">

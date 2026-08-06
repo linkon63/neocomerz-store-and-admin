@@ -61,7 +61,7 @@ export default function CharterTimeline() {
           <p className="font-['Gotham'] text-xs uppercase tracking-[0.25em] text-neutral-400">
             WHO IS BEHIND IT
           </p>
-          <h2 className="font-['Bembo_Std'] text-3xl md:text-5xl font-normal text-dark-charcoal leading-tight">
+          <h2 className="font-['Bembo_Std'] text-3xl md:text-5xl font-normal text-khaki-gold leading-tight">
             How the Charter came to be
           </h2>
           <p className="font-['Bembo_Std'] text-xs md:text-sm text-neutral-400 leading-relaxed max-w-2xl pt-1">
