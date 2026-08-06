@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AdminIcon, PageHeader } from "../../../_components/admin-shell";
 import { ConfirmModal } from "../../../_components/confirm-modal";
@@ -52,7 +52,6 @@ export default function CampaignsPage() {
 
   const { discounts } = useDiscounts();
   const { sections } = useSections();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; campaign: Campaign | null }>({
     open: false,
@@ -362,7 +361,6 @@ export default function CampaignsPage() {
                   accept="image/*"
                   className="block w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium"
                   multiple
-                  ref={fileInputRef}
                   onChange={(e) => {
                     const files = e.target.files ? Array.from(e.target.files) : [];
                     setForm((p) => ({ ...p, images: [...p.images, ...files] }));
@@ -402,13 +400,12 @@ export default function CampaignsPage() {
                       />
                       <button
                         className="absolute -right-2 -top-2 grid h-6 w-6 place-items-center rounded-full bg-red-500 text-xs text-white"
-                        onClick={() => {
+                        onClick={() =>
                           setForm((p) => ({
                             ...p,
                             images: p.images.filter((_, j) => j !== i),
-                          }));
-                          if (fileInputRef.current) fileInputRef.current.value = "";
-                        }}
+                          }))
+                        }
                         type="button"
                       >
                         <AdminIcon className="h-3 w-3" name="x" />
