@@ -73,8 +73,8 @@ export default function RelatedCarousel() {
               className="related-prev flex items-center gap-2 text-stone-850 hover:text-[#B9975B] transition-colors text-xs font-semibold uppercase tracking-wider cursor-pointer select-none"
               aria-label="Previous products"
             >
-              <span className="text-[#B9975B] text-base font-normal">&lt;</span>
-              <span className="font-gotham font-medium text-[11px] tracking-[0.2em] text-stone-850">PREVIOUS</span>
+              <span className="text-[#B9975B] text-[11px] font-normal leading-none flex items-center">&lt;</span>
+              <span className="font-gotham font-medium text-[11px] tracking-[0.2em] text-stone-850 leading-none flex items-center">PREVIOUS</span>
             </button>
 
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-normal text-center">
@@ -86,8 +86,8 @@ export default function RelatedCarousel() {
               className="related-next flex items-center gap-2 text-stone-850 hover:text-[#B9975B] transition-colors text-xs font-semibold uppercase tracking-wider cursor-pointer select-none"
               aria-label="Next products"
             >
-              <span className="font-gotham font-medium text-[11px] tracking-[0.2em] text-stone-850">NEXT</span>
-              <span className="text-[#B9975B] text-base font-normal">&gt;</span>
+              <span className="font-gotham font-medium text-[11px] tracking-[0.2em] text-stone-850 leading-none flex items-center">NEXT</span>
+              <span className="text-[#B9975B] text-[11px] font-normal leading-none flex items-center">&gt;</span>
             </button>
           </div>
 

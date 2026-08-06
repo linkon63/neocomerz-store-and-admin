@@ -59,17 +59,37 @@ export default function Brands({
   }, []);
 
   if (variant === "vertical") {
-    // Duplicate the logos to support smooth infinite marquee loop
-    const marqueeBrands = [...brandList, ...brandList, ...brandList, ...brandList];
+    // Use exactly 2 copies — CSS animates translateX(0) → translateX(-50%) so
+    // when the first set scrolls out the identical second set is already in place,
+    // creating a seamless infinite loop regardless of how many brands there are.
+    const set = brandList.length > 0 ? brandList : fallbackBrands.map((b, i) => ({ name: `Brand ${i + 1}`, logo: b }));
 
     return (
       <section className="w-full py-16 bg-white flex flex-col justify-center items-center overflow-hidden">
         <div className="w-full flex flex-col items-center gap-10">
           {/* Infinite Marquee Logo Row */}
           <div className="w-full overflow-hidden relative">
-            <div className="flex gap-8 w-max animate-marquee py-2">
-              {marqueeBrands.map((brand, index) => (
-                <div key={index} className="relative h-14 w-40 flex-shrink-0 flex items-center justify-center">
+            <div className="marquee-track py-2">
+              {/* Set 1 */}
+              {set.map((brand, index) => (
+                <div key={`a-${index}`} className="relative h-14 w-40 flex-shrink-0 flex items-center justify-center">
+                  {brand.logo ? (
+                    <Image
+                      src={brand.logo}
+                      alt={brand.name}
+                      fill
+                      className="object-contain"
+                    />
+                  ) : (
+                    <span className="font-['Bembo_Std'] text-stone-700 uppercase tracking-widest text-xs font-semibold text-center">
+                      {brand.name}
+                    </span>
+                  )}
+                </div>
+              ))}
+              {/* Set 2 — identical duplicate so the loop seam is invisible */}
+              {set.map((brand, index) => (
+                <div key={`b-${index}`} aria-hidden="true" className="relative h-14 w-40 flex-shrink-0 flex items-center justify-center">
                   {brand.logo ? (
                     <Image
                       src={brand.logo}

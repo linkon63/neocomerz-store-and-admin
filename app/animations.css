@@ -9,6 +9,18 @@
   animation: marquee 25s linear infinite;
 }
 
+.marquee-track {
+  display: flex;
+  gap: 2rem;
+  width: max-content;
+  will-change: transform;
+  animation: marquee 28s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -134,7 +146,8 @@
   }
 
   .animate-fadeIn,
-  .animate-marquee {
+  .animate-marquee,
+  .marquee-track {
     animation: none !important;
     opacity: 1 !important;
   }

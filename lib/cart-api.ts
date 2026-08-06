@@ -23,9 +23,31 @@ async function authFetch<T>(path: string, options: RequestInit = {}): Promise<T>
 
 export function mapBackendCartItem(item: BackendCartItem): CartItem {
   const p = item.variant.product;
-  const featured = p.media?.find((m) => m.isFeatured);
-  const first = p.media?.[0];
-  const attributes = item.variant.attributes ?? {};
+  
+  // Try to find image from variant media
+  const vMedia = item.variant.media;
+  const vFeatured = vMedia?.find((m) => m.isFeatured);
+  const vFirst = vMedia?.[0];
+  const variantMediaUrl = vFeatured?.media?.url ?? vFirst?.media?.url;
+
+  // Fallback to product media
+  const pFeatured = p.media?.find((m) => m.isFeatured);
+  const pFirst = p.media?.[0];
+  const finalImageUrl = variantMediaUrl ?? pFeatured?.media?.url ?? pFirst?.media?.url ?? "";
+
+  // Parse attributes array into key-value map
+  const attributesMap: Record<string, string> = {};
+  item.variant.attributes?.forEach((attr) => {
+    const attrName = attr.attributeValue?.attribute?.name;
+    const attrVal = attr.attributeValue?.value;
+    if (attrName && attrVal) {
+      attributesMap[attrName] = attrVal;
+    }
+  });
+
+  const optionSummary = Object.values(attributesMap).filter(Boolean).join(", ");
+  const finalName = optionSummary ? `${p.name} (${optionSummary})` : p.name;
+
   const priceNum = Number(item.variant.price);
   const variantDiscounted = item.variant.discountedPrice;
   const productDiscounted = (p as { discountPrice?: string | number | null }).discountPrice;
@@ -35,17 +57,17 @@ export function mapBackendCartItem(item: BackendCartItem): CartItem {
   return {
     id: item.id,
     slug: p.slug,
-    name: p.name,
+    name: finalName,
     price: showOriginal ? discountNum : priceNum,
-    image: resolveImageUrl(featured?.media.url ?? first?.media.url ?? ""),
+    image: resolveImageUrl(finalImageUrl),
     description: p.description ?? '',
-    color: attributes.Color ?? attributes.Colour ?? attributes.color ?? '',
-    size: attributes.Size ?? attributes.size ?? '',
+    color: attributesMap.Color ?? attributesMap.Colour ?? attributesMap.color ?? '',
+    size: attributesMap.Size ?? attributesMap.size ?? '',
     quantity: item.quantity,
     productId: p.id,
     variantId: item.variantId,
-    attributes,
-    ...attributes,
+    attributes: attributesMap,
+    ...attributesMap,
   };
 }
 
@@ -67,13 +89,13 @@ export function addCartItem(
   });
 }
 
-export function updateCartItemQuantity(
+export function updateCartItemApi(
   cartItemId: string,
-  quantity: number,
+  updates: { quantity?: number; variantId?: string },
 ): Promise<BackendCartResponse> {
   return authFetch<BackendCartResponse>(`/cart/items/${cartItemId}`, {
     method: "PATCH",
-    body: JSON.stringify({ quantity }),
+    body: JSON.stringify(updates),
   });
 }
 

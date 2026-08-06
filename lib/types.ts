@@ -46,7 +46,20 @@ export interface BackendCartItem {
     productId: string;
     discountAmount?: string | number | null;
     discountedPrice?: string | number | null;
-    attributes?: Record<string, string>;
+    media?: { id: string; isFeatured: boolean; sortOrder: number; media: { url: string; type: string } }[];
+    attributes?: {
+      id: string;
+      variantId: string;
+      attributeValueId: string;
+      attributeValue: {
+        id: string;
+        value: string;
+        attribute: {
+          id: string;
+          name: string;
+        };
+      };
+    }[];
     product: {
       id: string;
       name: string;
@@ -69,12 +82,26 @@ export interface BackendCartResponse {
 export interface CartContextValue {
   items: CartItem[];
   itemCount: number;
+  initialised: boolean;
   addItem: (
     item: Omit<CartItem, "quantity"> & { quantity?: number },
     options?: { silent?: boolean }
   ) => void | Promise<void>;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
+  updateCartItem: (
+    itemId: string,
+    updates: {
+      quantity?: number;
+      variantId?: string;
+      name?: string;
+      price?: number;
+      image?: string;
+      color?: string;
+      size?: string;
+      attributes?: Record<string, string>;
+    }
+  ) => Promise<void>;
   clearCart: () => void;
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { LuPrinter } from "react-icons/lu";
 import { FiInfo } from "react-icons/fi";
@@ -8,19 +8,32 @@ import type { OrderResult } from "@/lib/types";
 import InvoiceModal from "@/components/invoice-modal";
 
 export default function ConfirmationPage() {
-  const [order] = useState<OrderResult | null>(() => {
-    if (typeof window === "undefined") return null;
+  const [order, setOrder] = useState<OrderResult | null>(null);
+  const [hasMounted, setHasMounted] = useState(false);
+  const [invoiceOpen, setInvoiceOpen] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
     const stored = sessionStorage.getItem("orderResult");
     if (stored) {
       try {
-        return JSON.parse(stored) as OrderResult;
+        setOrder(JSON.parse(stored) as OrderResult);
       } catch {
-        return null;
+        // Ignore
       }
     }
-    return null;
-  });
-  const [invoiceOpen, setInvoiceOpen] = useState(false);
+  }, []);
+
+  if (!hasMounted) {
+    return (
+      <main className="grow bg-white w-full min-h-screen flex items-center justify-center">
+        <div className="animate-pulse flex flex-col items-center gap-4">
+          <div className="h-8 w-48 bg-stone-200 rounded-full" />
+          <div className="h-4 w-64 bg-stone-100 rounded-full" />
+        </div>
+      </main>
+    );
+  }
 
   if (!order) {
     return (

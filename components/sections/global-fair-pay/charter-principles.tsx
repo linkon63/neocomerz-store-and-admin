@@ -79,7 +79,7 @@ export default function CharterPrinciples() {
               <div className="text-neutral-400 text-base md:text-lg font-normal font-['Bembo_Std'] uppercase leading-6">
                 The Charter
               </div>
-              <h2 className="self-stretch justify-start text-neutral-600 text-4xl md:text-5xl lg:text-6xl font-normal font-['Bembo_Std'] leading-tight lg:leading-[56px]">
+              <h2 className="self-stretch justify-start text-khaki-gold text-4xl md:text-5xl lg:text-6xl font-normal font-['Bembo_Std'] leading-tight lg:leading-[56px]">
                 Eight Articles, One Standard
               </h2>
               <div className="self-stretch justify-start text-zinc-600 text-base lg:text-lg font-normal font-['Bembo_Std'] leading-relaxed lg:leading-7">
@@ -117,7 +117,7 @@ export default function CharterPrinciples() {
                     <div className="justify-start text-neutral-500 text-[10px] md:text-xs font-medium font-['Gotham'] leading-4">
                       Article.
                     </div>
-                    <div className="justify-start text-neutral-800 text-2xl md:text-3xl lg:text-4xl font-normal font-['Bembo_Std'] leading-tight">
+                    <div className="justify-start text-khaki-gold text-2xl md:text-3xl lg:text-4xl font-normal font-['Bembo_Std'] leading-tight">
                       {art.roman}
                     </div>
                   </div>

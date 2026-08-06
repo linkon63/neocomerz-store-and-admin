@@ -15,7 +15,7 @@ import { useWishlist } from "./wishlist-provider";
 import {
   getCart,
   addCartItem,
-  updateCartItemQuantity,
+  updateCartItemApi,
   removeCartItem,
   mapBackendCart,
 } from "@/lib/cart-api";
@@ -47,7 +47,7 @@ function clearLocalCart() {
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const { items: wishlistItems, toggleWishlist } = useWishlist();
   const [items, setItems] = useState<CartItem[]>([]);
   const [initialised, setInitialised] = useState(false);
@@ -83,6 +83,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (initialised) return;
+    if (authLoading) return;
 
     if (isAuthenticated) {
       mergeLocalCartToServer().finally(() => setInitialised(true));
@@ -90,7 +91,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setItems(loadLocalCart());
       setInitialised(true);
     }
-  }, [isAuthenticated, initialised, mergeLocalCartToServer]);
+  }, [isAuthenticated, initialised, authLoading, mergeLocalCartToServer]);
 
   useEffect(() => {
     if (!initialised) return;
@@ -189,7 +190,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       } else {
         setItems((prev) => {
           const next = prev.filter(
-            (i) => i.id === itemId || (i.variantId && i.variantId === itemId) || (i.variantId == null && i.slug === itemId),
+            (i) => !(i.id === itemId || (i.variantId && i.variantId === itemId) || (i.variantId == null && i.slug === itemId)),
           );
           saveLocalCart(next);
           return next;
@@ -210,7 +211,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const target = items.find((i) => i.id === itemId || i.variantId === itemId);
         const cartItemId = target?.id;
         if (!cartItemId) return;
-        updateCartItemQuantity(cartItemId, quantity)
+        updateCartItemApi(cartItemId, { quantity })
           .then(() => {
             setItems((prev) => prev.map((i) => (i.id === cartItemId ? { ...i, quantity } : i)));
           })
@@ -219,7 +220,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setItems((prev) => {
           if (quantity <= 0) {
             const next = prev.filter(
-              (i) => i.id === itemId || (i.variantId && i.variantId === itemId) || (i.variantId == null && i.slug === itemId),
+              (i) => !(i.id === itemId || (i.variantId && i.variantId === itemId) || (i.variantId == null && i.slug === itemId)),
             );
             saveLocalCart(next);
             return next;
@@ -237,6 +238,62 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [isAuthenticated, items, removeItem],
   );
 
+  const updateCartItem = useCallback(
+    async (
+      itemId: string,
+      updates: {
+        quantity?: number;
+        variantId?: string;
+        name?: string;
+        price?: number;
+        image?: string;
+        color?: string;
+        size?: string;
+        attributes?: Record<string, string>;
+      }
+    ) => {
+      if (isAuthenticated) {
+        const target = items.find((i) => i.id === itemId || i.variantId === itemId);
+        const cartItemId = target?.id;
+        if (!cartItemId) return;
+        try {
+          const data = await updateCartItemApi(cartItemId, {
+            quantity: updates.quantity,
+            variantId: updates.variantId,
+          });
+          setItems(mapBackendCart(data));
+        } catch (err: any) {
+          toast.error(err.message || "Failed to update item");
+        }
+      } else {
+        setItems((prev) => {
+          const next = prev.map((i) => {
+            const currentId = i.id ?? i.variantId ?? i.slug;
+            if (currentId === itemId) {
+              return {
+                ...i,
+                slug: updates.variantId ? `${i.slug.split("-variant-")[0]}-variant-${updates.variantId}` : i.slug,
+                variantId: updates.variantId ?? i.variantId,
+                quantity: updates.quantity ?? i.quantity,
+                name: updates.name ?? i.name,
+                price: updates.price ?? i.price,
+                image: updates.image ?? i.image,
+                color: updates.color ?? i.color,
+                size: updates.size ?? i.size,
+                attributes: updates.attributes ?? i.attributes,
+                ...(updates.attributes ?? {}),
+              };
+            }
+            return i;
+          });
+          saveLocalCart(next);
+          return next;
+        });
+      }
+    },
+    [isAuthenticated, items],
+  );
+
   const clearCart = useCallback(() => {
     setItems([]);
     if (!isAuthenticated) {
@@ -248,7 +305,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, itemCount, addItem, removeItem, updateQuantity, clearCart }}
+      value={{ items, itemCount, initialised, addItem, removeItem, updateQuantity, updateCartItem, clearCart }}
     >
       {children}
     </CartContext.Provider>

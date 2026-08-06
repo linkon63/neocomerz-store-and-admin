@@ -296,7 +296,10 @@ export type Order = {
   orderType?: "retail" | "wholesale";
   placedAt: string;
   user?: { id: string; name: string; email: string; phone?: string | null } | null;
+  /** Relational address — present for registered-user orders */
   address?: CustomerAddress | null;
+  /** JSON address stored inline — present for guest orders */
+  shippingAddress?: CustomerAddress | null;
   items?: OrderItem[];
   payments?: { id: string; amount: string | number; method: string; status: string }[];
 };

@@ -196,22 +196,29 @@ export function OrderDetailPanel({
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-slate-400" />
             Shipping Address
           </h3>
-          <p className="text-xs font-semibold text-slate-700 leading-relaxed">
-            {order.address
-              ? [
-                  order.address.fullName || order.user?.name,
-                  order.address.phone || order.user?.phone,
-                  order.address.addressLine1,
-                  order.address.addressLine2,
-                  order.address.city,
-                  order.address.state,
-                  order.address.postalCode,
-                  order.address.country,
-                ]
-                  .filter(Boolean)
-                  .join(", ") || "No address details available"
-              : "No address details available"}
-          </p>
+          {(() => {
+            const addr = order.address ?? order.shippingAddress;
+            if (!addr) return <p className="text-xs font-semibold text-slate-700 leading-relaxed">No address details available</p>;
+            const lines = [
+              addr.fullName || order.user?.name,
+              addr.phone || order.user?.phone,
+              addr.addressLine1,
+              addr.addressLine2,
+              addr.city,
+              addr.state,
+              addr.postalCode,
+              addr.country,
+            ].filter(Boolean);
+            return lines.length > 0 ? (
+              <div className="space-y-0.5">
+                {lines.map((line, i) => (
+                  <p key={i} className="text-xs font-semibold text-slate-700 leading-relaxed">{line}</p>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs font-semibold text-slate-700 leading-relaxed">No address details available</p>
+            );
+          })()}
         </div>
       </div>
 
