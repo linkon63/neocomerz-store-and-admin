@@ -144,7 +144,9 @@ export default function CartPage() {
 
                             {item.description && (
                               <p className="hidden sm:block font-bembo text-stone-500 text-xs sm:text-sm mt-2 sm:mt-3 leading-relaxed line-clamp-2">
-                                {item.description}
+                                {item.description.length > 120
+                                  ? `${item.description.slice(0, 120)}…`
+                                  : item.description}
                               </p>
                             )}
 

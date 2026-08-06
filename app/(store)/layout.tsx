@@ -30,7 +30,7 @@ export default function StoreLayout({
           <Bottomfooter />
           <AuthModal />
           <BackToTop />
-          <Toaster richColors closeButton position="top-right" />
+          <Toaster richColors closeButton position="bottom-right" />
         </CartProvider>
       </WishlistProvider>
     </AuthProvider>

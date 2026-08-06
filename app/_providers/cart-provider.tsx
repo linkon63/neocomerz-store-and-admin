@@ -232,7 +232,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (!isAuthenticated) {
       clearLocalCart();
     }
-    toast.success("Cart cleared");
   }, [isAuthenticated]);
 
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
