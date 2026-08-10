@@ -146,10 +146,23 @@ export function useOrders({ fixedStatus }: UseOrdersOptions = {}) {
     const shipping = num(selected.shippingCost);
     const discount = num(selected.discount);
     const grand = num(selected.total);
-    const paid = (selected.payments ?? [])
-      .filter((p) => p.status === "success")
-      .reduce((sum, p) => sum + num(p.amount), 0);
-    return { subtotal, shipping, discount, grand, paid, due: Math.max(0, grand - paid) };
+
+    let paid = 0;
+    if (selected.paymentStatus === "paid") {
+      paid = grand;
+    } else if (selected.paymentStatus === "refunded") {
+      paid = 0;
+    } else {
+      paid = (selected.payments ?? [])
+        .filter((p) => p.status === "success")
+        .reduce((sum, p) => sum + num(p.amount), 0);
+    }
+
+    const due = (selected.paymentStatus === "paid" || selected.paymentStatus === "refunded")
+      ? 0
+      : Math.max(0, grand - paid);
+
+    return { subtotal, shipping, discount, grand, paid, due };
   }, [selected]);
 
   return {
