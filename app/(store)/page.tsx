@@ -7,6 +7,7 @@ import Brands from '@/components/sections/brands';
 import Instagram from '@/components/sections/instagram';
 import Testimonial from '@/components/sections/testimonial';
 import TeaCollection from '@/components/sections/ui/tea-collection';
+import TeaLifestyle from '@/components/sections/tea-lifestyle';
 import PresenceImage from '@/components/sections/ui/presence-image';
 import NobleBalance from '@/components/sections/ui/noble-balance';
 import WorldAssembly from '@/components/sections/ui/world-assembly';
@@ -57,6 +58,9 @@ export default function Home() {
       </ScrollAnimate>
       <ScrollAnimate variant="fade-in-up">
         <TeaCollection />
+      </ScrollAnimate>
+      <ScrollAnimate variant="fade-in-up">
+        <TeaLifestyle />
       </ScrollAnimate>
       <ScrollAnimate variant="fade-in-up">
         <Brands />

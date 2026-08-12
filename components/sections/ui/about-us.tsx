@@ -33,7 +33,7 @@ export default function AboutUs() {
                 </p>
               </div>
               <p className="text-white text-4xl font-normal font-['Bembo_Std'] leading-10">
-                With roots from the city of London spanning hundreds of years, London Tea Exchange offers one of the widest selection of single estate premium tea&apos;s from across the globe. Our unique tea collections are sourced directly from over forty different countries and includes some of the rarest teas in the world, many of which are exclusive to London Tea Exchange.
+                With roots from the city of London spanning hundreds of years, London Tea Exchange offers one of the widest selection of single estate premium teas from across the globe. Our unique tea collections are sourced directly from over forty different countries and includes some of the rarest teas in the world, many of which are exclusive to London Tea Exchange.
               </p>
             </div>
 
