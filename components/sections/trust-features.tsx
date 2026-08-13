@@ -28,7 +28,7 @@ export default function TrustFeatures() {
       <div className="max-w-6xl mx-auto px-5 w-full flex flex-col justify-start items-center gap-12 sm:gap-16">
         {/* Title */}
         <div className="self-stretch flex flex-col justify-start items-center">
-          <div className="text-center justify-start text-stone-400 text-5xl sm:text-6xl font-normal font-['Bembo_Std'] leading-[56px]">
+          <div className="text-center justify-start text-khaki-gold text-5xl sm:text-6xl font-normal font-['Bembo_Std'] leading-[56px]">
             Why Choose
           </div>
           <div className="text-center justify-start text-neutral-800 text-5xl sm:text-6xl font-normal font-['Snell_Roundhand_LT_Std'] leading-[56px]">

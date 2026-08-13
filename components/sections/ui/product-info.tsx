@@ -129,7 +129,7 @@ export default function ProductInfo({
       slug: productSlug ?? productId,
       name: finalName,
       price: finalPrice,
-      image: productData.image,
+      image: selectedVariant?.image ?? productData.image,
       description: productData.description,
       color: attributes.Color ?? attributes.Colour ?? attributes.color ?? '',
       size: attributes.Size ?? attributes.size ?? '',

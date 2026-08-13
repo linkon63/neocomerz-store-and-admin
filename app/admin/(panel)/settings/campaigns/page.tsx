@@ -52,7 +52,6 @@ export default function CampaignsPage() {
 
   const { discounts } = useDiscounts();
   const { sections } = useSections();
-  
 
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; campaign: Campaign | null }>({
     open: false,

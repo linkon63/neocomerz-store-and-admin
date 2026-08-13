@@ -106,9 +106,13 @@ export default function Navigation() {
         )}
       </Link>
 
-      {item.hasDropdown && isTeasHovered && (
+      {item.hasDropdown && (
         <div 
-          className="absolute left-1/2 -translate-x-1/2 top-full pt-3 z-50"
+          className={`absolute left-1/2 -translate-x-1/2 top-full pt-3 z-50 transition-all duration-300 ease-out ${
+            isTeasHovered
+              ? "opacity-100 translate-y-0 visible pointer-events-auto"
+              : "opacity-0 -translate-y-2 invisible pointer-events-none"
+          }`}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >

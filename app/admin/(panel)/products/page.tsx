@@ -484,17 +484,24 @@ function VariantsTabContent({
                       <span className={`font-bold text-xs ${stock > 0 ? "text-slate-900" : "text-rose-600"}`}>
                         {stock} pcs
                       </span>
-                      <span
-                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                          stock > 10
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80"
-                            : stock > 0
-                            ? "bg-amber-50 text-amber-700 border border-amber-200/80"
-                            : "bg-rose-50 text-rose-700 border border-rose-200/80"
-                        }`}
-                      >
-                        {stock > 10 ? "In Stock" : stock > 0 ? "Low Stock" : "Out of Stock"}
-                      </span>
+                      {(() => {
+                        const threshold = typeof v.stockAlertThreshold === "number" ? v.stockAlertThreshold : 10;
+                        const isOutOfStock = stock <= 0;
+                        const isLowStock = stock > 0 && stock <= threshold;
+                        return (
+                          <span
+                            className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                              isOutOfStock
+                                ? "bg-rose-50 text-rose-700 border border-rose-200/80"
+                                : isLowStock
+                                ? "bg-amber-50 text-amber-700 border border-amber-200/80"
+                                : "bg-emerald-50 text-emerald-700 border border-emerald-200/80"
+                            }`}
+                          >
+                            {isOutOfStock ? "Out of Stock" : isLowStock ? "Low Stock" : "In Stock"}
+                          </span>
+                        );
+                      })()}
                     </div>
                   </td>
                   <td className="px-4 py-3.5 align-middle text-right whitespace-nowrap">
@@ -1272,6 +1279,20 @@ export default function ProductsPage() {
                   const maxPrice = prices.length > 0 ? Math.max(...prices) : Number(variant?.price || 0);
                   const hasPriceRange = minPrice !== maxPrice;
 
+                  const variantsList = product.variants ?? [];
+                  const outOfStockCount = variantsList.filter(v => Number(v.stockQuantity || 0) <= 0).length;
+                  const lowStockCount = variantsList.filter(v => {
+                    const s = Number(v.stockQuantity || 0);
+                    return s > 0 && s <= Number(v.stockAlertThreshold || 0);
+                  }).length;
+
+                  const hasOutOfStockAlert = isVariantProduct
+                    ? outOfStockCount > 0
+                    : totalStock <= 0;
+                  const hasLowStockAlert = isVariantProduct
+                    ? lowStockCount > 0
+                    : (totalStock > 0 && totalStock <= Number(variant?.stockAlertThreshold ?? 10));
+
                   return (
                     <React.Fragment key={product.id}>
                       <tr className="hover:bg-blue-50/30 transition-all duration-200 group">
@@ -1307,7 +1328,7 @@ export default function ProductsPage() {
                               )}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
+                              <div className="flex flex-wrap items-center gap-2">
                                 <p className="text-sm font-semibold text-slate-900 truncate max-w-[320px] group-hover:text-blue-600 transition-colors">
                                   {product.name}
                                 </p>
@@ -1317,6 +1338,15 @@ export default function ProductsPage() {
                                     {variantCount} Variants
                                   </span>
                                 )}
+                                {hasOutOfStockAlert ? (
+                                  <span className="whitespace-nowrap shrink-0 inline-flex items-center gap-1 rounded bg-rose-50 px-1.5 py-0.5 text-[10px] font-semibold text-rose-800 border border-rose-200/60 shadow-3xs" title="Out of stock warning">
+                                    <span>🔴</span> Out of Stock
+                                  </span>
+                                ) : hasLowStockAlert ? (
+                                  <span className="whitespace-nowrap shrink-0 inline-flex items-center gap-1 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800 border border-amber-200/60 shadow-3xs" title="Low stock warning">
+                                    <span>🟠</span> Low Stock
+                                  </span>
+                                ) : null}
                               </div>
                               <p className="text-xs font-normal text-slate-400 mt-0.5">
                                 SKU: <span className="font-mono text-slate-500">{variant?.sku || product.slug}</span>
@@ -1332,14 +1362,55 @@ export default function ProductsPage() {
                         </td>
                         <td className="px-4 py-4">
                           <div>
-                            <div className="flex items-baseline gap-1">
-                              <span className={`text-sm font-semibold ${totalStock > 0 ? "text-slate-800" : "text-rose-600"}`}>
-                                {totalStock}
-                              </span>
-                              <span className="text-xs text-slate-400 font-normal">pcs</span>
+                            <div className="flex items-baseline gap-1.5 flex-wrap">
+                              <div className="flex items-baseline gap-1">
+                                <span className={`text-sm font-semibold ${totalStock > 0 ? "text-slate-800" : "text-rose-600"}`}>
+                                  {totalStock}
+                                </span>
+                                <span className="text-xs text-slate-400 font-normal">pcs</span>
+                              </div>
+                              {!isVariantProduct && (
+                                <>
+                                  {totalStock <= 0 ? (
+                                    <span className="whitespace-nowrap inline-flex items-center gap-1 rounded bg-rose-50 px-1.5 py-0.5 text-[10px] font-semibold text-rose-800 border border-rose-200/60 shadow-3xs">
+                                      <span>🔴</span> Out of Stock
+                                    </span>
+                                  ) : totalStock <= Number(variant?.stockAlertThreshold ?? 10) ? (
+                                    <span className="whitespace-nowrap inline-flex items-center gap-1 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800 border border-amber-200/60 shadow-3xs">
+                                      <span>🟠</span> Low Stock
+                                    </span>
+                                  ) : null}
+                                </>
+                              )}
                             </div>
                             {isVariantProduct && (
-                              <p className="text-[10px] font-normal text-slate-400">across {variantCount} variants</p>
+                              <div className="mt-0.5">
+                                <p className="text-[10px] font-normal text-slate-400 leading-normal">across {variantCount} variants</p>
+                                {totalStock <= 0 ? (
+                                  <div className="mt-1">
+                                    <span className="whitespace-nowrap inline-flex items-center gap-1 rounded bg-rose-50 px-1.5 py-0.5 text-[10px] font-semibold text-rose-800 border border-rose-200/60 shadow-3xs">
+                                      <span>🔴</span> Out of Stock
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <div className="flex flex-col gap-1 mt-1">
+                                    {outOfStockCount > 0 && (
+                                      <div>
+                                        <span className="whitespace-nowrap inline-flex items-center gap-1 rounded bg-rose-50 px-1.5 py-0.5 text-[10px] font-semibold text-rose-800 border border-rose-200/60 shadow-3xs">
+                                          <span>🔴</span> {outOfStockCount} variant{outOfStockCount > 1 ? "s" : ""} out of stock
+                                        </span>
+                                      </div>
+                                    )}
+                                    {lowStockCount > 0 && (
+                                      <div>
+                                        <span className="whitespace-nowrap inline-flex items-center gap-1 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800 border border-amber-200/60 shadow-3xs">
+                                          <span>🟠</span> {lowStockCount} variant{lowStockCount > 1 ? "s" : ""} low stock
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
                             )}
                           </div>
                         </td>
