@@ -45,14 +45,14 @@ export default function GiftItem() {
         <div className="self-stretch flex flex-col justify-center items-center gap-3 overflow-hidden mb-12 md:mb-16">
           <h2 className="inline-flex justify-center flex-wrap items-center gap-1.5">
             <span className="text-white text-4xl md:text-5xl lg:text-6xl font-normal font-['Bembo_Std'] leading-tight lg:leading-[56px]">
-              Gifting
+              Gift
             </span>
             <span className="text-white text-4xl md:text-5xl lg:text-6xl font-normal font-['Snell_Roundhand_LT_Std'] leading-tight lg:leading-[56px]">
-              Items
+              Ideas
             </span>
           </h2>
-          <p className="max-w-[700px] text-center text-white text-base lg:text-lg font-normal font-['Bembo_Std'] leading-6 mx-auto">
-            What better way to enjoy a warming cup of tea than when served with a beautiful tea gift set? Enjoy your tea with a Teabloom&apos;s tea gift set.
+          <p className="max-w-[750px] text-center text-white text-base lg:text-lg font-normal font-['Bembo_Std'] leading-relaxed mx-auto">
+            Explore our delightful selection of tea gift ideas perfect for every tea lover in your life! From unique blends to premium accessories, we have something special for everyone. Shop our collection now and find the perfect gift that will warm their hearts and elevate their tea experience!
           </p>
         </div>
 
