@@ -18,13 +18,23 @@ export default function ContactPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    
-    // Simulate high-end submission instantly on client side
-    setTimeout(() => {
-      console.log('Contact Form Submitted (Client-only):', formData);
+
+    try {
+      const response = await fetch('/api/resend/contact-us', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to submit contact inquiry.');
+      }
+
       toast.success('Thank you for contacting us! Your inquiry has been submitted.');
       setFormData({
         firstName: '',
@@ -33,8 +43,12 @@ export default function ContactPage() {
         phoneNumber: '',
         message: '',
       });
+    } catch (err: any) {
+      console.error('Contact form submission failed:', err);
+      toast.error(err.message || 'Failed to submit. Please try again.');
+    } finally {
       setSubmitting(false);
-    }, 600);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
