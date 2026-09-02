@@ -10,12 +10,25 @@ import AuthModal from "@/components/auth-modal";
 import BackToTop from "@/components/ui/back-to-top";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Toaster } from "sonner";
+import ComingSoon from "@/components/coming-soon";
+import { isComingSoonActive } from "@/lib/site-config";
 
 export default function StoreLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isComingSoon = isComingSoonActive();
+
+  if (isComingSoon) {
+    return (
+      <>
+        <ComingSoon />
+        <Toaster richColors closeButton position="bottom-right" />
+      </>
+    );
+  }
+
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ""}>
     <AuthProvider>
@@ -37,3 +50,4 @@ export default function StoreLayout({
     </GoogleOAuthProvider>
   );
 }
+
