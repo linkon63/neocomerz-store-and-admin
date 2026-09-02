@@ -11,9 +11,7 @@ import {
 import {
   IoCallOutline,
   IoLocationOutline,
-  IoMailOutline,
   IoSparklesOutline,
-  IoCheckmarkCircleOutline,
 } from "react-icons/io5";
 
 interface TimeLeft {
@@ -24,10 +22,6 @@ interface TimeLeft {
 }
 
 export default function ComingSoon() {
-  const [email, setEmail] = useState("");
-  const [subscribed, setSubscribed] = useState(false);
-  const [loading, setLoading] = useState(false);
-
   // Set target launch date (30 days from current date or custom date)
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({
     days: 28,
@@ -58,18 +52,6 @@ export default function ComingSoon() {
 
     return () => clearInterval(interval);
   }, []);
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !email.includes("@")) return;
-
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSubscribed(true);
-      setEmail("");
-    }, 800);
-  };
 
   return (
     <main className="min-h-screen w-full relative bg-[#171A17] text-white flex flex-col justify-between overflow-x-hidden select-none font-gotham">
@@ -166,45 +148,8 @@ export default function ComingSoon() {
           ))}
         </div>
 
-        {/* VIP Invitation / Newsletter Form */}
-        <div className="w-full max-w-md mx-auto mb-10">
-          {subscribed ? (
-            <div className="flex items-center justify-center gap-3 p-4 rounded-xl bg-[#C5A880]/15 border border-[#C5A880]/40 text-white animate-fade-in">
-              <IoCheckmarkCircleOutline className="w-6 h-6 text-[#C5A880] shrink-0" />
-              <div className="text-left text-xs sm:text-sm">
-                <p className="font-semibold text-[#C5A880]">You are on the VIP Guestlist</p>
-                <p className="text-stone-300">We will notify you the moment our doors open.</p>
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={handleSubscribe} className="relative flex flex-col sm:flex-row gap-2 sm:gap-0">
-              <div className="relative flex-grow">
-                <IoMailOutline className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 w-4 h-4" />
-                <input
-                  type="email"
-                  required
-                  placeholder="Enter your email for VIP launch access..."
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3.5 bg-white/[0.06] backdrop-blur-md border border-white/15 rounded-xl sm:rounded-r-none text-white text-xs sm:text-sm placeholder:text-stone-400 outline-none focus:border-[#C5A880] transition-colors"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-6 py-3.5 bg-gradient-to-r from-[#C5A880] to-[#b4a676] hover:from-[#d2c494] hover:to-[#C5A880] text-[#171A17] font-semibold text-xs sm:text-sm uppercase tracking-wider rounded-xl sm:rounded-l-none transition-all duration-300 shrink-0 cursor-pointer disabled:opacity-50"
-              >
-                {loading ? "Joining..." : "Notify Me"}
-              </button>
-            </form>
-          )}
-          <p className="text-[11px] text-stone-400 mt-2.5">
-            Be the first to receive exclusive preview access & private tasting invites.
-          </p>
-        </div>
-
         {/* Feature Highlights */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-3xl pt-4 border-t border-white/5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-3xl pt-6 border-t border-white/10">
           <div className="flex items-center justify-center sm:justify-start gap-3 p-3 rounded-lg bg-white/[0.02]">
             <span className="text-[#C5A880] text-lg">⚜</span>
             <div className="text-left">
